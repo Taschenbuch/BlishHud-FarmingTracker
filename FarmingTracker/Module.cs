@@ -8,7 +8,6 @@ using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
-using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using Point = Microsoft.Xna.Framework.Point;
@@ -31,14 +30,9 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         {
         }
 
-        protected override void DefineSettings(SettingCollection settings)
-        {
-           
-        }
-
         protected override async Task LoadAsync()
         {
-            _exampleWindow = new StandardWindow(
+            _farmingTrackerWindow = new StandardWindow(
                 AsyncTexture2D.FromAssetId(155979),
                 new Rectangle(40, 26, 913, 691),
                 new Rectangle(70, 71, 839, 605))
@@ -50,8 +44,6 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            _exampleWindow.Show();
-
             _farmedItemsFlowPanel = new FlowPanel()
             {
                 Title = "farmed items",
@@ -59,10 +51,12 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 CanCollapse = true,
                 Width = 862,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _exampleWindow
+                Parent = _farmingTrackerWindow
             };
+
+            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindow);
         }
-        
+
         protected override void Update(GameTime gameTime)
         {
             _updateRunningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -89,6 +83,12 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     Logger.Debug("TrackItems already running"); // todo weg
                 }
             }
+        }
+
+        protected override void Unload()
+        {
+            _trackerCornerIcon?.Dispose();
+            _farmingTrackerWindow?.Dispose();
         }
 
         private async void TrackItems()
@@ -227,13 +227,10 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             }
         }
 
-        protected override void Unload()
-        {
-            _exampleWindow?.Dispose();
-        }
-
-        private StandardWindow _exampleWindow;
+        private StandardWindow _farmingTrackerWindow;
         private FlowPanel _farmedItemsFlowPanel;
+
+        private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
         private double _updateRunningTimeInMilliseconds;
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
