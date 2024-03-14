@@ -2,22 +2,21 @@
 using Gw2Sharp.WebApi.V2.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
-    public class ItemSearchService
+    public class ItemSearcher
     {
         public static List<ItemX> GetItemIdsAndCounts(
-            Task<IApiV2ObjectList<Character>> charactersTask,
-            Task<IApiV2ObjectList<AccountItem>> bankTask,
-            Task<IApiV2ObjectList<AccountItem>> sharedInventoryTask,
-            Task<IApiV2ObjectList<AccountMaterial>> materialStorageTask)
+            IApiV2ObjectList<Character> apiCharacters,
+            IApiV2ObjectList<AccountItem> apiBankItems,
+            IApiV2ObjectList<AccountItem> apiSharedInventoryItems,
+            IApiV2ObjectList<AccountMaterial> apiMaterialStorageItems)
         {
-            var inventoryItems = GetItems(GetAllCharactersInventoryItems(charactersTask));
-            var bankItems = GetItems(bankTask.Result.ToList());
-            var sharedInventoryItems = GetItems(sharedInventoryTask.Result.ToList());
-            var materialStorageItems = GetItems(materialStorageTask.Result.ToList());
+            var inventoryItems = GetItems(GetAllCharactersInventoryItems(apiCharacters));
+            var bankItems = GetItems(apiBankItems.ToList());
+            var sharedInventoryItems = GetItems(apiSharedInventoryItems.ToList());
+            var materialStorageItems = GetItems(apiMaterialStorageItems.ToList());
 
             var items = new List<ItemX>();
             items.AddRange(inventoryItems);
@@ -26,11 +25,12 @@ namespace FarmingTracker
             items.AddRange(materialStorageItems);
 
             var distinctItems = items
-                .GroupBy(i => i.ApiItemId)
+                .GroupBy(i => i.ApiId)
                 .Select(g => new ItemX
                 {
-                    ApiItemId = g.Key,
-                    Count = g.Sum(i => i.Count)
+                    ApiId = g.Key,
+                    Count = g.Sum(i => i.Count),
+                    ApiIdType = ApiIdType.Item,
                 });
 
             return distinctItems.ToList();
@@ -41,7 +41,7 @@ namespace FarmingTracker
             foreach (var accountItem in accountItems.Where(IsNotEmptyItemSlot))
                 yield return new ItemX()
                 {
-                    ApiItemId = accountItem.Id,
+                    ApiId = accountItem.Id,
                     Count = accountItem.Count,
                 };
         }
@@ -51,21 +51,21 @@ namespace FarmingTracker
             foreach (var materialItem in materialItems)
                 yield return new ItemX()
                 {
-                    ApiItemId = materialItem.Id,
+                    ApiId = materialItem.Id,
                     Count = materialItem.Count,
                 };
         }
 
-        private static List<AccountItem> GetAllCharactersInventoryItems(Task<IApiV2ObjectList<Character>> charactersTask)
+        private static List<AccountItem> GetAllCharactersInventoryItems(IApiV2ObjectList<Character> apiCharacters)
         {
             var allCharactersInventoryItems = new List<AccountItem>();
 
-            foreach (var character in charactersTask.Result)
+            foreach (var apiCharacter in apiCharacters)
             {
-                if (character.Bags == null)
+                if (apiCharacter.Bags == null)
                     continue;
 
-                var singleCharacterInventoryItems = GetSingleCharacterInventoryItems(character);
+                var singleCharacterInventoryItems = GetSingleCharacterInventoryItems(apiCharacter);
                 allCharactersInventoryItems.AddRange(singleCharacterInventoryItems);
             }
 

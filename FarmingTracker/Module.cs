@@ -14,10 +14,10 @@ using Microsoft.Xna.Framework;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace FarmingTracker // todo x rename (überall dann anpassen
+namespace FarmingTracker // todo rename (überall dann anpassen
 {
     [Export(typeof(Blish_HUD.Modules.Module))]
-    public class Module : Blish_HUD.Modules.Module // todo x rename
+    public class Module : Blish_HUD.Modules.Module // todo rename
     {
         private static readonly Logger Logger = Logger.GetLogger<Module>();
 
@@ -67,17 +67,17 @@ namespace FarmingTracker // todo x rename (überall dann anpassen
         {
             _updateRunningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (_updateRunningTimeInMilliseconds > 5 * 1000)
+            if (_updateRunningTimeInMilliseconds > 5 * 1000) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
             {
                 _updateRunningTimeInMilliseconds = 0;
 
-                if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo x sauberer lösen
+                if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen
                 {
-                    Logger.Debug("token waiting..."); // todo x weg
+                    Logger.Debug("token waiting..."); // todo weg
                     return;
                 }
 
-                Logger.Debug("TrackItems try..."); // todo x weg
+                Logger.Debug("TrackItems try..."); // todo weg
 
                 if (!_taskIsRunning)
                 {
@@ -86,14 +86,14 @@ namespace FarmingTracker // todo x rename (überall dann anpassen
                 }
                 else
                 {
-                    Logger.Debug("TrackItems already running"); // todo x weg
+                    Logger.Debug("TrackItems already running"); // todo weg
                 }
             }
         }
 
         private async void TrackItems()
         {
-            Logger.Debug("TrackItems start"); // todo x weg
+            Logger.Debug("TrackItems start"); // todo weg
 
             try
             {
@@ -102,70 +102,101 @@ namespace FarmingTracker // todo x rename (überall dann anpassen
                 var bankTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Bank.GetAsync();
                 var sharedInventoryTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Inventory.GetAsync();
                 var materialStorageTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Materials.GetAsync();
+                var walletTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Wallet.GetAsync();
 
                 var apiResponseTasks = new List<Task>
                 {
                     charactersTask,
                     bankTask,
                     sharedInventoryTask,
-                    materialStorageTask
+                    materialStorageTask,
+                    walletTask
                 };
 
-                await Task.WhenAll(apiResponseTasks); // todo x log warn exception wie session tracker
-                Logger.Debug("get items done"); // todo x weg
-                var items = ItemSearchService.GetItemIdsAndCounts(charactersTask, bankTask, sharedInventoryTask, materialStorageTask);
+                await Task.WhenAll(apiResponseTasks); // todo log warn exception wie session tracker
+                Logger.Debug("get items done"); // todo weg
+                var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
+                var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
 
                 // initialize snapshotget all items on account
-                var isFirstSnapshot = !_allAccountItemsWhenTrackingStarted.Any();
+                var isFirstSnapshot = !_itemsWhenTrackingStarted.Any();
                 if (isFirstSnapshot)
                 {
-                    Logger.Debug("set init snapshot"); // todo x weg
-                    _allAccountItemsWhenTrackingStarted.AddRange(items);
+                    Logger.Debug("set init snapshot"); // todo weg
+                    _itemsWhenTrackingStarted.AddRange(items);
+                    _currenciesWhenTrackingStarted.AddRange(currencies);
                     return;
                 }
 
-                Logger.Debug("create diff"); // todo x weg
-                var oldAndNewItems = new List<ItemX>();
-                oldAndNewItems.AddRange(items);
-                oldAndNewItems.AddRange(_allAccountItemsWhenTrackingStarted);
+                Logger.Debug("create diff"); // todo weg
+                var farmedItems = DetermineFarmedItems(items, _itemsWhenTrackingStarted);
+                var farmedCurrencies = DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
-                var farmedItems = oldAndNewItems
-                    .GroupBy(i => i.ApiItemId)
-                    .Select(g =>
-                        new ItemX
-                        {
-                            ApiItemId = g.Key,
-                            Count = g.First().Count - g.Last().Count,
-                        })
-                    .Where(i => i.Count != 0)
-                    .ToList();
-
-                // add AssetId, Name, Description
-                var farmedItemIds = farmedItems.Select(i => i.ApiItemId).ToList();
-                var hasFarmedNoItems = !farmedItemIds.Any();
-                if (hasFarmedNoItems)
+                var hasFarmedNothingNew = !farmedItems.Any() && !farmedCurrencies.Any();
+                if (hasFarmedNothingNew)
                     return;
 
-                var apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
-                foreach (var apiItem in apiItems)
-                {
-                    var matchingItem = farmedItems.Single(i => i.ApiItemId == apiItem.Id); // todo x null check danach nötig?
-                    matchingItem.AssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
-                    matchingItem.Name = apiItem.Name;
-                    matchingItem.Description = apiItem.Description;
-                }
-
-                Logger.Debug("update ui"); // todo x weg
-                // show items in UI
                 _farmedItems.Clear();
-                _farmedItems.AddRange(farmedItems);
+
+                Logger.Debug("get name description icon asset id"); // todo weg
+                var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
+                if (farmedCurrencyIds.Any())
+                {
+                    var apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
+                    foreach (var apiCurrency in apiCurrencies)
+                    {
+                        var matchingCurrency = farmedCurrencies.Single(i => i.ApiId == apiCurrency.Id); // todo null check danach nötig?
+                        matchingCurrency.Name = apiCurrency.Name;
+                        matchingCurrency.Description = apiCurrency.Description;
+                        matchingCurrency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
+                    }
+
+                    _farmedItems.AddRange(farmedCurrencies);
+                }
+
+                var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
+                if (farmedItemIds.Any())
+                {
+                    var apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
+                    foreach (var apiItem in apiItems)
+                    {
+                        var matchingItem = farmedItems.Single(i => i.ApiId == apiItem.Id); // todo null check danach nötig?
+                        matchingItem.Name = apiItem.Name;
+                        matchingItem.Description = apiItem.Description;
+                        matchingItem.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
+                    }
+
+                    _farmedItems.AddRange(farmedItems);
+                }
+
+
+                Logger.Debug("update ui"); // todo weg
                 UpdateUi();
             }
             finally
             {
-                Logger.Debug("TrackItems end"); // todo x weg
+                Logger.Debug("TrackItems end"); // todo weg
                 _taskIsRunning = false;
             }
+        }
+
+        private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems)
+        {
+            var items = new List<ItemX>();
+            items.AddRange(newItems);
+            items.AddRange(oldItems);
+
+            var farmedItems = items
+                .GroupBy(i => i.ApiId)
+                .Select(g =>
+                    new ItemX
+                    {
+                        ApiId = g.Key,
+                        Count = g.First().Count - g.Last().Count,
+                    })
+                .Where(i => i.Count != 0)
+                .ToList();
+            return farmedItems;
         }
 
         private void UpdateUi()
@@ -181,9 +212,10 @@ namespace FarmingTracker // todo x rename (überall dann anpassen
                     Parent = _farmedItemsFlowPanel
                 };
 
-                new Image(AsyncTexture2D.FromAssetId(farmedItem.AssetId))
+                new Image(AsyncTexture2D.FromAssetId(farmedItem.IconAssetId))
                 {
                     BasicTooltipText = $"{farmedItem.Name}\n{farmedItem.Description}",
+                    Size = new Point(40),
                     Parent = itemContainer
                 };
 
@@ -202,9 +234,10 @@ namespace FarmingTracker // todo x rename (überall dann anpassen
 
         private StandardWindow _exampleWindow;
         private FlowPanel _farmedItemsFlowPanel;
-        private bool _taskIsRunning; // todo x anders lösen
+        private bool _taskIsRunning; // todo anders lösen
         private double _updateRunningTimeInMilliseconds;
-        private readonly List<ItemX> _allAccountItemsWhenTrackingStarted = new List<ItemX>();
+        private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
+        private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
     }
 }
