@@ -33,7 +33,7 @@ namespace FarmingTracker
                     ApiIdType = ApiIdType.Item,
                 });
 
-            return distinctItems.ToList();
+            return distinctItems.Where(i => i.Count != 0).ToList(); // e.g. materialStorage returns items even when count is 0.
         }
 
         private static IEnumerable<ItemX> GetItems(List<AccountItem> accountItems)
