@@ -132,9 +132,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 var farmedItems = DetermineFarmedItems(items, _itemsWhenTrackingStarted);
                 var farmedCurrencies = DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
-                var hasFarmedNothingNew = !farmedItems.Any() && !farmedCurrencies.Any();
-                if (hasFarmedNothingNew)
+                var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any(); // todo das kein fehler fall!
+                if (hasFarmedNothing)
+                {
+                    _farmedItems.Clear(); 
+                    UpdateUi();
                     return;
+                }
 
                 _farmedItems.Clear();
                 _farmedItems.AddRange(farmedCurrencies);
