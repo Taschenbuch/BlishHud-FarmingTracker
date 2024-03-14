@@ -137,11 +137,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     return;
 
                 _farmedItems.Clear();
+                _farmedItems.AddRange(farmedCurrencies);
+                _farmedItems.AddRange(farmedItems);
 
                 Logger.Debug("get name description icon asset id"); // todo weg
-                var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
-                if (farmedCurrencyIds.Any())
+                if (farmedCurrencies.Any())
                 {
+                    var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
                     var apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
                     foreach (var apiCurrency in apiCurrencies)
                     {
@@ -150,13 +152,11 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                         matchingCurrency.Description = apiCurrency.Description;
                         matchingCurrency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
                     }
-
-                    _farmedItems.AddRange(farmedCurrencies);
                 }
 
-                var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
-                if (farmedItemIds.Any())
+                if (farmedItems.Any())
                 {
+                    var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
                     var apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
                     foreach (var apiItem in apiItems)
                     {
@@ -165,10 +165,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                         matchingItem.Description = apiItem.Description;
                         matchingItem.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
                     }
-
-                    _farmedItems.AddRange(farmedItems);
                 }
-
 
                 Logger.Debug("update ui"); // todo weg
                 UpdateUi();
