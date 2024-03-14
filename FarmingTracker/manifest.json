@@ -1,0 +1,50 @@
+{
+  "name": "Farming Tracker",
+  "version": "0.0.1",
+  "namespace": "ecksofa.farmingtracker",
+  "package": "FarmingTracker.dll",
+  "manifest_version": 1,
+
+  "description": "Farming tracker proof of concept.",
+  "dependencies": {
+    "bh.blishhud": ">=1.1.1"
+  },
+  "url": "https://github.com/Taschenbuch/BlishHud-FarmingTracker",
+  "contributors": [
+    {
+      "name": "Ecksofa",
+      "url": "https://github.com/Taschenbuch"
+    }
+  ],
+  "directories": [ "farming-tracker" ],
+  "api_permissions": {
+    "account": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "inventories": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "characters": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "tradingpost": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "wallet": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "builds": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+    "progression": {
+      "optional": false,
+      "details": "For tracking stats"
+    },
+  }
+}

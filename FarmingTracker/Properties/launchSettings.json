@@ -1,0 +1,24 @@
+{
+  "profiles": {
+    "powershell": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Dev\\blish\\Blish.HUD\\Blish HUD.exe",
+      "commandLineArgs": "--debug --process WindowsTerminal --window CASCADIA_HOSTING_WINDOW_CLASS --module \"$(ProjectDir)\\$(BaseOutputPath)\\$(Configuration)/$(TargetFramework)\\$(TargetName).bhm\" --settings \"..\\Settings_$(TargetName)\""
+    },
+    "gw2": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Dev\\blish\\Blish.HUD\\Blish HUD.exe",
+      "commandLineArgs": "--debug --module \"$(ProjectDir)\\$(BaseOutputPath)\\$(Configuration)/$(TargetFramework)\\$(TargetName).bhm\" --settings \"..\\Settings_$(TargetName)\""
+    },
+    "gw2_apimock": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Dev\\blish\\Blish.HUD_1.1.1_localhost\\Blish HUD.exe",
+      "commandLineArgs": "--debug --module \"$(ProjectDir)\\$(BaseOutputPath)\\$(Configuration)/$(TargetFramework)\\$(TargetName).bhm\" --settings \"..\\Settings_$(TargetName)\""
+    },
+    "prerelease_test": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Dev\\blish\\Blish.HUD\\Blish HUD.exe",
+      "commandLineArgs": "--debug --process WindowsTerminal --window CASCADIA_HOSTING_WINDOW_CLASS --module \"$(ProjectDir)\\$(BaseOutputPath)\\$(Configuration)/$(TargetFramework)\\$(TargetName).bhm\" --settings \"..\\Settings_$(TargetName)_prerelease\""
+    }
+  }
+}
