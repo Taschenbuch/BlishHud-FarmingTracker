@@ -183,10 +183,21 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems)
         {
+            var oldItemIds = oldItems.Select(i => i.ApiId).ToList();
+            var newItemIds = newItems.Select(i => i.ApiId).ToList();
+
+            var idsMissingInOldItems = newItemIds.Except(oldItemIds).ToList();
+            var idsMissingInNewItems = oldItemIds.Except(newItemIds).ToList();
+
+            foreach (var missingId in idsMissingInOldItems)
+                oldItems.Add(new ItemX { ApiId = missingId });
+
+            foreach (var missingId in idsMissingInNewItems)
+                newItems.Add(new ItemX { ApiId = missingId }); // todo kann man das effizienter lösen? problem: per groupBy kriegt man Vorzeichen nicht raus 
+
             var items = new List<ItemX>();
             items.AddRange(newItems);
             items.AddRange(oldItems);
-
             var farmedItems = items
                 .GroupBy(i => i.ApiId)
                 .Select(g =>
