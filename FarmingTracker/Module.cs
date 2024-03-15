@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +54,8 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
+            _farmingTrackerWindow.Show(); // todo weg
+
             _rootFlowPanel = new FlowPanel()
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
@@ -62,25 +66,58 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = _farmingTrackerWindow
             };
 
-            var resetButton = new StandardButton()
+            _resetButton = new StandardButton()
             {
                 Text = "Reset",
                 BasicTooltipText = "Start new farming session by resetting farmed items and currencies.",
+                Enabled = false,
                 Width = 90,
                 Left = 460,
                 Parent = _rootFlowPanel,
             };
-            resetButton.Click += (s, e) =>
+
+            _resetButton.Click += (s, e) =>
             {
                 _isStartingNewFarmingSession = true;
+                _resetButton.Enabled = false;
                 _updateRunningTimeInMilliseconds = GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS; // trigger items update immediately
                 // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
                 // Es muss aber weiterhin instant die flowpanels clearen.
+                _elapsedFarmingTimeStopwatch.Reset();
+                _nextUpdateTimeStopwatch.Reset();
+                _elapsedFarmingTimeLabel.Text = "updating...";
+                _nextUpdateCountdownLabel.Text = "updating...";
                 _farmedItems.Clear(); 
                 _farmedCurrencies.Clear();
                 UpdateUi();
-                // todo reset timers
                 // todo kill running update processes.
+            };
+
+            _controlsFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                ControlPadding = new Vector2(20, 0),
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel
+            };
+
+            _elapsedFarmingTimeLabel = new Label
+            {
+                Text = "farming for -:--:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = _controlsFlowPanel
+            };
+
+            _nextUpdateCountdownLabel = new Label
+            {
+                Text = "next update in -:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = _controlsFlowPanel
             };
 
             _farmedCurrenciesFlowPanel = new FlowPanel()
@@ -108,13 +145,24 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         protected override void Update(GameTime gameTime)
         {
+            var elapsedFarmingTime = _elapsedFarmingTimeStopwatch.Elapsed;
+            if (elapsedFarmingTime >= _oldElapsedFarmingTime + ONE_SECOND)
+            {
+                // todo next update time vs elappsed farming time has 1 second difference
+                _oldElapsedFarmingTime = elapsedFarmingTime;
+                _elapsedFarmingTimeLabel.Text = $"farming for {elapsedFarmingTime:h':'mm':'ss}";
+                var nextUpdateTime = TIME_INTERVAL_FOR_NEXT_UPDATE - _nextUpdateTimeStopwatch.Elapsed;
+                if (_nextUpdateTimeStopwatch.IsRunning)
+                    _nextUpdateCountdownLabel.Text = $"next update in {nextUpdateTime:m':'ss}";
+            }
+
             _updateRunningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (_updateRunningTimeInMilliseconds >= GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
             {
                 _updateRunningTimeInMilliseconds = 0;
 
-                if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen
+                if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen, das wartet sich hier zu tode
                 {
                     Logger.Debug("token waiting..."); // todo weg
                     return;
@@ -125,7 +173,9 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 if (!_taskIsRunning)
                 {
                     _taskIsRunning = true;
-                    Task.Run(() => TrackItems()); // todo verriegelung, dass nicht ständig hier reingeht, obwohl vorheriger Task noch läuft
+                    _nextUpdateTimeStopwatch.Stop();
+                    _nextUpdateCountdownLabel.Text = "updating...";
+                    Task.Run(() => TrackItems());
                 }
                 else
                 {
@@ -176,7 +226,10 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     _itemsWhenTrackingStarted.AddRange(items);
                     _currenciesWhenTrackingStarted.Clear();
                     _currenciesWhenTrackingStarted.AddRange(currencies);
+                    _elapsedFarmingTimeStopwatch.Restart();
+                    _oldElapsedFarmingTime = _elapsedFarmingTimeStopwatch.Elapsed;
                     UpdateUi();
+                    _resetButton.Enabled = true;
                     return;
                 }
 
@@ -231,6 +284,8 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             finally
             {
                 Logger.Debug("TrackItems end"); // todo weg
+                _nextUpdateTimeStopwatch.Restart();
+                _updateRunningTimeInMilliseconds = 0;
                 _taskIsRunning = false;
             }
         }
@@ -297,16 +352,25 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
         private FlowPanel _rootFlowPanel;
+        private StandardButton _resetButton;
+        private FlowPanel _controlsFlowPanel;
+        private Label _elapsedFarmingTimeLabel;
+        private Label _nextUpdateCountdownLabel;
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
+        private readonly Stopwatch _elapsedFarmingTimeStopwatch = new Stopwatch();
+        private readonly Stopwatch _nextUpdateTimeStopwatch = new Stopwatch();
         private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
         private bool _isStartingNewFarmingSession = true;
         private double _updateRunningTimeInMilliseconds;
+        private TimeSpan _oldElapsedFarmingTime;
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
         private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
         private const int GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS = 5 * 1000;
+        private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan TIME_INTERVAL_FOR_NEXT_UPDATE = TimeSpan.FromMilliseconds(GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS);
     }
 }

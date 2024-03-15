@@ -35,8 +35,8 @@ namespace FarmingTracker
             _farmingTrackerWindow.ToggleWindow();
         }
 
-        private Texture2D _cornerIconTexture;
-        private Texture2D _cornerIconHoverTexture;
+        private readonly Texture2D _cornerIconTexture;
+        private readonly Texture2D _cornerIconHoverTexture;
         private readonly StandardWindow _farmingTrackerWindow;
     }
 }
