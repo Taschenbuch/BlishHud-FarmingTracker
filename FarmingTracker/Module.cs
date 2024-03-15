@@ -276,10 +276,12 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     }
                 }
 
+                CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(farmedCurrencies);
+
                 Logger.Debug("update ui"); // todo weg
                 // todo wenn man das weiter nach oben schiebt, werden neu gefarmte item früher angezeigt, ABER ohne icon+name. müsste für den Fall placeholder hinterlegen
                 _farmedItems.Clear();
-                _farmedItems.AddRange(farmedItems); 
+                _farmedItems.AddRange(farmedItems);
                 _farmedCurrencies.Clear();
                 _farmedCurrencies.AddRange(farmedCurrencies);
                 UpdateUi();
@@ -292,7 +294,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _taskIsRunning = false;
             }
         }
-
+   
         private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems)
         {
             var itemById = new Dictionary<int, ItemX>();
@@ -336,9 +338,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = parent
             };
 
+            var tooltipText = string.IsNullOrWhiteSpace(item.Description)
+                ? $"{item.Name}\n{item.Count}"
+                : $"{item.Name}\n{item.Description}\n{item.Count}";
+
             new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
             {
-                BasicTooltipText = $"{item.Name}\n{item.Description}\n{item.Count}",
+                BasicTooltipText = tooltipText,
                 Size = new Point(40),
                 Parent = itemContainer
             };
