@@ -10,6 +10,7 @@ using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
@@ -32,12 +33,15 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         protected override async Task LoadAsync()
         {
+            _windowEmblemTexture = ContentsManager.GetTexture(@"windowEmblem.png"); // todo ersetzen
+
             _farmingTrackerWindow = new StandardWindow(
-                AsyncTexture2D.FromAssetId(155979),
+                AsyncTexture2D.FromAssetId(155997),
                 new Rectangle(40, 26, 913, 691),
                 new Rectangle(70, 71, 839, 605))
             {
                 Title = "Farming Tracker",
+                Emblem = _windowEmblemTexture,
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: error window",
                 Location = new Point(300, 300),
@@ -89,6 +93,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         {
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindow?.Dispose();
+            _windowEmblemTexture?.Dispose();
         }
 
         private async void TrackItems()
@@ -231,6 +236,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             }
         }
 
+        private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
         private FlowPanel _farmedItemsFlowPanel;
 
