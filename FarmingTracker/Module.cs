@@ -217,7 +217,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 };
 
                 await Task.WhenAll(apiResponseTasks); // todo log warn exception wie session tracker
-                Logger.Debug("get items done"); // todo weg
+                Logger.Debug("TrackItems get items"); // todo weg
                 var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
                 var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
 
@@ -236,7 +236,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     return;
                 }
 
-                Logger.Debug("create diff"); // todo weg
+                Logger.Debug("TrackItems create diff"); // todo weg
                 var farmedItems = DetermineFarmedItems(items, _itemsWhenTrackingStarted);
                 var farmedCurrencies = DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
@@ -249,7 +249,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     return;
                 }
 
-                Logger.Debug("get name description icon asset id"); // todo weg
+                Logger.Debug("TrackItems update items (name, description, iconAssetid)"); // todo weg
                 if (farmedCurrencies.Any())
                 {
                     var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
@@ -278,7 +278,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
                 CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(farmedCurrencies);
 
-                Logger.Debug("update ui"); // todo weg
+                Logger.Debug("TrackItems update ui"); // todo weg
                 // todo wenn man das weiter nach oben schiebt, werden neu gefarmte item früher angezeigt, ABER ohne icon+name. müsste für den Fall placeholder hinterlegen
                 _farmedItems.Clear();
                 _farmedItems.AddRange(farmedItems);
