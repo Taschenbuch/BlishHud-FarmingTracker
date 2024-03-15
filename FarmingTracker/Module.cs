@@ -90,7 +90,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _nextUpdateCountdownLabel.Text = "updating...";
                 _farmedItems.Clear(); 
                 _farmedCurrencies.Clear();
-                UpdateUi();
+                UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
                 // todo kill running update processes.
             };
 
@@ -231,7 +231,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     _currenciesWhenTrackingStarted.AddRange(currencies);
                     _elapsedFarmingTimeStopwatch.Restart();
                     _oldElapsedFarmingTime = _elapsedFarmingTimeStopwatch.Elapsed;
-                    UpdateUi();
+                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
                     _resetButton.Enabled = true;
                     return;
                 }
@@ -245,7 +245,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 {
                     _farmedItems.Clear();
                     _farmedCurrencies.Clear();
-                    UpdateUi();
+                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
                     return;
                 }
 
@@ -284,7 +284,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _farmedItems.AddRange(farmedItems);
                 _farmedCurrencies.Clear();
                 _farmedCurrencies.AddRange(farmedCurrencies);
-                UpdateUi();
+                UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
             }
             finally
             {
@@ -315,48 +315,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             }
 
             return itemById.Values.Where(i => i.Count != 0).ToList();
-        }
-
-        private void UpdateUi()
-        {
-            _farmedItemsFlowPanel.ClearChildren();
-            _farmedCurrenciesFlowPanel.ClearChildren();
-
-            foreach (var farmedItem in _farmedItems)
-                AddItemToUi(farmedItem, _farmedItemsFlowPanel);
-
-            foreach (var farmedCurrency in _farmedCurrencies)
-                AddItemToUi(farmedCurrency, _farmedCurrenciesFlowPanel);
-        }
-
-        private void AddItemToUi(ItemX item, Container parent)
-        {
-            var itemContainer = new LocationContainer()
-            {
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = parent
-            };
-
-            var tooltipText = string.IsNullOrWhiteSpace(item.Description)
-                ? $"{item.Name}\n{item.Count}"
-                : $"{item.Name}\n{item.Description}\n{item.Count}";
-
-            new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
-            {
-                BasicTooltipText = tooltipText,
-                Size = new Point(40),
-                Parent = itemContainer
-            };
-
-            new Label
-            {
-                Text = item.Count.ToString(),
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size14, FontStyle.Regular), // todo ständige GetFont() calls
-                StrokeText = true,
-                Parent = itemContainer
-            };
-        }
+        }               
 
         private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
