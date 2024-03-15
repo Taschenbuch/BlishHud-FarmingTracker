@@ -39,12 +39,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             _windowEmblemTexture = ContentsManager.GetTexture(@"windowEmblem.png");
 
             var windowWidth = 560;
-            var windowHeight = 641;
+            var windowHeight = 640;
+            var flowPanelWidth = windowWidth - 50;
 
             _farmingTrackerWindow = new StandardWindow(
                 AsyncTexture2D.FromAssetId(155997),
-                new Rectangle(25, 26, windowWidth, 641),
-                new Rectangle(40, 50, windowWidth - 40, windowHeight - 100))
+                new Rectangle(25, 26, windowWidth, windowHeight),
+                new Rectangle(40, 50, windowWidth - 20, windowHeight - 50))
             {
                 Title = "Farming Tracker (Beta)", // todo remove "beta"
                 Emblem = _windowEmblemTexture,
@@ -124,8 +125,9 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
+                OuterControlPadding = new Vector2(15, 10),
                 CanCollapse = true,
-                WidthSizingMode = SizingMode.Fill,
+                Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _rootFlowPanel
             };
@@ -134,8 +136,9 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 Title = "Items",
                 FlowDirection = ControlFlowDirection.LeftToRight,
+                OuterControlPadding = new Vector2(15, 10),
                 CanCollapse = true,
-                WidthSizingMode = SizingMode.Fill,
+                Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _rootFlowPanel
             };
@@ -373,6 +376,6 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan TIME_INTERVAL_FOR_NEXT_UPDATE = TimeSpan.FromMilliseconds(NEXT_UPDATE_INTERVAL_IN_MILLISECONDS);
         private const int CHECK_API_KEY_INTERVALL_IN_MILLISECONDS = 2 * 1000;
-        private const int NEXT_UPDATE_INTERVAL_IN_MILLISECONDS = 2 * 60 * 1000;
+        private const int NEXT_UPDATE_INTERVAL_IN_MILLISECONDS = 5 * 1000; // todo sinnvolle zeit angeben
     }
 }
