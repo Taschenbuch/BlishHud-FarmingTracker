@@ -34,7 +34,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         protected override async Task LoadAsync()
         {
-            _windowEmblemTexture = ContentsManager.GetTexture(@"windowEmblem.png"); // todo ersetzen
+            _windowEmblemTexture = ContentsManager.GetTexture(@"windowEmblem.png");
 
             var windowWidth = 560;
             var windowHeight = 641;
@@ -44,7 +44,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 new Rectangle(25, 26, windowWidth, 641),
                 new Rectangle(40, 50, windowWidth - 40, windowHeight - 100))
             {
-                Title = "Farming Tracker (Beta)",
+                Title = "Farming Tracker (Beta)", // todo remove "beta"
                 Emblem = _windowEmblemTexture,
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: error window",
@@ -60,6 +60,27 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = _farmingTrackerWindow
+            };
+
+            var resetButton = new StandardButton()
+            {
+                Text = "Reset",
+                BasicTooltipText = "Start new farming session by resetting farmed items and currencies.",
+                Width = 90,
+                Left = 460,
+                Parent = _rootFlowPanel,
+            };
+            resetButton.Click += (s, e) =>
+            {
+                _isStartingNewFarmingSession = true;
+                _updateRunningTimeInMilliseconds = GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS; // trigger items update immediately
+                // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
+                // Es muss aber weiterhin instant die flowpanels clearen.
+                _farmedItems.Clear(); 
+                _farmedCurrencies.Clear();
+                UpdateUi();
+                // todo reset timers
+                // todo kill running update processes.
             };
 
             _farmedCurrenciesFlowPanel = new FlowPanel()
@@ -89,7 +110,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         {
             _updateRunningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (_updateRunningTimeInMilliseconds > 5 * 1000) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
+            if (_updateRunningTimeInMilliseconds >= GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
             {
                 _updateRunningTimeInMilliseconds = 0;
 
@@ -147,13 +168,15 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
                 var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
 
-                // initialize snapshotget all items on account
-                var isFirstSnapshot = !_itemsWhenTrackingStarted.Any();
-                if (isFirstSnapshot)
+                if (_isStartingNewFarmingSession) // dont replace with .Any(). A new account may have no item/currencies yet
                 {
-                    Logger.Debug("set init snapshot"); // todo weg
+                    Logger.Debug("TrackItems new session"); // todo weg
+                    _isStartingNewFarmingSession = false;
+                    _itemsWhenTrackingStarted.Clear();
                     _itemsWhenTrackingStarted.AddRange(items);
+                    _currenciesWhenTrackingStarted.Clear();
                     _currenciesWhenTrackingStarted.AddRange(currencies);
+                    UpdateUi();
                     return;
                 }
 
@@ -240,13 +263,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             _farmedCurrenciesFlowPanel.ClearChildren();
 
             foreach (var farmedItem in _farmedItems)
-                AddItem(farmedItem, _farmedItemsFlowPanel);
+                AddItemToUi(farmedItem, _farmedItemsFlowPanel);
 
             foreach (var farmedCurrency in _farmedCurrencies)
-                AddItem(farmedCurrency, _farmedCurrenciesFlowPanel);
+                AddItemToUi(farmedCurrency, _farmedCurrenciesFlowPanel);
         }
 
-        private void AddItem(ItemX item, Container parent)
+        private void AddItemToUi(ItemX item, Container parent)
         {
             var itemContainer = new LocationContainer()
             {
@@ -276,13 +299,14 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private FlowPanel _rootFlowPanel;
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
-
         private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
+        private bool _isStartingNewFarmingSession = true;
         private double _updateRunningTimeInMilliseconds;
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
         private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
+        private const int GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS = 5 * 1000;
     }
 }
