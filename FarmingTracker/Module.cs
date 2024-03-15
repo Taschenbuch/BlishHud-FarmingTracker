@@ -11,6 +11,7 @@ using Blish_HUD.Modules.Managers;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static Blish_HUD.ContentService;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
@@ -35,12 +36,15 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         {
             _windowEmblemTexture = ContentsManager.GetTexture(@"windowEmblem.png"); // todo ersetzen
 
+            var windowWidth = 560;
+            var windowHeight = 641;
+
             _farmingTrackerWindow = new StandardWindow(
                 AsyncTexture2D.FromAssetId(155997),
-                new Rectangle(40, 26, 913, 691),
-                new Rectangle(70, 71, 839, 605))
+                new Rectangle(25, 26, windowWidth, 641),
+                new Rectangle(40, 50, windowWidth - 40, windowHeight - 100))
             {
-                Title = "Farming Tracker",
+                Title = "Farming Tracker (Beta)",
                 Emblem = _windowEmblemTexture,
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: error window",
@@ -48,14 +52,34 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            _farmedItemsFlowPanel = new FlowPanel()
+            _rootFlowPanel = new FlowPanel()
             {
-                Title = "farmed items",
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                CanScroll = true,
+                ControlPadding = new Vector2(0, 10),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.Fill,
+                Parent = _farmingTrackerWindow
+            };
+
+            _farmedCurrenciesFlowPanel = new FlowPanel()
+            {
+                Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = 862,
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingTrackerWindow
+                Parent = _rootFlowPanel
+            };
+
+            _farmedItemsFlowPanel = new FlowPanel()
+            {
+                Title = "Items",
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel
             };
 
             _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindow);
@@ -137,17 +161,14 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 var farmedItems = DetermineFarmedItems(items, _itemsWhenTrackingStarted);
                 var farmedCurrencies = DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
-                var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any(); // todo das kein fehler fall!
+                var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any();
                 if (hasFarmedNothing)
                 {
-                    _farmedItems.Clear(); 
+                    _farmedItems.Clear();
+                    _farmedCurrencies.Clear();
                     UpdateUi();
                     return;
                 }
-
-                _farmedItems.Clear();
-                _farmedItems.AddRange(farmedCurrencies);
-                _farmedItems.AddRange(farmedItems);
 
                 Logger.Debug("get name description icon asset id"); // todo weg
                 if (farmedCurrencies.Any())
@@ -177,6 +198,11 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 }
 
                 Logger.Debug("update ui"); // todo weg
+                // todo wenn man das weiter nach oben schiebt, werden neu gefarmte item früher angezeigt, ABER ohne icon+name. müsste für den Fall placeholder hinterlegen
+                _farmedItems.Clear();
+                _farmedItems.AddRange(farmedItems); 
+                _farmedCurrencies.Clear();
+                _farmedCurrencies.AddRange(farmedCurrencies);
                 UpdateUi();
             }
             finally
@@ -211,33 +237,44 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private void UpdateUi()
         {
             _farmedItemsFlowPanel.ClearChildren();
+            _farmedCurrenciesFlowPanel.ClearChildren();
 
             foreach (var farmedItem in _farmedItems)
+                AddItem(farmedItem, _farmedItemsFlowPanel);
+
+            foreach (var farmedCurrency in _farmedCurrencies)
+                AddItem(farmedCurrency, _farmedCurrenciesFlowPanel);
+        }
+
+        private void AddItem(ItemX item, Container parent)
+        {
+            var itemContainer = new LocationContainer()
             {
-                var itemContainer = new LocationContainer()
-                {
-                    WidthSizingMode = SizingMode.AutoSize,
-                    HeightSizingMode = SizingMode.AutoSize,
-                    Parent = _farmedItemsFlowPanel
-                };
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
 
-                new Image(AsyncTexture2D.FromAssetId(farmedItem.IconAssetId))
-                {
-                    BasicTooltipText = $"{farmedItem.Name}\n{farmedItem.Description}",
-                    Size = new Point(40),
-                    Parent = itemContainer
-                };
+            new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
+            {
+                BasicTooltipText = $"{item.Name}\n{item.Description}\n{item.Count}",
+                Size = new Point(40),
+                Parent = itemContainer
+            };
 
-                new Label
-                {
-                    Text = farmedItem.Count.ToString(),
-                    Parent = itemContainer
-                };
-            }
+            new Label
+            {
+                Text = item.Count.ToString(),
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size14, FontStyle.Regular), // todo ständige GetFont() calls
+                StrokeText = true,
+                Parent = itemContainer
+            };
         }
 
         private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
+        private FlowPanel _rootFlowPanel;
+        private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
 
         private TrackerCornerIcon _trackerCornerIcon;
@@ -246,5 +283,6 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
+        private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
     }
 }
