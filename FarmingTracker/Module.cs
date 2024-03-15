@@ -80,7 +80,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 _isStartingNewFarmingSession = true;
                 _resetButton.Enabled = false;
-                _updateRunningTimeInMilliseconds = GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS; // trigger items update immediately
+                _runningTimeInMilliseconds = NEXT_UPDATE_INTERVAL_IN_MILLISECONDS + CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // trigger items update immediately
                 // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
                 // Es muss aber weiterhin instant die flowpanels clearen.
                 _elapsedFarmingTimeStopwatch.Reset();
@@ -156,18 +156,20 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     _nextUpdateCountdownLabel.Text = $"next update in {nextUpdateTime:m':'ss}";
             }
 
-            _updateRunningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _runningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (_updateRunningTimeInMilliseconds >= GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
+            if (_runningTimeInMilliseconds >= _updateIntervalInMilliseconds) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
             {
-                _updateRunningTimeInMilliseconds = 0;
+                _runningTimeInMilliseconds = 0;
 
                 if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen, das wartet sich hier zu tode
                 {
                     Logger.Debug("token waiting..."); // todo weg
+                    _updateIntervalInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS;
                     return;
                 }
 
+                _updateIntervalInMilliseconds = NEXT_UPDATE_INTERVAL_IN_MILLISECONDS;
                 Logger.Debug("TrackItems try..."); // todo weg
 
                 if (!_taskIsRunning)
@@ -178,9 +180,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     Task.Run(() => TrackItems());
                 }
                 else
-                {
                     Logger.Debug("TrackItems already running"); // todo weg
-                }
             }
         }
 
@@ -285,7 +285,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 Logger.Debug("TrackItems end"); // todo weg
                 _nextUpdateTimeStopwatch.Restart();
-                _updateRunningTimeInMilliseconds = 0;
+                _runningTimeInMilliseconds = 0;
                 _taskIsRunning = false;
             }
         }
@@ -363,14 +363,16 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
         private bool _isStartingNewFarmingSession = true;
-        private double _updateRunningTimeInMilliseconds;
+        private double _runningTimeInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // to start immediately
+        private double _updateIntervalInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // to start immediately
         private TimeSpan _oldElapsedFarmingTime;
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
         private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
-        private const int GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS = 5 * 1000;
         private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan TIME_INTERVAL_FOR_NEXT_UPDATE = TimeSpan.FromMilliseconds(GET_ITEMS_UPDATE_INTERVAL_IN_MILLISECONDS);
+        private static readonly TimeSpan TIME_INTERVAL_FOR_NEXT_UPDATE = TimeSpan.FromMilliseconds(NEXT_UPDATE_INTERVAL_IN_MILLISECONDS);
+        private const int CHECK_API_KEY_INTERVALL_IN_MILLISECONDS = 2 * 1000;
+        private const int NEXT_UPDATE_INTERVAL_IN_MILLISECONDS = 2 * 60 * 1000;
     }
 }
