@@ -245,8 +245,8 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 }
 
                 Logger.Debug("TrackItems create diff"); // todo weg
-                var farmedItems = DetermineFarmedItems(items, _itemsWhenTrackingStarted);
-                var farmedCurrencies = DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
+                var farmedItems = FarmedItems.DetermineFarmedItems(items, _itemsWhenTrackingStarted);
+                var farmedCurrencies = FarmedItems.DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
                 var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any();
                 if (hasFarmedNothing)
@@ -335,29 +335,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _updateLoop.ResetRunningTime();
                 _taskIsRunning = false;
             }
-        }
-   
-        private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems) // todo extract class
-        {
-            var itemById = new Dictionary<int, ItemX>();
-
-            foreach (var newItem in newItems)
-                itemById[newItem.ApiId] = newItem;
-
-            foreach (var oldItem in oldItems)
-            {
-                if (itemById.TryGetValue(oldItem.ApiId, out var item))
-                    item.Count -= oldItem.Count;
-                else
-                    itemById[oldItem.ApiId] = new ItemX // do not set oldItem here. oldItem must not be modified
-                    {
-                        ApiId = oldItem.ApiId,
-                        Count = -oldItem.Count,
-                    };
-            }
-
-            return itemById.Values.Where(i => i.Count != 0).ToList();
-        }               
+        }              
 
         private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
