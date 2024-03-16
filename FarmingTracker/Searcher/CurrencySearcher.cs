@@ -24,20 +24,12 @@ namespace FarmingTracker
             var coinsInCopperItem = farmedCurrencies.SingleOrDefault(c => c.IconAssetId == 619316);
             if (coinsInCopperItem != null)
             {
-                var coinsInCopper = coinsInCopperItem.Count;
-
-                var sign = coinsInCopper < 0 ? "-" : "";
-                var signFactor = coinsInCopper < 0 ? -1 : 1;
-                var unsignedValueInCopper = Math.Abs(coinsInCopper);
-
-                var gold = unsignedValueInCopper / 10000;
-                var silver = (unsignedValueInCopper - gold * 10000) / 100;
-                var copper = unsignedValueInCopper % 100;
+                var coin = new Coin(coinsInCopperItem.Count);
 
                 var goldItem = new ItemX
                 {
                     Name = "Gold",
-                    Count = signFactor * gold,
+                    Count = coin.Gold,
                     IconAssetId = 156904,
                     ApiId = coinsInCopperItem.ApiId, // the coin apiid is not unique anymore because of gold, silver, copper
                     ApiIdType = ApiIdType.Currency,
@@ -46,7 +38,7 @@ namespace FarmingTracker
                 var silverItem = new ItemX
                 {
                     Name = "Silver",
-                    Count = signFactor * silver,
+                    Count = coin.Silver,
                     IconAssetId = 156907,
                     ApiId = coinsInCopperItem.ApiId, // the coin apiid is not unique anymore because of gold, silver, copper
                     ApiIdType = ApiIdType.Currency,
@@ -55,7 +47,7 @@ namespace FarmingTracker
                 var copperItem = new ItemX
                 {
                     Name = "Copper",
-                    Count = signFactor * copper,
+                    Count = coin.Copper,
                     IconAssetId = 156902,
                     ApiId = coinsInCopperItem.ApiId, // the coin apiid is not unique anymore because of gold, silver, copper
                     ApiIdType = ApiIdType.Currency,
