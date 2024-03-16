@@ -81,10 +81,10 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 _isStartingNewFarmingSession = true;
                 _resetButton.Enabled = false;
-                _runningTimeInMilliseconds = NEXT_UPDATE_INTERVAL_IN_MILLISECONDS + CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // trigger items update immediately
+                _updateLoop.TiggerUpdateInstantly();
                 // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
                 // Es muss aber weiterhin instant die flowpanels clearen.
-                _elapsedFarmingTimeStopwatch.Reset();
+                _farmingTimeStopwatch.Reset();
                 _nextUpdateTimeStopwatch.Reset();
                 _elapsedFarmingTimeLabel.Text = "updating...";
                 _nextUpdateCountdownLabel.Text = "updating...";
@@ -148,31 +148,31 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         protected override void Update(GameTime gameTime)
         {
-            var elapsedFarmingTime = _elapsedFarmingTimeStopwatch.Elapsed;
-            if (elapsedFarmingTime >= _oldElapsedFarmingTime + ONE_SECOND)
+            var farmingTime = _farmingTimeStopwatch.Elapsed;
+            if (farmingTime >= _oldFarmingTime + ONE_SECOND)
             {
                 // todo next update time vs elappsed farming time has 1 second difference
-                _oldElapsedFarmingTime = elapsedFarmingTime;
-                _elapsedFarmingTimeLabel.Text = $"farming for {elapsedFarmingTime:h':'mm':'ss}";
-                var nextUpdateTime = TIME_INTERVAL_FOR_NEXT_UPDATE - _nextUpdateTimeStopwatch.Elapsed;
+                _oldFarmingTime = farmingTime;
+                _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
+                var nextUpdateTime = UpdateLoop.FARMING_UPDATE_INTERVAL_TIME - _nextUpdateTimeStopwatch.Elapsed;
                 if (_nextUpdateTimeStopwatch.IsRunning)
                     _nextUpdateCountdownLabel.Text = $"next update in {nextUpdateTime:m':'ss}";
             }
 
-            _runningTimeInMilliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            if (_runningTimeInMilliseconds >= _updateIntervalInMilliseconds) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
+            if (_updateLoop.UpdateIntervalEnded()) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
             {
-                _runningTimeInMilliseconds = 0;
+                _updateLoop.ResetRunningTime();
+                _updateLoop.UseFarmingUpdateInterval();
 
                 if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen, das wartet sich hier zu tode
                 {
                     Logger.Debug("token waiting..."); // todo weg
-                    _updateIntervalInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS;
+                    _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
                 }
 
-                _updateIntervalInMilliseconds = NEXT_UPDATE_INTERVAL_IN_MILLISECONDS;
                 Logger.Debug("TrackItems try..."); // todo weg
 
                 if (!_taskIsRunning)
@@ -216,7 +216,15 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     walletTask
                 };
 
-                await Task.WhenAll(apiResponseTasks); // todo log warn exception wie session tracker
+                try
+                {
+                    await Task.WhenAll(apiResponseTasks);
+                }
+                catch (Exception e)
+                {
+                    throw new Gw2ApiException("API error: get all account items and currencies", e);
+                }
+
                 Logger.Debug("TrackItems get items"); // todo weg
                 var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
                 var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
@@ -229,8 +237,8 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     _itemsWhenTrackingStarted.AddRange(items);
                     _currenciesWhenTrackingStarted.Clear();
                     _currenciesWhenTrackingStarted.AddRange(currencies);
-                    _elapsedFarmingTimeStopwatch.Restart();
-                    _oldElapsedFarmingTime = _elapsedFarmingTimeStopwatch.Elapsed;
+                    _farmingTimeStopwatch.Restart();
+                    _oldFarmingTime = _farmingTimeStopwatch.Elapsed;
                     UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
                     _resetButton.Enabled = true;
                     return;
@@ -246,6 +254,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     _farmedItems.Clear();
                     _farmedCurrencies.Clear();
                     UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                    _nextUpdateTimeStopwatch.Restart();
                     return;
                 }
 
@@ -253,7 +262,17 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 if (farmedCurrencies.Any())
                 {
                     var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
-                    var apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
+                    IReadOnlyList<Currency> apiCurrencies;
+
+                    try
+                    {
+                        apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
+                    }
+                    catch (Gw2ApiException e)
+                    {
+                        throw new Gw2ApiException("API error: update currencies", e);
+                    }
+
                     foreach (var apiCurrency in apiCurrencies)
                     {
                         var matchingCurrency = farmedCurrencies.Single(i => i.ApiId == apiCurrency.Id); // todo null check danach nötig?
@@ -266,7 +285,17 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 if (farmedItems.Any())
                 {
                     var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
-                    var apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
+                    IReadOnlyList<Item> apiItems;
+
+                    try
+                    {
+                        apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
+                    }
+                    catch (Gw2ApiException e)
+                    {
+                        throw new Gw2ApiException("API error: update items", e);
+                    }
+
                     foreach (var apiItem in apiItems)
                     {
                         var matchingItem = farmedItems.Single(i => i.ApiId == apiItem.Id); // todo null check danach nötig?
@@ -285,17 +314,30 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _farmedCurrencies.Clear();
                 _farmedCurrencies.AddRange(farmedCurrencies);
                 UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                _nextUpdateTimeStopwatch.Restart();
+            }
+            catch (Gw2ApiException exception)
+            {
+                Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
+                _updateLoop.UseRetryAfterApiFailureUpdateInterval();
+                _nextUpdateCountdownLabel.Text = $"api error! Retry in {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s (TODO: display countdown)"; // todo countdown
+                _nextUpdateTimeStopwatch.Stop();
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, "track items failed.");
+                _nextUpdateTimeStopwatch.Stop();
+                // todo was tun?
             }
             finally
             {
                 Logger.Debug("TrackItems end"); // todo weg
-                _nextUpdateTimeStopwatch.Restart();
-                _runningTimeInMilliseconds = 0;
+                _updateLoop.ResetRunningTime();
                 _taskIsRunning = false;
             }
         }
    
-        private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems)
+        private List<ItemX> DetermineFarmedItems(List<ItemX> newItems, List<ItemX> oldItems) // todo extract class
         {
             var itemById = new Dictionary<int, ItemX>();
 
@@ -326,21 +368,17 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private Label _nextUpdateCountdownLabel;
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
-        private readonly Stopwatch _elapsedFarmingTimeStopwatch = new Stopwatch();
+        private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch(); // extract farming time and next update
         private readonly Stopwatch _nextUpdateTimeStopwatch = new Stopwatch();
         private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
         private bool _isStartingNewFarmingSession = true;
-        private double _runningTimeInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // to start immediately
-        private double _updateIntervalInMilliseconds = CHECK_API_KEY_INTERVALL_IN_MILLISECONDS; // to start immediately
-        private TimeSpan _oldElapsedFarmingTime;
+        private readonly UpdateLoop _updateLoop = new UpdateLoop();
+        private TimeSpan _oldFarmingTime;
         private readonly List<ItemX> _itemsWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
         private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
         private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan TIME_INTERVAL_FOR_NEXT_UPDATE = TimeSpan.FromMilliseconds(NEXT_UPDATE_INTERVAL_IN_MILLISECONDS);
-        private const int CHECK_API_KEY_INTERVALL_IN_MILLISECONDS = 2 * 1000;
-        private const int NEXT_UPDATE_INTERVAL_IN_MILLISECONDS = 5 * 1000; // todo sinnvolle zeit angeben
     }
 }
