@@ -4,6 +4,7 @@ using Blish_HUD;
 using System.Collections.Generic;
 using static Blish_HUD.ContentService;
 using Microsoft.Xna.Framework;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -17,6 +18,28 @@ namespace FarmingTracker
         {
             farmedItemsFlowPanel.ClearChildren();
             farmedCurrenciesFlowPanel.ClearChildren();
+
+            if(!farmedItems.Any())
+            {
+                new Label 
+                { 
+                    Text = "No item changes detected yet!\nUpdates from the API can take several minutes!",
+                    AutoSizeWidth = true,
+                    AutoSizeHeight = true,
+                    Parent = farmedItemsFlowPanel
+                };
+            }
+
+            if (!farmedCurrencies.Any())
+            {
+                new Label
+                {
+                    Text = "No currency changes detected yet!\nUpdates from the API can take several minutes!",
+                    AutoSizeWidth = true,
+                    AutoSizeHeight = true,
+                    Parent = farmedCurrenciesFlowPanel
+                };
+            }
 
             foreach (var farmedItem in farmedItems)
                 AddItemToUi(farmedItem, farmedItemsFlowPanel);
