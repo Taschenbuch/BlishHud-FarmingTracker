@@ -212,119 +212,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             try
             {
                 // get all items on account
-                var charactersTask = Gw2ApiManager.Gw2ApiClient.V2.Characters.AllAsync();
-                var bankTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Bank.GetAsync();
-                var sharedInventoryTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Inventory.GetAsync();
-                var materialStorageTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Materials.GetAsync();
-                var walletTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Wallet.GetAsync();
-
-                var apiResponseTasks = new List<Task>
-                {
-                    charactersTask,
-                    bankTask,
-                    sharedInventoryTask,
-                    materialStorageTask,
-                    walletTask
-                };
-
-                try
-                {
-                    await Task.WhenAll(apiResponseTasks);
-                }
-                catch (Exception e)
-                {
-                    throw new Gw2ApiException("API error: get all account items and currencies", e);
-                }
-
-                Logger.Debug("TrackItems get items"); // todo weg
-                var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
-                var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
-
-                if (_isStartingNewFarmingSession) // dont replace with .Any(). A new account may have no item/currencies yet
-                {
-                    Logger.Debug("TrackItems new session"); // todo weg
-                    _isStartingNewFarmingSession = false;
-                    _itemsWhenTrackingStarted.Clear();
-                    _itemsWhenTrackingStarted.AddRange(items);
-                    _currenciesWhenTrackingStarted.Clear();
-                    _currenciesWhenTrackingStarted.AddRange(currencies);
-                    _farmingTimeStopwatch.Restart();
-                    _oldFarmingTime = _farmingTimeStopwatch.Elapsed;
-                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
-                    _resetButton.Enabled = true;
-                    return;
-                }
-
-                Logger.Debug("TrackItems create diff"); // todo weg
-                var farmedItems = FarmedItems.DetermineFarmedItems(items, _itemsWhenTrackingStarted);
-                var farmedCurrencies = FarmedItems.DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
-
-                var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any();
-                if (hasFarmedNothing)
-                {
-                    _farmedItems.Clear();
-                    _farmedCurrencies.Clear();
-                    // todo rest als method extrahieren, so dass stopwatch und UpdateUi nicht hier drin stehen müssen
-                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel); 
-                    _nextUpdateTimeStopwatch.Restart();
-                    return;
-                }
-
-                Logger.Debug("TrackItems update items (name, description, iconAssetid)"); // todo weg
-                if (farmedCurrencies.Any())
-                {
-                    var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
-                    IReadOnlyList<Currency> apiCurrencies;
-
-                    try
-                    {
-                        apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
-                    }
-                    catch (Gw2ApiException e)
-                    {
-                        throw new Gw2ApiException("API error: update currencies", e);
-                    }
-
-                    foreach (var apiCurrency in apiCurrencies)
-                    {
-                        var matchingCurrency = farmedCurrencies.Single(i => i.ApiId == apiCurrency.Id); // todo null check danach nötig?
-                        matchingCurrency.Name = apiCurrency.Name;
-                        matchingCurrency.Description = apiCurrency.Description;
-                        matchingCurrency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
-                    }
-                }
-
-                if (farmedItems.Any())
-                {
-                    var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
-                    IReadOnlyList<Item> apiItems;
-
-                    try
-                    {
-                        apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
-                    }
-                    catch (Gw2ApiException e)
-                    {
-                        throw new Gw2ApiException("API error: update items", e);
-                    }
-
-                    foreach (var apiItem in apiItems)
-                    {
-                        var matchingItem = farmedItems.Single(i => i.ApiId == apiItem.Id); // todo null check danach nötig?
-                        matchingItem.Name = apiItem.Name;
-                        matchingItem.Description = apiItem.Description;
-                        matchingItem.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
-                    }
-                }
-
-                CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(farmedCurrencies);
-
-                Logger.Debug("TrackItems update ui"); // todo weg
-                // todo wenn man das weiter nach oben schiebt, werden neu gefarmte item früher angezeigt, ABER ohne icon+name. müsste für den Fall placeholder hinterlegen
-                _farmedItems.Clear();
-                _farmedItems.AddRange(farmedItems);
-                _farmedCurrencies.Clear();
-                _farmedCurrencies.AddRange(farmedCurrencies);
+                await UseApiToUpdateFarmedItems();
                 UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
                 _nextUpdateTimeStopwatch.Restart();
             }
@@ -348,7 +236,120 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _updateLoop.ResetRunningTime();
                 _taskIsRunning = false;
             }
-        }              
+        }
+
+        private async Task UseApiToUpdateFarmedItems()
+        {
+            var charactersTask = Gw2ApiManager.Gw2ApiClient.V2.Characters.AllAsync();
+            var bankTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Bank.GetAsync();
+            var sharedInventoryTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Inventory.GetAsync();
+            var materialStorageTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Materials.GetAsync();
+            var walletTask = Gw2ApiManager.Gw2ApiClient.V2.Account.Wallet.GetAsync();
+
+            var apiResponseTasks = new List<Task>
+            {
+                charactersTask,
+                bankTask,
+                sharedInventoryTask,
+                materialStorageTask,
+                walletTask
+            };
+
+            try
+            {
+                await Task.WhenAll(apiResponseTasks);
+            }
+            catch (Exception e)
+            {
+                throw new Gw2ApiException("API error: get all account items and currencies", e);
+            }
+
+            Logger.Debug("TrackItems get items"); // todo weg
+            var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
+            var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
+
+            if (_isStartingNewFarmingSession) // dont replace with .Any(). A new account may have no item/currencies yet
+            {
+                Logger.Debug("TrackItems new session"); // todo weg
+                _isStartingNewFarmingSession = false;
+                _itemsWhenTrackingStarted.Clear();
+                _itemsWhenTrackingStarted.AddRange(items);
+                _currenciesWhenTrackingStarted.Clear();
+                _currenciesWhenTrackingStarted.AddRange(currencies);
+                _farmingTimeStopwatch.Restart();
+                _oldFarmingTime = _farmingTimeStopwatch.Elapsed;
+                _resetButton.Enabled = true;
+                return;
+            }
+
+            Logger.Debug("TrackItems create diff"); // todo weg
+            var farmedItems = FarmedItems.DetermineFarmedItems(items, _itemsWhenTrackingStarted);
+            var farmedCurrencies = FarmedItems.DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
+
+            var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any();
+            if (hasFarmedNothing)
+            {
+                _farmedItems.Clear();
+                _farmedCurrencies.Clear();
+                // todo rest als method extrahieren, so dass stopwatch und UpdateUi nicht hier drin stehen müssen
+                return;
+            }
+
+            Logger.Debug("TrackItems update items (name, description, iconAssetid)"); // todo weg
+            if (farmedCurrencies.Any())
+            {
+                var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
+                IReadOnlyList<Currency> apiCurrencies;
+
+                try
+                {
+                    apiCurrencies = await Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(farmedCurrencyIds);
+                }
+                catch (Gw2ApiException e)
+                {
+                    throw new Gw2ApiException("API error: update currencies", e);
+                }
+
+                foreach (var apiCurrency in apiCurrencies)
+                {
+                    var matchingCurrency = farmedCurrencies.Single(i => i.ApiId == apiCurrency.Id); // todo null check danach nötig?
+                    matchingCurrency.Name = apiCurrency.Name;
+                    matchingCurrency.Description = apiCurrency.Description;
+                    matchingCurrency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
+                }
+            }
+
+            if (farmedItems.Any())
+            {
+                var farmedItemIds = farmedItems.Select(i => i.ApiId).ToList();
+                IReadOnlyList<Item> apiItems;
+
+                try
+                {
+                    apiItems = await Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(farmedItemIds);
+                }
+                catch (Gw2ApiException e)
+                {
+                    throw new Gw2ApiException("API error: update items", e);
+                }
+
+                foreach (var apiItem in apiItems)
+                {
+                    var matchingItem = farmedItems.Single(i => i.ApiId == apiItem.Id); // todo null check danach nötig?
+                    matchingItem.Name = apiItem.Name;
+                    matchingItem.Description = apiItem.Description;
+                    matchingItem.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
+                }
+            }
+
+            CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(farmedCurrencies);
+
+            Logger.Debug("TrackItems update ui"); // todo weg
+            _farmedItems.Clear();
+            _farmedItems.AddRange(farmedItems);
+            _farmedCurrencies.Clear();
+            _farmedCurrencies.AddRange(farmedCurrencies);
+        }
 
         private Texture2D _windowEmblemTexture;
         private StandardWindow _farmingTrackerWindow;
