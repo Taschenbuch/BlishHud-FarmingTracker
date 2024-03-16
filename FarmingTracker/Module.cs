@@ -55,7 +55,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            _farmingTrackerWindow.Show(); // todo weg
+            //_farmingTrackerWindow.Show(); // todo weg
 
             _rootFlowPanel = new FlowPanel()
             {
