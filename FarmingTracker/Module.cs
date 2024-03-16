@@ -144,6 +144,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             };
 
             _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindow);
+            _timeSinceModuleStartStopwatch.Start();
         }
 
         protected override void Update(GameTime gameTime)
@@ -166,12 +167,22 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 _updateLoop.ResetRunningTime();
                 _updateLoop.UseFarmingUpdateInterval();
 
-                if (!Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account })) // todo sauberer lösen, das wartet sich hier zu tode
+                var apiToken = new ApiToken(REQUIRED_API_TOKEN_PERMISSIONS, Gw2ApiManager);
+                if (!apiToken.CanAccessApi)
                 {
-                    Logger.Debug("token waiting..."); // todo weg
+                    var apiTokenErrorTooltip = apiToken.CreateApiTokenErrorTooltipText();
+                    Logger.Debug(apiTokenErrorTooltip); // todo weg
+                    var isGivingBlishSomeTimeToGiveToken = (apiToken.ApiTokenState == ApiTokenState.ApiTokenMissing) && (_timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20);
+                    _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
+                        ? "Loading..."
+                        : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS/1000}s";
+                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorTooltip;
+                    
+                    _nextUpdateTimeStopwatch.Stop();
                     _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
                 }
+                _nextUpdateCountdownLabel.BasicTooltipText = "";
 
                 Logger.Debug("TrackItems try..."); // todo weg
 
@@ -253,7 +264,8 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 {
                     _farmedItems.Clear();
                     _farmedCurrencies.Clear();
-                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                    // todo rest als method extrahieren, so dass stopwatch und UpdateUi nicht hier drin stehen müssen
+                    UiUpdater.UpdateUi(_farmedCurrencies, _farmedItems, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel); 
                     _nextUpdateTimeStopwatch.Restart();
                     return;
                 }
@@ -320,13 +332,14 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             {
                 Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
                 _updateLoop.UseRetryAfterApiFailureUpdateInterval();
-                _nextUpdateCountdownLabel.Text = $"api error! Retry in {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s (TODO: display countdown)"; // todo countdown
+                _nextUpdateCountdownLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s (TODO: display countdown)"; // todo countdown
                 _nextUpdateTimeStopwatch.Stop();
             }
             catch (Exception exception)
             {
                 Logger.Error(exception, "track items failed.");
-                _nextUpdateTimeStopwatch.Stop();
+                _nextUpdateCountdownLabel.Text = $"Module crash. :-("; // todo was tun?
+                _nextUpdateTimeStopwatch.Restart();
                 // todo was tun?
             }
             finally
@@ -348,6 +361,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private FlowPanel _farmedItemsFlowPanel;
         private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch(); // extract farming time and next update
         private readonly Stopwatch _nextUpdateTimeStopwatch = new Stopwatch();
+        private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private TrackerCornerIcon _trackerCornerIcon;
         private bool _taskIsRunning; // todo anders lösen
         private bool _isStartingNewFarmingSession = true;
@@ -357,6 +371,15 @@ namespace FarmingTracker // todo rename (überall dann anpassen
         private readonly List<ItemX> _currenciesWhenTrackingStarted = new List<ItemX>();
         private readonly List<ItemX> _farmedItems = new List<ItemX>();
         private readonly List<ItemX> _farmedCurrencies = new List<ItemX>();
-        private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
+        private readonly IReadOnlyList<TokenPermission> REQUIRED_API_TOKEN_PERMISSIONS = new List<TokenPermission>
+        {
+            TokenPermission.Account,
+            TokenPermission.Inventories,
+            TokenPermission.Characters,
+            TokenPermission.Wallet,
+            TokenPermission.Builds,
+            TokenPermission.Tradingpost,
+        }.AsReadOnly();
     }
 }
