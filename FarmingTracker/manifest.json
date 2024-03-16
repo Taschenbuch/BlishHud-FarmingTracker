@@ -5,7 +5,7 @@
   "package": "FarmingTracker.dll",
   "manifest_version": 1,
 
-  "description": "Tracks farmed items and currencies. Click its menu icon at the top left of the screen to open the tracker window.",
+  "description": "Tracks farmed items and currencies. Click on its menu icon at the top left of the gw2 screen to show the tracker window.",
   "dependencies": {
     "bh.blishhud": ">=1.1.1"
   },
