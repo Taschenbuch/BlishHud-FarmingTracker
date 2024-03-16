@@ -5,7 +5,7 @@
   "package": "FarmingTracker.dll",
   "manifest_version": 1,
 
-  "description": "Farming tracker proof of concept.",
+  "description": "Tracks farmed items and currencies. Click its menu icon at the top left of the screen to open the tracker window.",
   "dependencies": {
     "bh.blishhud": ">=1.1.1"
   },
@@ -20,31 +20,27 @@
   "api_permissions": {
     "account": {
       "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (invenstories, bank, shared inventory, material storage, currencies)"
     },
     "inventories": {
       "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (bank, shared inventory, material storage)"
     },
     "characters": {
       "optional": false,
-      "details": "For tracking stats"
-    },
-    "tradingpost": {
-      "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (inventories)"
     },
     "wallet": {
       "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (currencies)"
     },
     "builds": {
       "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (equip templates TODO)"
     },
-    "progression": {
+    "tradingpost": {
       "optional": false,
-      "details": "For tracking stats"
+      "details": "For tracking stats (farmed gold TODO)"
     },
   }
 }
