@@ -171,7 +171,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 if (!apiToken.CanAccessApi)
                 {
                     var apiTokenErrorTooltip = apiToken.CreateApiTokenErrorTooltipText();
-                    Logger.Debug(apiTokenErrorTooltip); // todo weg
+                    Logger.Info(apiTokenErrorTooltip); // todo weg
                     var isGivingBlishSomeTimeToGiveToken = (apiToken.ApiTokenState == ApiTokenState.ApiTokenMissing) && (_timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20);
                     _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
                         ? "Loading..."
@@ -184,7 +184,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 }
                 _nextUpdateCountdownLabel.BasicTooltipText = "";
 
-                Logger.Debug("TrackItems try..."); // todo weg
+                Logger.Info("TrackItems try..."); // todo weg
 
                 if (!_taskIsRunning)
                 {
@@ -194,7 +194,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                     Task.Run(() => TrackItems());
                 }
                 else
-                    Logger.Debug("TrackItems already running"); // todo weg
+                    Logger.Info("TrackItems already running"); // todo weg
             }
         }
 
@@ -207,7 +207,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
         private async void TrackItems()
         {
-            Logger.Debug("TrackItems start"); // todo weg
+            Logger.Info("TrackItems start"); // todo weg
 
             try
             {
@@ -232,7 +232,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
             }
             finally
             {
-                Logger.Debug("TrackItems end"); // todo weg
+                Logger.Info("TrackItems end"); // todo weg
                 _updateLoop.ResetRunningTime();
                 _taskIsRunning = false;
             }
@@ -264,13 +264,13 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 throw new Gw2ApiException("API error: get all account items and currencies", e);
             }
 
-            Logger.Debug("TrackItems get items"); // todo weg
+            Logger.Info("TrackItems get items"); // todo weg
             var items = ItemSearcher.GetItemIdsAndCounts(charactersTask.Result, bankTask.Result, sharedInventoryTask.Result, materialStorageTask.Result);
             var currencies = CurrencySearcher.GetCurrencyIdsAndCounts(walletTask.Result).ToList();
 
             if (_isStartingNewFarmingSession) // dont replace with .Any(). A new account may have no item/currencies yet
             {
-                Logger.Debug("TrackItems new session"); // todo weg
+                Logger.Info("TrackItems new session"); // todo weg
                 _isStartingNewFarmingSession = false;
                 _itemsWhenTrackingStarted.Clear();
                 _itemsWhenTrackingStarted.AddRange(items);
@@ -282,12 +282,12 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 return;
             }
 
-            Logger.Debug("TrackItems create diff"); // todo weg
+            Logger.Info("TrackItems create diff"); // todo weg
             var farmedItems = FarmedItems.DetermineFarmedItems(items, _itemsWhenTrackingStarted);
             var farmedCurrencies = FarmedItems.DetermineFarmedItems(currencies, _currenciesWhenTrackingStarted);
 
             var hasFarmedNothing = !farmedItems.Any() && !farmedCurrencies.Any();
-            if (hasFarmedNothing)
+            if (hasFarmedNothing) // todo überflüssig? Die for each werden das selbst regeln?
             {
                 _farmedItems.Clear();
                 _farmedCurrencies.Clear();
@@ -295,7 +295,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
                 return;
             }
 
-            Logger.Debug("TrackItems update items (name, description, iconAssetid)"); // todo weg
+            Logger.Info("TrackItems update items (name, description, iconAssetid)"); // todo weg
             if (farmedCurrencies.Any())
             {
                 var farmedCurrencyIds = farmedCurrencies.Select(i => i.ApiId).ToList();
@@ -344,7 +344,7 @@ namespace FarmingTracker // todo rename (überall dann anpassen
 
             CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(farmedCurrencies);
 
-            Logger.Debug("TrackItems update ui"); // todo weg
+            Logger.Info("TrackItems update ui"); // todo weg
             _farmedItems.Clear();
             _farmedItems.AddRange(farmedItems);
             _farmedCurrencies.Clear();
