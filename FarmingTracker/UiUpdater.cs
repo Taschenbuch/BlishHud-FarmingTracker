@@ -64,14 +64,14 @@ namespace FarmingTracker
             new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
             {
                 BasicTooltipText = tooltipText,
-                Size = new Point(40),
+                Size = new Point(60),
                 Parent = itemContainer
             };
 
             new Label
             {
                 Text = item.Count.ToString(),
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size14, FontStyle.Regular), // todo ständige GetFont() calls
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size16, FontStyle.Regular), // todo ständige GetFont() calls
                 StrokeText = true,
                 Parent = itemContainer
             };
