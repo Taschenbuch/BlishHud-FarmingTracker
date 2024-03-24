@@ -2,9 +2,9 @@
 using System;
 using System.IO;
 
-namespace FarmingTracker.DrfWebsocket
+namespace FarmingTracker
 {
-    public class CustomJsonConverter
+    public class CustomJsonConverter // todo committen dann lösch commit erstellen
     {
         public static DrfDrop Custom(string message)
         {
@@ -64,37 +64,5 @@ namespace FarmingTracker.DrfWebsocket
                 return drfDrop;
             }
         }
-
-
-        //while (reader.Read())
-        //{
-        //    if (reader.Value != null)
-        //    {
-        //        Console.WriteLine("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("Token: {0}", reader.TokenType);
-        //    }
-        //}
-
-        //while (reader.Read())
-        //{
-        //    if (reader.Value != null)
-        //    {
-        //        if (reader.TokenType == JsonToken.PropertyName)
-        //            currentProperty = reader.Value.ToString();
-
-        //        if (reader.TokenType == JsonToken.Integer && currentProperty == "items")
-        //            drfDrop.Curr = ""
-
-
-        //            if (reader.TokenType == JsonToken.Integer && currentProperty == "curr")
-        //            drfDrop.Code = ;
-
-        //        if (reader.TokenType == JsonToken.String && currentProperty == "timestamp")
-        //            drfDrop.TimeStamp = reader.Value.ToString();
-        //    }
-        //}
     }
 }

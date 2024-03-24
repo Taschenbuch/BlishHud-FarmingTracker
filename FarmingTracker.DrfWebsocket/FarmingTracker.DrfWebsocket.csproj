@@ -167,9 +167,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomJsonConverter.cs" />
-    <Compile Include="DrfMessage.cs" />
-    <Compile Include="DrfWebSocketClient.cs" />
     <Compile Include="JsonTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -181,6 +178,12 @@
   <ItemGroup>
     <Analyzer Include="..\FarmingTracker\packages\Microsoft.CodeAnalysis.Analyzers.3.3.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\FarmingTracker\packages\Microsoft.CodeAnalysis.Analyzers.3.3.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FarmingTracker\FarmingTracker.csproj">
+      <Project>{71347bb8-d1b0-450d-84b2-48f7d5a35993}</Project>
+      <Name>FarmingTracker</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

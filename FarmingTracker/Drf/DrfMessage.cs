@@ -1,9 +1,19 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace FarmingTracker.DrfWebsocket
+namespace FarmingTracker
 {
+    public static class Drf
+    {
+        // sometimes drf dll fails to get wallet snapshot after map change
+        public static List<DrfMessage> RemoveInvalidMessages(List<DrfMessage> drfMessages)
+        {
+            return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();
+        }
+    }
+
     public class DrfMessage
     {
         public DrfPayload Payload { get; set; } = new DrfPayload();
@@ -25,4 +35,6 @@ namespace FarmingTracker.DrfWebsocket
         public int MagicFind{ get; set; }
         public DateTime TimeStamp { get; set; }
     }
+
+
 }

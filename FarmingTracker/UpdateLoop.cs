@@ -46,6 +46,6 @@ namespace FarmingTracker
         public static readonly TimeSpan FARMING_UPDATE_INTERVAL_TIME = TimeSpan.FromMilliseconds(FARMING_UPDATE_INTERVAL_MS);
         public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 30 * 1000;
         public const int WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS = 2 * 1000;
-        private const int FARMING_UPDATE_INTERVAL_MS = 3 * 60 * 1000; // todo sinnvolle zeit angeben
+        private const int FARMING_UPDATE_INTERVAL_MS = 500;
     }
 }

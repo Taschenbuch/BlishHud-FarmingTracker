@@ -10,7 +10,17 @@ namespace FarmingTracker.DrfWebsocket
         {
             var drfWebSocketClient = new DrfWebSocketClient();
             await drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a");
-            //BenchmarkRunner.Run<JsonTest>();
+            //await Task.Delay(10000);
+            //await drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a");
+
+            //Console.WriteLine("Closing");
+            //await drfWebSocketClient.Close();
+            //Console.WriteLine("Closed");
+            //await Task.Delay(10000);
+            //Console.WriteLine("connecting");
+            //await drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a");
+            //Console.WriteLine("connected");
+            ////BenchmarkRunner.Run<JsonTest>();
             Console.ReadKey();
         }
     }
