@@ -59,8 +59,8 @@ namespace FarmingTracker
             };
 
             var tooltipText = string.IsNullOrWhiteSpace(item.Description)
-                ? $"{item.Name}\n{item.Count}" // todo hin
-                : $"{item.Name}\n{item.Description}\n{item.Count}";
+                ? $"{item.Count} {item.Name}"
+                : $"{item.Count} {item.Name}\n{item.Description}";
 
             var iconAssetId = item.IconAssetId == 0
                 ? 157084
