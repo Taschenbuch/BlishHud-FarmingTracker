@@ -8,12 +8,12 @@ namespace FarmingTracker
 {
     public class ApiToken
     {
-        public ApiToken(IReadOnlyList<TokenPermission> requiredApiTokenPermissions, Gw2ApiManager gw2ApiManager)
+        public ApiToken(Gw2ApiManager gw2ApiManager)
         {
-            var missingPermissions = GetMissingPermissions(requiredApiTokenPermissions, gw2ApiManager);
+            var missingPermissions = GetMissingPermissions(REQUIRED_API_TOKEN_PERMISSIONS, gw2ApiManager);
             MissingPermissions.AddRange(missingPermissions);
-            ApiTokenState = GetApiTokenState(requiredApiTokenPermissions, gw2ApiManager);
-            RequiredPermissions = requiredApiTokenPermissions.ToList();
+            ApiTokenState = GetApiTokenState(REQUIRED_API_TOKEN_PERMISSIONS, gw2ApiManager);
+            RequiredPermissions = REQUIRED_API_TOKEN_PERMISSIONS.ToList();
         }
 
         public bool CanAccessApi => ApiTokenState == ApiTokenState.CanAccessApi;
@@ -73,5 +73,15 @@ namespace FarmingTracker
         {
             TokenPermission.Account
         };
+
+        private readonly IReadOnlyList<TokenPermission> REQUIRED_API_TOKEN_PERMISSIONS = new List<TokenPermission>
+        {
+            TokenPermission.Account,
+            TokenPermission.Inventories,
+            TokenPermission.Characters,
+            TokenPermission.Wallet,
+            TokenPermission.Builds,
+            TokenPermission.Tradingpost,
+        }.AsReadOnly();
     }
 }

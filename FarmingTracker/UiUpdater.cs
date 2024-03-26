@@ -50,6 +50,7 @@ namespace FarmingTracker
             Hacks.AddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
             Hacks.AddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
         }
+
         private static LocationContainer CreateItem(ItemX item)
         {
             var itemContainer = new LocationContainer()
