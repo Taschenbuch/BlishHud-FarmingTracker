@@ -232,7 +232,6 @@ namespace FarmingTracker
             {
                 Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
-                OuterControlPadding = new Vector2(15, 10),
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
@@ -243,7 +242,6 @@ namespace FarmingTracker
             {
                 Title = "Items",
                 FlowDirection = ControlFlowDirection.LeftToRight,
-                OuterControlPadding = new Vector2(15, 10),
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,

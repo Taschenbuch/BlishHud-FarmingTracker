@@ -1,8 +1,5 @@
-﻿using Blish_HUD.Content;
-using Blish_HUD.Controls;
-using Blish_HUD;
+﻿using Blish_HUD.Controls;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using System.Linq;
 
 namespace FarmingTracker
@@ -48,37 +45,9 @@ namespace FarmingTracker
             var controls = new ControlCollection<Control>();
 
             foreach (var item in items)
-                controls.Add(CreateItem(item, services));
+                controls.Add(new StatContainer(item, services));
 
             return controls;
-        }
-
-        private static LocationContainer CreateItem(ItemX item, Services services)
-        {
-            var itemContainer = new LocationContainer()
-            {
-                Size = new Point(60), // fixed size prevents that the UI is flickering even thought nekres workaround is used.
-            };
-
-            new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
-            {
-                BasicTooltipText = item.Tooltip,
-                Opacity = item.Count > 0 ? 1f : 0.3f,
-                Size = new Point(60),
-                Parent = itemContainer
-            };
-
-            new Label
-            {
-                Text = item.Count.ToString(),
-                Font = services.FontService.Fonts[ContentService.FontSize.Size16],
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                StrokeText = true,
-                Parent = itemContainer
-            };
-
-            return itemContainer;
         }
     }
 }

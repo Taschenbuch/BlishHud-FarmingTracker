@@ -45,7 +45,7 @@ namespace FarmingTracker
         {
             var windowWidth = 560;
             var windowHeight = 640;
-            var flowPanelWidth = windowWidth - 50;
+            var flowPanelWidth = windowWidth - 47;
 
             var services = new Services(ContentsManager, Gw2ApiManager);
 
