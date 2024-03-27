@@ -188,7 +188,7 @@ namespace FarmingTracker
             _resetButton.Click += (s, e) =>
             {
                 _resetButton.Enabled = false;
-                _updateLoop.TiggerUpdateInstantly();
+                _updateLoop.TiggerUpdateInstantly(); // todo überflüssig?
                 // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
                 // Es muss aber weiterhin instant die flowpanels clearen.
                 _farmingTimeStopwatch.Restart();
