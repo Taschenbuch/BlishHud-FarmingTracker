@@ -1,14 +1,11 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
-using Gw2Sharp.WebApi.Exceptions;
-using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
@@ -19,8 +16,8 @@ namespace FarmingTracker
     {
         public FarmingTrackerWindow(
             AsyncTexture2D background,
-            Microsoft.Xna.Framework.Rectangle windowRegion, 
-            Microsoft.Xna.Framework.Rectangle contentRegion, 
+            Rectangle windowRegion, 
+            Rectangle contentRegion, 
             int flowPanelWidth, 
             Services services) 
             : base(background, windowRegion, contentRegion)
@@ -108,7 +105,7 @@ namespace FarmingTracker
             }
         }
 
-        public async void TrackItems()
+        private async void TrackItems()
         {
             try
             {
@@ -142,69 +139,17 @@ namespace FarmingTracker
             if (drfMessages.Count == 0)
                 return;
 
-            DrfSearcher.UpdateItemById(drfMessages, _itemById);
             DrfSearcher.UpdateCurrencyById(drfMessages, _currencyById);
+            DrfSearcher.UpdateItemById(drfMessages, _itemById);
+            
+            await StatDetailsSetter.SetCurrencyDetailsFromApi(_currencyById, _services);
+            await StatDetailsSetter.SetItemDetailsFromApi(_itemById, _services);
+            
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
+            
+            CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(_currencyById); // todo fixen, dann wieder nutzen
 
-            var currenciesWithoutDetails = _currencyById.Values.Where(c => c.IsApiInfoMissing).ToList();
-            if (currenciesWithoutDetails.Any())
-            {
-                Module.Logger.Info("currencies no AssetID " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
-                IReadOnlyList<Currency> apiCurrencies;
-
-                try
-                {
-                    // todo wenn nichts gefunden exception abfangen. weil die ist happy path
-                    apiCurrencies = await _services.Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(currenciesWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiCurrencies         " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
-                }
-                catch (Exception e)
-                {
-                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
-                        apiCurrencies = new List<Currency>();
-                    else
-                        throw new Gw2ApiException("API error: update currencies", e);
-                }
-
-                foreach (var apiCurrency in apiCurrencies)
-                {
-                    var currency = _currencyById[apiCurrency.Id];
-                    currency.Name = apiCurrency.Name;
-                    currency.Description = apiCurrency.Description;
-                    currency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
-                }
-            }
-
-            // todo 2x fast identischer code für currency und item. irgendwie verallgemeinern? auf jedenfall in class auslagern. müllt hier alles zu
-            var itemsWithoutDetails = _itemById.Values.Where(i => i.IsApiInfoMissing).ToList();
-            if (itemsWithoutDetails.Any())
-            {
-                Module.Logger.Info("items no AssetID      " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
-                IReadOnlyList<Item> apiItems;
-
-                try
-                {
-                    // todo wenn nichts gefunden exception abfangen. weil die ist happy path
-                    apiItems = await _services.Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiItems              " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
-                }
-                catch (Exception e)
-                {
-                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
-                        apiItems = new List<Item>();
-                    else
-                        throw new Gw2ApiException("API error: update items", e);
-                }
-
-                foreach (var apiItem in apiItems)
-                {
-                    var item = _itemById[apiItem.Id];
-                    item.Name = apiItem.Name;
-                    item.Description = apiItem.Description;
-                    item.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
-                }
-            }
-
-            //CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(_currencyById); // todo fixen, dann wieder nutzen
             var c = _currencyById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             var i = _itemById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             if (c.Any())
@@ -212,11 +157,8 @@ namespace FarmingTracker
 
             if (i.Any())
                 Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ", i)); // todo weg
-
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
         }
-
+     
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
         {
             _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
@@ -328,6 +270,5 @@ namespace FarmingTracker
         private readonly Texture2D _windowEmblemTexture;
         private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
         private readonly Services _services;
-        private const string GW2_API_DOES_NOT_KNOW_IDS = "all ids provided are invalid";
     }
 }
