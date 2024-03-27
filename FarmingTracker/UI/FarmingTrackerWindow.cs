@@ -205,8 +205,8 @@ namespace FarmingTracker
             }
 
             //CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(_currencyById); // todo fixen, dann wieder nutzen
-            var c = _currencyById.Values.Where(c => c.IconAssetId == 0).Select(i => i.ApiId).ToList(); // todo weg
-            var i = _itemById.Values.Where(c => c.IconAssetId == 0).Select(i => i.ApiId).ToList(); // todo weg
+            var c = _currencyById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
+            var i = _itemById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             if (c.Any())
                 Module.Logger.Info("NOT FOUND WITH API currencies: " + string.Join(" ", c)); // todo weg
 
