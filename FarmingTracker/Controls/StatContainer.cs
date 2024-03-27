@@ -28,7 +28,7 @@ namespace FarmingTracker
             new Label
             {
                 Text = item.Count.ToString(),
-                Font = services.FontService.Fonts[ContentService.FontSize.Size16],
+                Font = services.FontService.Fonts[ContentService.FontSize.Size20],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 StrokeText = true,

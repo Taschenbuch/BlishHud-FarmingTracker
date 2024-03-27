@@ -31,7 +31,7 @@ namespace FarmingTracker
             Id = "Ecksofa.FarmingTracker: error window";
             Location = new Point(300, 300);
             Parent = GameService.Graphics.SpriteScreen;
-            CreateUi(flowPanelWidth);
+            CreateUi(flowPanelWidth, services);
 
             _timeSinceModuleStartStopwatch.Start();
         }
@@ -40,7 +40,7 @@ namespace FarmingTracker
         {
             try
             {
-                await _drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a");
+                await _drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a", "wss://drf.rs/ws");
                 _farmingTimeStopwatch.Restart(); // muss starten wenn drf verbunden ist.
             }
             catch (Exception e)
@@ -164,7 +164,7 @@ namespace FarmingTracker
             _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
         }
 
-        private void CreateUi(int flowPanelWidth)
+        private void CreateUi(int flowPanelWidth, Services services)
         {
             _rootFlowPanel = new FlowPanel()
             {
@@ -213,7 +213,7 @@ namespace FarmingTracker
             _elapsedFarmingTimeLabel = new Label
             {
                 Text = "farming for -:--:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                Font = services.FontService.Fonts[FontSize.Size18],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Parent = _controlsFlowPanel
@@ -222,7 +222,7 @@ namespace FarmingTracker
             _nextUpdateCountdownLabel = new Label
             {
                 Text = "",
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                Font = services.FontService.Fonts[FontSize.Size18],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Parent = _controlsFlowPanel
