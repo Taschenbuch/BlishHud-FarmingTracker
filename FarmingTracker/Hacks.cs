@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class Hacks
     {
-        public static void AddChildrenWithoutUiFlickering(ControlCollection<Control> childs, Container parent)
+        public static void ClearAndAddChildrenWithoutUiFlickering(ControlCollection<Control> childs, Container parent)
         {
             foreach (var item in childs)
                 GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update

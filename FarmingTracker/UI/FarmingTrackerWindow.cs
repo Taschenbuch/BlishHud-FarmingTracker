@@ -87,7 +87,7 @@ namespace FarmingTracker
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
                     _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorTooltip;
                     if (!isGivingBlishSomeTimeToGiveToken)
-                        Module.Logger.Info(apiTokenErrorTooltip); // todo weg
+                        Module.Logger.Debug(apiTokenErrorTooltip);
 
                     _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;

@@ -47,8 +47,8 @@ namespace FarmingTracker
             foreach (var farmedCurrency in currencyById.Values)
                 currencies.Add(CreateItem(farmedCurrency));
 
-            Hacks.AddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
-            Hacks.AddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
         }
 
         private static LocationContainer CreateItem(ItemX item)
