@@ -16,39 +16,33 @@ namespace FarmingTracker
             FlowPanel farmedCurrenciesFlowPanel, 
             FlowPanel farmedItemsFlowPanel)
         {
-            if (!itemById.Any())
-            {
-                new Label
-                {
-                    Text = "No item changes detected yet!",
-                    AutoSizeWidth = true,
-                    AutoSizeHeight = true,
-                    Parent = farmedItemsFlowPanel
-                };
-            }
+            var noItemsFarmed = !itemById.Any();
+            var noCurrenciesFarmed = !currencyById.Any();
 
-            if (!currencyById.Any())
-            {
-                new Label
-                {
-                    Text = "No currency changes detected yet!",
-                    AutoSizeWidth = true,
-                    AutoSizeHeight = true,
-                    Parent = farmedCurrenciesFlowPanel
-                };
-            }
+            if (noItemsFarmed)
+                ControlFactory.CreateHintLabel(farmedItemsFlowPanel, "No item changes detected!");
 
+            if (noCurrenciesFarmed)
+                ControlFactory.CreateHintLabel(farmedCurrenciesFlowPanel, "No currency changes detected!");
+
+            if (noItemsFarmed && noCurrenciesFarmed)
+                return;
+
+            var items = CreateItems(itemById);
+            var currencies = CreateItems(currencyById);
+
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
+        }
+
+        private static ControlCollection<Control> CreateItems(Dictionary<int, ItemX> itemById)
+        {
             var items = new ControlCollection<Control>();
-            var currencies = new ControlCollection<Control>();
 
             foreach (var farmedItem in itemById.Values)
                 items.Add(CreateItem(farmedItem));
 
-            foreach (var farmedCurrency in currencyById.Values)
-                currencies.Add(CreateItem(farmedCurrency));
-
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
+            return items;
         }
 
         private static LocationContainer CreateItem(ItemX item)
