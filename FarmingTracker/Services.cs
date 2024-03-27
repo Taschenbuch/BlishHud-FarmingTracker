@@ -10,6 +10,7 @@ namespace FarmingTracker
             Gw2ApiManager = gw2ApiManager;
         }
 
+        public FontService FontService { get; } = new FontService();
         public ContentsManager ContentsManager { get; }
         public Gw2ApiManager Gw2ApiManager { get; }
     }

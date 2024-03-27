@@ -113,7 +113,7 @@ namespace FarmingTracker
             try
             {
                 await UseDrfAndApiToDetermineFarmedItems();
-                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
                 _nextUpdateCountdownLabel.Text = "";
             }
             catch (Gw2ApiException exception)
@@ -243,7 +243,7 @@ namespace FarmingTracker
                 _nextUpdateCountdownLabel.Text = "";
                 _itemById.Clear();
                 _currencyById.Clear();
-                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
                 _resetButton.Enabled = true;
             };
 

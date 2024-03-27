@@ -2,7 +2,6 @@
 using Blish_HUD.Controls;
 using Blish_HUD;
 using System.Collections.Generic;
-using static Blish_HUD.ContentService;
 using Microsoft.Xna.Framework;
 using System.Linq;
 
@@ -14,7 +13,8 @@ namespace FarmingTracker
             Dictionary<int, ItemX> currencyById, 
             Dictionary<int, ItemX> itemById, 
             FlowPanel farmedCurrenciesFlowPanel, 
-            FlowPanel farmedItemsFlowPanel)
+            FlowPanel farmedItemsFlowPanel,
+            Services services)
         {
             var noItemsFarmed = !itemById.Any();
             var noCurrenciesFarmed = !currencyById.Any();
@@ -28,24 +28,24 @@ namespace FarmingTracker
             if (noItemsFarmed && noCurrenciesFarmed)
                 return;
 
-            var items = CreateItems(itemById);
-            var currencies = CreateItems(currencyById);
+            var items = CreateItems(itemById, services);
+            var currencies = CreateItems(currencyById, services);
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
         }
 
-        private static ControlCollection<Control> CreateItems(Dictionary<int, ItemX> itemById)
+        private static ControlCollection<Control> CreateItems(Dictionary<int, ItemX> itemById, Services services)
         {
             var items = new ControlCollection<Control>();
 
             foreach (var farmedItem in itemById.Values)
-                items.Add(CreateItem(farmedItem));
+                items.Add(CreateItem(farmedItem, services));
 
             return items;
         }
 
-        private static LocationContainer CreateItem(ItemX item)
+        private static LocationContainer CreateItem(ItemX item, Services services)
         {
             var itemContainer = new LocationContainer()
             {
@@ -71,7 +71,7 @@ namespace FarmingTracker
             new Label
             {
                 Text = item.Count.ToString(),
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size16, FontStyle.Regular), // todo ständige GetFont() calls
+                Font = services.FontService.Fonts[ContentService.FontSize.Size16],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 StrokeText = true,
