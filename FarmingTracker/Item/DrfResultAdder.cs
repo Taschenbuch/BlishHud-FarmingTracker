@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace FarmingTracker
 {
-    public class DrfSearcher
+    public class DrfResultAdder
     {
         public static void UpdateItemById(List<DrfMessage> drfMessages, Dictionary<int, ItemX> oldItemById)
         {

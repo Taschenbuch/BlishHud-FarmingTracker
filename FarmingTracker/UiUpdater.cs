@@ -28,21 +28,22 @@ namespace FarmingTracker
             if (noItemsFarmed && noCurrenciesFarmed)
                 return;
 
-            var items = CreateItems(itemById, services);
-            var currencies = CreateItems(currencyById, services);
+            var sortedCurrencies = currencyById.Values.Where(c => !c.IsCoin).OrderBy(c => c.ApiId).ToList();
+            var currencyControls = CreateItems(sortedCurrencies, services);
+            var itemControls = CreateItems(itemById.Values.ToList(), services);
 
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(items, farmedItemsFlowPanel);
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencies, farmedCurrenciesFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, farmedItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, farmedCurrenciesFlowPanel);
         }
 
-        private static ControlCollection<Control> CreateItems(Dictionary<int, ItemX> itemById, Services services)
+        private static ControlCollection<Control> CreateItems(List<ItemX> items, Services services)
         {
-            var items = new ControlCollection<Control>();
+            var controls = new ControlCollection<Control>();
 
-            foreach (var farmedItem in itemById.Values)
-                items.Add(CreateItem(farmedItem, services));
+            foreach (var item in items)
+                controls.Add(CreateItem(item, services));
 
-            return items;
+            return controls;
         }
 
         private static LocationContainer CreateItem(ItemX item, Services services)

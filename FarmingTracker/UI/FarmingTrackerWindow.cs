@@ -139,8 +139,8 @@ namespace FarmingTracker
             if (drfMessages.Count == 0)
                 return;
 
-            DrfSearcher.UpdateCurrencyById(drfMessages, _currencyById);
-            DrfSearcher.UpdateItemById(drfMessages, _itemById);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, _currencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, _itemById);
             
             await StatDetailsSetter.SetCurrencyDetailsFromApi(_currencyById, _services);
             await StatDetailsSetter.SetItemDetailsFromApi(_itemById, _services);
@@ -148,7 +148,7 @@ namespace FarmingTracker
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
             
-            CurrencySearcher.ReplaceCoinItemWithGoldSilverCopperItems(_currencyById); // todo fixen, dann wieder nutzen
+            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById); // todo fixen, dann wieder nutzen
 
             var c = _currencyById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             var i = _itemById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
