@@ -10,6 +10,7 @@ namespace FarmingTracker
         {
             foreach (var item in childs)
                 GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update
+
             GetPrivateField(parent, "_children").SetValue(parent, childs);
             parent.Invalidate();
         }

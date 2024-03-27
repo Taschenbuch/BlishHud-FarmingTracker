@@ -148,13 +148,13 @@ namespace FarmingTracker
             var currenciesWithoutDetails = _currencyById.Values.Where(c => c.IconAssetId == 0).Where(c => c.ApiId != OBSOLETE_GLORY_CURRENCY_ID).ToList();
             if (currenciesWithoutDetails.Any())
             {
-                Module.Logger.Info("currencies no AssetID " + string.Join(" ,", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
+                Module.Logger.Info("currencies no AssetID " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
                 IReadOnlyList<Currency> apiCurrencies;
 
                 try
                 {
                     apiCurrencies = await _services.Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(currenciesWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiCurrencies         " + string.Join(" ,", apiCurrencies.Select(c => c.Id))); // todo weg
+                    Module.Logger.Info("apiCurrencies         " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
@@ -173,13 +173,13 @@ namespace FarmingTracker
             var itemsWithoutDetails = _itemById.Values.Where(i => i.IconAssetId == 0).Where(c => c.ApiId != MISSING_YELLOW_ENTIAN_FLOWER_ITEM_ID).ToList();
             if (itemsWithoutDetails.Any())
             {
-                Module.Logger.Info("items no AssetID      " + string.Join(" ,", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
+                Module.Logger.Info("items no AssetID      " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
                 IReadOnlyList<Item> apiItems;
 
                 try
                 {
                     apiItems = await _services.Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiItems              " + string.Join(" ,", apiItems.Select(c => c.Id))); // todo weg
+                    Module.Logger.Info("apiItems              " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
@@ -199,10 +199,10 @@ namespace FarmingTracker
             var c = _currencyById.Values.Where(c => c.IconAssetId == 0).Select(i => i.ApiId).ToList(); // todo weg
             var i = _itemById.Values.Where(c => c.IconAssetId == 0).Select(i => i.ApiId).ToList(); // todo weg
             if (c.Any())
-                Module.Logger.Info("NOT FOUND WITH API currencies: " + string.Join(" ,", c)); // todo weg
+                Module.Logger.Info("NOT FOUND WITH API currencies: " + string.Join(" ", c)); // todo weg
 
             if (i.Any())
-                Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ,", i)); // todo weg
+                Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ", i)); // todo weg
         }
 
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
