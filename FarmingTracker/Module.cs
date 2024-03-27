@@ -4,6 +4,7 @@ using Blish_HUD;
 using Blish_HUD.Content;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
+using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
@@ -22,6 +23,16 @@ namespace FarmingTracker
         [ImportingConstructor]
         public Module([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(moduleParameters)
         {
+        }
+
+        protected override void DefineSettings(SettingCollection settings)
+        {
+            _services = new Services()
+            {
+                ContentsManager = ContentsManager,
+                Gw2ApiManager = Gw2ApiManager,
+                SettingService = new SettingService(settings),
+            };
         }
 
         protected override async Task LoadAsync()
@@ -47,14 +58,12 @@ namespace FarmingTracker
             var windowHeight = 640;
             var flowPanelWidth = windowWidth - 47;
 
-            var services = new Services(ContentsManager, Gw2ApiManager);
-
             var farmingTrackerWindow = new FarmingTrackerWindow(
                 AsyncTexture2D.FromAssetId(155997),
                 new Rectangle(25, 26, windowWidth, windowHeight),
                 new Rectangle(40, 50, windowWidth - 20, windowHeight - 50),
                 flowPanelWidth,
-                services);
+                _services);
 
             await farmingTrackerWindow.InitAsync();
             return farmingTrackerWindow;
@@ -62,5 +71,6 @@ namespace FarmingTracker
 
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindow _farmingTrackerWindow;
+        private Services _services;
     }
 }

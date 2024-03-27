@@ -4,14 +4,10 @@ namespace FarmingTracker
 {
     public class Services
     {
-        public Services(ContentsManager contentsManager, Gw2ApiManager gw2ApiManager)
-        {
-            ContentsManager = contentsManager;
-            Gw2ApiManager = gw2ApiManager;
-        }
 
         public FontService FontService { get; } = new FontService();
-        public ContentsManager ContentsManager { get; }
-        public Gw2ApiManager Gw2ApiManager { get; }
+        public ContentsManager ContentsManager { get; set; }
+        public Gw2ApiManager Gw2ApiManager { get; set; }
+        public SettingService SettingService { get; set; }
     }
 }
