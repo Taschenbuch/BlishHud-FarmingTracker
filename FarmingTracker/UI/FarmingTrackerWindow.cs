@@ -58,8 +58,6 @@ namespace FarmingTracker
             base.DisposeControl();
         }
  
-        public bool TrackItemsIsRunning { get; set; } // todo wieder private field machen
-
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
         {
             var farmingTime = _farmingTimeStopwatch.Elapsed;
@@ -96,13 +94,13 @@ namespace FarmingTracker
                 if (_nextUpdateCountdownLabel.Text == LOADING_HINT_TEXT) // todo blöd, dass das jedes mal geprüft wird aber nur 1x beim start nötig ist
                     _nextUpdateCountdownLabel.Text = "";
 
-                if (!TrackItemsIsRunning)
+                if (!_trackItemsIsRunning)
                 {
                     if (!_drfWebSocketClient.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
                         return;
 
                     _nextUpdateCountdownLabel.Text = "updating...";
-                    TrackItemsIsRunning = true;
+                    _trackItemsIsRunning = true;
                     Task.Run(() => TrackItems());
                 }
             }
@@ -130,7 +128,7 @@ namespace FarmingTracker
             finally
             {
                 _updateLoop.ResetRunningTime();
-                TrackItemsIsRunning = false;
+                _trackItemsIsRunning = false;
             }
         }
 
@@ -297,6 +295,7 @@ namespace FarmingTracker
             };
         }
 
+        private bool _trackItemsIsRunning;
         private Label _elapsedFarmingTimeLabel;
         private Label _nextUpdateCountdownLabel;
         private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch(); // extract farming time and next update
