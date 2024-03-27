@@ -6,10 +6,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ClientWebSocket sends pong responses, when pinged. Does not send ping https://github.com/dotnet/runtime/issues/48729
+// windows tcp keep-alive timeout für idle tcp verbindungen: ca 2h
+
 namespace FarmingTracker
 {
-    public class DrfWebSocketClient
+    public class DrfWebSocketClient: IDisposable
     {
+        public event EventHandler ConnectFailed;
+        public event EventHandler ConnectCrashed;
+        public event EventHandler AuthenticationFailed;
+        public event EventHandler ReceivedUnexpectedBinaryMessage;
+        public event EventHandler ReceivedUnexpectedNotOpen;
+        public event EventHandler ReceivedCrashed;
+
         public bool HasNewDrfMessages()
         {
             lock (_messagesLock)
@@ -27,86 +37,83 @@ namespace FarmingTracker
             }
         }
 
-        // do not use Dispose pattern here, because async/await is required. https://stackoverflow.com/a/56716998
-        // and object will be reused which should not be the case when using .Dispose() (i think?)
-        public async Task Close()
+        public void Dispose()
         {
-            if (_isClosing)
-                return;
-            
-            _isClosing = true;
-            if(_clientWebSocket != null && (_clientWebSocket.State == WebSocketState.Open || _clientWebSocket.State == WebSocketState.CloseReceived || _clientWebSocket.State == WebSocketState.Connecting))
-            {
-                try
-                {
-                    // todo überflüssig? einfach nicht machen?
-                    await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, default).ConfigureAwait(false);
-                }
-                catch (Exception) { /* NOOP */ }
-            }
-
-            _cancelationTokenSource.Cancel();
-            _clientWebSocket?.Abort(); // includes .Dispose()
-            _clientWebSocket = null;
-            // todo cancelation token triggern (muss man exception davon awaiten? ja oder? läuft auf anderem thread?
-            // todo oder egal, weil anderer thread es selbst handeln muss? wahrscheinlich einfacher
+            Close();
         }
 
-        public async Task Connect(string drfApiToken)
+        // does not call await _clientWebSocket.CloseOutputAsync() on purpose to prevent async/await.
+        public void Close()
+        {
+            if (_isClosed)
+                return;
+            
+            _isClosed = true;
+            _cancelationTokenSource.Cancel();
+            _clientWebSocket?.Abort(); // includes .Dispose()
+            _clientWebSocket = null; 
+            // muss der websocket überhaupt disposed/Abort werden? einfach am leben lassen ginge doch auch, oder? oder hängt er dann irgendwie fest in nem komischen state?
+        }
+
+        public async Task Connect(string drfApiToken, string webSocketUrl)
         {
             try
             {
-                //await Close(); // todo _isClosing reicht nicht, muss komplett geclosed sein bevor Connect() wieder starten kann. doofes await..
-
-                _cancelationTokenSource = new CancellationTokenSource();
-                // ClientWebSocket sends pong responses, when pinged. Does not send ping https://github.com/dotnet/runtime/issues/48729
-                // windows tcp keep-alive timeout für idle tcp verbindungen: ca 2h
-                var uri = new Uri("wss://drf.rs/ws");
-                var authenticationBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfApiToken}"));
+                Close();
+                var cancelationTokenSource = new CancellationTokenSource();
+                _cancelationTokenSource = cancelationTokenSource; // use local because of reentrancy. Should not happen, but may when i refactor something in the future
                 _clientWebSocket = new ClientWebSocket();
+                _isClosed = false;
 
                 try
                 {
-                    await _clientWebSocket.ConnectAsync(uri, _cancelationTokenSource.Token).ConfigureAwait(false); // todo try catch?
+                    await _clientWebSocket.ConnectAsync(new Uri(webSocketUrl), cancelationTokenSource.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
                 }
                 catch (Exception)
                 {
-                    // todo ConnectFailed event? retry wäre hier möglich. overkill?
-                    // todo lieber in caller class handeln? weil dann kann ich bei bedarf neuen key übergeben
-                    Console.WriteLine("ConnectFailed");
+                    ConnectFailed?.Invoke(this, default);
                     return;
                 }
+                
+                var authenticationBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfApiToken}"));
 
                 try
                 {
-                    await _clientWebSocket.SendAsync(authenticationBuffer, WebSocketMessageType.Text, true, _cancelationTokenSource.Token).ConfigureAwait(false); // todo try catch?
+                    await _clientWebSocket.SendAsync(authenticationBuffer, WebSocketMessageType.Text, true, cancelationTokenSource.Token).ConfigureAwait(false); 
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
                 }
                 catch (Exception)
                 {
-                    // todo AuthenticationFailed event?
-                    Console.WriteLine("AuthenticationFailed");
+                    AuthenticationFailed?.Invoke(this, default);
                     return;
                 }
 
-                await Task.Run(() => Receive(_cancelationTokenSource.Token), _cancelationTokenSource.Token); // still fire and forget because of "async void Receive".
+                await Task.Run(() => Receive(cancelationTokenSource.Token), cancelationTokenSource.Token); // still fire and forget because of "async void Receive".
             }
             catch (OperationCanceledException)
             {
+                return;
+            }
+            catch(Exception)
+            {
+                ConnectCrashed?.Invoke(this, default);
                 return;
             }
         }
 
         private async void Receive(CancellationToken cancellationToken)
         {
-            // todo allgeminer try catch notwendig
             var messageNumber = 1;
-
             var receiveBuffer = new byte[RECEIVE_BUFFER_SIZE];
             WebSocketReceiveResult receiveResult;
 
-            //while (true)
-            //while (messageNumber <= 300)
-            // todo while (!cancellationToken.IsCancellationRequested)? siehe socket.io. ich glaub das ist code smell? token wird ja schon in calls gehandled
             try
             {
                 while (true)
@@ -114,7 +121,7 @@ namespace FarmingTracker
                     cancellationToken.ThrowIfCancellationRequested();
                     if (_clientWebSocket.State != WebSocketState.Open)
                     {
-                        // todo event nötig?
+                        ReceivedUnexpectedNotOpen?.Invoke(this, default);
                         Console.WriteLine("clientWebSocket.State " + _clientWebSocket.State.ToString() + " " + _clientWebSocket.CloseStatus + " " + _clientWebSocket.CloseStatusDescription);
                         return;
                     }
@@ -139,7 +146,7 @@ namespace FarmingTracker
                     {
                         var receivedJson = Encoding.UTF8.GetString(receiveBuffer, 0, offsetInReceiveBuffer);
 
-                        var mapOrCharacterSelectHasBeenEnteredOrLeft = receivedJson[9] == 's'; // {"kind":"session_update" .... // todo test ob klappt
+                        var mapOrCharacterSelectHasBeenEnteredOrLeft = receivedJson[9] == 's';
                         if (mapOrCharacterSelectHasBeenEnteredOrLeft)
                             continue;
 
@@ -148,36 +155,40 @@ namespace FarmingTracker
                         lock (_messagesLock)
                             _drfMessages.Add(drfMessage);
                         
-                        Console.WriteLine($"{messageNumber} ({offsetInReceiveBuffer} bytes): {receivedJson}");
-                        Console.WriteLine();
+                        Console.WriteLine($"{messageNumber} ({offsetInReceiveBuffer} bytes): {receivedJson}\n");
                         messageNumber++;
                     }
                     else // WebSocketMessageType.Binary
                     {
-                        Console.WriteLine("unexpected MessageType: " + receiveResult.MessageType.ToString()); // todo alle Console.WriteLine durch logger tauschen
+                        ReceivedUnexpectedBinaryMessage?.Invoke(this, default);
+                        Console.WriteLine("unexpected MessageType: " + receiveResult.MessageType.ToString());
                     }
                 }
             }
-            catch (WebSocketException e)
-            {
-                // todo sprach abhängig leider. 
-                if (e.Message == "The 'System.Net.WebSockets.InternalClientWebSocket' instance cannot be used for communication because it has been transitioned into the 'Aborted' state.")
-                    return;
-            }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("OperationCanceledException");
-                // todo kein event nötig oder? weil cancel ist ja bewusst? oder nicht?
+                return;
+            }
+            catch (WebSocketException e)
+            {
+                // probably affected by localisation...
+                if (e.Message == "The 'System.Net.WebSockets.InternalClientWebSocket' instance cannot be used for communication because it has been transitioned into the 'Aborted' state.")
+                    return;
+
+                ReceivedCrashed?.Invoke(this, default);
+                return;
+            }
+            catch (Exception)
+            {
+                ReceivedCrashed?.Invoke(this, default);
                 return;
             }
         }
 
-        //await _sendLock.WaitAsync(CancellationToken.None).ConfigureAwait(false); // todo sinnvoll hier? wahrscheinlich nicht
-        //readonly SemaphoreSlim _sendLock; // todo lock allgemein? // todo weg?
         private List<DrfMessage> _drfMessages = new List<DrfMessage>();
         private static readonly object _messagesLock = new Object();
         private ClientWebSocket _clientWebSocket;
-        private bool _isClosing;
+        private bool _isClosed = true;
         private const int PARTIAL_RECEIVE_BUFFER_SIZE = 4000;
         private const int RECEIVE_BUFFER_SIZE = 10 * PARTIAL_RECEIVE_BUFFER_SIZE;
         private CancellationTokenSource _cancelationTokenSource;
