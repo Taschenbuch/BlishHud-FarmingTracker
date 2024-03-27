@@ -1,6 +1,7 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
+using Gw2Sharp.WebApi.Exceptions;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -96,6 +97,7 @@ namespace FarmingTracker
 
                 if (!_trackItemsIsRunning)
                 {
+                    _nextUpdateCountdownLabel.Text = "";
                     if (!_drfWebSocketClient.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
                         return;
 
@@ -118,7 +120,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
                 _updateLoop.UseRetryAfterApiFailureUpdateInterval();
-                _nextUpdateCountdownLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s (TODO: display countdown)"; // todo countdown
+                _nextUpdateCountdownLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
@@ -143,7 +145,7 @@ namespace FarmingTracker
             DrfSearcher.GetItemById(drfMessages, _itemById);
             DrfSearcher.GetCurrencyById(drfMessages, _currencyById);
 
-            var currenciesWithoutDetails = _currencyById.Values.Where(c => c.IconAssetId == 0).Where(c => c.ApiId != OBSOLETE_GLORY_CURRENCY_ID).ToList();
+            var currenciesWithoutDetails = _currencyById.Values.Where(c => c.IsApiInfoMissing).ToList();
             if (currenciesWithoutDetails.Any())
             {
                 Module.Logger.Info("currencies no AssetID " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
@@ -151,12 +153,16 @@ namespace FarmingTracker
 
                 try
                 {
+                    // todo wenn nichts gefunden exception abfangen. weil die ist happy path
                     apiCurrencies = await _services.Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(currenciesWithoutDetails.Select(c => c.ApiId));
                     Module.Logger.Info("apiCurrencies         " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
-                    throw new Gw2ApiException("API error: update currencies", e);
+                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
+                        apiCurrencies = new List<Currency>();
+                    else
+                        throw new Gw2ApiException("API error: update currencies", e);
                 }
 
                 foreach (var apiCurrency in apiCurrencies)
@@ -168,7 +174,8 @@ namespace FarmingTracker
                 }
             }
 
-            var itemsWithoutDetails = _itemById.Values.Where(i => i.IconAssetId == 0).Where(c => c.ApiId != MISSING_YELLOW_ENTIAN_FLOWER_ITEM_ID).ToList();
+            // todo 2x fast identischer code für currency und item. irgendwie verallgemeinern? auf jedenfall in class auslagern. müllt hier alles zu
+            var itemsWithoutDetails = _itemById.Values.Where(i => i.IsApiInfoMissing).ToList();
             if (itemsWithoutDetails.Any())
             {
                 Module.Logger.Info("items no AssetID      " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
@@ -176,20 +183,24 @@ namespace FarmingTracker
 
                 try
                 {
+                    // todo wenn nichts gefunden exception abfangen. weil die ist happy path
                     apiItems = await _services.Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
                     Module.Logger.Info("apiItems              " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
-                    throw new Gw2ApiException("API error: update items", e);
+                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
+                        apiItems = new List<Item>();
+                    else
+                        throw new Gw2ApiException("API error: update items", e);
                 }
 
                 foreach (var apiItem in apiItems)
                 {
-                    var currency = _itemById[apiItem.Id];
-                    currency.Name = apiItem.Name;
-                    currency.Description = apiItem.Description;
-                    currency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
+                    var item = _itemById[apiItem.Id];
+                    item.Name = apiItem.Name;
+                    item.Description = apiItem.Description;
+                    item.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
                 }
             }
 
@@ -201,6 +212,9 @@ namespace FarmingTracker
 
             if (i.Any())
                 Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ", i)); // todo weg
+
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
         }
 
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
@@ -308,13 +322,12 @@ namespace FarmingTracker
         private readonly Dictionary<int, ItemX> _currencyById = new Dictionary<int, ItemX>();
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
-        private const int OBSOLETE_GLORY_CURRENCY_ID = 17; // workaround for drf test data.
-        private const int MISSING_YELLOW_ENTIAN_FLOWER_ITEM_ID = 17; // workaround for drf test data.
         private FlowPanel _rootFlowPanel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
         private readonly Texture2D _windowEmblemTexture;
         private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
         private readonly Services _services;
+        private const string GW2_API_DOES_NOT_KNOW_IDS = "all ids provided are invalid";
     }
 }

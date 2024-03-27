@@ -10,9 +10,9 @@ namespace FarmingTracker
     public class UiUpdater
     {
         public static void UpdateUi(
-            Dictionary<int, ItemX> currencyById, 
-            Dictionary<int, ItemX> itemById, 
-            FlowPanel farmedCurrenciesFlowPanel, 
+            Dictionary<int, ItemX> currencyById,
+            Dictionary<int, ItemX> itemById,
+            FlowPanel farmedCurrenciesFlowPanel,
             FlowPanel farmedItemsFlowPanel,
             Services services)
         {
@@ -49,20 +49,12 @@ namespace FarmingTracker
         {
             var itemContainer = new LocationContainer()
             {
-                Size = new Point(60), // without fixed size the UI will start flickering again
+                Size = new Point(60), // fixed size prevents that the UI is flickering even thought nekres workaround is used.
             };
 
-            var tooltipText = string.IsNullOrWhiteSpace(item.Description)
-                ? $"{item.Count} {item.Name}"
-                : $"{item.Count} {item.Name}\n{item.Description}";
-
-            var iconAssetId = item.IconAssetId == 0
-                ? 157084
-                : item.IconAssetId;
-
-            new Image(AsyncTexture2D.FromAssetId(iconAssetId))
+            new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
             {
-                BasicTooltipText = tooltipText,
+                BasicTooltipText = item.Tooltip,
                 Opacity = item.Count > 0 ? 1f : 0.3f,
                 Size = new Point(60),
                 Parent = itemContainer
