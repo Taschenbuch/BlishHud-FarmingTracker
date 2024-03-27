@@ -1,7 +1,6 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
-using Blish_HUD.Modules.Managers;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -58,94 +57,7 @@ namespace FarmingTracker
             _windowEmblemTexture?.Dispose();
             base.DisposeControl();
         }
-
-        private void CreateUi(int flowPanelWidth)
-        {
-            _rootFlowPanel = new FlowPanel()
-            {
-                FlowDirection = ControlFlowDirection.SingleTopToBottom,
-                CanScroll = true,
-                ControlPadding = new Vector2(0, 10),
-                WidthSizingMode = SizingMode.Fill,
-                HeightSizingMode = SizingMode.Fill,
-                Parent = this,
-            };
-
-            _resetButton = new StandardButton()
-            {
-                Text = "Reset",
-                BasicTooltipText = "Start new farming session by resetting farmed items and currencies.",
-                Width = 90,
-                Left = 460,
-                Parent = _rootFlowPanel,
-            };
-
-            _resetButton.Click += (s, e) =>
-            {
-                _resetButton.Enabled = false;
-                _updateLoop.TiggerUpdateInstantly();
-                // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
-                // Es muss aber weiterhin instant die flowpanels clearen.
-                _farmingTimeStopwatch.Restart();
-                _oldFarmingTime = TimeSpan.Zero;
-                UpdateFarmingTimeLabelText(TimeSpan.Zero);
-                _nextUpdateCountdownLabel.Text = "";
-                _itemById.Clear();
-                _currencyById.Clear();
-                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
-                _resetButton.Enabled = true;
-            };
-
-            _controlsFlowPanel = new FlowPanel()
-            {
-                FlowDirection = ControlFlowDirection.SingleLeftToRight,
-                ControlPadding = new Vector2(20, 0),
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
-            };
-
-            _elapsedFarmingTimeLabel = new Label
-            {
-                Text = "farming for -:--:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                Parent = _controlsFlowPanel
-            };
-
-            _nextUpdateCountdownLabel = new Label
-            {
-                Text = "",
-                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                Parent = _controlsFlowPanel
-            };
-
-            _farmedCurrenciesFlowPanel = new FlowPanel()
-            {
-                Title = "Currencies",
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                OuterControlPadding = new Vector2(15, 10),
-                CanCollapse = true,
-                Width = flowPanelWidth,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
-            };
-
-            _farmedItemsFlowPanel = new FlowPanel()
-            {
-                Title = "Items",
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                OuterControlPadding = new Vector2(15, 10),
-                CanCollapse = true,
-                Width = flowPanelWidth,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
-            };
-        }
-
+ 
         public bool TrackItemsIsRunning { get; set; } // todo wieder private field machen
 
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
@@ -195,7 +107,6 @@ namespace FarmingTracker
                 }
             }
         }
-
 
         public async void TrackItems()
         {
@@ -297,6 +208,93 @@ namespace FarmingTracker
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
         {
             _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
+        }
+
+        private void CreateUi(int flowPanelWidth)
+        {
+            _rootFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                CanScroll = true,
+                ControlPadding = new Vector2(0, 10),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.Fill,
+                Parent = this,
+            };
+
+            _resetButton = new StandardButton()
+            {
+                Text = "Reset",
+                BasicTooltipText = "Start new farming session by resetting farmed items and currencies.",
+                Width = 90,
+                Left = 460,
+                Parent = _rootFlowPanel,
+            };
+
+            _resetButton.Click += (s, e) =>
+            {
+                _resetButton.Enabled = false;
+                _updateLoop.TiggerUpdateInstantly();
+                // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
+                // Es muss aber weiterhin instant die flowpanels clearen.
+                _farmingTimeStopwatch.Restart();
+                _oldFarmingTime = TimeSpan.Zero;
+                UpdateFarmingTimeLabelText(TimeSpan.Zero);
+                _nextUpdateCountdownLabel.Text = "";
+                _itemById.Clear();
+                _currencyById.Clear();
+                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel);
+                _resetButton.Enabled = true;
+            };
+
+            _controlsFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                ControlPadding = new Vector2(20, 0),
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel
+            };
+
+            _elapsedFarmingTimeLabel = new Label
+            {
+                Text = "farming for -:--:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = _controlsFlowPanel
+            };
+
+            _nextUpdateCountdownLabel = new Label
+            {
+                Text = "",
+                Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Regular),
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = _controlsFlowPanel
+            };
+
+            _farmedCurrenciesFlowPanel = new FlowPanel()
+            {
+                Title = "Currencies",
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                OuterControlPadding = new Vector2(15, 10),
+                CanCollapse = true,
+                Width = flowPanelWidth,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel
+            };
+
+            _farmedItemsFlowPanel = new FlowPanel()
+            {
+                Title = "Items",
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                OuterControlPadding = new Vector2(15, 10),
+                CanCollapse = true,
+                Width = flowPanelWidth,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel
+            };
         }
 
         private Label _elapsedFarmingTimeLabel;
