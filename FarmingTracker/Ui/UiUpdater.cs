@@ -31,8 +31,16 @@ namespace FarmingTracker
             if (noItemsFarmed && noCurrenciesFarmed)
                 return;
 
-            var sortedCurrencies = currencyById.Values.Where(c => !c.IsCoin).OrderBy(c => c.ApiId).ToList();
-            var sortedItems = itemById.Values.OrderBy(i => i.ApiId).ToList();
+            var sortedCurrencies = currencyById.Values
+                .Where(c => !c.IsCoin)
+                .OrderBy(c => c.ApiId)
+                .ToList();
+
+            var sortedItems = itemById.Values
+                .OrderBy(i => i.Count >= 0 ? -1 : 1)
+                .ThenBy(i => i.ApiId)
+                .ToList();
+
             var currencyControls = CreateItems(sortedCurrencies, services);
             var itemControls = CreateItems(sortedItems, services);
 
