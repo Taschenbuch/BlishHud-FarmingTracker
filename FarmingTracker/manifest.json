@@ -5,7 +5,7 @@
   "package": "FarmingTracker.dll",
   "manifest_version": 1,
 
-  "description": "Tracks item and currency changes on your account. Click on its menu icon at the top left of the gw2 screen to show the tracker window.",
+  "description": "Tracks item and currency changes on your account. Click on its menu icon at the top left of the gw2 screen to show the tracker window. Requires at least Window 8",
   "dependencies": {
     "bh.blishhud": ">=1.1.1"
   },

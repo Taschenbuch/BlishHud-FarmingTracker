@@ -20,17 +20,24 @@ namespace FarmingTracker
             var noCurrenciesFarmed = !currencyById.Any();
 
             if (noItemsFarmed)
+            {
+                farmedItemsFlowPanel.ClearChildren();
                 ControlFactory.CreateHintLabel(farmedItemsFlowPanel, "No item changes detected!");
+            }
 
             if (noCurrenciesFarmed)
+            {
+                farmedCurrenciesFlowPanel.ClearChildren();
                 ControlFactory.CreateHintLabel(farmedCurrenciesFlowPanel, "No currency changes detected!");
+            }
 
             if (noItemsFarmed && noCurrenciesFarmed)
                 return;
 
             var sortedCurrencies = currencyById.Values.Where(c => !c.IsCoin).OrderBy(c => c.ApiId).ToList();
+            var sortedItems = itemById.Values.OrderBy(i => i.ApiId).ToList();
             var currencyControls = CreateItems(sortedCurrencies, services);
-            var itemControls = CreateItems(itemById.Values.ToList(), services);
+            var itemControls = CreateItems(sortedItems, services);
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, farmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, farmedCurrenciesFlowPanel);
