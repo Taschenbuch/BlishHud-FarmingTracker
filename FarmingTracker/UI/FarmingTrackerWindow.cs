@@ -54,7 +54,7 @@ namespace FarmingTracker
 
         protected override void DisposeControl()
         {
-            _drfWebSocketClient?.Close(); // fire and forget
+            _drfWebSocketClient?.Close(); // fire and forget, gehört nicht ins farming window. eher irgendwie automatisch im module handeln?
             _windowEmblemTexture?.Dispose();
             base.DisposeControl();
         }
@@ -142,8 +142,8 @@ namespace FarmingTracker
             if (drfMessages.Count == 0)
                 return;
 
-            DrfSearcher.GetItemById(drfMessages, _itemById);
-            DrfSearcher.GetCurrencyById(drfMessages, _currencyById);
+            DrfSearcher.UpdateItemById(drfMessages, _itemById);
+            DrfSearcher.UpdateCurrencyById(drfMessages, _currencyById);
 
             var currenciesWithoutDetails = _currencyById.Values.Where(c => c.IsApiInfoMissing).ToList();
             if (currenciesWithoutDetails.Any())

@@ -8,7 +8,6 @@
         public int Count { get; set; }
         public int ApiId { get; set; }
         public int IconAssetId { get; set; }
-        public ApiIdType ApiIdType { get; set; } // todo überflüssig?
         public bool IsApiInfoMissing => IconAssetId == 0 || IconAssetId == IconAssetIdAndTooltipSetter.BUG_TEXTURE_ASSET_ID;
     }
 }

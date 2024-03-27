@@ -17,7 +17,6 @@ namespace FarmingTracker
                 Count = coin.Gold,
                 IconAssetId = 156904,
                 ApiId = -3,
-                ApiIdType = ApiIdType.Currency,
             };
 
             var silverItem = new ItemX
@@ -26,7 +25,6 @@ namespace FarmingTracker
                 Count = coin.Silver,
                 IconAssetId = 156907,
                 ApiId = -2,
-                ApiIdType = ApiIdType.Currency,
             };
 
             var copperItem = new ItemX
@@ -35,7 +33,6 @@ namespace FarmingTracker
                 Count = coin.Copper,
                 IconAssetId = 156902,
                 ApiId = -1,
-                ApiIdType = ApiIdType.Currency,
             };
             currencyById.Remove(COIN_CURRENCY_ID);
             currencyById[goldItem.ApiId] = goldItem;

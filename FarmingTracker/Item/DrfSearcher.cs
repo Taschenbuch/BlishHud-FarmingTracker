@@ -5,13 +5,13 @@ namespace FarmingTracker
 {
     public class DrfSearcher
     {
-        public static void GetItemById(List<DrfMessage> drfMessages, Dictionary<int, ItemX> oldItemById)
+        public static void UpdateItemById(List<DrfMessage> drfMessages, Dictionary<int, ItemX> oldItemById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
             UpdateItemById(itemIdAndCounts, oldItemById);
         }
 
-        public static void GetCurrencyById(List<DrfMessage> drfMessages, Dictionary<int, ItemX> oldCurrencyById)
+        public static void UpdateCurrencyById(List<DrfMessage> drfMessages, Dictionary<int, ItemX> oldCurrencyById)
         {
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
             UpdateItemById(currencyIdAndCounts, oldCurrencyById);
