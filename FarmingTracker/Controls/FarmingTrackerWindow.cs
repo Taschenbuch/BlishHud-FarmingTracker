@@ -150,18 +150,18 @@ namespace FarmingTracker
 
             CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById); // todo fixen, dann wieder nutzen
 
-            Debug_LogItemsWithoutDetailsFromApi();
+            Debug_LogItemsWithoutDetailsFromApi(); // todo weg
         }
 
-        private void Debug_LogItemsWithoutDetailsFromApi()
+        private void Debug_LogItemsWithoutDetailsFromApi()  // todo weg
         {
-            var c = _currencyById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
-            var i = _itemById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
-            if (c.Any())
-                Module.Logger.Info("NOT FOUND WITH API currencies: " + string.Join(" ", c)); // todo weg
+            var missingCurrencies = _currencyById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
+            var missingItems = _itemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
+            if (missingCurrencies.Any())
+                Module.Logger.Info("currencies api MISS   " + string.Join(" ", missingCurrencies)); // todo weg
 
-            if (i.Any())
-                Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ", i)); // todo weg
+            if (missingItems.Any())
+                Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)

@@ -10,14 +10,14 @@ namespace FarmingTracker
             {
                 item.Tooltip = CreateTooltip(item);
 
-                if (item.IsApiInfoMissing)
+                if (item.ApiDetailsAreMissing)
                     item.IconAssetId = BUG_TEXTURE_ASSET_ID; // otherwise AsyncTexture2d.FromAssetId will return null for AssetId = 0
             }
         }
 
         private static string CreateTooltip(ItemX item)
         {
-            if (item.IsApiInfoMissing)
+            if (item.ApiDetailsAreMissing)
                 return
                     $"Unknown item (ID: {item.ApiId})\n" +
                     $"GW2 API has no information about it.\n" +

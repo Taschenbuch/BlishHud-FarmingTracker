@@ -8,7 +8,8 @@
         public int Count { get; set; }
         public int ApiId { get; set; }
         public int IconAssetId { get; set; }
-        public bool IsApiInfoMissing => IconAssetId == 0 || IconAssetId == IconAssetIdAndTooltipSetter.BUG_TEXTURE_ASSET_ID;
+        public bool ApiDetailsAreMissing => IconAssetId == 0;
+        public bool NotFoundByApi => IconAssetId == IconAssetIdAndTooltipSetter.BUG_TEXTURE_ASSET_ID;
         public bool IsCoin => ApiId == Coin.COIN_CURRENCY_ID;
     }
 }

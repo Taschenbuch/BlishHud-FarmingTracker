@@ -12,16 +12,16 @@ namespace FarmingTracker
         // todo 2x fast identischer code für currency und item. irgendwie verallgemeinern? auf jedenfall in class auslagern. müllt hier alles zu
         public static async Task SetCurrencyDetailsFromApi(Dictionary<int, ItemX> currencyById, Services services)
         {
-            var currenciesWithoutDetails = currencyById.Values.Where(c => c.IsApiInfoMissing).ToList();
+            var currenciesWithoutDetails = currencyById.Values.Where(c => c.ApiDetailsAreMissing).ToList();
             if (currenciesWithoutDetails.Any())
             {
-                Module.Logger.Info("currencies no AssetID " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
+                Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
                 IReadOnlyList<Currency> apiCurrencies;
 
                 try
                 {
                     apiCurrencies = await services.Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(currenciesWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiCurrencies         " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
+                    Module.Logger.Info("currencies api        " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
@@ -43,16 +43,16 @@ namespace FarmingTracker
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, ItemX> itemById, Services services)
         {
-            var itemsWithoutDetails = itemById.Values.Where(i => i.IsApiInfoMissing).ToList();
+            var itemsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).ToList();
             if (itemsWithoutDetails.Any())
             {
-                Module.Logger.Info("items no AssetID      " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
+                Module.Logger.Info("items      id=0       " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
                 IReadOnlyList<Item> apiItems;
 
                 try
                 {
                     apiItems = await services.Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("apiItems              " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
+                    Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
                 {
