@@ -7,7 +7,8 @@ namespace FarmingTracker
 {
     public static class Drf
     {
-        // sometimes drf dll fails to get wallet snapshot after map change
+        // sometimes drf.dll fails to get wallet snapshot after map change.
+        // This results in a drf message with all currencies currently in the wallet instead of just the difference
         public static List<DrfMessage> RemoveInvalidMessages(List<DrfMessage> drfMessages)
         {
             return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();

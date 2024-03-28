@@ -141,15 +141,20 @@ namespace FarmingTracker
 
             DrfResultAdder.UpdateCurrencyById(drfMessages, _currencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _itemById);
-            
+
             await StatDetailsSetter.SetCurrencyDetailsFromApi(_currencyById, _services);
             await StatDetailsSetter.SetItemDetailsFromApi(_itemById, _services);
-            
+
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
-            
+
             CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById); // todo fixen, dann wieder nutzen
 
+            Debug_LogItemsWithoutDetailsFromApi();
+        }
+
+        private void Debug_LogItemsWithoutDetailsFromApi()
+        {
             var c = _currencyById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             var i = _itemById.Values.Where(c => c.IsApiInfoMissing).Select(i => i.ApiId).ToList(); // todo weg
             if (c.Any())
@@ -158,7 +163,7 @@ namespace FarmingTracker
             if (i.Any())
                 Module.Logger.Info("NOT FOUND WITH API items:      " + string.Join(" ", i)); // todo weg
         }
-     
+
         private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
         {
             _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
