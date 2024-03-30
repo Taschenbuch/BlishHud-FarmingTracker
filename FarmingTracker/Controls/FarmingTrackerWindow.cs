@@ -78,16 +78,20 @@ namespace FarmingTracker
                 {
                     var apiTokenErrorTooltip = apiToken.CreateApiTokenErrorTooltipText();
                     var isGivingBlishSomeTimeToGiveToken = (apiToken.ApiTokenState == ApiTokenState.ApiTokenMissing) && (_timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20);
+                    
                     _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
                         ? LOADING_HINT_TEXT
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
+
                     _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorTooltip;
+                    
                     if (!isGivingBlishSomeTimeToGiveToken)
                         Module.Logger.Debug(apiTokenErrorTooltip);
 
                     _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
                 }
+
                 _nextUpdateCountdownLabel.BasicTooltipText = "";
                 if (_nextUpdateCountdownLabel.Text == LOADING_HINT_TEXT) // todo blöd, dass das jedes mal geprüft wird aber nur 1x beim start nötig ist
                     _nextUpdateCountdownLabel.Text = "";
