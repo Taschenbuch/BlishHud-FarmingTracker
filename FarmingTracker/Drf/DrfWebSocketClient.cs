@@ -101,7 +101,7 @@ namespace FarmingTracker
             {
                 return;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 ConnectCrashed?.Invoke(this, default);
                 return;

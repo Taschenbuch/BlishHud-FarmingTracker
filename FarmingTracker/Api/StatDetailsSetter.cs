@@ -77,12 +77,13 @@ namespace FarmingTracker
                     apiItems = await gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
                     Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
                 }
+                catch (Exception e) when(e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
+                {
+                    apiItems = new List<Item>(); // handling NotFoundException is not enough because that occurs on random api failures too.
+                }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
-                        apiItems = new List<Item>();
-                    else
-                        throw new Gw2ApiException($"API error: {nameof(SetItemDetailsFromApi)}", e);
+                    throw new Gw2ApiException($"API error: {nameof(SetItemDetailsFromApi)}", e);
                 }
 
                 foreach (var apiItem in apiItems)
