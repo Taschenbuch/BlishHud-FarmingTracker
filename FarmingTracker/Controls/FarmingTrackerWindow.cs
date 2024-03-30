@@ -142,23 +142,20 @@ namespace FarmingTracker
             DrfResultAdder.UpdateCurrencyById(drfMessages, _currencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _itemById);
 
-            await StatDetailsSetter.SetCurrencyDetailsFromApi(_currencyById, _services);
-            await StatDetailsSetter.SetItemDetailsFromApi(_itemById, _services);
+            await _statDetailsSetter.SetDetailsFromApi(_currencyById, _itemById, _services.Gw2ApiManager);
 
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
 
-            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById); // todo fixen, dann wieder nutzen
+            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById);
 
             Debug_LogItemsWithoutDetailsFromApi(); // todo weg
         }
 
         private void Debug_LogItemsWithoutDetailsFromApi()  // todo weg
         {
-            var missingCurrencies = _currencyById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
+            // missing currency check ist jetzt in SetDetailsFromApi
             var missingItems = _itemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
-            if (missingCurrencies.Any())
-                Module.Logger.Info("currencies api MISS   " + string.Join(" ", missingCurrencies)); // todo weg
 
             if (missingItems.Any())
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
@@ -270,6 +267,7 @@ namespace FarmingTracker
         private FlowPanel _rootFlowPanel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
+        private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
         private readonly Services _services;

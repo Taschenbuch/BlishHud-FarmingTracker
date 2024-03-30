@@ -1,4 +1,6 @@
-﻿using Gw2Sharp.WebApi.V2.Models;
+﻿using Blish_HUD.Modules.Managers;
+using Gw2Sharp.WebApi;
+using Gw2Sharp.WebApi.V2.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,39 +11,60 @@ namespace FarmingTracker
 {
     public class StatDetailsSetter
     {
-        // todo 2x fast identischer code für currency und item. irgendwie verallgemeinern? auf jedenfall in class auslagern. müllt hier alles zu
-        public static async Task SetCurrencyDetailsFromApi(Dictionary<int, ItemX> currencyById, Services services)
+        public async Task SetDetailsFromApi(Dictionary<int, ItemX> currencyById, Dictionary<int, ItemX> itemById, Gw2ApiManager gw2ApiManager)
         {
-            var currenciesWithoutDetails = currencyById.Values.Where(c => c.ApiDetailsAreMissing).ToList();
-            if (currenciesWithoutDetails.Any())
-            {
-                Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
-                IReadOnlyList<Currency> apiCurrencies;
+            if (!_apiCurrencyById.Any())
+                await CacheAllCurrencyDetailsFromApi(_apiCurrencyById, gw2ApiManager);
 
-                try
-                {
-                    apiCurrencies = await services.Gw2ApiManager.Gw2ApiClient.V2.Currencies.ManyAsync(currenciesWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("currencies api        " + string.Join(" ", apiCurrencies.Select(c => c.Id))); // todo weg
-                }
-                catch (Exception e)
-                {
-                    if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
-                        apiCurrencies = new List<Currency>();
-                    else
-                        throw new Gw2ApiException("API error: update currencies", e);
-                }
-
-                foreach (var apiCurrency in apiCurrencies)
-                {
-                    var currency = currencyById[apiCurrency.Id];
-                    currency.Name = apiCurrency.Name;
-                    currency.Description = apiCurrency.Description;
-                    currency.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiCurrency.Icon.Url.AbsoluteUri));
-                }
-            }
+            SetCurrencyDetails(currencyById, _apiCurrencyById);
+            await SetItemDetailsFromApi(itemById, gw2ApiManager);
         }
 
-        public static async Task SetItemDetailsFromApi(Dictionary<int, ItemX> itemById, Services services)
+        // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).
+        public static async Task CacheAllCurrencyDetailsFromApi(Dictionary<int, Currency> apiCurrencyById, Gw2ApiManager gw2ApiManager)
+        {
+            IReadOnlyList<Currency> apiCurrencies;
+
+            try
+            {
+                apiCurrencies = await gw2ApiManager.Gw2ApiClient.V2.Currencies.AllAsync();
+            }
+            catch (Exception e)
+            {
+                throw new Gw2ApiException($"API error: {nameof(CacheAllCurrencyDetailsFromApi)}", e);
+            }
+
+            foreach (var apiCurrency in apiCurrencies)
+                apiCurrencyById[apiCurrency.Id] = apiCurrency;  
+        }
+
+        public static void SetCurrencyDetails(Dictionary<int, ItemX> currencyById, Dictionary<int, Currency> apiCurrencyById)
+        {
+            var currenciesWithoutDetails = currencyById.Values.Where(c => c.ApiDetailsAreMissing).ToList();
+            if (!currenciesWithoutDetails.Any()) // todo weg sobald logging von missing weg ist.
+                return;
+
+            Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
+
+            var missingInApiCurrencyIds = new List<int>();  // todo weg
+
+            foreach (var currencyWithoutDetails in currenciesWithoutDetails)
+            {
+                if (apiCurrencyById.TryGetValue(currencyWithoutDetails.ApiId, out var apiCurrency))
+                {
+                    currencyWithoutDetails.Name = apiCurrency.Name;
+                    currencyWithoutDetails.Description = apiCurrency.Description;
+                    currencyWithoutDetails.IconAssetId = GetIconAssetId(apiCurrency.Icon);
+                }
+                else
+                    missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
+            }
+
+            if(missingInApiCurrencyIds.Any())
+                Module.Logger.Info("currencies api miss   " + string.Join(" ", missingInApiCurrencyIds)); // todo weg
+        }
+
+        public static async Task SetItemDetailsFromApi(Dictionary<int, ItemX> itemById, Gw2ApiManager gw2ApiManager)
         {
             var itemsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).ToList();
             if (itemsWithoutDetails.Any())
@@ -51,7 +74,7 @@ namespace FarmingTracker
 
                 try
                 {
-                    apiItems = await services.Gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
+                    apiItems = await gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
                     Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
                 }
                 catch (Exception e)
@@ -59,7 +82,7 @@ namespace FarmingTracker
                     if (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS)) // handling NotFoundException is not enough because that occurs on random api failures too.
                         apiItems = new List<Item>();
                     else
-                        throw new Gw2ApiException("API error: update items", e);
+                        throw new Gw2ApiException($"API error: {nameof(SetItemDetailsFromApi)}", e);
                 }
 
                 foreach (var apiItem in apiItems)
@@ -67,11 +90,17 @@ namespace FarmingTracker
                     var item = itemById[apiItem.Id];
                     item.Name = apiItem.Name;
                     item.Description = apiItem.Description;
-                    item.IconAssetId = int.Parse(Path.GetFileNameWithoutExtension(apiItem.Icon.Url.AbsoluteUri));
+                    item.IconAssetId = GetIconAssetId(apiItem.Icon);
                 }
             }
         }
 
+        private static int GetIconAssetId(RenderUrl icon)
+        {
+            return int.Parse(Path.GetFileNameWithoutExtension(icon.Url.AbsoluteUri));
+        }
+
+        private readonly Dictionary<int, Currency> _apiCurrencyById = new Dictionary<int, Currency>();
         private const string GW2_API_DOES_NOT_KNOW_IDS = "all ids provided are invalid";
     }
 }
