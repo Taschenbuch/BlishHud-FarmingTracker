@@ -38,18 +38,18 @@ namespace FarmingTracker
             _timeSinceModuleStartStopwatch.Start();
         }
 
-        private CancellationTokenSource drfApiTokenChangedCts = new CancellationTokenSource();
-
+        //private CancellationTokenSource drfApiTokenChangedCts = new CancellationTokenSource(); // todo move bottom
 
         public async Task InitAsync()
         {
             // todo weg oder anders
             _drfWebSocketClient.ConnectFailed += (s, e) => Module.Logger.Warn("ConnectFailed");
             _drfWebSocketClient.ConnectCrashed += (s, e) => Module.Logger.Warn("ConnectCrashed");
+            _drfWebSocketClient.SendAuthenticationFailed += (s, e) => Module.Logger.Warn("SendFailed");
             _drfWebSocketClient.AuthenticationFailed += (s, e) => Module.Logger.Warn("AuthenticationFailed");
             _drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) => Module.Logger.Warn("ReceivedUnexpectedBinaryMessage");
-            _drfWebSocketClient.ReceivedUnexpectedNotOpen += (s, e) => Module.Logger.Warn("ReceivedUnexpectedNotOpen");
-            _drfWebSocketClient.ReceivedCrashed += (s, e) => Module.Logger.Warn("ReceivedCrashed");
+            _drfWebSocketClient.UnexpectedNotOpenWhileReceiving += (s, e) => Module.Logger.Warn("ReceivedUnexpectedNotOpen");
+            _drfWebSocketClient.ReceiveCrashed += (s, e) => Module.Logger.Warn("ReceivedCrashed");
 
             _services.SettingService.DrfApiToken.SettingChanged += async (s, e) =>
             {
@@ -66,7 +66,7 @@ namespace FarmingTracker
                     //if (string.IsNullOrWhiteSpace(drfApiToken))
                     //    await _drfWebSocketClient.Close();
                     //else
-                        await _drfWebSocketClient.Connect(drfApiToken, "wss://drf.rs/ws");
+                        await _drfWebSocketClient.Connect(drfApiToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -80,8 +80,9 @@ namespace FarmingTracker
             // todo key setting change -> reconnect try -> alle fälle notieren
             // todo solange nicht connect wie kein api key vorhanden
             // todo connect retries
-            //await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value, "ws://localhost:8080"); // todo weg
-            await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value, "wss://drf.rs/ws");
+            //await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value); // todo weg
+            _drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value);
             _farmingTimeStopwatch.Restart(); // muss starten wenn drf verbunden ist.
         }
 
