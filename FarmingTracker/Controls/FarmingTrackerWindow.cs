@@ -51,7 +51,7 @@ namespace FarmingTracker
 
         protected override void DisposeControl()
         {
-            _drfWebSocketClient?.Close(); // fire and forget, gehört nicht ins farming window. eher irgendwie automatisch im module handeln?
+            _drfWebSocketClient?.Dispose(); // gehört nicht ins farming window. eher irgendwie automatisch im module handeln?
             _windowEmblemTexture?.Dispose();
             base.DisposeControl();
         }

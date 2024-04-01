@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 // ClientWebSocket sends pong responses, when pinged. Does not send ping https://github.com/dotnet/runtime/issues/48729
 // windows tcp keep-alive timeout für idle tcp verbindungen: ca 2h
-
 namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
@@ -37,31 +36,54 @@ namespace FarmingTracker
             }
         }
 
-        public void Dispose()
+        // muss der websocket überhaupt disposed/Abort werden? einfach am leben lassen ginge doch auch, oder? oder hängt er dann irgendwie fest in nem komischen WebSocketState?
+        public async Task Close()
         {
-            Close();
-        }
+            // semaphore to prevent that Connect() will continue while Close() is running, when Connect() and Close() are called in parallel from different threads
+            await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
 
-        // does not call await _clientWebSocket.CloseOutputAsync() on purpose to prevent async/await.
-        public void Close()
-        {
             if (_isClosed)
                 return;
-            
+
             _isClosed = true;
+
+            try
+            {
+                if (_clientWebSocket != null 
+                    && (_clientWebSocket.State == WebSocketState.Open 
+                    || _clientWebSocket.State == WebSocketState.CloseReceived 
+                    || _clientWebSocket.State == WebSocketState.Connecting))
+                {
+                    // CloseOutputAsync instead of CloseAsync, because the latter has issues.
+                    await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, default).ConfigureAwait(false);
+                }
+
+                Dispose();
+            }
+            catch (Exception) 
+            { 
+                /* NOOP because CloseOutputAsync has a high chance of throwing an exception*/ 
+            }
+            finally
+            {
+                _closeSemaphoreSlim.Release();
+            }
+        }
+
+        public void Dispose()
+        {
             _cancelationTokenSource.Cancel();
-            _clientWebSocket?.Abort(); // includes .Dispose()
-            _clientWebSocket = null; 
-            // muss der websocket überhaupt disposed/Abort werden? einfach am leben lassen ginge doch auch, oder? oder hängt er dann irgendwie fest in nem komischen state?
+            _clientWebSocket?.Abort(); // calls ClientWebSocket.Dispose() internally
+            _clientWebSocket = null;
         }
 
         public async Task Connect(string drfApiToken, string webSocketUrl)
         {
             try
             {
-                Close();
-                var cancelationTokenSource = new CancellationTokenSource();
-                _cancelationTokenSource = cancelationTokenSource; // use local because of reentrancy. Should not happen, but may when i refactor something in the future
+                await Close().ConfigureAwait(false);
+                _cancelationTokenSource = new CancellationTokenSource();
+                var cancelationTokenSource = _cancelationTokenSource; // use local because of reentrancy. Should not happen, but may when i refactor something in the future
                 _clientWebSocket = new ClientWebSocket();
                 _isClosed = false;
 
@@ -79,11 +101,11 @@ namespace FarmingTracker
                     return;
                 }
                 
-                var authenticationBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfApiToken}"));
+                var authenticationSendBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfApiToken}"));
 
                 try
                 {
-                    await _clientWebSocket.SendAsync(authenticationBuffer, WebSocketMessageType.Text, true, cancelationTokenSource.Token).ConfigureAwait(false); 
+                    await _clientWebSocket.SendAsync(authenticationSendBuffer, WebSocketMessageType.Text, true, cancelationTokenSource.Token).ConfigureAwait(false); 
                 }
                 catch (OperationCanceledException)
                 {
@@ -110,7 +132,7 @@ namespace FarmingTracker
 
         private async void Receive(CancellationToken cancellationToken)
         {
-            var messageNumber = 1;
+            var messageNumber = 1; // todo weg
             var receiveBuffer = new byte[RECEIVE_BUFFER_SIZE];
             WebSocketReceiveResult receiveResult;
 
@@ -185,12 +207,13 @@ namespace FarmingTracker
             }
         }
 
+        private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);
         private List<DrfMessage> _drfMessages = new List<DrfMessage>();
         private static readonly object _messagesLock = new Object();
         private ClientWebSocket _clientWebSocket;
         private bool _isClosed = true;
         private const int PARTIAL_RECEIVE_BUFFER_SIZE = 4000;
         private const int RECEIVE_BUFFER_SIZE = 10 * PARTIAL_RECEIVE_BUFFER_SIZE;
-        private CancellationTokenSource _cancelationTokenSource;
+        private CancellationTokenSource _cancelationTokenSource; // may require disposing
     }
 }
