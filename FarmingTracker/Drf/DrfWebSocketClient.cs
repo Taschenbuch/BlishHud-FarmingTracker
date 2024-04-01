@@ -95,9 +95,9 @@ namespace FarmingTracker
                 {
                     return;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ConnectFailed?.Invoke(this, default);
+                    ConnectFailed?.Invoke(this, default); // todo exception message oder ganzen stacktrace als string mitgeben (e.ToString()) oder wie das hieß.
                     return;
                 }
                 
@@ -113,7 +113,8 @@ namespace FarmingTracker
                 }
                 catch (Exception)
                 {
-                    AuthenticationFailed?.Invoke(this, default);
+                    // todo halb falsch. muss ZUSÄTZLICH auf Open prüfen. muss ich ggf. sogar 1x "receive" callen um close message zu lesen? quatsch oder?
+                    AuthenticationFailed?.Invoke(this, default); 
                     return;
                 }
 

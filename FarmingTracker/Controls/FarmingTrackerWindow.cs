@@ -5,8 +5,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
@@ -36,17 +38,51 @@ namespace FarmingTracker
             _timeSinceModuleStartStopwatch.Start();
         }
 
+        private CancellationTokenSource drfApiTokenChangedCts = new CancellationTokenSource();
+
+
         public async Task InitAsync()
         {
-            try
+            // todo weg oder anders
+            _drfWebSocketClient.ConnectFailed += (s, e) => Module.Logger.Warn("ConnectFailed");
+            _drfWebSocketClient.ConnectCrashed += (s, e) => Module.Logger.Warn("ConnectCrashed");
+            _drfWebSocketClient.AuthenticationFailed += (s, e) => Module.Logger.Warn("AuthenticationFailed");
+            _drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) => Module.Logger.Warn("ReceivedUnexpectedBinaryMessage");
+            _drfWebSocketClient.ReceivedUnexpectedNotOpen += (s, e) => Module.Logger.Warn("ReceivedUnexpectedNotOpen");
+            _drfWebSocketClient.ReceivedCrashed += (s, e) => Module.Logger.Warn("ReceivedCrashed");
+
+            _services.SettingService.DrfApiToken.SettingChanged += async (s, e) =>
             {
-                await _drfWebSocketClient.Connect("a886872e-d942-4766-b499-e5802359d93a", "wss://drf.rs/ws");
-                _farmingTimeStopwatch.Restart(); // muss starten wenn drf verbunden ist.
-            }
-            catch (Exception e)
-            {
-                Module.Logger.Warn(e, "failed to connect to drf");
-            }
+                //drfApiTokenChangedCts.Cancel();
+                //drfApiTokenChangedCts = new CancellationTokenSource();
+
+                try
+                {
+                    //await Task.Delay(1000, drfApiTokenChangedCts.Token);
+                    //await _drfWebSocketClient.Close();
+
+                    var drfApiToken = _services.SettingService.DrfApiToken.Value; // local because of reentrancy.
+
+                    //if (string.IsNullOrWhiteSpace(drfApiToken))
+                    //    await _drfWebSocketClient.Close();
+                    //else
+                        await _drfWebSocketClient.Connect(drfApiToken, "wss://drf.rs/ws");
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+            };
+
+            // kein key
+            // falscher key -> optional: check ob guid.
+            // todo kein key: UnexpectedNotOpen -> komisch
+            // todo key setting change -> reconnect try -> alle fälle notieren
+            // todo solange nicht connect wie kein api key vorhanden
+            // todo connect retries
+            //await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value, "ws://localhost:8080"); // todo weg
+            await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value, "wss://drf.rs/ws");
+            _farmingTimeStopwatch.Restart(); // muss starten wenn drf verbunden ist.
         }
 
         protected override void DisposeControl()
