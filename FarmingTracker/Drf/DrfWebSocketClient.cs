@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 // - microsoft online documentation is almost none existant
 // - best to read source of class System.Net.Websockets.ManagedWebSocket found in System.Net.WebSockets.sln.
 // That class seems to be used by System.Net.WebSockets.ClientWebSocket internally
-// - third party tools that can be used for reference: XXXXXXXXX
+// - third party tools that can be used for reference: // todo update comments here
 // ClientWebSocket sends pong responses, when pinged. Does not send ping https://github.com/dotnet/runtime/issues/48729
 // windows tcp keep-alive timeout für idle tcp verbindungen: ca 2h
 namespace FarmingTracker
@@ -31,70 +31,50 @@ namespace FarmingTracker
 
         public bool HasNewDrfMessages()
         {
-            lock (_messagesLock)
+            lock (_drfMessagesLock)
                 return _drfMessages.Count != 0;
         }
 
         public List<DrfMessage> GetDrfMessages()
         {
             var newEmptyList = new List<DrfMessage>();
-            lock (_messagesLock)
+            lock (_drfMessagesLock)
             {
                 var receivedMessages = _drfMessages;
                 _drfMessages = newEmptyList;
                 return receivedMessages;
             }
-        }
-
-        // muss der websocket überhaupt disposed/Abort werden? einfach am leben lassen ginge doch auch, oder? oder hängt er dann irgendwie fest in nem komischen WebSocketState?
-        public async Task Close()
-        {
-            // semaphore to prevent that Connect() will continue while Close() is running, when Connect() and Close() are called in parallel from different threads
-            await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
-
-            if (_isClosed)
-                return;
-
-            _isClosed = true;
-
-            try
-            {
-                var canBeClosed = 
-                    _clientWebSocket.State == WebSocketState.Open
-                    || _clientWebSocket.State == WebSocketState.CloseReceived
-                    || _clientWebSocket.State == WebSocketState.Connecting;
-
-                if (canBeClosed) // CloseOutputAsync instead of CloseAsync, because the latter has issues.
-                    await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, CLOSED_BY_CLIENT_DESCRIPTION, default).ConfigureAwait(false);
-
-                Dispose();
-            }
-            catch (Exception) 
-            { 
-                /* NOOP because CloseOutputAsync has a high chance of throwing an exception*/ 
-            }
-            finally
-            {
-                _closeSemaphoreSlim.Release();
-            }
-        }
+        }               
 
         public void Dispose()
         {
-            _cancelationTokenSource.Cancel();
+            _cancelationTokenSource.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
             _clientWebSocket.Abort(); // calls ClientWebSocket.Dispose() internally
         }
 
         public async Task Connect(string drfApiToken)
         {
-            try // todo alles auch in TAsk.Run von receive ausführen? warum sollte nur connect teil nicht auf anderem thread laufen?
+            // todo alles auch in Task.Run von receive ausführen? warum sollte nur connect teil nicht auf anderem thread laufen?
+            try
             {
-                await Close().ConfigureAwait(false);
-                _cancelationTokenSource = new CancellationTokenSource();
-                _clientWebSocket = new ClientWebSocket();
-                _isClosed = false;
-                var cancelationTokenSource = _cancelationTokenSource; // local variable because of potential reentrancy problems now or after future refactoring
-                var clientWebSocket = _clientWebSocket; // local variable because of potential reentrancy problems now or after future refactoring
+                // do not cancel subsequent Connect()s, because they may use a different drfApiToken.
+                await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
+                CancellationTokenSource cancelationTokenSource;
+                ClientWebSocket clientWebSocket;
+
+                try
+                {
+                    await Close().ConfigureAwait(false);
+                    _cancelationTokenSource = new CancellationTokenSource();
+                    _clientWebSocket = new ClientWebSocket();
+                    // local variables instead of field because of potential reentrancy now or after future refactoring
+                    cancelationTokenSource = _cancelationTokenSource; 
+                    clientWebSocket = _clientWebSocket;
+                }
+                finally
+                {
+                    _closeSemaphoreSlim.Release();
+                }
 
                 try
                 {
@@ -127,7 +107,7 @@ namespace FarmingTracker
                     return;
                 }
 
-                await Task.Run(() => ReceiveContinuously(clientWebSocket, cancelationTokenSource.Token), cancelationTokenSource.Token); // still fire and forget because of "async void Receive".
+                var fireAndForgetTask = Task.Run(() => ReceiveContinuously(clientWebSocket, cancelationTokenSource.Token), cancelationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -170,6 +150,8 @@ namespace FarmingTracker
                         // message will automatically plit when the partial receiveBuffer is not big enough either.
                     } while (!receiveResult.EndOfMessage);
 
+                    //Console.WriteLine(CreateStatusMessage(clientWebSocket)); // todo weg
+
                     switch (receiveResult.MessageType)
                     {
                         case WebSocketMessageType.Binary:
@@ -190,11 +172,11 @@ namespace FarmingTracker
 
                             var drfMessage = JsonConvert.DeserializeObject<DrfMessage>(receivedJson);
 
-                            lock (_messagesLock)
+                            lock (_drfMessagesLock)
                                 _drfMessages.Add(drfMessage);
 
                             ReceivedMessage?.Invoke(this, new DrfWebSocketEventArgs($"{messageNumber} ({offsetInReceiveBuffer} bytes): {receivedJson}\n"));
-                            messageNumber++; // todo weg
+                            messageNumber++;
                             break;
                         }
                         case WebSocketMessageType.Close:
@@ -209,8 +191,8 @@ namespace FarmingTracker
                             }
 
                             // https://stackoverflow.com/a/76682535
-                            // - CloseOutputAsync wartet nicht, CloseAsync wartet unendlich lange auf antwort von gegenseite
-                            // - Close(Output)Async muss auf server UND client seite aufgerufen werden. Ist also close initiator UND Antwort auf close
+                            // - CloseOutputAsync() does not wait, while CloseAsync() may wait endless for an answer of the server
+                            // - Close(Output)Async() has to be called on server AND client side. It is close initialiser and close response.
                             // use CloseOutputAsync() instead of CloseAsync() because of bug in .net <3.0 websocket: https://mcguirev10.com/2019/08/17/how-to-close-websocket-correctly.html
                             await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, receiveResult.CloseStatusDescription, cancellationToken).ConfigureAwait(false);
                             UnexpectedNotOpenWhileReceiving?.Invoke(this, new DrfWebSocketEventArgs(CreateStatusMessage(clientWebSocket)));
@@ -245,22 +227,46 @@ namespace FarmingTracker
             }
         }
 
+        // Not public anymore and semaphore was removed because Close() and Connect() can otherwise run into all kind of racing conditions.
+        // those were triggered occasionally so they were hard to track down.
+        private async Task Close()
+        {
+            try
+            {
+                var canBeClosed =
+                    _clientWebSocket.State == WebSocketState.Open
+                    || _clientWebSocket.State == WebSocketState.CloseReceived
+                    || _clientWebSocket.State == WebSocketState.Connecting;
+
+                Console.WriteLine("canBeClosed: " + canBeClosed); // todo weg
+
+                if (canBeClosed) // CloseOutputAsync because see comment for other call of it
+                    await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, CLOSED_BY_CLIENT_DESCRIPTION, default).ConfigureAwait(false);
+
+                Dispose();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Close: " + CreateStatusMessage(_clientWebSocket)); // todo weg
+                /* NOOP because CloseOutputAsync has a high chance of throwing an exception*/
+            }
+        }
+
         private static string CreateStatusMessage(ClientWebSocket clientWebSocket)
         {
             return $"State.{clientWebSocket.State} CloseStatus.{clientWebSocket.CloseStatus} CloseStatusDescription: {clientWebSocket.CloseStatusDescription}";
         }
 
         private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);
+        private static readonly object _drfMessagesLock = new Object();
         private List<DrfMessage> _drfMessages = new List<DrfMessage>();
-        private static readonly object _messagesLock = new Object();
-        private ClientWebSocket _clientWebSocket;
-        private bool _isClosed = true;
+        private ClientWebSocket _clientWebSocket = new ClientWebSocket();
         private const char FIRST_LETTER_OF_KIND_SESSION_UPDATE = 's';
         private const string CLOSED_BY_CLIENT_DESCRIPTION = "closed by blish farming tracker module";
         private const string CLOSED_BY_SERVER_BECAUSE_AUTHENTICATION_FAILED_DESCRIPTION = "no valid session provided";
         private const int PARTIAL_RECEIVE_BUFFER_SIZE = 4000;
         private const int RECEIVE_BUFFER_SIZE = 10 * PARTIAL_RECEIVE_BUFFER_SIZE;
         private readonly byte[] _receiveBuffer = new byte[RECEIVE_BUFFER_SIZE];
-        private CancellationTokenSource _cancelationTokenSource; // may require disposing
+        private CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
     }
 }
