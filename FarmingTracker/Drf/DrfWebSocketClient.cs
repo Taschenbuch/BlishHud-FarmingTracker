@@ -189,7 +189,7 @@ namespace FarmingTracker
                             }
 
                             // https://stackoverflow.com/a/76682535
-                            // - CloseOutputAsync() does not wait, while CloseAsync() may wait endless for an answer of the server
+                            // - CloseOutputAsync() does not wait, while CloseAsync() may wait infinite for an answer of the server
                             // - Close(Output)Async() has to be called on server AND client side. It is close initialiser and close response.
                             // use CloseOutputAsync() instead of CloseAsync() because of bug in .net <3.0 websocket: https://mcguirev10.com/2019/08/17/how-to-close-websocket-correctly.html
                             await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, receiveResult.CloseStatusDescription, cancellationToken).ConfigureAwait(false);
