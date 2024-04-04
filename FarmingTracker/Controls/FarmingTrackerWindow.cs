@@ -42,7 +42,7 @@ namespace FarmingTracker
 
         public async Task InitAsync()
         {
-            // todo weg oder anders
+            // todo weg oder anders -> ReceiveCrashed und ConnectCrashed ist log error wert?
             _drfWebSocketClient.ConnectFailed += (s, e) => Module.Logger.Warn("ConnectFailed");
             _drfWebSocketClient.ConnectCrashed += (s, e) => Module.Logger.Warn("ConnectCrashed");
             _drfWebSocketClient.SendAuthenticationFailed += (s, e) => Module.Logger.Warn("SendFailed");

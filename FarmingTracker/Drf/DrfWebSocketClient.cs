@@ -17,14 +17,14 @@ namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
     {
-        public event EventHandler<DrfWebSocketEventArgs> ConnectFailed;
-        public event EventHandler<DrfWebSocketEventArgs> ConnectCrashed;
-        public event EventHandler<DrfWebSocketEventArgs> SendAuthenticationFailed;
-        public event EventHandler<DrfWebSocketEventArgs> AuthenticationFailed;
+        public event EventHandler<GenericEventArgs<string>> ConnectFailed;
+        public event EventHandler<GenericEventArgs<Exception>> ConnectCrashed;
+        public event EventHandler<GenericEventArgs<string>> SendAuthenticationFailed;
+        public event EventHandler<GenericEventArgs<string>> AuthenticationFailed;
         public event EventHandler ReceivedUnexpectedBinaryMessage;
-        public event EventHandler<DrfWebSocketEventArgs> UnexpectedNotOpenWhileReceiving;
-        public event EventHandler<DrfWebSocketEventArgs> ReceivedMessage;
-        public event EventHandler<DrfWebSocketEventArgs> ReceiveCrashed;
+        public event EventHandler<GenericEventArgs<string>> UnexpectedNotOpenWhileReceiving;
+        public event EventHandler<GenericEventArgs<string>> ReceivedMessage;
+        public event EventHandler<GenericEventArgs<Exception>> ReceiveCrashed;
 
         /// <summary> To change websocket server url for debugging </summary>
         public string WebSocketUrl { get; set; } = "wss://drf.rs/ws";
@@ -86,7 +86,7 @@ namespace FarmingTracker
                 }
                 catch (Exception e)
                 {
-                    ConnectFailed?.Invoke(this, new DrfWebSocketEventArgs(e.Message));
+                    ConnectFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
                     return;
                 }
                 
@@ -103,7 +103,7 @@ namespace FarmingTracker
                 }
                 catch (Exception e)
                 {
-                    SendAuthenticationFailed?.Invoke(this, new DrfWebSocketEventArgs(e.Message));
+                    SendAuthenticationFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
                     return;
                 }
 
@@ -115,7 +115,7 @@ namespace FarmingTracker
             }
             catch (Exception e)
             {
-                ConnectCrashed?.Invoke(this, new DrfWebSocketEventArgs(e.Message));
+                ConnectCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
                 return;
             }
         }
@@ -136,7 +136,7 @@ namespace FarmingTracker
                         if (clientWebSocket.CloseStatusDescription == CLOSED_BY_CLIENT_DESCRIPTION)
                             return;
 
-                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new DrfWebSocketEventArgs(CreateStatusMessage(clientWebSocket)));
+                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>(CreateStatusMessage(clientWebSocket)));
                         return;
                     }
 
@@ -149,8 +149,6 @@ namespace FarmingTracker
                         // about every 100-400th DRF message is split into 2. Though that might be caused by ClientWebSocket and not DRF websocket
                         // message will automatically plit when the partial receiveBuffer is not big enough either.
                     } while (!receiveResult.EndOfMessage);
-
-                    //Console.WriteLine(CreateStatusMessage(clientWebSocket)); // todo weg
 
                     switch (receiveResult.MessageType)
                     {
@@ -175,7 +173,7 @@ namespace FarmingTracker
                             lock (_drfMessagesLock)
                                 _drfMessages.Add(drfMessage);
 
-                            ReceivedMessage?.Invoke(this, new DrfWebSocketEventArgs($"{messageNumber} ({offsetInReceiveBuffer} bytes): {receivedJson}\n"));
+                            ReceivedMessage?.Invoke(this, new GenericEventArgs<string>($"{messageNumber} ({offsetInReceiveBuffer} bytes): {receivedJson}\n"));
                             messageNumber++;
                             break;
                         }
@@ -186,7 +184,7 @@ namespace FarmingTracker
 
                             if (clientWebSocket.CloseStatusDescription == CLOSED_BY_SERVER_BECAUSE_AUTHENTICATION_FAILED_DESCRIPTION)
                             {
-                                AuthenticationFailed?.Invoke(this, new DrfWebSocketEventArgs(CreateStatusMessage(clientWebSocket)));
+                                AuthenticationFailed?.Invoke(this, new GenericEventArgs<string>(CreateStatusMessage(clientWebSocket)));
                                 return;
                             }
 
@@ -195,7 +193,7 @@ namespace FarmingTracker
                             // - Close(Output)Async() has to be called on server AND client side. It is close initialiser and close response.
                             // use CloseOutputAsync() instead of CloseAsync() because of bug in .net <3.0 websocket: https://mcguirev10.com/2019/08/17/how-to-close-websocket-correctly.html
                             await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, receiveResult.CloseStatusDescription, cancellationToken).ConfigureAwait(false);
-                            UnexpectedNotOpenWhileReceiving?.Invoke(this, new DrfWebSocketEventArgs(CreateStatusMessage(clientWebSocket)));
+                            UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>(CreateStatusMessage(clientWebSocket)));
                             return;
                         }
                     }
@@ -205,24 +203,20 @@ namespace FarmingTracker
             {
                 return;
             }
-            catch(InvalidOperationException e) // e.g. ReceiveAsync(): The ClientWebSocket is not connected.
-            {
-                ReceiveCrashed?.Invoke(this, new DrfWebSocketEventArgs($"InvalidOperationException: {e.Message}"));
-                return;
-            }
             catch (WebSocketException e)
             {
-                Console.WriteLine($"WebSocketException {e}");
                 // probably affected by localisation...
+                // todo wie kann ich den triggern? dann könnte ich mit e.ErrorCode oder e.WebSocketErrorCode arbeiten
                 if (e.Message == "The 'System.Net.WebSockets.InternalClientWebSocket' instance cannot be used for communication because it has been transitioned into the 'Aborted' state.")
                     return;
 
-                ReceiveCrashed?.Invoke(this, new DrfWebSocketEventArgs($"WebSocketException: {e.Message}"));
+                ReceiveCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
                 return;
             }
             catch (Exception e)
             {
-                ReceiveCrashed?.Invoke(this, new DrfWebSocketEventArgs($"Exception: {e.Message}"));
+                // InvalidOperationException: ReceiveAsync(): The ClientWebSocket is not connected
+                ReceiveCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
                 return;
             }
         }
@@ -238,8 +232,6 @@ namespace FarmingTracker
                     || _clientWebSocket.State == WebSocketState.CloseReceived
                     || _clientWebSocket.State == WebSocketState.Connecting;
 
-                Console.WriteLine("canBeClosed: " + canBeClosed); // todo weg
-
                 if (canBeClosed) // CloseOutputAsync because see comment for other call of it
                     await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, CLOSED_BY_CLIENT_DESCRIPTION, default).ConfigureAwait(false);
 
@@ -247,7 +239,6 @@ namespace FarmingTracker
             }
             catch (Exception)
             {
-                Console.WriteLine("Close: " + CreateStatusMessage(_clientWebSocket)); // todo weg
                 /* NOOP because CloseOutputAsync has a high chance of throwing an exception*/
             }
         }
