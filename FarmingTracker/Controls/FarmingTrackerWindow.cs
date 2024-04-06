@@ -5,10 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
@@ -38,57 +36,17 @@ namespace FarmingTracker
             _timeSinceModuleStartStopwatch.Start();
         }
 
-        //private CancellationTokenSource drfApiTokenChangedCts = new CancellationTokenSource(); // todo move bottom
+        //private CancellationTokenSource drfTokenChangedCts = new CancellationTokenSource(); // todo move bottom
 
-        public async Task InitAsync()
-        {
-            // todo weg oder anders -> ReceiveCrashed und ConnectCrashed ist log error wert?
-            _drfWebSocketClient.ConnectFailed += (s, e) => Module.Logger.Warn("ConnectFailed");
-            _drfWebSocketClient.ConnectCrashed += (s, e) => Module.Logger.Warn("ConnectCrashed");
-            _drfWebSocketClient.SendAuthenticationFailed += (s, e) => Module.Logger.Warn("SendFailed");
-            _drfWebSocketClient.AuthenticationFailed += (s, e) => Module.Logger.Warn("AuthenticationFailed");
-            _drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) => Module.Logger.Warn("ReceivedUnexpectedBinaryMessage");
-            _drfWebSocketClient.UnexpectedNotOpenWhileReceiving += (s, e) => Module.Logger.Warn("ReceivedUnexpectedNotOpen");
-            _drfWebSocketClient.ReceiveCrashed += (s, e) => Module.Logger.Warn("ReceivedCrashed");
-
-            _services.SettingService.DrfApiToken.SettingChanged += async (s, e) =>
-            {
-                //drfApiTokenChangedCts.Cancel();
-                //drfApiTokenChangedCts = new CancellationTokenSource();
-
-                try
-                {
-                    //await Task.Delay(1000, drfApiTokenChangedCts.Token);
-                    //await _drfWebSocketClient.Close();
-
-                    var drfApiToken = _services.SettingService.DrfApiToken.Value; // local because of reentrancy.
-
-                    //if (string.IsNullOrWhiteSpace(drfApiToken))
-                    //    await _drfWebSocketClient.Close();
-                    //else
-                        await _drfWebSocketClient.Connect(drfApiToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-            };
-
-            // kein key
-            // falscher key -> optional: check ob guid.
-            // todo kein key: UnexpectedNotOpen -> komisch
-            // todo key setting change -> reconnect try -> alle fälle notieren
-            // todo solange nicht connect wie kein api key vorhanden
-            // todo connect retries
-            //await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value); // todo weg
-            _drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            await _drfWebSocketClient.Connect(_services.SettingService.DrfApiToken.Value);
-            _farmingTimeStopwatch.Restart(); // muss starten wenn drf verbunden ist.
-        }
+        //public async Task InitAsync() // todo weg?
+        //{
+        //    // todo hier oder besser im fenster ctor auf events von  _services.DrfWebSocketClient  reagieren, ob session gestartet wurde
+        //    // todo dann zeit aufnahme starten _farmingTimeStopwatch.Restart(); -> vorsicht, nur 1x am anfang so starten. danach unsubscriben damit nicht 
+        //    // todo jedes neu verbinden vom drf client einen farming session start triggert.
+        //}
 
         protected override void DisposeControl()
         {
-            _drfWebSocketClient?.Dispose(); // gehört nicht ins farming window. eher irgendwie automatisch im module handeln?
             _windowEmblemTexture?.Dispose();
             base.DisposeControl();
         }
@@ -136,7 +94,7 @@ namespace FarmingTracker
                 if (!_trackItemsIsRunning)
                 {
                     _nextUpdateCountdownLabel.Text = "";
-                    if (!_drfWebSocketClient.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
+                    if (!_services.Drf.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
                         return;
 
                     _nextUpdateCountdownLabel.Text = "updating...";
@@ -174,7 +132,7 @@ namespace FarmingTracker
 
         private async Task UseDrfAndApiToDetermineFarmedItems()
         {
-            var drfMessages = _drfWebSocketClient.GetDrfMessages();
+            var drfMessages = _services.Drf.GetDrfMessages();
             drfMessages = Drf.RemoveInvalidMessages(drfMessages);
 
             if (drfMessages.Count == 0)
@@ -310,7 +268,6 @@ namespace FarmingTracker
         private FlowPanel _controlsFlowPanel;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
-        private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
         private readonly Services _services;
     }
 }

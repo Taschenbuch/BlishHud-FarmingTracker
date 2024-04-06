@@ -17,13 +17,15 @@ namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
     {
+        public event EventHandler Connecting;
+        public event EventHandler Connected;
         public event EventHandler<GenericEventArgs<string>> ConnectFailed;
         public event EventHandler<GenericEventArgs<Exception>> ConnectCrashed;
         public event EventHandler<GenericEventArgs<string>> SendAuthenticationFailed;
         public event EventHandler<GenericEventArgs<string>> AuthenticationFailed;
-        public event EventHandler ReceivedUnexpectedBinaryMessage;
         public event EventHandler<GenericEventArgs<string>> UnexpectedNotOpenWhileReceiving;
         public event EventHandler<GenericEventArgs<string>> ReceivedMessage;
+        public event EventHandler ReceivedUnexpectedBinaryMessage;
         public event EventHandler<GenericEventArgs<Exception>> ReceiveCrashed;
 
         /// <summary> To change websocket server url for debugging </summary>
@@ -52,16 +54,15 @@ namespace FarmingTracker
             _clientWebSocket.Abort(); // calls ClientWebSocket.Dispose() internally
         }
 
-        public async Task Connect(string drfApiToken)
+        public async Task Connect(string drfToken)
         {
             // todo alles auch in Task.Run von receive ausführen? warum sollte nur connect teil nicht auf anderem thread laufen?
             try
             {
-                // do not cancel subsequent Connect()s, because they may use a different drfApiToken.
+                // do not cancel subsequent Connect()s, because they may use a different drfToken.
                 await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
                 CancellationTokenSource cancelationTokenSource;
                 ClientWebSocket clientWebSocket;
-
                 try
                 {
                     await Close().ConfigureAwait(false);
@@ -76,6 +77,8 @@ namespace FarmingTracker
                     _closeSemaphoreSlim.Release();
                 }
 
+                Connecting?.Invoke(this, EventArgs.Empty);
+
                 try
                 {
                     await clientWebSocket.ConnectAsync(new Uri(WebSocketUrl), cancelationTokenSource.Token).ConfigureAwait(false);
@@ -89,8 +92,9 @@ namespace FarmingTracker
                     ConnectFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
                     return;
                 }
-                
-                var authenticationSendBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfApiToken}"));
+
+                Connected?.Invoke(this, EventArgs.Empty);
+                var authenticationSendBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Bearer {drfToken}"));
 
                 try
                 {
@@ -249,7 +253,7 @@ namespace FarmingTracker
         }
 
         private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);
-        private static readonly object _drfMessagesLock = new Object();
+        private static readonly object _drfMessagesLock = new object();
         private List<DrfMessage> _drfMessages = new List<DrfMessage>();
         private ClientWebSocket _clientWebSocket = new ClientWebSocket();
         private const char FIRST_LETTER_OF_KIND_SESSION_UPDATE = 's';

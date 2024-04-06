@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blish_HUD;
 using Blish_HUD.Content;
+using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
@@ -27,12 +28,12 @@ namespace FarmingTracker
 
         protected override void DefineSettings(SettingCollection settings)
         {
-            _services = new Services()
-            {
-                ContentsManager = ContentsManager,
-                Gw2ApiManager = Gw2ApiManager,
-                SettingService = new SettingService(settings),
-            };
+            _services = new Services(ContentsManager, Gw2ApiManager, new SettingService(settings));
+        }
+
+        public override IView GetSettingsView()
+        {
+            return new ModuleSettingsView(_services);
         }
 
         protected override async Task LoadAsync()
@@ -50,6 +51,7 @@ namespace FarmingTracker
         {
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindow?.Dispose();
+            _services?.Dispose();
         }
 
         private async Task<FarmingTrackerWindow> CreateFarmingTrackerWindow()
@@ -65,7 +67,7 @@ namespace FarmingTracker
                 flowPanelWidth,
                 _services);
 
-            await farmingTrackerWindow.InitAsync();
+            //await farmingTrackerWindow.InitAsync(); // todo weg?
             return farmingTrackerWindow;
         }
 

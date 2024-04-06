@@ -9,18 +9,18 @@ namespace FarmingTracker.DrfWebsocket
 
         public static async Task Main()
         {
-            var drfApiToken = "62798427-63c5-4df7-b1fb-0a9c014d510c";
-            //var drfApiToken = "wrong token"; // todo debug
+            var drfToken = "ab277fcd-8441-49fd-99f7-13a73890c448";
+            //var drfToken = "wrong token"; // todo debug
             var drfWebSocketClient = CreateDrfWebSocket();
 
             Console.WriteLine("Connecting 1");
-            await drfWebSocketClient.Connect(drfApiToken);
+            await drfWebSocketClient.Connect(drfToken);
             Console.WriteLine("Connected 1");
 
             await Task.Delay(2_000);
 
             Console.WriteLine("Connecting 2");
-            await drfWebSocketClient.Connect(drfApiToken);
+            await drfWebSocketClient.Connect(drfToken);
             Console.WriteLine("Connected 2");
 
             await Task.Delay(1_000);
@@ -32,7 +32,7 @@ namespace FarmingTracker.DrfWebsocket
             drfWebSocketClient = CreateDrfWebSocket();
 
             Console.WriteLine("connecting 3");
-            await drfWebSocketClient.Connect(drfApiToken);
+            await drfWebSocketClient.Connect(drfToken);
             Console.WriteLine("connected 3");
 
             ////BenchmarkRunner.Run<JsonTest>();
@@ -45,6 +45,8 @@ namespace FarmingTracker.DrfWebsocket
             var drfWebSocketClient = new DrfWebSocketClient();
             drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
 
+            drfWebSocketClient.Connecting += (s, e) => Console.WriteLine($"Connecting");
+            drfWebSocketClient.Connected += (s, e) => Console.WriteLine($"Connected");
             drfWebSocketClient.ConnectFailed += (s, e) => Console.WriteLine($"ConnectFailed: {e.Data}");
             drfWebSocketClient.ConnectCrashed += (s, e) => Console.WriteLine($"ConnectCrashed: {e.Data}");
             drfWebSocketClient.SendAuthenticationFailed += (s, e) => Console.WriteLine($"SendAuthenticationFailed: {e.Data}");
