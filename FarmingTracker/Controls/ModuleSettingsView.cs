@@ -178,7 +178,7 @@ namespace FarmingTracker
                 case DrfTokenFormat.ValidFormat:
                     return "";
                 case DrfTokenFormat.InvalidFormat:
-                    return "Incomplete or invalid DRF Token format.\nExpected format:\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx with x = a-z or 0-9";
+                    return "Incomplete or invalid DRF Token format.\nExpected format:\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx with x = a-f, 0-9";
                 case DrfTokenFormat.EmptyToken:
                     return "DRF Token required.\nModule wont work without it.";
                 default:

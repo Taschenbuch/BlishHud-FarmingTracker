@@ -28,10 +28,10 @@ namespace FarmingTracker
 
         public event EventHandler SanitizedTextChanged;
 
-        // allow only 0-9 a-z A-Z and '-'.
-        // A-Z is converted to lower case a-z. 
+        // allow only 0-9 a-f A-F and '-'.
+        // upper case A-F is converted to lower case a-f. 
         // prevents that cursor position is reset to index 1 when typing illegal characters.
-        // cursor position will still move when A-Z is replaced by a-z.
+        // cursor position will still move when A-F is replaced by a-f.
         private void SanitizeTextBoxText(string token, string sanitizedToken)
         {
             if (token == sanitizedToken)
