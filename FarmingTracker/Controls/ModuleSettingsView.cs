@@ -3,6 +3,7 @@ using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
 using System;
+using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
@@ -19,14 +20,14 @@ namespace FarmingTracker
             _drfConnectionStatusValueLabel = null;
         }
 
-        protected override void Build(Container buildPanel)
+        protected override async void Build(Container buildPanel)
         {
             var rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                OuterControlPadding = new Vector2(10, 20),
-                ControlPadding = new Vector2(0, 10),
+                OuterControlPadding = new Vector2(10, 5),
+                ControlPadding = new Vector2(0, 20),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
@@ -41,17 +42,19 @@ namespace FarmingTracker
                 Parent = rootFlowPanel,
             };
 
+            var xAlignLabelPadding = 5;
+
             var drfConnectionStatusTitleLabel = new Label
             {
                 Text = "DRF Connection:",
                 Font = font,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Location = new Point(0, 10),
+                Location = new Point(xAlignLabelPadding, 10),
                 Parent = drfConnectionStatusPanel,
             };
 
-            var xAlignedPosition = drfConnectionStatusTitleLabel.Right + 10;
+            var xAlignValueLocation = drfConnectionStatusTitleLabel.Right + 10;
 
             _drfConnectionStatusValueLabel = new Label
             {
@@ -60,18 +63,33 @@ namespace FarmingTracker
                 StrokeText = true,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Location = new Point(xAlignedPosition + 2, 10),
+                Location = new Point(xAlignValueLocation + 10, 10),
                 Parent = drfConnectionStatusPanel,
             };
 
             _services.Drf.DrfConnectionStatusChanged += OnDrfConnectionStatusChanged;
             OnDrfConnectionStatusChanged();
 
-            var drfTokenPanel = new Panel
+            await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
+
+            var drfTokenInputFlowPanel = new FlowPanel
             {
+                Title = "Add DRF Token (click)",
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                CanCollapse = true,
+                Collapsed = true,
+                OuterControlPadding = new Vector2(xAlignLabelPadding, 5),
+                ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel,
+            };
+
+            var drfTokenInputPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = drfTokenInputFlowPanel,
             };
 
             var drfTokenLabel = new Label
@@ -81,47 +99,51 @@ namespace FarmingTracker
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Location = new Point(0, 10),
-                Parent = drfTokenPanel,
+                Parent = drfTokenInputPanel,
             };
 
-            var drfTokenInputFlowPanel = new FlowPanel
+            var drfTokenTextBoxFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Location = new Point(xAlignedPosition, 0),
-                Parent = drfTokenPanel,
+                Location = new Point(xAlignValueLocation, 0),
+                Parent = drfTokenInputPanel,
             };
 
             // todo tooltip für label und textbox
-            // todo verbot + häckchen icon nutzen?
-            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfToken.Value, font, drfTokenInputFlowPanel);
+            // todo verbot + häckchen icon nutzen?            
+            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfToken.Value, font, drfTokenTextBoxFlowPanel);
 
-            var drfTokenHintLabel = new Label
+            var drfTokenValidationLabel = new Label
             {
                 Text = CreateDrfTokenHintText(_services.SettingService.DrfToken.Value),
                 TextColor = Color.Yellow,
                 Font = font,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Parent = drfTokenInputFlowPanel,
+                Parent = drfTokenTextBoxFlowPanel,
             };
 
             drfTokenTextBox.SanitizedTextChanged += (s, e) =>
             {
                 _services.SettingService.DrfToken.Value = drfTokenTextBox.Text;
-                drfTokenHintLabel.Text = CreateDrfTokenHintText(drfTokenTextBox.Text);
+                drfTokenValidationLabel.Text = CreateDrfTokenHintText(drfTokenTextBox.Text);
             };
 
-            ControlFactory.CreateHintLabel( // todo besseren ort für umfassendere help überlegen
-                rootFlowPanel,
-                "How to get a DRF Token:\n" +
+            var drfTokenHelpLabel = new Label // todo besseren ort für umfassendere help überlegen
+            {
+                Text = "How to get a DRF Token:\n" +
                 "1. Open https://drf.rs in your browser.\n" + // todo clickable link
                 "2. Create a drf account and link it with your GW2 Account(s).\n" +
                 "3. Open the drf.rs settings page.\n" +
                 "4. Click on 'Regenerate Token'.\n" +
                 "5. Copy the 'DRF Token'.\n" +
-                "6. Paste it with CTRL + V into the text input here.");
+                "6. Paste it with CTRL + V into the text input here.",
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = drfTokenInputFlowPanel,
+            };
         }
 
         private void OnDrfConnectionStatusChanged(object sender = null, EventArgs e = null)
