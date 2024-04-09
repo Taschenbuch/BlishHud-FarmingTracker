@@ -17,6 +17,8 @@ namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
     {
+        /// <summary> To change websocket server url for debugging </summary>
+        public string WebSocketUrl { get; set; } = "wss://drf.rs/ws";
         public event EventHandler Connecting;
         public event EventHandler Connected;
         public event EventHandler<GenericEventArgs<string>> ConnectFailed;
@@ -27,9 +29,6 @@ namespace FarmingTracker
         public event EventHandler<GenericEventArgs<string>> ReceivedMessage;
         public event EventHandler ReceivedUnexpectedBinaryMessage;
         public event EventHandler<GenericEventArgs<Exception>> ReceiveCrashed;
-
-        /// <summary> To change websocket server url for debugging </summary>
-        public string WebSocketUrl { get; set; } = "wss://drf.rs/ws";
 
         public bool HasNewDrfMessages()
         {
@@ -51,26 +50,25 @@ namespace FarmingTracker
         public void Dispose()
         {
             _cancelationTokenSource.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
-            _clientWebSocket.Abort(); // calls ClientWebSocket.Dispose() internally
+            // clientWebSocket.Abort() is handled by Connect() and Receive(). So it should not be handled here
         }
 
         public async Task Connect(string drfToken)
         {
+            ClientWebSocket clientWebSocket = null;
             // todo alles auch in Task.Run von receive ausführen? warum sollte nur connect teil nicht auf anderem thread laufen?
             try
             {
                 // do not cancel subsequent Connect()s, because they may use a different drfToken.
                 await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
                 CancellationTokenSource cancelationTokenSource;
-                ClientWebSocket clientWebSocket;
                 try
                 {
                     await Close().ConfigureAwait(false);
-                    _cancelationTokenSource = new CancellationTokenSource();
-                    _clientWebSocket = new ClientWebSocket();
-                    // local variables instead of field because of potential reentrancy now or after future refactoring
-                    cancelationTokenSource = _cancelationTokenSource; 
-                    clientWebSocket = _clientWebSocket;
+                    cancelationTokenSource = new CancellationTokenSource();
+                    clientWebSocket = new ClientWebSocket();
+                    _cancelationTokenSource = cancelationTokenSource;
+                    _clientWebSocket = clientWebSocket;
                 }
                 finally
                 {
@@ -85,10 +83,11 @@ namespace FarmingTracker
                 }
                 catch (OperationCanceledException)
                 {
-                    return;
+                    throw;
                 }
                 catch (Exception e)
                 {
+                    clientWebSocket.Abort(); // calls .Dipose() internally
                     ConnectFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
                     return;
                 }
@@ -103,22 +102,26 @@ namespace FarmingTracker
                 }
                 catch (OperationCanceledException)
                 {
-                    return;
+                    throw;
                 }
                 catch (Exception e)
                 {
+                    clientWebSocket.Abort(); // calls .Dipose() internally
                     SendAuthenticationFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
                     return;
                 }
 
-                var fireAndForgetTask = Task.Run(() => ReceiveContinuously(clientWebSocket, cancelationTokenSource.Token), cancelationTokenSource.Token);
+                // must not await, otherwise Connect() never returns because of the infinite receive loop in the happy path
+                var fireAndForget = Task.Run(() => ReceiveContinuously(clientWebSocket, cancelationTokenSource.Token), cancelationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
+                clientWebSocket.Abort(); // calls .Dipose() internally
                 return;
             }
             catch (Exception e)
             {
+                clientWebSocket.Abort(); // calls .Dipose() internally
                 ConnectCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
                 return;
             }
@@ -140,7 +143,10 @@ namespace FarmingTracker
                         if (clientWebSocket.CloseStatusDescription == CLOSED_BY_CLIENT_DESCRIPTION)
                             return;
 
-                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>(CreateStatusMessage(clientWebSocket)));
+                        // todo weg
+                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>($"loop start {CreateStatusMessage(clientWebSocket)}"));
+                        // todo hin
+                        //UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>($"loop start {CreateStatusMessage(clientWebSocket)}"));
                         return;
                     }
 
@@ -197,7 +203,7 @@ namespace FarmingTracker
                             // - Close(Output)Async() has to be called on server AND client side. It is close initialiser and close response.
                             // use CloseOutputAsync() instead of CloseAsync() because of bug in .net <3.0 websocket: https://mcguirev10.com/2019/08/17/how-to-close-websocket-correctly.html
                             await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, receiveResult.CloseStatusDescription, cancellationToken).ConfigureAwait(false);
-                            UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>(CreateStatusMessage(clientWebSocket)));
+                            UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>($"close message {CreateStatusMessage(clientWebSocket)}"));
                             return;
                         }
                     }
@@ -223,6 +229,10 @@ namespace FarmingTracker
                 ReceiveCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
                 return;
             }
+            finally
+            {
+                clientWebSocket.Abort(); // calls .Dipose() internally
+            }
         }
 
         // Not public anymore and semaphore was removed because Close() and Connect() can otherwise run into all kind of racing conditions.
@@ -239,11 +249,12 @@ namespace FarmingTracker
                 if (canBeClosed) // CloseOutputAsync because see comment for other call of it
                     await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, CLOSED_BY_CLIENT_DESCRIPTION, default).ConfigureAwait(false);
 
-                Dispose();
+                _cancelationTokenSource.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
+                // do not call _clientWebSocket.Abort() here. The method using "new clientWebSocket()" has to handle the Abort() = Dispose() itself.
             }
             catch (Exception)
             {
-                /* NOOP because CloseOutputAsync has a high chance of throwing an exception*/
+                // NOOP because CloseOutputAsync has a high chance of throwing an exception
             }
         }
 

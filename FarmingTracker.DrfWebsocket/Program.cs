@@ -13,27 +13,38 @@ namespace FarmingTracker.DrfWebsocket
             //var drfToken = "wrong token"; // todo debug
             var drfWebSocketClient = CreateDrfWebSocket();
 
-            Console.WriteLine("Connecting 1");
+            Console.WriteLine("1 connect START");
             await drfWebSocketClient.Connect(drfToken);
-            Console.WriteLine("Connected 1");
-
-            await Task.Delay(2_000);
-
-            Console.WriteLine("Connecting 2");
-            await drfWebSocketClient.Connect(drfToken);
-            Console.WriteLine("Connected 2");
+            Console.WriteLine("1 connect END");
+            Console.WriteLine();
 
             await Task.Delay(1_000);
 
-            Console.WriteLine("Dispose");
+            Console.WriteLine("2 connect START");
+            await drfWebSocketClient.Connect(drfToken);
+            Console.WriteLine("2 connect END");
+            Console.WriteLine();
+
+            await Task.Delay(1_000);
+
+            Console.WriteLine("3 connect START");
+            await drfWebSocketClient.Connect(drfToken);
+            Console.WriteLine("3 connect END");
+            Console.WriteLine();
+
+            await Task.Delay(1_000);
+
+            Console.WriteLine("Dispose START");
             drfWebSocketClient.Dispose();
-            Console.WriteLine("Dispose");
+            Console.WriteLine("Dispose END");
+            Console.WriteLine();
 
             drfWebSocketClient = CreateDrfWebSocket();
 
-            Console.WriteLine("connecting 3");
+            Console.WriteLine("4 connect START");
             await drfWebSocketClient.Connect(drfToken);
-            Console.WriteLine("connected 3");
+            Console.WriteLine("4 connect END");
+            Console.WriteLine();
 
             ////BenchmarkRunner.Run<JsonTest>();
 
