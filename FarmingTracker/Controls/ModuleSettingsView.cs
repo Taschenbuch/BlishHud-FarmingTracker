@@ -117,7 +117,7 @@ namespace FarmingTracker
 
             var drfTokenValidationLabel = new Label
             {
-                Text = CreateDrfTokenHintText(_services.SettingService.DrfToken.Value),
+                Text = DrfToken.CreateDrfTokenHintText(_services.SettingService.DrfToken.Value),
                 TextColor = Color.Yellow,
                 Font = font,
                 AutoSizeHeight = true,
@@ -128,7 +128,7 @@ namespace FarmingTracker
             drfTokenTextBox.SanitizedTextChanged += (s, e) =>
             {
                 _services.SettingService.DrfToken.Value = drfTokenTextBox.Text;
-                drfTokenValidationLabel.Text = CreateDrfTokenHintText(drfTokenTextBox.Text);
+                drfTokenValidationLabel.Text = DrfToken.CreateDrfTokenHintText(drfTokenTextBox.Text);
             };
 
             var drfTokenHelpLabel = new Label // todo besseren ort für umfassendere help überlegen
@@ -149,68 +149,11 @@ namespace FarmingTracker
         private void OnDrfConnectionStatusChanged(object sender = null, EventArgs e = null)
         {
             var drfConnectionStatus = _services.Drf.DrfConnectionStatus;
-            _drfConnectionStatusValueLabel.Text = GetDrfConnectionStatusText(drfConnectionStatus);
-            _drfConnectionStatusValueLabel.TextColor = GetDrfConnectionStatusTextColor(drfConnectionStatus);
-        }
-
-        private Color GetDrfConnectionStatusTextColor(DrfConnectionStatus drfConnectionStatus)
-        {
-            switch (drfConnectionStatus)
-            {
-                case DrfConnectionStatus.Connecting:
-                    return Color.Yellow;
-                case DrfConnectionStatus.Connected:
-                    return Color.LightGreen;
-                case DrfConnectionStatus.Disconnected:
-                case DrfConnectionStatus.AuthenticationFailed:
-                    return RED;
-                default:
-                    Module.Logger.Error($"Fallback: white. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
-                    return RED;
-            }
-        }
-
-        private string GetDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
-        {
-            var smileyVerticalSpace = "  ";
-            switch (drfConnectionStatus)
-            {
-                case DrfConnectionStatus.Disconnected:
-                    return $"Disconnected{smileyVerticalSpace}:-(";
-                case DrfConnectionStatus.Connecting:
-                    return "Connecting...";
-                case DrfConnectionStatus.Connected:
-                    return $"Connected{smileyVerticalSpace}:-)";
-                case DrfConnectionStatus.AuthenticationFailed:
-                    return $"Authentication failed. Add a valid DRF Token!{smileyVerticalSpace}:-(";
-                case DrfConnectionStatus.ModuleError:
-                    return $"Module Error.{smileyVerticalSpace}:-( Report bug on Discord: https://discord.com/invite/FYKN3qh";
-                default:
-                    Module.Logger.Error($"Fallback: Unknown Status. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
-                    return $"Unknown Status.{smileyVerticalSpace}:-(";
-            }
-        }
-
-        private static string CreateDrfTokenHintText(string drfToken)
-        {
-            var drfTokenFormat = DrfToken.ValidateFormat(drfToken);
-
-            switch (drfTokenFormat)
-            {
-                case DrfTokenFormat.ValidFormat:
-                    return "";
-                case DrfTokenFormat.InvalidFormat:
-                    return "Incomplete or invalid DRF Token format.\nExpected format:\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx with x = a-f, 0-9";
-                case DrfTokenFormat.EmptyToken:
-                    return "DRF Token required.\nModule wont work without it.";
-                default:
-                    Module.Logger.Error($"Fallback: no hint. Because switch case missing or should not be be handled here: {nameof(DrfTokenFormat)}.{drfTokenFormat}.");
-                    return "";
-            }
+            _drfConnectionStatusValueLabel.Text = DrfConnectionStatusService.GetDrfConnectionStatusText(drfConnectionStatus);
+            _drfConnectionStatusValueLabel.TextColor = DrfConnectionStatusService.GetDrfConnectionStatusTextColor(drfConnectionStatus);
         }
 
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;
-        private readonly Color RED = new Color(255, 120, 120);
     }
 }
