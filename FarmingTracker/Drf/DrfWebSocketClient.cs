@@ -49,7 +49,7 @@ namespace FarmingTracker
 
         public void Dispose()
         {
-            _cancelationTokenSource.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
+            _disposeCts.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
             // clientWebSocket.Abort() is handled by Connect() and Receive(). So it should not be handled here
         }
 
@@ -61,13 +61,13 @@ namespace FarmingTracker
             {
                 // do not cancel subsequent Connect()s, because they may use a different drfToken.
                 await _closeSemaphoreSlim.WaitAsync(0).ConfigureAwait(false); 
-                CancellationTokenSource cancelationTokenSource;
+                CancellationTokenSource disposeCts;
                 try
                 {
                     await Close().ConfigureAwait(false);
-                    cancelationTokenSource = new CancellationTokenSource();
+                    disposeCts = new CancellationTokenSource();
                     clientWebSocket = new ClientWebSocket();
-                    _cancelationTokenSource = cancelationTokenSource;
+                    _disposeCts = disposeCts;
                     _clientWebSocket = clientWebSocket;
                 }
                 finally
@@ -79,7 +79,7 @@ namespace FarmingTracker
 
                 try
                 {
-                    await clientWebSocket.ConnectAsync(new Uri(WebSocketUrl), cancelationTokenSource.Token).ConfigureAwait(false);
+                    await clientWebSocket.ConnectAsync(new Uri(WebSocketUrl), disposeCts.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -98,7 +98,7 @@ namespace FarmingTracker
                 try
                 {
                     // todo kann ich direkt nach connect schon close erhalten haben?
-                    await clientWebSocket.SendAsync(authenticationSendBuffer, WebSocketMessageType.Text, true, cancelationTokenSource.Token).ConfigureAwait(false); 
+                    await clientWebSocket.SendAsync(authenticationSendBuffer, WebSocketMessageType.Text, true, disposeCts.Token).ConfigureAwait(false); 
                 }
                 catch (OperationCanceledException)
                 {
@@ -112,7 +112,7 @@ namespace FarmingTracker
                 }
 
                 // must not await, otherwise Connect() never returns because of the infinite receive loop in the happy path
-                var fireAndForget = Task.Run(() => ReceiveContinuously(clientWebSocket, cancelationTokenSource.Token), cancelationTokenSource.Token);
+                var fireAndForget = Task.Run(() => ReceiveContinuously(clientWebSocket, disposeCts.Token), disposeCts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -249,7 +249,7 @@ namespace FarmingTracker
                 if (canBeClosed) // CloseOutputAsync because see comment for other call of it
                     await _clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, CLOSED_BY_CLIENT_DESCRIPTION, default).ConfigureAwait(false);
 
-                _cancelationTokenSource.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
+                _disposeCts.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
                 // do not call _clientWebSocket.Abort() here. The method using "new clientWebSocket()" has to handle the Abort() = Dispose() itself.
             }
             catch (Exception)
@@ -273,6 +273,6 @@ namespace FarmingTracker
         private const int PARTIAL_RECEIVE_BUFFER_SIZE = 4000;
         private const int RECEIVE_BUFFER_SIZE = 10 * PARTIAL_RECEIVE_BUFFER_SIZE;
         private readonly byte[] _receiveBuffer = new byte[RECEIVE_BUFFER_SIZE];
-        private CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _disposeCts = new CancellationTokenSource();
     }
 }
