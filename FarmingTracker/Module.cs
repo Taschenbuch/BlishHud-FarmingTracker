@@ -33,7 +33,11 @@ namespace FarmingTracker
 
         public override IView GetSettingsView()
         {
-            return new ModuleSettingsView(_services);
+            // hack: "return new ModuleSettingsView();" would make more sense
+            // but currently there is the blish core bug that SettingsView.Unload() is not called. Because of that this hack is required
+            // to unsubscribe everytime View.Build() is called. See details in ModuleSettingsView.Build();
+            _moduleSettingsView ??= new ModuleSettingsView(_services); 
+            return _moduleSettingsView;
         }
 
         protected override async Task LoadAsync()
@@ -49,6 +53,7 @@ namespace FarmingTracker
 
         protected override void Unload()
         {
+            _moduleSettingsView?.Dispose();
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindow?.Dispose();
             _services?.Dispose();
@@ -74,5 +79,6 @@ namespace FarmingTracker
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindow _farmingTrackerWindow;
         private Services _services;
+        private ModuleSettingsView _moduleSettingsView;
     }
 }

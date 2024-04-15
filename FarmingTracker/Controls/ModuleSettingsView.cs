@@ -7,14 +7,20 @@ using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
-    public class ModuleSettingsView : View
+    public class ModuleSettingsView : View, IDisposable
     {
         public ModuleSettingsView(Services services)
         {
             _services = services;
         }
 
-        protected override void Unload()
+        // workaround until Unload-is-not-called-bug is fixed in blish core.
+        public void Dispose() 
+        {
+            Unload();
+        }
+
+        protected override void Unload() // bug: that is currently not called in blish 1.1.1 due to a bug
         {
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _drfConnectionStatusValueLabel = null;
@@ -67,6 +73,7 @@ namespace FarmingTracker
                 Parent = drfConnectionStatusPanel,
             };
 
+            _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged; // hack: until bug is fixed that SettingsView.Unload() is not called.
             _services.Drf.DrfConnectionStatusChanged += OnDrfConnectionStatusChanged;
             OnDrfConnectionStatusChanged();
 
