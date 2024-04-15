@@ -71,17 +71,19 @@ namespace FarmingTracker
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 if (!apiToken.CanAccessApi)
                 {
-                    var apiTokenErrorTooltip = apiToken.CreateApiTokenErrorTooltipText();
+                    var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
                     var isGivingBlishSomeTimeToGiveToken = (apiToken.ApiTokenState == ApiTokenState.ApiTokenMissing) && (_timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20);
                     
                     _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
                         ? LOADING_HINT_TEXT
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
 
-                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorTooltip;
+                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorMessage;
                     
-                    if (!isGivingBlishSomeTimeToGiveToken)
-                        Module.Logger.Debug(apiTokenErrorTooltip);
+                    if (!isGivingBlishSomeTimeToGiveToken && _oldApiTokenErrorTooltip != apiTokenErrorMessage)
+                        Module.Logger.Debug(apiTokenErrorMessage);
+
+                    _oldApiTokenErrorTooltip = apiTokenErrorMessage;
 
                     _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
@@ -266,6 +268,7 @@ namespace FarmingTracker
         private FlowPanel _rootFlowPanel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
+        private string _oldApiTokenErrorTooltip = string.Empty;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
