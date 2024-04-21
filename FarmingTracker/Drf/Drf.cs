@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
@@ -16,6 +18,9 @@ namespace FarmingTracker
         }
 
         public DrfConnectionStatus DrfConnectionStatus { get; private set; } = DrfConnectionStatus.Disconnected;
+        public int ReconnectDelaySeconds { get; private set; }
+        public int ReconnectTriesCounter => _reconnectTriesCounter;
+
         public event EventHandler DrfConnectionStatusChanged;
 
         public void SetDrfConnectionStatus(DrfConnectionStatus status)
@@ -41,22 +46,6 @@ namespace FarmingTracker
             return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();
         }
 
-        private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
-        {
-            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            var drfToken = _services.SettingService.DrfToken.Value;
-
-            if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
-                await _drfWebSocketClient.Connect(drfToken);
-        }
-
-        // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
-        private async void FireAndForgetConnectToDrf()
-        {
-            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            await _drfWebSocketClient.Connect(_services.SettingService.DrfToken.Value);
-        }
-
         private void InitializeEventHandlers()
         {
             _drfWebSocketClient.Connecting += (s, e) =>
@@ -65,22 +54,41 @@ namespace FarmingTracker
                 SetDrfConnectionStatus(DrfConnectionStatus.Connecting);
             };
 
-            _drfWebSocketClient.Connected += (s, e) =>
+            _drfWebSocketClient.ConnectFailed += async (s, e) =>
             {
-                Module.Logger.Debug("Connected");
+                Module.Logger.Warn($"ConnectFailed: {e.Data}");
+                await Reconnect();
+            };
+
+            _drfWebSocketClient.SendAuthenticationFailed += async (s, e) =>
+            {
+                Module.Logger.Warn($"SendAuthenticationFailed: {e.Data}");
+                await Reconnect();
+            };
+
+            _drfWebSocketClient.ConnectCrashed += (s, e) =>
+            {
+                Module.Logger.Error($"ConnectCrashed: {e.Data}");
+                SetDrfConnectionStatus(DrfConnectionStatus.ModuleError);
+            };
+
+            _drfWebSocketClient.ConnectedAndAuthenticationRequestSent += (s, e) =>
+            {
+                Module.Logger.Debug("ConnectedAndAuthenticationRequestSent");
+                _reconnectTriesCounter = 0;
                 SetDrfConnectionStatus(DrfConnectionStatus.Connected);
             };
 
-            _drfWebSocketClient.ConnectFailed += (s, e) =>
+            _drfWebSocketClient.UnexpectedNotOpenWhileReceiving += async (s, e) =>
             {
-                Module.Logger.Warn($"ConnectFailed: {e.Data}");
-                SetDrfConnectionStatus(DrfConnectionStatus.Disconnected);
+                Module.Logger.Warn("ReceivedUnexpectedNotOpen");
+                await Reconnect();
             };
 
-            _drfWebSocketClient.SendAuthenticationFailed += (s, e) =>
+            _drfWebSocketClient.ReceiveFailed += async (s, e) =>
             {
-                Module.Logger.Warn($"SendAuthenticationFailed: {e.Data}");
-                SetDrfConnectionStatus(DrfConnectionStatus.Disconnected);
+                Module.Logger.Warn($"ReceiveFailed: {e.Data}");
+                await Reconnect();
             };
 
             _drfWebSocketClient.AuthenticationFailed += (s, e) =>
@@ -89,23 +97,10 @@ namespace FarmingTracker
                 SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed);
             };
 
-            _drfWebSocketClient.UnexpectedNotOpenWhileReceiving += (s, e) =>
-            {
-                // todo reconnect nötig, aber keine info an user oder? 
-                // todo wird das durch einen reconnect ggf. getriggert? wäre blöd wenn reconnect selbst reconnect triggert.
-                Module.Logger.Warn("ReceivedUnexpectedNotOpen");
-            };
-
             _drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) =>
             {
-                // no need to inform user because message will be ignored
                 Module.Logger.Warn("ReceivedUnexpectedBinaryMessage");
-            };
-
-            _drfWebSocketClient.ConnectCrashed += (s, e) =>
-            {
-                Module.Logger.Error($"ConnectCrashed: {e.Data}"); // todo test ob wirklich full exception strack trace lockt. wichtig wenn released
-                SetDrfConnectionStatus(DrfConnectionStatus.ModuleError);
+                // no need to inform user because binary messages are ignored. But it is still interesting to log those.
             };
 
             _drfWebSocketClient.ReceiveCrashed += (s, e) =>
@@ -115,7 +110,76 @@ namespace FarmingTracker
             };
         }
 
+        private async Task Reconnect()
+        {
+            lock (_reconnectLock)
+            {
+                if (DrfConnectionStatus == DrfConnectionStatus.TryReconnect) // todo überflüssig? 
+                {
+                    Module.Logger.Debug("Do not trigger a new reconnect because a reconnect is already in progress.");
+                    return;
+                }
+
+                // dont use SetDrfConnectionStatus() because eventHandler execution would increase time inside lock
+                DrfConnectionStatus = DrfConnectionStatus.TryReconnect; 
+            }
+
+            var reconnectTriesCounter = Interlocked.Increment(ref _reconnectTriesCounter);
+            var reconnectDelayMs = DetermineReconnectDelayMs(reconnectTriesCounter);
+            var reconnectDelaySeconds = reconnectDelayMs / 1000;
+            ReconnectDelaySeconds = reconnectDelaySeconds;
+            DrfConnectionStatusChanged?.Invoke(this, EventArgs.Empty);
+
+            await Task.Delay(reconnectDelayMs); // todo reconnect canceln nötig? oder reicht der if danach?
+            
+            if (DrfConnectionStatus != DrfConnectionStatus.TryReconnect)
+            {
+                Module.Logger.Debug($"Cancel reconnect because {nameof(DrfConnectionStatus)} changed during reconnect delay.");
+                return;
+            }
+
+            if (reconnectTriesCounter <= 6 || reconnectTriesCounter % 20 == 0) // todo wieder aktivieren
+                Module.Logger.Warn(
+                    $"{reconnectTriesCounter}. try to reconnect to DRF after {reconnectDelaySeconds}s delay. " +
+                    $"This message will only appear for the first 6 tries and every 20 tries.");
+
+            // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
+            FireAndForgetConnectToDrf();
+        }
+
+        // Delay must not be too long because otherwise it would take too much time
+        // after an internet connection interruption to connect to drf again.
+        private static int DetermineReconnectDelayMs(int reconnectTriesCounter)
+        {
+            return reconnectTriesCounter switch
+            {
+                1 => 0, // first reconnect try should is instant
+                2 => 2_000,
+                3 => 5_000,
+                4 => 10_000,
+                5 => 20_000,
+                _ => 30_000 
+            };
+        }
+
+        private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
+        {
+            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            var drfToken = _services.SettingService.DrfToken.Value;
+
+            if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
+                await _drfWebSocketClient.Connect(drfToken);
+        }
+
+        private async void FireAndForgetConnectToDrf()
+        {
+            _drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            await _drfWebSocketClient.Connect(_services.SettingService.DrfToken.Value);
+        }
+
         private readonly Services _services;
         private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
+        private int _reconnectTriesCounter;
+        private static readonly object _reconnectLock = new object();
     }
 }

@@ -9,6 +9,7 @@ namespace FarmingTracker
             switch (drfConnectionStatus)
             {
                 case DrfConnectionStatus.Connecting:
+                case DrfConnectionStatus.TryReconnect:
                     return Color.Yellow;
                 case DrfConnectionStatus.Connected:
                     return Color.LightGreen;
@@ -21,7 +22,10 @@ namespace FarmingTracker
             }
         }
 
-        public static string GetDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
+        public static string GetDrfConnectionStatusText
+            (DrfConnectionStatus drfConnectionStatus, 
+            int reconnectTriesCounter, 
+            int reconnectDelaySeconds)
         {
             var smileyVerticalSpace = "  ";
             switch (drfConnectionStatus)
@@ -30,6 +34,8 @@ namespace FarmingTracker
                     return $"Disconnected{smileyVerticalSpace}:-(";
                 case DrfConnectionStatus.Connecting:
                     return "Connecting...";
+                case DrfConnectionStatus.TryReconnect:
+                    return $"Connect failed {reconnectTriesCounter} time(s). Try to reconnect in {reconnectDelaySeconds} seconds.";
                 case DrfConnectionStatus.Connected:
                     return $"Connected{smileyVerticalSpace}:-)";
                 case DrfConnectionStatus.AuthenticationFailed:

@@ -13,9 +13,25 @@ namespace FarmingTracker.DrfWebsocket
             //var drfToken = "wrong token"; // todo debug
             var drfWebSocketClient = CreateDrfWebSocket();
 
-            Console.WriteLine("1 connect START");
-            await drfWebSocketClient.Connect(drfToken);
-            Console.WriteLine("1 connect END");
+            // todo VORSICHT da ist nen task.delay aktuell im close() lock
+            Console.WriteLine("connect START");
+            drfWebSocketClient.Connect(drfToken);
+            drfWebSocketClient.Connect(drfToken);
+            //drfWebSocketClient.Dispose();
+            //Task.Run(() => drfWebSocketClient.Dispose());
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+            //drfWebSocketClient.Connect(drfToken);
+            //await Task.Delay(1_000);
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+            //Task.Run(() => drfWebSocketClient.Connect(drfToken));
+
+            Console.WriteLine("connect END");
+
+            Console.ReadKey();
+            return;
             Console.WriteLine();
 
             await Task.Delay(1_000);
@@ -57,7 +73,7 @@ namespace FarmingTracker.DrfWebsocket
             drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
 
             drfWebSocketClient.Connecting += (s, e) => Console.WriteLine($"Connecting");
-            drfWebSocketClient.Connected += (s, e) => Console.WriteLine($"Connected");
+            drfWebSocketClient.ConnectedAndAuthenticationRequestSent += (s, e) => Console.WriteLine($"ConnectedAndAuthenticationRequestSent");
             drfWebSocketClient.ConnectFailed += (s, e) => Console.WriteLine($"ConnectFailed: {e.Data}");
             drfWebSocketClient.ConnectCrashed += (s, e) => Console.WriteLine($"ConnectCrashed: {e.Data}");
             drfWebSocketClient.SendAuthenticationFailed += (s, e) => Console.WriteLine($"SendAuthenticationFailed: {e.Data}");
@@ -66,6 +82,7 @@ namespace FarmingTracker.DrfWebsocket
             drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) => Console.WriteLine("ReceivedUnexpectedBinaryMessage");
             drfWebSocketClient.UnexpectedNotOpenWhileReceiving += (s, e) => Console.WriteLine($"UnexpectedNotOpenWhileReceiving: {e.Data}");
             drfWebSocketClient.ReceiveCrashed += (s, e) => Console.WriteLine($"ReceiveCrashed: {e.Data}");
+            drfWebSocketClient.ReceiveFailed += (s, e) => Console.WriteLine($"ReceiveFailed: {e.Data}");
 
             return drfWebSocketClient;
         }

@@ -6,6 +6,7 @@
         Connecting,
         Connected,
         AuthenticationFailed,
+        TryReconnect,
         ModuleError,
     }
 }
