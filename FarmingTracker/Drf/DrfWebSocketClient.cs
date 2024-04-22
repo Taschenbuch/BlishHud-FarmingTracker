@@ -25,9 +25,9 @@ namespace FarmingTracker
         /// <summary> 
         /// e.g. "Unable to connect to the remote server" when websocket server is not running
         /// </summary>
-        public event EventHandler<GenericEventArgs<string>> ConnectFailed;
+        public event EventHandler<GenericEventArgs<Exception>> ConnectFailed;
         public event EventHandler<GenericEventArgs<Exception>> ConnectCrashed;
-        public event EventHandler<GenericEventArgs<string>> SendAuthenticationFailed;
+        public event EventHandler<GenericEventArgs<Exception>> SendAuthenticationFailed;
         public event EventHandler<GenericEventArgs<string>> AuthenticationFailed;
         public event EventHandler<GenericEventArgs<string>> UnexpectedNotOpenWhileReceiving;
         public event EventHandler<GenericEventArgs<string>> ReceivedMessage;
@@ -144,15 +144,24 @@ namespace FarmingTracker
                 }
                 catch (Exception e)
                 {
-                    // WebSocketException: WebSocketErrorCode = Success, Message = "Unable to connect to the remote server"
-                    // - when web socket server is offline
-                    // - when ConnectAsync() was cancled by cts.Cancel(). https://github.com/dotnet/runtime/issues/29763
+                    // no internet (comes immediately):
+                    // WebSocketException: Unable to connect to the remote server
+                    // -> WebException: The remote name could not be resolved: 'drf.rs'
+                    //
+                    // internet, but webSocket server is not running (comes immediately):
+                    // WebSocketException: Unable to connect to the remote server
+                    // -> WebException: Unable to connect to the remote server
+                    // -> SocketException: No connection could be made because the target machine actively refused it 127.0.0.1:8080
+                    //
+                    // instead of OperationCanceledException when cts.Cancel(). Ist bug: https://github.com/dotnet/runtime/issues/29763
+                    // WebSocketException: Unable to connect to the remote server
+                    // -> WebException: The request was aborted: The request was canceled.
 
                     clientWebSocket.Abort(); // calls .Dispose() internally
                     if (disposeCts.IsCancellationRequested) // because ClientWebSocket does not throw OperationCanceledException
                         return;
 
-                    ConnectFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
+                    ConnectFailed?.Invoke(this, new GenericEventArgs<Exception>(e));
                     return;
                 }
 
@@ -173,7 +182,7 @@ namespace FarmingTracker
                     if (disposeCts.IsCancellationRequested) // because ClientWebSocket does not throw OperationCanceledException
                         return;
 
-                    SendAuthenticationFailed?.Invoke(this, new GenericEventArgs<string>(e.Message));
+                    SendAuthenticationFailed?.Invoke(this, new GenericEventArgs<Exception>(e));
                     return;
                 }
 
@@ -209,7 +218,7 @@ namespace FarmingTracker
                         if (clientWebSocket.CloseStatusDescription == CLOSED_BY_CLIENT_DESCRIPTION)
                             return;
 
-                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>($"loop start {CreateStatusMessage(clientWebSocket)}"));
+                        UnexpectedNotOpenWhileReceiving?.Invoke(this, new GenericEventArgs<string>($"receive loop start {CreateStatusMessage(clientWebSocket)}"));
                         return;
                     }
 
@@ -277,6 +286,15 @@ namespace FarmingTracker
             }
             catch (WebSocketException e)
             {
+                // no internet (comes after 60s):
+                // WebSocketException: An internal WebSocket error occurred. Please see the innerException, if present, for more details.
+                // -> IOException: Unable to read data from the transport connection: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+                // -> SocketException: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+                //
+                // internet, but webSocket server stopped running while receiving messages (comes immediately):
+                // WebSocketException: An internal WebSocket error occurred. Please see the innerException, if present, for more details.
+                // -> SocketException: An existing connection was forcibly closed by the remote host
+
                 if (ctsToken.IsCancellationRequested) // because ClientWebSocket does not throw OperationCanceledException
                     return;
 

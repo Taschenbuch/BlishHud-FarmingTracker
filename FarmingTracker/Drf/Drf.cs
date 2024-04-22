@@ -56,13 +56,13 @@ namespace FarmingTracker
 
             _drfWebSocketClient.ConnectFailed += async (s, e) =>
             {
-                Module.Logger.Warn($"ConnectFailed: {e.Data}");
+                Module.Logger.Warn($"ConnectFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
                 await Reconnect();
             };
 
             _drfWebSocketClient.SendAuthenticationFailed += async (s, e) =>
             {
-                Module.Logger.Warn($"SendAuthenticationFailed: {e.Data}");
+                Module.Logger.Warn($"SendAuthenticationFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
                 await Reconnect();
             };
 
@@ -87,7 +87,7 @@ namespace FarmingTracker
 
             _drfWebSocketClient.ReceiveFailed += async (s, e) =>
             {
-                Module.Logger.Warn($"ReceiveFailed: {e.Data}");
+                Module.Logger.Warn($"ReceiveFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
                 await Reconnect();
             };
 

@@ -74,15 +74,15 @@ namespace FarmingTracker.DrfWebsocket
 
             drfWebSocketClient.Connecting += (s, e) => Console.WriteLine($"Connecting");
             drfWebSocketClient.ConnectedAndAuthenticationRequestSent += (s, e) => Console.WriteLine($"ConnectedAndAuthenticationRequestSent");
-            drfWebSocketClient.ConnectFailed += (s, e) => Console.WriteLine($"ConnectFailed: {e.Data}");
+            drfWebSocketClient.ConnectFailed += (s, e) => Console.WriteLine($"ConnectFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
             drfWebSocketClient.ConnectCrashed += (s, e) => Console.WriteLine($"ConnectCrashed: {e.Data}");
-            drfWebSocketClient.SendAuthenticationFailed += (s, e) => Console.WriteLine($"SendAuthenticationFailed: {e.Data}");
+            drfWebSocketClient.SendAuthenticationFailed += (s, e) => Console.WriteLine($"SendAuthenticationFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
             drfWebSocketClient.AuthenticationFailed += (s, e) => Console.WriteLine($"AuthenticationFailed: {e.Data}");
             drfWebSocketClient.ReceivedMessage += (s, e) => Console.WriteLine(e.Data);
             drfWebSocketClient.ReceivedUnexpectedBinaryMessage += (s, e) => Console.WriteLine("ReceivedUnexpectedBinaryMessage");
             drfWebSocketClient.UnexpectedNotOpenWhileReceiving += (s, e) => Console.WriteLine($"UnexpectedNotOpenWhileReceiving: {e.Data}");
             drfWebSocketClient.ReceiveCrashed += (s, e) => Console.WriteLine($"ReceiveCrashed: {e.Data}");
-            drfWebSocketClient.ReceiveFailed += (s, e) => Console.WriteLine($"ReceiveFailed: {e.Data}");
+            drfWebSocketClient.ReceiveFailed += (s, e) => Console.WriteLine($"ReceiveFailed: {ExceptionService.GetExceptionSummary(e.Data)}");
 
             return drfWebSocketClient;
         }
