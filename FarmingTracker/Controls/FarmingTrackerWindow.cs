@@ -30,20 +30,11 @@ namespace FarmingTracker
             SavesPosition = true;
             Id = "Ecksofa.FarmingTracker: error window";
             Location = new Point(300, 300);
-            Parent = GameService.Graphics.SpriteScreen;
+            Parent = GameService.Graphics.SpriteScreen;            
             CreateUi(flowPanelWidth, services);
 
             _timeSinceModuleStartStopwatch.Start();
         }
-
-        //private CancellationTokenSource drfTokenChangedCts = new CancellationTokenSource(); // todo move bottom
-
-        //public async Task InitAsync() // todo weg?
-        //{
-        //    // todo hier oder besser im fenster ctor auf events von  _services.DrfWebSocketClient  reagieren, ob session gestartet wurde
-        //    // todo dann zeit aufnahme starten _farmingTimeStopwatch.Restart(); -> vorsicht, nur 1x am anfang so starten. danach unsubscriben damit nicht 
-        //    // todo jedes neu verbinden vom drf client einen farming session start triggert.
-        //}
 
         protected override void DisposeControl()
         {
@@ -53,13 +44,7 @@ namespace FarmingTracker
  
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
         {
-            var farmingTime = _farmingTimeStopwatch.Elapsed;
-            if (farmingTime >= _oldFarmingTime + ONE_SECOND)
-            {
-                // todo next update time vs elappsed farming time has 1 second difference
-                _oldFarmingTime = farmingTime;
-                UpdateFarmingTimeLabelText(farmingTime);
-            }
+            _elapsedFarmingTimeLabel.UpdateTimeOncePerSecond();
 
             _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
@@ -162,11 +147,6 @@ namespace FarmingTracker
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
-        private void UpdateFarmingTimeLabelText(TimeSpan farmingTime)
-        {
-            _elapsedFarmingTimeLabel.Text = $"farming for {farmingTime:h':'mm':'ss}";
-        }
-
         private void CreateUi(int flowPanelWidth, Services services)
         {
             _rootFlowPanel = new FlowPanel()
@@ -194,9 +174,8 @@ namespace FarmingTracker
                 _updateLoop.TiggerUpdateInstantly(); // todo überflüssig?
                 // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
                 // Es muss aber weiterhin instant die flowpanels clearen.
-                _farmingTimeStopwatch.Restart();
-                _oldFarmingTime = TimeSpan.Zero;
-                UpdateFarmingTimeLabelText(TimeSpan.Zero);
+       
+                _elapsedFarmingTimeLabel.ResetTime();
                 _nextUpdateCountdownLabel.Text = "";
                 _itemById.Clear();
                 _currencyById.Clear();
@@ -213,14 +192,7 @@ namespace FarmingTracker
                 Parent = _rootFlowPanel
             };
 
-            _elapsedFarmingTimeLabel = new Label
-            {
-                Text = "farming for -:--:--", // todo getElapsedTimeDisplayText() oder so, weil an vielen stellen vorhanden 
-                Font = services.FontService.Fonts[FontSize.Size18],
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                Parent = _controlsFlowPanel
-            };
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
 
             _nextUpdateCountdownLabel = new Label
             {
@@ -253,13 +225,10 @@ namespace FarmingTracker
         }
 
         private bool _trackItemsIsRunning;
-        private Label _elapsedFarmingTimeLabel;
+        private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
         private Label _nextUpdateCountdownLabel;
-        private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch(); // extract farming time and next update
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
-        private TimeSpan _oldFarmingTime;
-        private readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
         private const string LOADING_HINT_TEXT = "Loading...";
         private readonly Dictionary<int, ItemX> _itemById = new Dictionary<int, ItemX>();
         private readonly Dictionary<int, ItemX> _currencyById = new Dictionary<int, ItemX>();
