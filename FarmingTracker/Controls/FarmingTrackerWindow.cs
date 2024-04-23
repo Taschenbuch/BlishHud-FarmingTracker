@@ -45,7 +45,6 @@ namespace FarmingTracker
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
         {
             _elapsedFarmingTimeLabel.UpdateTimeOncePerSecond();
-
             _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
             if (_updateLoop.UpdateIntervalEnded()) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
@@ -57,18 +56,18 @@ namespace FarmingTracker
                 if (!apiToken.CanAccessApi)
                 {
                     var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
-                    var isGivingBlishSomeTimeToGiveToken = (apiToken.ApiTokenState == ApiTokenState.ApiTokenMissing) && (_timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20);
-                    
+                    var waitedLongEnoughForApiTokenFromBlish = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
+                    var isGivingBlishSomeTimeToGiveToken = apiToken.ApiTokenMissing && waitedLongEnoughForApiTokenFromBlish;
+
+                    LogApiTokenErrorOnce(apiTokenErrorMessage, isGivingBlishSomeTimeToGiveToken);
+
                     _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
                         ? LOADING_HINT_TEXT
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
 
-                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken ? "" : apiTokenErrorMessage;
-                    
-                    if (!isGivingBlishSomeTimeToGiveToken && _oldApiTokenErrorTooltip != apiTokenErrorMessage)
-                        Module.Logger.Debug(apiTokenErrorMessage);
-
-                    _oldApiTokenErrorTooltip = apiTokenErrorMessage;
+                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken 
+                        ? "" 
+                        : apiTokenErrorMessage;
 
                     _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
@@ -89,6 +88,17 @@ namespace FarmingTracker
                     Task.Run(() => TrackItems());
                 }
             }
+        }
+
+        private void LogApiTokenErrorOnce(string apiTokenErrorMessage, bool isGivingBlishSomeTimeToGiveToken)
+        {
+            if (isGivingBlishSomeTimeToGiveToken)
+                return;
+
+            if (_oldApiTokenErrorTooltip != apiTokenErrorMessage)
+                Module.Logger.Debug(apiTokenErrorMessage);
+
+            _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
 
         private async void TrackItems()

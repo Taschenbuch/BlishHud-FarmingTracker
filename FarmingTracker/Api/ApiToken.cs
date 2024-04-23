@@ -17,6 +17,7 @@ namespace FarmingTracker
         }
 
         public bool CanAccessApi => ApiTokenState == ApiTokenState.CanAccessApi;
+        public bool ApiTokenMissing => ApiTokenState == ApiTokenState.ApiTokenMissing;
         public ApiTokenState ApiTokenState { get; }
         public List<TokenPermission> MissingPermissions { get; } = new List<TokenPermission>();
         public List<TokenPermission> RequiredPermissions { get; }
