@@ -61,11 +61,11 @@ namespace FarmingTracker
 
                     LogApiTokenErrorOnce(apiTokenErrorMessage, isGivingBlishSomeTimeToGiveToken);
 
-                    _nextUpdateCountdownLabel.Text = isGivingBlishSomeTimeToGiveToken
+                    _hintLabel.Text = isGivingBlishSomeTimeToGiveToken
                         ? LOADING_HINT_TEXT
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
 
-                    _nextUpdateCountdownLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken 
+                    _hintLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken 
                         ? "" 
                         : apiTokenErrorMessage;
 
@@ -73,17 +73,17 @@ namespace FarmingTracker
                     return;
                 }
 
-                _nextUpdateCountdownLabel.BasicTooltipText = "";
-                if (_nextUpdateCountdownLabel.Text == LOADING_HINT_TEXT) // todo blöd, dass das jedes mal geprüft wird aber nur 1x beim start nötig ist
-                    _nextUpdateCountdownLabel.Text = "";
+                _hintLabel.BasicTooltipText = "";
+                if (_hintLabel.Text == LOADING_HINT_TEXT) // todo blöd, dass das jedes mal geprüft wird aber nur 1x beim start nötig ist
+                    _hintLabel.Text = "";
 
                 if (!_trackItemsIsRunning)
                 {
-                    _nextUpdateCountdownLabel.Text = "";
+                    _hintLabel.Text = "";
                     if (!_services.Drf.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
                         return;
 
-                    _nextUpdateCountdownLabel.Text = "updating...";
+                    _hintLabel.Text = "updating...";
                     _trackItemsIsRunning = true;
                     Task.Run(() => TrackItems());
                 }
@@ -107,18 +107,18 @@ namespace FarmingTracker
             {
                 await UseDrfAndApiToDetermineFarmedItems();
                 UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
-                _nextUpdateCountdownLabel.Text = "";
+                _hintLabel.Text = "";
             }
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
                 _updateLoop.UseRetryAfterApiFailureUpdateInterval();
-                _nextUpdateCountdownLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _hintLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, "track items failed.");
-                _nextUpdateCountdownLabel.Text = $"Module crash. :-("; // todo was tun?
+                _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
             finally
             {
@@ -186,7 +186,7 @@ namespace FarmingTracker
                 // Es muss aber weiterhin instant die flowpanels clearen.
        
                 _elapsedFarmingTimeLabel.ResetTime();
-                _nextUpdateCountdownLabel.Text = "";
+                _hintLabel.Text = "";
                 _itemById.Clear();
                 _currencyById.Clear();
                 UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
@@ -204,7 +204,7 @@ namespace FarmingTracker
 
             _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
 
-            _nextUpdateCountdownLabel = new Label
+            _hintLabel = new Label
             {
                 Text = "",
                 Font = services.FontService.Fonts[FontSize.Size18],
@@ -236,7 +236,7 @@ namespace FarmingTracker
 
         private bool _trackItemsIsRunning;
         private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
-        private Label _nextUpdateCountdownLabel;
+        private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private const string LOADING_HINT_TEXT = "Loading...";
