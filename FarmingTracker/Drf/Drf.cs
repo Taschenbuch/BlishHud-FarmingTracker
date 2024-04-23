@@ -173,7 +173,7 @@ namespace FarmingTracker
 
         private async void FireAndForgetConnectToDrf()
         {
-            _drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
             await _drfWebSocketClient.Connect(_services.SettingService.DrfToken.Value);
         }
 

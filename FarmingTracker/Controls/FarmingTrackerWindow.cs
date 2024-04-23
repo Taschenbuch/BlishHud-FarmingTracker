@@ -55,17 +55,18 @@ namespace FarmingTracker
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 if (!apiToken.CanAccessApi)
                 {
+                    _loadingOrApiErrorHintVisible = true;
                     var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
-                    var waitedLongEnoughForApiTokenFromBlish = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
-                    var isGivingBlishSomeTimeToGiveToken = apiToken.ApiTokenMissing && waitedLongEnoughForApiTokenFromBlish;
+                    var isGivingBlishSomeTimeToGiveToken = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
+                    var loadingHintVisible = apiToken.ApiTokenMissing && isGivingBlishSomeTimeToGiveToken;
 
-                    LogApiTokenErrorOnce(apiTokenErrorMessage, isGivingBlishSomeTimeToGiveToken);
+                    LogApiTokenErrorOnce(apiTokenErrorMessage, loadingHintVisible);
 
-                    _hintLabel.Text = isGivingBlishSomeTimeToGiveToken
-                        ? LOADING_HINT_TEXT
+                    _hintLabel.Text = loadingHintVisible
+                        ? "Loading..."
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
 
-                    _hintLabel.BasicTooltipText = isGivingBlishSomeTimeToGiveToken 
+                    _hintLabel.BasicTooltipText = loadingHintVisible 
                         ? "" 
                         : apiTokenErrorMessage;
 
@@ -73,9 +74,12 @@ namespace FarmingTracker
                     return;
                 }
 
-                _hintLabel.BasicTooltipText = "";
-                if (_hintLabel.Text == LOADING_HINT_TEXT) // todo blöd, dass das jedes mal geprüft wird aber nur 1x beim start nötig ist
+                if(_loadingOrApiErrorHintVisible)
+                {
+                    _loadingOrApiErrorHintVisible = false;
                     _hintLabel.Text = "";
+                    _hintLabel.BasicTooltipText = "";
+                }
 
                 if (!_trackItemsIsRunning)
                 {
@@ -90,9 +94,9 @@ namespace FarmingTracker
             }
         }
 
-        private void LogApiTokenErrorOnce(string apiTokenErrorMessage, bool isGivingBlishSomeTimeToGiveToken)
+        private void LogApiTokenErrorOnce(string apiTokenErrorMessage, bool loadingHintVisible)
         {
-            if (isGivingBlishSomeTimeToGiveToken)
+            if (loadingHintVisible)
                 return;
 
             if (_oldApiTokenErrorTooltip != apiTokenErrorMessage)
@@ -239,7 +243,6 @@ namespace FarmingTracker
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
-        private const string LOADING_HINT_TEXT = "Loading...";
         private readonly Dictionary<int, ItemX> _itemById = new Dictionary<int, ItemX>();
         private readonly Dictionary<int, ItemX> _currencyById = new Dictionary<int, ItemX>();
         private FlowPanel _farmedCurrenciesFlowPanel;
@@ -248,6 +251,7 @@ namespace FarmingTracker
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
         private string _oldApiTokenErrorTooltip = string.Empty;
+        private bool _loadingOrApiErrorHintVisible;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
