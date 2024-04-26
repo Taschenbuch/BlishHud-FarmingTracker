@@ -23,11 +23,6 @@ namespace FarmingTracker
             return RunningTimeMs >= UpdateIntervalMs;
         }
 
-        public void UseWaitForApiTokenUpdateInterval()
-        {
-            UpdateIntervalMs = WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS;
-        }
-
         public void UseFarmingUpdateInterval()
         {
             UpdateIntervalMs = FARMING_UPDATE_INTERVAL_MS;

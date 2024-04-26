@@ -70,7 +70,6 @@ namespace FarmingTracker
                         ? "" 
                         : apiTokenErrorMessage;
 
-                    _updateLoop.UseWaitForApiTokenUpdateInterval();
                     return;
                 }
 
