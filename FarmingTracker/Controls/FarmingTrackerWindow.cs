@@ -25,10 +25,10 @@ namespace FarmingTracker
             _services = services;
             _windowEmblemTexture = services.ContentsManager.GetTexture(@"windowEmblem.png");
 
-            Title = "Farming Tracker (Beta)"; // todo remove "beta"
+            Title = "Farming Tracker";
             Emblem = _windowEmblemTexture;
             SavesPosition = true;
-            Id = "Ecksofa.FarmingTracker: error window";
+            Id = "Ecksofa.FarmingTracker: FarmingTrackerWindow";
             Location = new Point(300, 300);
             Parent = GameService.Graphics.SpriteScreen;            
             CreateUi(flowPanelWidth, services);
