@@ -42,7 +42,7 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            _farmingTrackerWindow = await CreateFarmingTrackerWindow();
+            _farmingTrackerWindow = CreateFarmingTrackerWindow();
             _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindow);
         }
 
@@ -59,21 +59,18 @@ namespace FarmingTracker
             _services?.Dispose();
         }
 
-        private async Task<FarmingTrackerWindow> CreateFarmingTrackerWindow()
+        private FarmingTrackerWindow CreateFarmingTrackerWindow()
         {
             var windowWidth = 560;
             var windowHeight = 640;
             var flowPanelWidth = windowWidth - 47;
 
-            var farmingTrackerWindow = new FarmingTrackerWindow(
+            return new FarmingTrackerWindow(
                 AsyncTexture2D.FromAssetId(155997),
                 new Rectangle(25, 26, windowWidth, windowHeight),
                 new Rectangle(40, 50, windowWidth - 20, windowHeight - 50),
                 flowPanelWidth,
                 _services);
-
-            //await farmingTrackerWindow.InitAsync(); // todo weg?
-            return farmingTrackerWindow;
         }
 
         private TrackerCornerIcon _trackerCornerIcon;
