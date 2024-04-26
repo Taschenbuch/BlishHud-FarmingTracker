@@ -41,7 +41,7 @@ namespace FarmingTracker
             _windowEmblemTexture?.Dispose();
             base.DisposeControl();
         }
- 
+
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
         {
             _elapsedFarmingTimeLabel.UpdateTimeOncePerSecond();
@@ -55,7 +55,7 @@ namespace FarmingTracker
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 if (!apiToken.CanAccessApi)
                 {
-                    _loadingOrApiErrorHintVisible = true;
+                    _errorHintVisible = true;
                     var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
                     var isGivingBlishSomeTimeToGiveToken = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
                     var loadingHintVisible = apiToken.ApiTokenMissing && isGivingBlishSomeTimeToGiveToken;
@@ -73,9 +73,17 @@ namespace FarmingTracker
                     return;
                 }
 
-                if(_loadingOrApiErrorHintVisible)
+                if(_services.Drf.DrfConnectionStatus != DrfConnectionStatus.Connected) 
                 {
-                    _loadingOrApiErrorHintVisible = false;
+                    _errorHintVisible = true;
+                    _drfErrorLabel.Text = DrfConnectionStatusService.GetTrackerWindowDrfConnectionStatusText(_services.Drf.DrfConnectionStatus);
+                    return;
+                }
+
+                if(_errorHintVisible)
+                {
+                    _errorHintVisible = false;
+                    _drfErrorLabel.Text = NO_DRF_ERROR_TEXT;
                     _hintLabel.Text = "";
                     _hintLabel.BasicTooltipText = "";
                 }
@@ -172,6 +180,25 @@ namespace FarmingTracker
                 Parent = this,
             };
 
+            var drfErrorPanel = new Panel
+            {
+                HeightSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.AutoSize,
+                Parent = _rootFlowPanel,
+            };
+
+            _drfErrorLabel = new Label
+            {
+                Text = NO_DRF_ERROR_TEXT,
+                Font = services.FontService.Fonts[FontSize.Size18],
+                TextColor = Color.Yellow, 
+                StrokeText = true,
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Left = 20,
+                Parent = drfErrorPanel
+            };
+
             _resetButton = new StandardButton()
             {
                 Text = "Reset",
@@ -209,7 +236,6 @@ namespace FarmingTracker
 
             _hintLabel = new Label
             {
-                Text = "",
                 Font = services.FontService.Fonts[FontSize.Size18],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
@@ -247,12 +273,14 @@ namespace FarmingTracker
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
         private FlowPanel _rootFlowPanel;
+        private Label _drfErrorLabel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
         private string _oldApiTokenErrorTooltip = string.Empty;
-        private bool _loadingOrApiErrorHintVisible;
+        private bool _errorHintVisible;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
+        private const string NO_DRF_ERROR_TEXT = " "; // because empty string would collapse the label height
     }
 }

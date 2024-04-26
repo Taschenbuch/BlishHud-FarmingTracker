@@ -157,7 +157,7 @@ namespace FarmingTracker
         {
             var drfConnectionStatus = _services.Drf.DrfConnectionStatus;            
             _drfConnectionStatusValueLabel.TextColor = DrfConnectionStatusService.GetDrfConnectionStatusTextColor(drfConnectionStatus);
-            _drfConnectionStatusValueLabel.Text = DrfConnectionStatusService.GetDrfConnectionStatusText(
+            _drfConnectionStatusValueLabel.Text = DrfConnectionStatusService.GetModuleSettingDrfConnectionStatusText(
                 drfConnectionStatus,
                 _services.Drf.ReconnectTriesCounter,
                 _services.Drf.ReconnectDelaySeconds);

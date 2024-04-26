@@ -22,32 +22,45 @@ namespace FarmingTracker
             }
         }
 
-        public static string GetDrfConnectionStatusText
-            (DrfConnectionStatus drfConnectionStatus, 
+        public static string GetModuleSettingDrfConnectionStatusText(
+            DrfConnectionStatus drfConnectionStatus, 
             int reconnectTriesCounter, 
             int reconnectDelaySeconds)
         {
-            var smileyVerticalSpace = "  ";
             switch (drfConnectionStatus)
             {
                 case DrfConnectionStatus.Disconnected:
-                    return $"Disconnected{smileyVerticalSpace}:-(";
+                    return $"Disconnected{SMILEY_VERTICAL_SPACE}:-(";
                 case DrfConnectionStatus.Connecting:
                     return "Connecting...";
                 case DrfConnectionStatus.TryReconnect:
-                    return $"Connect failed {reconnectTriesCounter} time(s). Try to reconnect in {reconnectDelaySeconds} seconds.";
+                    return $"Connect failed {reconnectTriesCounter} time(s). Next reconnect try in {reconnectDelaySeconds} seconds.";
                 case DrfConnectionStatus.Connected:
-                    return $"Connected{smileyVerticalSpace}:-)";
+                    return $"Connected{SMILEY_VERTICAL_SPACE}:-)";
                 case DrfConnectionStatus.AuthenticationFailed:
-                    return $"Authentication failed. Add a valid DRF Token!{smileyVerticalSpace}:-(";
+                    return $"Authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(";
                 case DrfConnectionStatus.ModuleError:
-                    return $"Module Error.{smileyVerticalSpace}:-( Report bug on Discord: https://discord.com/invite/FYKN3qh";
+                    return $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord: https://discord.com/invite/FYKN3qh";
                 default:
                     Module.Logger.Error($"Fallback: Unknown Status. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
-                    return $"Unknown Status.{smileyVerticalSpace}:-(";
+                    return $"Unknown Status.{SMILEY_VERTICAL_SPACE}:-(";
             }
         }
 
+        public static string GetTrackerWindowDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
+        {
+            return drfConnectionStatus switch
+            {
+                DrfConnectionStatus.Disconnected => $"DRF disconnected{SMILEY_VERTICAL_SPACE}:-(",
+                DrfConnectionStatus.Connecting => $"DRF connecting...",
+                DrfConnectionStatus.TryReconnect => $"DRF connect failed. Next reconnect try in a few seconds{SMILEY_VERTICAL_SPACE}:-(",
+                DrfConnectionStatus.AuthenticationFailed => $"DRF authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(",
+                DrfConnectionStatus.ModuleError => $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord https://discord.com/invite/FYKN3qh",
+                _ => "",
+            }; ;
+        }
+
+        private const string SMILEY_VERTICAL_SPACE = "  ";
         private static readonly Color RED = new Color(255, 120, 120);
     }
 }

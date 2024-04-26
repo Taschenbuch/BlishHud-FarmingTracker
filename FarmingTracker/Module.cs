@@ -68,7 +68,7 @@ namespace FarmingTracker
             return new FarmingTrackerWindow(
                 AsyncTexture2D.FromAssetId(155997),
                 new Rectangle(25, 26, windowWidth, windowHeight),
-                new Rectangle(40, 50, windowWidth - 20, windowHeight - 50),
+                new Rectangle(40, 20, windowWidth - 20, windowHeight - 50),
                 flowPanelWidth,
                 _services);
         }
