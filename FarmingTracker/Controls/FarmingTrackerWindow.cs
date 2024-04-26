@@ -88,16 +88,42 @@ namespace FarmingTracker
                     _hintLabel.BasicTooltipText = "";
                 }
 
-                if (!_trackItemsIsRunning)
+                if (!_isTrackStatsRunning)
                 {
-                    _hintLabel.Text = "";
-                    if (!_services.Drf.HasNewDrfMessages()) // does NOT ignore invalid messages. those are filtered somewhere else
-                        return;
-
-                    _hintLabel.Text = "updating...";
-                    _trackItemsIsRunning = true;
-                    Task.Run(() => TrackItems());
+                    _isTrackStatsRunning = true;
+                    Task.Run(async () =>
+                    {
+                        await TrackStats();
+                        _isTrackStatsRunning = false;
+                    });
                 }
+            }
+        }
+
+        private async Task TrackStats()
+        {
+            try
+            {
+                var drfMessages = _services.Drf.GetDrfMessages();
+                drfMessages = Drf.RemoveInvalidMessages(drfMessages);
+                if (drfMessages.Count == 0)
+                    return;
+
+                _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
+                await UpdateStats(drfMessages);
+                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
+                _hintLabel.Text = "";
+            }
+            catch (Gw2ApiException exception)
+            {
+                Module.Logger.Warn(exception, exception.Message);
+                _updateLoop.UseRetryAfterApiFailureUpdateInterval();
+                _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+            }
+            catch (Exception exception)
+            {
+                Module.Logger.Error(exception, "track items failed.");
+                _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
         }
 
@@ -112,40 +138,8 @@ namespace FarmingTracker
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
 
-        private async void TrackItems()
-        {
-            try
-            {
-                await UseDrfAndApiToDetermineFarmedItems();
-                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
-                _hintLabel.Text = "";
-            }
-            catch (Gw2ApiException exception)
-            {
-                Module.Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
-                _updateLoop.UseRetryAfterApiFailureUpdateInterval();
-                _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
-            }
-            catch (Exception exception)
-            {
-                Module.Logger.Error(exception, "track items failed.");
-                _hintLabel.Text = $"Module crash. :-("; // todo was tun?
-            }
-            finally
-            {
-                _updateLoop.ResetRunningTime();
-                _trackItemsIsRunning = false;
-            }
-        }
-
-        private async Task UseDrfAndApiToDetermineFarmedItems()
-        {
-            var drfMessages = _services.Drf.GetDrfMessages();
-            drfMessages = Drf.RemoveInvalidMessages(drfMessages);
-
-            if (drfMessages.Count == 0)
-                return;
-
+        private async Task UpdateStats(List<DrfMessage> drfMessages)
+        {      
             DrfResultAdder.UpdateCurrencyById(drfMessages, _currencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _itemById);
 
@@ -155,7 +149,6 @@ namespace FarmingTracker
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
 
             CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById);
-
             Debug_LogItemsWithoutDetailsFromApi(); // todo weg
         }
 
@@ -263,7 +256,7 @@ namespace FarmingTracker
             };
         }
 
-        private bool _trackItemsIsRunning;
+        private bool _isTrackStatsRunning;
         private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
