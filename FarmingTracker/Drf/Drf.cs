@@ -9,11 +9,11 @@ namespace FarmingTracker
 {
     public class Drf : IDisposable
     {
-        public Drf(Services services)
+        public Drf(SettingService settingsService)
         {
-            _services = services;
+            _settingService = settingsService;
+            settingsService.DrfToken.SettingChanged += OnDrfTokenSettingChanged;
             InitializeEventHandlers();
-            services.SettingService.DrfToken.SettingChanged += OnDrfTokenSettingChanged;
             FireAndForgetConnectToDrf();
         }
 
@@ -31,7 +31,7 @@ namespace FarmingTracker
 
         public void Dispose()
         {
-            _services.SettingService.DrfToken.SettingChanged -= OnDrfTokenSettingChanged;
+            _settingService.DrfToken.SettingChanged -= OnDrfTokenSettingChanged;
             _drfWebSocketClient.Dispose();
             // todo events unsubscriben nötig!
         }
@@ -165,7 +165,7 @@ namespace FarmingTracker
         private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
         {
             //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            var drfToken = _services.SettingService.DrfToken.Value;
+            var drfToken = _settingService.DrfToken.Value;
 
             if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
                 await _drfWebSocketClient.Connect(drfToken);
@@ -174,10 +174,10 @@ namespace FarmingTracker
         private async void FireAndForgetConnectToDrf()
         {
             //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            await _drfWebSocketClient.Connect(_services.SettingService.DrfToken.Value);
+            await _drfWebSocketClient.Connect(_settingService.DrfToken.Value);
         }
 
-        private readonly Services _services;
+        private readonly SettingService _settingService;
         private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
         private int _reconnectTriesCounter;
         private static readonly object _reconnectLock = new object();

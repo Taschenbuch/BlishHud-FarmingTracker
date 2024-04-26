@@ -11,7 +11,7 @@ namespace FarmingTracker
             ContentsManager = contentsManager;
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
-            Drf = new Drf(this); // todo ggf. nur settingService übergeben, wenn er nur den braucht?
+            Drf = new Drf(settingService); // todo ggf. nur settingService übergeben, wenn er nur den braucht?
         }
 
         public void Dispose()
