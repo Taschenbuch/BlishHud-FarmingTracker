@@ -243,8 +243,8 @@ namespace FarmingTracker
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
-        private readonly Dictionary<int, ItemX> _itemById = new Dictionary<int, ItemX>();
-        private readonly Dictionary<int, ItemX> _currencyById = new Dictionary<int, ItemX>();
+        private readonly Dictionary<int, Stat> _itemById = new Dictionary<int, Stat>();
+        private readonly Dictionary<int, Stat> _currencyById = new Dictionary<int, Stat>();
         private FlowPanel _farmedCurrenciesFlowPanel;
         private FlowPanel _farmedItemsFlowPanel;
         private FlowPanel _rootFlowPanel;

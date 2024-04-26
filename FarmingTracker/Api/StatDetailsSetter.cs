@@ -11,19 +11,20 @@ namespace FarmingTracker
 {
     public class StatDetailsSetter
     {
-        public async Task SetDetailsFromApi(Dictionary<int, ItemX> currencyById, Dictionary<int, ItemX> itemById, Gw2ApiManager gw2ApiManager)
+        public async Task SetDetailsFromApi(Dictionary<int, Stat> currencyById, Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
-            if (!_apiCurrencyById.Any())
-                await CacheAllCurrencyDetailsFromApi(_apiCurrencyById, gw2ApiManager);
+            var hasToInitializeCache = !_currencyDetailsByIdCache.Any();
+            if (hasToInitializeCache)
+                _currencyDetailsByIdCache = await CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            SetCurrencyDetails(currencyById, _apiCurrencyById);
+            SetCurrencyDetails(currencyById, _currencyDetailsByIdCache);
             await SetItemDetailsFromApi(itemById, gw2ApiManager);
         }
 
         // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).
-        public static async Task CacheAllCurrencyDetailsFromApi(Dictionary<int, Currency> apiCurrencyById, Gw2ApiManager gw2ApiManager)
+        public static async Task<Dictionary<int, CurrencyDetails>> CreateCacheWithAllApiCurrencies(Gw2ApiManager gw2ApiManager)
         {
-            IReadOnlyList<Currency> apiCurrencies;
+            IReadOnlyList<Currency> apiCurrencies = new List<Currency>();
 
             try
             {
@@ -31,17 +32,26 @@ namespace FarmingTracker
             }
             catch (Exception e)
             {
-                throw new Gw2ApiException($"API error: {nameof(CacheAllCurrencyDetailsFromApi)}", e);
+                throw new Gw2ApiException($"API error: {nameof(CreateCacheWithAllApiCurrencies)}", e);
             }
 
+            var currencyDetailsById = new Dictionary<int, CurrencyDetails>();
+
             foreach (var apiCurrency in apiCurrencies)
-                apiCurrencyById[apiCurrency.Id] = apiCurrency;  
+                currencyDetailsById[apiCurrency.Id] = new CurrencyDetails
+                {
+                    Name = apiCurrency.Name,
+                    Description = apiCurrency.Description,
+                    IconAssetId = GetIconAssetId(apiCurrency.Icon),
+                };
+
+            return currencyDetailsById;
         }
 
-        public static void SetCurrencyDetails(Dictionary<int, ItemX> currencyById, Dictionary<int, Currency> apiCurrencyById)
+        public static void SetCurrencyDetails(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
             var currenciesWithoutDetails = currencyById.Values.Where(c => c.ApiDetailsAreMissing).ToList();
-            if (!currenciesWithoutDetails.Any()) // todo weg sobald logging von missing weg ist.
+            if (!currenciesWithoutDetails.Any())
                 return;
 
             Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
@@ -50,11 +60,11 @@ namespace FarmingTracker
 
             foreach (var currencyWithoutDetails in currenciesWithoutDetails)
             {
-                if (apiCurrencyById.TryGetValue(currencyWithoutDetails.ApiId, out var apiCurrency))
+                if (currencyDetailsByIdCache.TryGetValue(currencyWithoutDetails.ApiId, out var currencyDetails))
                 {
-                    currencyWithoutDetails.Name = apiCurrency.Name;
-                    currencyWithoutDetails.Description = apiCurrency.Description;
-                    currencyWithoutDetails.IconAssetId = GetIconAssetId(apiCurrency.Icon);
+                    currencyWithoutDetails.Name = currencyDetails.Name;
+                    currencyWithoutDetails.Description = currencyDetails.Description;
+                    currencyWithoutDetails.IconAssetId = currencyDetails.IconAssetId;
                 }
                 else
                     missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
@@ -64,7 +74,7 @@ namespace FarmingTracker
                 Module.Logger.Info("currencies api miss   " + string.Join(" ", missingInApiCurrencyIds)); // todo weg
         }
 
-        public static async Task SetItemDetailsFromApi(Dictionary<int, ItemX> itemById, Gw2ApiManager gw2ApiManager)
+        public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
             var itemsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).ToList();
             if (itemsWithoutDetails.Any())
@@ -101,7 +111,7 @@ namespace FarmingTracker
             return int.Parse(Path.GetFileNameWithoutExtension(icon.Url.AbsoluteUri));
         }
 
-        private readonly Dictionary<int, Currency> _apiCurrencyById = new Dictionary<int, Currency>();
+        private Dictionary<int, CurrencyDetails> _currencyDetailsByIdCache = new Dictionary<int, CurrencyDetails>();
         private const string GW2_API_DOES_NOT_KNOW_IDS = "all ids provided are invalid";
     }
 }

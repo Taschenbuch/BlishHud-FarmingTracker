@@ -1,6 +1,7 @@
 ﻿namespace FarmingTracker
 {
-    public class ItemX // todogw2sharp hat auch Item. rename später mal. ggf. einfach "stat" nennen? weil für currency und item benutzt
+    // can be currency or item
+    public class Stat
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

@@ -4,7 +4,7 @@ namespace FarmingTracker
 {
     public class CoinSplitter
     {
-        public static void ReplaceCoinWithGoldSilverCopper(Dictionary<int, ItemX> currencyById)
+        public static void ReplaceCoinWithGoldSilverCopper(Dictionary<int, Stat> currencyById)
         {
             // do NOT remove coin from currencyById!
             currencyById.Remove(GOLD_FAKE_ID);
@@ -19,7 +19,7 @@ namespace FarmingTracker
 
             if(coin.HasToDisplayGold)
             {
-                var goldItem = new ItemX
+                var goldItem = new Stat
                 {
                     Name = "Gold",
                     Count = coin.Gold,
@@ -32,7 +32,7 @@ namespace FarmingTracker
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverItem = new ItemX
+                var silverItem = new Stat
                 {
                     Name = "Silver",
                     Count = coin.Silver,
@@ -45,7 +45,7 @@ namespace FarmingTracker
             
             if(coin.HasToDisplayCopper) 
             {
-                var copperItem = new ItemX
+                var copperItem = new Stat
                 {
                     Name = "Copper",
                     Count = coin.Copper,

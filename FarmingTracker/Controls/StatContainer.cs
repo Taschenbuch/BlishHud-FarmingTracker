@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(ItemX item, Services services)
+        public StatContainer(Stat item, Services services)
         {
             _backgroundImage = new Image(AsyncTexture2D.FromAssetId(1318622))
             {

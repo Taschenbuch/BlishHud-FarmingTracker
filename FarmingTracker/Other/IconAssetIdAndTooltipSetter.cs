@@ -4,30 +4,30 @@ namespace FarmingTracker
 {
     public class IconAssetIdAndTooltipSetter
     {
-        public static void SetTooltipAndMissingIconAssetIds(Dictionary<int, ItemX> itemById)
+        public static void SetTooltipAndMissingIconAssetIds(Dictionary<int, Stat> statById)
         {
-            foreach (var item in itemById.Values)
+            foreach (var stat in statById.Values)
             {
-                item.Tooltip = CreateTooltip(item);
+                stat.Tooltip = CreateTooltip(stat);
 
-                if (item.ApiDetailsAreMissing)
-                    item.IconAssetId = BUG_TEXTURE_ASSET_ID; // otherwise AsyncTexture2d.FromAssetId will return null for AssetId = 0
+                if (stat.ApiDetailsAreMissing)
+                    stat.IconAssetId = BUG_TEXTURE_ASSET_ID; // otherwise AsyncTexture2d.FromAssetId will return null for AssetId = 0
             }
         }
 
-        private static string CreateTooltip(ItemX item)
+        private static string CreateTooltip(Stat stat)
         {
-            if (item.ApiDetailsAreMissing)
+            if (stat.ApiDetailsAreMissing)
                 return
-                    $"Unknown item (ID: {item.ApiId})\n" +
+                    $"Unknown item (ID: {stat.ApiId})\n" +
                     $"GW2 API has no information about it.\n" +
                     $"This issue typically occurs for items related to renown hearts.\n" +
                     $"You can look it up with the wiki if you want:\n" +
                     $"https://wiki.guildwars2.com/wiki/Special:RunQuery/Search_by_id";
 
-            return string.IsNullOrWhiteSpace(item.Description)
-                ? $"{item.Count} {item.Name}"
-                : $"{item.Count} {item.Name}\n{item.Description}";
+            return string.IsNullOrWhiteSpace(stat.Description)
+                ? $"{stat.Count} {stat.Name}"
+                : $"{stat.Count} {stat.Name}\n{stat.Description}";
         }
 
         public const int BUG_TEXTURE_ASSET_ID = 157084;

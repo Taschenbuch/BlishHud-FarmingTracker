@@ -7,8 +7,8 @@ namespace FarmingTracker
     public class UiUpdater
     {
         public static void UpdateUi(
-            Dictionary<int, ItemX> currencyById,
-            Dictionary<int, ItemX> itemById,
+            Dictionary<int, Stat> currencyById,
+            Dictionary<int, Stat> itemById,
             FlowPanel farmedCurrenciesFlowPanel,
             FlowPanel farmedItemsFlowPanel,
             Services services)
@@ -48,7 +48,7 @@ namespace FarmingTracker
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, farmedCurrenciesFlowPanel);
         }
 
-        private static ControlCollection<Control> CreateItems(List<ItemX> items, Services services)
+        private static ControlCollection<Control> CreateItems(List<Stat> items, Services services)
         {
             var controls = new ControlCollection<Control>();
 
