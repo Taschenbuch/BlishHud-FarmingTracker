@@ -26,14 +26,17 @@ namespace FarmingTracker
         {
             return ApiTokenState switch
             {
-                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 
-                    => "Error: You have to log into a character once after starting Guild Wars 2. Otherwise the module gets no api acess from blish.",
-                ApiTokenState.ApiTokenMissing 
-                    => $"Error: Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
-                       "If that does not fix the issue try disabling the module and then enabling it again.",
-                ApiTokenState.RequiredPermissionsMissing 
-                    => $"Error: Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\nPlease add a new api key with all required permissions.",
-                _   => $"This should not happen. ApiTokenState: {ApiTokenState}",
+                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 => 
+                    "Error: You have to log into a character once after starting Guild Wars 2.\n" +
+                    "Otherwise the module gets no GW2 API access from blish.",
+                ApiTokenState.ApiTokenMissing => 
+                    $"Error: GW2 Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
+                    "If that does not fix the issue try disabling the module and then enabling it again.",
+                ApiTokenState.RequiredPermissionsMissing => 
+                    $"Error: GW2 Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\n" +
+                    $"Please add a new api key with all required permissions.",
+                _ => 
+                    $"This should not happen. ApiTokenState: {ApiTokenState}",
             };
         }
 
@@ -41,13 +44,14 @@ namespace FarmingTracker
         {
             return ApiTokenState switch
             {
-                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2
-                    => "Log into character!",
-                ApiTokenState.ApiTokenMissing
-                    => $"Add API key!",
-                ApiTokenState.RequiredPermissionsMissing
-                    => "Missing API key permissions!",
-                _ => $"This should not happen. ApiTokenState: {ApiTokenState}",
+                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 => 
+                    "Log into character!",
+                ApiTokenState.ApiTokenMissing => 
+                    $"Add GW2 API key!",
+                ApiTokenState.RequiredPermissionsMissing => 
+                    "Missing GW2 API key permissions!",
+                _ => 
+                    $"This should not happen. ApiTokenState: {ApiTokenState}",
             };
         }
 

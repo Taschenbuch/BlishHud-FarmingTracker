@@ -124,7 +124,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Warn(exception, exception.Message); // todo keine exception loggen? zu spammy?
                 _updateLoop.UseRetryAfterApiFailureUpdateInterval();
-                _hintLabel.Text = $"API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
