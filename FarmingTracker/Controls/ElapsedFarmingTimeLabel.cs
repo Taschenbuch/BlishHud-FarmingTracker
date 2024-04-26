@@ -9,7 +9,7 @@ namespace FarmingTracker
     {
         public ElapsedFarmingTimeLabel(Services services, Container parent)
         {
-            Text = CreateTimeText("-:--:--");
+            Text = CreateFarmingTimeText("-:--:--");
             Font = services.FontService.Fonts[FontSize.Size18];
             AutoSizeHeight = true;
             AutoSizeWidth = true;
@@ -39,10 +39,22 @@ namespace FarmingTracker
 
         private void UpdateLabelText(TimeSpan farmingTime)
         {
-            Text = CreateTimeText($"{farmingTime:h':'mm':'ss}");
+            var formattedFarmingTime = CreateFormattedTimeText(farmingTime);
+            Text = CreateFarmingTimeText(formattedFarmingTime);
         }
 
-        private static string CreateTimeText(string timeString)
+        private static string CreateFormattedTimeText(TimeSpan timeSpan)
+        {
+            if (timeSpan >= TimeSpan.FromHours(1))
+                return $"{timeSpan:h' hr  'm' min  'ss' sec'}";
+
+            if (timeSpan >= TimeSpan.FromMinutes(1))
+                return $"{timeSpan:m' min  'ss' sec'}";
+
+            return $"{timeSpan:ss' sec'}";
+        }
+
+        private static string CreateFarmingTimeText(string timeString)
         {
             return $"farming for {timeString}";
         }
