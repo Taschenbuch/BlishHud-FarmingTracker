@@ -105,23 +105,27 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-                if (drfMessages.Count == 0)
+
+                if (drfMessages.IsEmpty() && !_lastStatsUpdateSuccessfull)
                     return;
 
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStats(drfMessages);
                 UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
+                _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message);
                 _updateLoop.UseRetryAfterApiFailureUpdateInterval();
+                _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, "track items failed.");
+                _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
         }
@@ -270,6 +274,7 @@ namespace FarmingTracker
         private FlowPanel _controlsFlowPanel;
         private string _oldApiTokenErrorTooltip = string.Empty;
         private bool _errorHintVisible;
+        private bool _lastStatsUpdateSuccessfull = true;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
