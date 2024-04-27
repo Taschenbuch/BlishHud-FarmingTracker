@@ -105,7 +105,6 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-                drfMessages = Drf.RemoveInvalidMessages(drfMessages);
                 if (drfMessages.Count == 0)
                     return;
 

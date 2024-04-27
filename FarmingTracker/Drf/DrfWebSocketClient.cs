@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -35,21 +36,18 @@ namespace FarmingTracker
         public event EventHandler<GenericEventArgs<Exception>> ReceiveCrashed;
         public event EventHandler<GenericEventArgs<Exception>> ReceiveFailed;
 
-        public bool HasNewDrfMessages()
-        {
-            lock (_drfMessagesLock)
-                return _drfMessages.Count != 0;
-        }
-
         public List<DrfMessage> GetDrfMessages()
         {
             var newEmptyList = new List<DrfMessage>();
+            List<DrfMessage> receivedMessages;
+
             lock (_drfMessagesLock)
             {
-                var receivedMessages = _drfMessages;
+                receivedMessages = _drfMessages;
                 _drfMessages = newEmptyList;
-                return receivedMessages;
             }
+
+            return RemoveInvalidMessages(receivedMessages);
         }
 
         // clientWebSocket.Abort() is handled by Connect() and Receive(). So it should not be handled here
@@ -341,6 +339,13 @@ namespace FarmingTracker
         private static string CreateStatusMessage(ClientWebSocket clientWebSocket)
         {
             return $"State.{clientWebSocket.State} CloseStatus.{clientWebSocket.CloseStatus} CloseStatusDescription: {clientWebSocket.CloseStatusDescription}";
+        }
+
+        // sometimes drf.dll fails to get the wallet snapshot after a map change.
+        // This results in a drf message with all currencies currently in the wallet instead of just the difference
+        private static List<DrfMessage> RemoveInvalidMessages(List<DrfMessage> drfMessages)
+        {
+            return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();
         }
 
         private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);

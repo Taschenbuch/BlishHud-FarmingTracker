@@ -37,14 +37,6 @@ namespace FarmingTracker
         }
 
         public List<DrfMessage> GetDrfMessages() => _drfWebSocketClient.GetDrfMessages();
-        public bool HasNewDrfMessages() => _drfWebSocketClient.HasNewDrfMessages();
-
-        // sometimes drf.dll fails to get the wallet snapshot after a map change.
-        // This results in a drf message with all currencies currently in the wallet instead of just the difference
-        public static List<DrfMessage> RemoveInvalidMessages(List<DrfMessage> drfMessages)
-        {
-            return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();
-        }
 
         private void InitializeEventHandlers()
         {
