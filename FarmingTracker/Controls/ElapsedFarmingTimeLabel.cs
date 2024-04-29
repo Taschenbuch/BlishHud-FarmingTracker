@@ -30,7 +30,7 @@ namespace FarmingTracker
             }
         }
 
-        public void ResetTime()
+        public void RestartTime()
         {
             _farmingTimeStopwatch.Restart();
             _oldFarmingTime = TimeSpan.Zero;
@@ -59,7 +59,7 @@ namespace FarmingTracker
             return $"farming for {timeString}";
         }
 
-        private TimeSpan _oldFarmingTime;
+        private TimeSpan _oldFarmingTime = TimeSpan.Zero;
         private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch();
     }
 }

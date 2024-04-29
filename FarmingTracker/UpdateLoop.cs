@@ -25,11 +25,6 @@ namespace FarmingTracker
             _updateIntervalMs = FARMING_UPDATE_INTERVAL_MS;
         }
 
-        public void TiggerUpdateInstantly()
-        {
-            _updateIntervalMs = 0;
-        }
-
         public void UseRetryAfterApiFailureUpdateInterval()
         {
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;

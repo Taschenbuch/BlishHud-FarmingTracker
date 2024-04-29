@@ -44,10 +44,25 @@ namespace FarmingTracker
 
         public void Update2(GameTime gameTime) // Update2() because Update() does not always update
         {
-            _elapsedFarmingTimeLabel.UpdateTimeOncePerSecond();
             _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            if (_updateLoop.UpdateIntervalEnded()) // todo sinnvolles intervall wählen. 2min? 5min? keine ahnung
+            if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues
+            {
+                _hintLabel.Text = "resetting...";
+
+                if (_isTrackStatsRunning)
+                    return; // prevents farming time updates and prevents hintText from being overriden
+
+                _hasToResetStats = false;
+                ResetStats();
+                _elapsedFarmingTimeLabel.RestartTime();
+                _resetButton.Enabled = true;
+                return; // a reset is enough work for a single update loop iteration.
+            }
+
+            _elapsedFarmingTimeLabel.UpdateTimeOncePerSecond();
+
+            if (_updateLoop.UpdateIntervalEnded())
             {
                 _updateLoop.ResetRunningTime();
                 _updateLoop.UseFarmingUpdateInterval();
@@ -88,7 +103,7 @@ namespace FarmingTracker
                     _hintLabel.BasicTooltipText = "";
                 }
 
-                if (!_isTrackStatsRunning)
+                if (!_isTrackStatsRunning && !_hasToResetStats)
                 {
                     _isTrackStatsRunning = true;
                     Task.Run(async () =>
@@ -97,6 +112,23 @@ namespace FarmingTracker
                         _isTrackStatsRunning = false;
                     });
                 }
+            }
+        }
+
+        private void ResetStats()
+        {
+            try
+            {
+                _itemById.Clear();
+                _currencyById.Clear();
+                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
+                _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
+                _hintLabel.Text = "";
+            }
+            catch (Exception exception)
+            {
+                Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
+                _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
         }
 
@@ -123,7 +155,7 @@ namespace FarmingTracker
             }
             catch (Exception exception)
             {
-                Module.Logger.Error(exception, "track items failed.");
+                Module.Logger.Error(exception, $"{nameof(TrackStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
@@ -197,7 +229,7 @@ namespace FarmingTracker
             _resetButton = new StandardButton()
             {
                 Text = "Reset",
-                BasicTooltipText = "Start new farming session by resetting farmed items and currencies.",
+                BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
                 Left = 460,
                 Parent = _rootFlowPanel,
@@ -206,16 +238,7 @@ namespace FarmingTracker
             _resetButton.Click += (s, e) =>
             {
                 _resetButton.Enabled = false;
-                _updateLoop.TiggerUpdateInstantly(); // todo überflüssig?
-                // todo items clear und UpdateUi() woanders hinschieben, ist hier falsch. poentielle racing conditions.
-                // Es muss aber weiterhin instant die flowpanels clearen.
-       
-                _elapsedFarmingTimeLabel.ResetTime();
-                _hintLabel.Text = "";
-                _itemById.Clear();
-                _currencyById.Clear();
-                UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
-                _resetButton.Enabled = true;
+                _hasToResetStats = true;
             };
 
             _controlsFlowPanel = new FlowPanel()
@@ -274,6 +297,7 @@ namespace FarmingTracker
         private string _oldApiTokenErrorTooltip = string.Empty;
         private bool _errorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
+        private bool _hasToResetStats;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
