@@ -105,8 +105,7 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-
-                if (drfMessages.IsEmpty() && !_lastStatsUpdateSuccessfull)
+                if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull)
                     return;
 
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
