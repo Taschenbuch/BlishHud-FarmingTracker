@@ -279,6 +279,8 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _rootFlowPanel
             };
+
+            UiUpdater.UpdateUi(_currencyById, _itemById, _farmedCurrenciesFlowPanel, _farmedItemsFlowPanel, _services);
         }
 
         private bool _isTrackStatsRunning;
