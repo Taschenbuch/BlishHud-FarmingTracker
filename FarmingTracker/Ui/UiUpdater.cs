@@ -13,22 +13,22 @@ namespace FarmingTracker
             FlowPanel farmedItemsFlowPanel,
             Services services)
         {
-            var noItemsFarmed = !itemById.Any();
-            var noCurrenciesFarmed = !currencyById.Any();
+            var noItemChanges = !itemById.Any();
+            var noCurrencyChanges = !currencyById.Any();
 
-            if (noItemsFarmed)
+            if (noItemChanges)
             {
                 farmedItemsFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(farmedItemsFlowPanel, "No item changes detected!");
+                ControlFactory.CreateHintLabel(farmedItemsFlowPanel, $"{PADDING}No item changes detected!");
             }
 
-            if (noCurrenciesFarmed)
+            if (noCurrencyChanges)
             {
                 farmedCurrenciesFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(farmedCurrenciesFlowPanel, "No currency changes detected!");
+                ControlFactory.CreateHintLabel(farmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
             }
 
-            if (noItemsFarmed && noCurrenciesFarmed)
+            if (noItemChanges && noCurrencyChanges)
                 return;
 
             var sortedCurrencies = currencyById.Values
@@ -57,5 +57,7 @@ namespace FarmingTracker
 
             return controls;
         }
+
+        private const string PADDING = "  ";
     }
 }
