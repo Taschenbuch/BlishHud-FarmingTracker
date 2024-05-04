@@ -167,7 +167,7 @@ namespace FarmingTracker
                 return;
 
             if (_oldApiTokenErrorTooltip != apiTokenErrorMessage)
-                Module.Logger.Debug(apiTokenErrorMessage);
+                Module.Logger.Info(apiTokenErrorMessage);
 
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
