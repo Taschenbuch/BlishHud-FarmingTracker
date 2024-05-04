@@ -20,5 +20,10 @@ namespace FarmingTracker
         public int Gold { get; }
         public int Silver { get; }
         public int Copper { get; }
+        public bool HasToDisplayGold => Gold != 0;
+        public bool HasToDisplaySilver => Gold != 0 || Silver != 0;
+        public bool HasToDisplayCopper => Gold != 0|| Silver != 0 || Copper != 0;
+        
+        public const int COIN_CURRENCY_ID = 1;
     }
 }

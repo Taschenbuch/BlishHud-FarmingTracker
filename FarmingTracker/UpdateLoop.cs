@@ -5,47 +5,35 @@ namespace FarmingTracker
     // MS = milliseconds
     public class UpdateLoop
     {
-        public double RunningTimeMs { get; set; }
-        public double UpdateIntervalMs { get; set; } // default 0 to start immediately in first Module.Update() call
-
         public void AddToRunningTime(double milliseconds)
         {
-            RunningTimeMs += milliseconds;
+            _runningTimeMs += milliseconds;
         }
 
         public void ResetRunningTime()
         {
-            RunningTimeMs = 0;
+            _runningTimeMs = 0;
         }
 
         public bool UpdateIntervalEnded()
         {
-            return RunningTimeMs >= UpdateIntervalMs;
-        }
-
-        public void UseWaitForApiTokenUpdateInterval()
-        {
-            UpdateIntervalMs = WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS;
+            return _runningTimeMs >= _updateIntervalMs;
         }
 
         public void UseFarmingUpdateInterval()
         {
-            UpdateIntervalMs = FARMING_UPDATE_INTERVAL_MS;
-        }
-
-        public void TiggerUpdateInstantly()
-        {
-            UpdateIntervalMs = 0; // trigger items update immediately
+            _updateIntervalMs = FARMING_UPDATE_INTERVAL_MS;
         }
 
         public void UseRetryAfterApiFailureUpdateInterval()
         {
-            UpdateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
+            _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public static readonly TimeSpan FARMING_UPDATE_INTERVAL_TIME = TimeSpan.FromMilliseconds(FARMING_UPDATE_INTERVAL_MS);
-        public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 30 * 1000;
-        public const int WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS = 2 * 1000;
-        private const int FARMING_UPDATE_INTERVAL_MS = 3 * 60 * 1000; // todo sinnvolle zeit angeben
+        public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 5_000;
+        public const int WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS = 2_000;
+        private const int FARMING_UPDATE_INTERVAL_MS = 1_000; // todo rename
+        private double _runningTimeMs;
+        private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
     }
 }

@@ -8,15 +8,16 @@ namespace FarmingTracker
 {
     public class ApiToken
     {
-        public ApiToken(IReadOnlyList<TokenPermission> requiredApiTokenPermissions, Gw2ApiManager gw2ApiManager)
+        public ApiToken(Gw2ApiManager gw2ApiManager)
         {
-            var missingPermissions = GetMissingPermissions(requiredApiTokenPermissions, gw2ApiManager);
+            var missingPermissions = GetMissingPermissions(REQUIRED_API_TOKEN_PERMISSIONS, gw2ApiManager);
             MissingPermissions.AddRange(missingPermissions);
-            ApiTokenState = GetApiTokenState(requiredApiTokenPermissions, gw2ApiManager);
-            RequiredPermissions = requiredApiTokenPermissions.ToList();
+            ApiTokenState = GetApiTokenState(REQUIRED_API_TOKEN_PERMISSIONS, gw2ApiManager);
+            RequiredPermissions = REQUIRED_API_TOKEN_PERMISSIONS.ToList();
         }
 
         public bool CanAccessApi => ApiTokenState == ApiTokenState.CanAccessApi;
+        public bool ApiTokenMissing => ApiTokenState == ApiTokenState.ApiTokenMissing;
         public ApiTokenState ApiTokenState { get; }
         public List<TokenPermission> MissingPermissions { get; } = new List<TokenPermission>();
         public List<TokenPermission> RequiredPermissions { get; }
@@ -25,14 +26,17 @@ namespace FarmingTracker
         {
             return ApiTokenState switch
             {
-                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 
-                    => "Error: You have to log into a character once after starting Guild Wars 2. Otherwise the module gets no api acess from blish.",
-                ApiTokenState.ApiTokenMissing 
-                    => $"Error: Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
-                       "If that does not fix the issue try disabling the module and then enabling it again.",
-                ApiTokenState.RequiredPermissionsMissing 
-                    => $"Error: Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\nPlease add a new api key with all required permissions.",
-                _   => $"This should not happen. ApiTokenState: {ApiTokenState}",
+                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 => 
+                    "Error: You have to log into a character once after starting Guild Wars 2.\n" +
+                    "Otherwise the module gets no GW2 API access from blish.",
+                ApiTokenState.ApiTokenMissing => 
+                    $"Error: GW2 Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
+                    "If that does not fix the issue try disabling the module and then enabling it again.",
+                ApiTokenState.RequiredPermissionsMissing => 
+                    $"Error: GW2 Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\n" +
+                    $"Please add a new api key with all required permissions.",
+                _ => 
+                    $"This should not happen. ApiTokenState: {ApiTokenState}",
             };
         }
 
@@ -40,13 +44,14 @@ namespace FarmingTracker
         {
             return ApiTokenState switch
             {
-                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2
-                    => "Log into character!",
-                ApiTokenState.ApiTokenMissing
-                    => $"Add API key!",
-                ApiTokenState.RequiredPermissionsMissing
-                    => "Missing API key permissions!",
-                _ => $"This should not happen. ApiTokenState: {ApiTokenState}",
+                ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 => 
+                    "Log into character!",
+                ApiTokenState.ApiTokenMissing => 
+                    $"Add GW2 API key!",
+                ApiTokenState.RequiredPermissionsMissing => 
+                    "Missing GW2 API key permissions!",
+                _ => 
+                    $"This should not happen. ApiTokenState: {ApiTokenState}",
             };
         }
 
@@ -73,5 +78,15 @@ namespace FarmingTracker
         {
             TokenPermission.Account
         };
+
+        private readonly IReadOnlyList<TokenPermission> REQUIRED_API_TOKEN_PERMISSIONS = new List<TokenPermission>
+        {
+            TokenPermission.Account,
+            TokenPermission.Inventories,
+            TokenPermission.Characters,
+            TokenPermission.Wallet,
+            TokenPermission.Builds,
+            TokenPermission.Tradingpost,
+        }.AsReadOnly();
     }
 }
