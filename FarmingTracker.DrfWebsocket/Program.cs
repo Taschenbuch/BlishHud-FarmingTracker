@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Running;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace FarmingTracker.DrfWebsocket
@@ -9,8 +10,9 @@ namespace FarmingTracker.DrfWebsocket
 
         public static async Task Main()
         {
-            var drfToken = "ab277fcd-8441-49fd-99f7-13a73890c448";
+            var drfToken = File.ReadAllText(@"C:\Dev\blish\drftoken.txt");
             //var drfToken = "wrong token"; // todo debug
+
             var drfWebSocketClient = CreateDrfWebSocket();
 
             // todo VORSICHT da ist nen task.delay aktuell im close() lock
@@ -70,7 +72,7 @@ namespace FarmingTracker.DrfWebsocket
         private static DrfWebSocketClient CreateDrfWebSocket()
         {
             var drfWebSocketClient = new DrfWebSocketClient();
-            drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            //drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
 
             drfWebSocketClient.Connecting += (s, e) => Console.WriteLine($"Connecting");
             drfWebSocketClient.ConnectedAndAuthenticationRequestSent += (s, e) => Console.WriteLine($"ConnectedAndAuthenticationRequestSent");
