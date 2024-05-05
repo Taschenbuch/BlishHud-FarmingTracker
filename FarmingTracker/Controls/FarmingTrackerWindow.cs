@@ -254,7 +254,7 @@ namespace FarmingTracker
 
             _hintLabel = new Label
             {
-                Font = services.FontService.Fonts[FontSize.Size18],
+                Font = services.FontService.Fonts[FontSize.Size14],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Parent = _controlsFlowPanel

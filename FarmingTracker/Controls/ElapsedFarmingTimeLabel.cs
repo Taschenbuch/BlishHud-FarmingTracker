@@ -10,7 +10,7 @@ namespace FarmingTracker
         public ElapsedFarmingTimeLabel(Services services, Container parent)
         {
             Text = CreateFarmingTimeText("-:--:--");
-            Font = services.FontService.Fonts[FontSize.Size18];
+            Font = services.FontService.Fonts[FontSize.Size14];
             AutoSizeHeight = true;
             AutoSizeWidth = true;
             Parent = parent;
