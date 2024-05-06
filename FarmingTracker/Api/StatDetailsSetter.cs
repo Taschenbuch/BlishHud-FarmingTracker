@@ -11,14 +11,14 @@ namespace FarmingTracker
 {
     public class StatDetailsSetter
     {
-        public async Task SetDetailsFromApi(Dictionary<int, Stat> currencyById, Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
+        public async Task SetDetailsFromApi(Stats stats, Gw2ApiManager gw2ApiManager)
         {
             var hasToInitializeCache = !_currencyDetailsByIdCache.Any();
             if (hasToInitializeCache)
                 _currencyDetailsByIdCache = await CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            SetCurrencyDetails(currencyById, _currencyDetailsByIdCache);
-            await SetItemDetailsFromApi(itemById, gw2ApiManager);
+            SetCurrencyDetails(stats.CurrencyById, _currencyDetailsByIdCache);
+            await SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
         }
 
         // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).

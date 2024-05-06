@@ -7,13 +7,12 @@ namespace FarmingTracker
     public class UiUpdater
     {
         public static void UpdateStatsInUi(
-            Dictionary<int, Stat> currencyById,
-            Dictionary<int, Stat> itemById,
+            Stats stats,
             StatsPanels statsPanels,
             Services services)
         {
-            var noItemChanges = !itemById.Any();
-            var noCurrencyChanges = !currencyById.Any();
+            var noItemChanges = !stats.ItemById.Any();
+            var noCurrencyChanges = !stats.CurrencyById.Any();
 
             if (noItemChanges)
             {
@@ -30,12 +29,12 @@ namespace FarmingTracker
             if (noItemChanges && noCurrencyChanges)
                 return;
 
-            var sortedCurrencies = currencyById.Values
+            var sortedCurrencies = stats.CurrencyById.Values
                 .Where(c => !c.IsCoin)
                 .OrderBy(c => c.ApiId)
                 .ToList();
 
-            var sortedItems = itemById.Values
+            var sortedItems = stats.ItemById.Values
                 .OrderBy(i => i.Count >= 0 ? -1 : 1)
                 .ThenBy(i => i.ApiId)
                 .ToList();

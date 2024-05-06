@@ -120,9 +120,9 @@ namespace FarmingTracker
         {
             try
             {
-                _itemById.Clear();
-                _currencyById.Clear();
-                UiUpdater.UpdateStatsInUi(_currencyById, _itemById, _statsPanels, _services);
+                _stats.ItemById.Clear();
+                _stats.CurrencyById.Clear();
+                UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -144,8 +144,8 @@ namespace FarmingTracker
 
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStats(drfMessages);
-                UiUpdater.UpdateStatsInUi(_currencyById, _itemById, _statsPanels, _services);
-                _profitService.UpdateProfit(_currencyById, _itemById, _elapsedFarmingTimeLabel.ElapsedTime);
+                UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
+                _profitService.UpdateProfit(_stats, _elapsedFarmingTimeLabel.ElapsedTime);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
@@ -177,22 +177,22 @@ namespace FarmingTracker
 
         private async Task UpdateStats(List<DrfMessage> drfMessages)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _currencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _itemById);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, _stats.CurrencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, _stats.ItemById);
 
-            await _statDetailsSetter.SetDetailsFromApi(_currencyById, _itemById, _services.Gw2ApiManager);
+            await _statDetailsSetter.SetDetailsFromApi(_stats, _services.Gw2ApiManager);
 
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_currencyById);
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_itemById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_stats.CurrencyById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_stats.ItemById);
 
-            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_currencyById);
+            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_stats.CurrencyById);
             Debug_LogItemsWithoutDetailsFromApi(); // todo weg
         }
 
         private void Debug_LogItemsWithoutDetailsFromApi()  // todo weg
         {
             // missing currency check ist jetzt in SetDetailsFromApi
-            var missingItems = _itemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
+            var missingItems = _stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
 
             if (missingItems.Any())
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
@@ -294,15 +294,13 @@ namespace FarmingTracker
                 Parent = _rootFlowPanel
             };
 
-            UiUpdater.UpdateStatsInUi(_currencyById, _itemById, _statsPanels, _services);
+            UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
         }
 
         private bool _isTrackStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
-        private readonly Dictionary<int, Stat> _itemById = new Dictionary<int, Stat>();
-        private readonly Dictionary<int, Stat> _currencyById = new Dictionary<int, Stat>();
         private ProfitService _profitService;
         private FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
@@ -316,6 +314,7 @@ namespace FarmingTracker
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Texture2D _windowEmblemTexture;
         private readonly Services _services;
+        private readonly Stats _stats = new Stats();
         private readonly StatsPanels _statsPanels = new StatsPanels();
     }
 }

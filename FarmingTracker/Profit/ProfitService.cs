@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -20,9 +19,9 @@ namespace FarmingTracker
             SetTotalAndPerHourProfit(0, 0);
         }
 
-        public void UpdateProfit(Dictionary<int, Stat> currencyById, Dictionary<int, Stat> itemById, TimeSpan elapsedFarmingTime)
+        public void UpdateProfit(Stats stats, TimeSpan elapsedFarmingTime)
         {
-            var totalProfitInCopper = CalculateTotalProfitInCopper(currencyById, itemById);
+            var totalProfitInCopper = CalculateTotalProfitInCopper(stats);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
@@ -34,17 +33,17 @@ namespace FarmingTracker
             _totalProfitInCopper = totalProfitInCopper;
         }
 
-        private static int CalculateTotalProfitInCopper(Dictionary<int, Stat> currencyById, Dictionary<int, Stat> itemById)
+        private static int CalculateTotalProfitInCopper(Stats stats)
         {
-            var coinsInCopper = currencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-            var itemSellProfitsInCopper = itemById.Values.Sum(s => s.Profit.MaxProfitInCopper * s.Count);
+            var coinsInCopper = stats.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
+            var itemSellProfitsInCopper = stats.ItemById.Values.Sum(s => s.Profit.MaxProfitInCopper * s.Count);
             var totalProfit = coinsInCopper + itemSellProfitsInCopper;
 
             Module.Logger.Debug(
                 $"totalProfit {totalProfit} | " +
                 $"coinsInCopper {coinsInCopper} | " +
                 $"itemSellProfitsInCopper {itemSellProfitsInCopper} | " +
-                $"maxProfits {string.Join(" ", itemById.Values.Select(s => s.Profit.MaxProfitInCopper * s.Count))}");
+                $"maxProfits {string.Join(" ", stats.ItemById.Values.Select(s => s.Profit.MaxProfitInCopper * s.Count))}");
 
             return totalProfit;
         }
