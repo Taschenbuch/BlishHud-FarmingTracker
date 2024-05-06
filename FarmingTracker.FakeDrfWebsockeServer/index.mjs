@@ -2,7 +2,6 @@ import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
 
 const drfToken = fs.readFileSync("C:\\Dev\\blish\\drftoken_server.txt", 'utf-8');
-console.log(drfToken);
 const webSocketServer = new WebSocketServer({ port: 8080 });
 
 webSocketServer.on('connection', (webSocket, request) => {
