@@ -1,7 +1,6 @@
 ﻿using Blish_HUD;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,9 +11,9 @@ namespace FarmingTracker
         public Drf(SettingService settingsService)
         {
             _settingService = settingsService;
-            settingsService.DrfToken.SettingChanged += OnDrfTokenSettingChanged;
             InitializeEventHandlers();
             FireAndForgetConnectToDrf();
+            settingsService.DrfToken.SettingChanged += OnDrfTokenSettingChanged;
         }
 
         public DrfConnectionStatus DrfConnectionStatus { get; private set; } = DrfConnectionStatus.Disconnected;
@@ -156,7 +155,6 @@ namespace FarmingTracker
 
         private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
         {
-            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
             var drfToken = _settingService.DrfToken.Value;
 
             if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
