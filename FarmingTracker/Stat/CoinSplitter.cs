@@ -23,7 +23,7 @@ namespace FarmingTracker
                 {
                     Name = "Gold",
                     Count = coin.Gold,
-                    IconAssetId = 156904,
+                    IconAssetId = Constants.GOLD_ICON_ASSET_ID,
                     ApiId = GOLD_FAKE_ID,
                 };
                 
@@ -36,7 +36,7 @@ namespace FarmingTracker
                 {
                     Name = "Silver",
                     Count = coin.Silver,
-                    IconAssetId = 156907,
+                    IconAssetId = Constants.SILVER_ICON_ASSET_ID,
                     ApiId = SILVER_FAKE_ID,
                 };
 
@@ -49,7 +49,7 @@ namespace FarmingTracker
                 {
                     Name = "Copper",
                     Count = coin.Copper,
-                    IconAssetId = 156902,
+                    IconAssetId = Constants.COPPER_ICON_ASSET_ID,
                     ApiId = COPPER_FAKE_ID,
                 };
 

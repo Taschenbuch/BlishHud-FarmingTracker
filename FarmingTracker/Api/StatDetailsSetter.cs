@@ -77,32 +77,65 @@ namespace FarmingTracker
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
             var itemsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).ToList();
-            if (itemsWithoutDetails.Any())
+            if (!itemsWithoutDetails.Any())
+                return;
+
+            Module.Logger.Info("items      id=0       " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
+            var apiItems = await GetApiItems(gw2ApiManager, itemsWithoutDetails);
+                
+            if (apiItems.Any())
+                Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
+                
+            var apiPrices = await GetApiPrices(gw2ApiManager, itemsWithoutDetails);
+
+            foreach (var apiItem in apiItems) // must be BELOW GetApiPrices() because when throws, IconAssetId wont be set and api calls will be retried.
             {
-                Module.Logger.Info("items      id=0       " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
-                IReadOnlyList<Item> apiItems;
+                var item = itemById[apiItem.Id];
+                item.Name = apiItem.Name;
+                item.Description = apiItem.Description;
+                item.IconAssetId = GetIconAssetId(apiItem.Icon);
+                var canNotBeSoldToVendor = apiItem.Flags.Any(f => f == ItemFlag.NoSell);
+                item.Profit.SellToVendorInCopper = canNotBeSoldToVendor
+                    ? 0
+                    : apiItem.VendorValue;
+            }
 
-                try
-                {
-                    apiItems = await gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-                    Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
-                }
-                catch (Exception e) when(e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
-                {
-                    apiItems = new List<Item>(); // handling NotFoundException is not enough because that occurs on random api failures too.
-                }
-                catch (Exception e)
-                {
-                    throw new Gw2ApiException($"API error: {nameof(SetItemDetailsFromApi)}", e);
-                }
+            foreach (var apiPrice in apiPrices)
+            {
+                var item = itemById[apiPrice.Id];
+                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice; 
+            }
+        }
 
-                foreach (var apiItem in apiItems)
-                {
-                    var item = itemById[apiItem.Id];
-                    item.Name = apiItem.Name;
-                    item.Description = apiItem.Description;
-                    item.IconAssetId = GetIconAssetId(apiItem.Icon);
-                }
+        private static async Task<IReadOnlyList<CommercePrices>> GetApiPrices(Gw2ApiManager gw2ApiManager, List<Stat> itemsWithoutDetails)
+        {
+            try
+            {
+                return await gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
+            }
+            catch (Exception e) when (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
+            { // handling NotFoundException is not enough because that occurs on random api failures too.
+                return new List<CommercePrices>();
+            }
+            catch (Exception e)
+            {
+                throw new Gw2ApiException($"API error: V2.Commerce {nameof(SetItemDetailsFromApi)}", e);
+            }
+        }
+
+        private static async Task<IReadOnlyList<Item>> GetApiItems(Gw2ApiManager gw2ApiManager, List<Stat> itemsWithoutDetails)
+        {
+            try
+            {
+                return await gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
+            }
+            catch (Exception e) when (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
+            { // handling NotFoundException is not enough because that occurs on random api failures too.
+                return new List<Item>();
+            }
+            catch (Exception e)
+            {
+                throw new Gw2ApiException($"API error: V2.Items {nameof(SetItemDetailsFromApi)}", e);
             }
         }
 

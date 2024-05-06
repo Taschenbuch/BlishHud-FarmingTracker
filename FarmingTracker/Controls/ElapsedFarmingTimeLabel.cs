@@ -18,7 +18,9 @@ namespace FarmingTracker
             _farmingTimeStopwatch.Restart();
         }
 
-        public void UpdateTimeOncePerSecond()
+        public TimeSpan ElapsedTime => _farmingTimeStopwatch.Elapsed;
+
+        public void UpdateTimeEverySecond()
         {
             var farmingTime = _farmingTimeStopwatch.Elapsed;
             var oneSecondHasPassed = farmingTime >= _oldFarmingTime + TimeSpan.FromSeconds(1);

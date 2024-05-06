@@ -6,11 +6,10 @@ namespace FarmingTracker
 {
     public class UiUpdater
     {
-        public static void UpdateUi(
+        public static void UpdateStatsInUi(
             Dictionary<int, Stat> currencyById,
             Dictionary<int, Stat> itemById,
-            FlowPanel farmedCurrenciesFlowPanel,
-            FlowPanel farmedItemsFlowPanel,
+            StatsPanels statsPanels,
             Services services)
         {
             var noItemChanges = !itemById.Any();
@@ -18,14 +17,14 @@ namespace FarmingTracker
 
             if (noItemChanges)
             {
-                farmedItemsFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(farmedItemsFlowPanel, $"{PADDING}No item changes detected!");
+                statsPanels.FarmedItemsFlowPanel.ClearChildren();
+                ControlFactory.CreateHintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
             }
 
             if (noCurrencyChanges)
             {
-                farmedCurrenciesFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(farmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
+                statsPanels.FarmedCurrenciesFlowPanel.ClearChildren();
+                ControlFactory.CreateHintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
             }
 
             if (noItemChanges && noCurrencyChanges)
@@ -44,8 +43,8 @@ namespace FarmingTracker
             var currencyControls = CreateItems(sortedCurrencies, services);
             var itemControls = CreateItems(sortedItems, services);
 
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, farmedItemsFlowPanel);
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, farmedCurrenciesFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
         }
 
         private static ControlCollection<Control> CreateItems(List<Stat> items, Services services)
