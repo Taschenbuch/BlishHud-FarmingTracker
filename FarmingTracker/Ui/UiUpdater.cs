@@ -39,19 +39,19 @@ namespace FarmingTracker
                 .ThenBy(i => i.ApiId)
                 .ToList();
 
-            var currencyControls = CreateItems(sortedCurrencies, services);
-            var itemControls = CreateItems(sortedItems, services);
+            var currencyControls = CreateStatControls(sortedCurrencies, services);
+            var itemControls = CreateStatControls(sortedItems, services);
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
         }
 
-        private static ControlCollection<Control> CreateItems(List<Stat> items, Services services)
+        private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
         {
             var controls = new ControlCollection<Control>();
 
-            foreach (var item in items)
-                controls.Add(new StatContainer(item, services));
+            foreach (var stat in stats)
+                controls.Add(new StatContainer(stat, services));
 
             return controls;
         }
