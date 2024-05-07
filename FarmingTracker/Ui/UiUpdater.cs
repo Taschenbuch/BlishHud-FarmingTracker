@@ -11,24 +11,6 @@ namespace FarmingTracker
             StatsPanels statsPanels,
             Services services)
         {
-            var noItemChanges = !stats.ItemById.Any();
-            var noCurrencyChanges = !stats.CurrencyById.Any();
-
-            if (noItemChanges)
-            {
-                statsPanels.FarmedItemsFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
-            }
-
-            if (noCurrencyChanges)
-            {
-                statsPanels.FarmedCurrenciesFlowPanel.ClearChildren();
-                ControlFactory.CreateHintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
-            }
-
-            if (noItemChanges && noCurrencyChanges)
-                return;
-
             var sortedCurrencies = stats.CurrencyById.Values
                 .Where(c => !c.IsCoin)
                 .OrderBy(c => c.ApiId)
@@ -44,6 +26,15 @@ namespace FarmingTracker
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
+
+            var noItemChangesDetected = !stats.ItemById.Any();
+            var noCurrencyChangesDetected = !stats.CurrencyById.Any();
+
+            if(statsPanels.FarmedItemsFlowPanel.IsEmpty())
+                ControlFactory.CreateHintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
+            
+            if(statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
+                ControlFactory.CreateHintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
