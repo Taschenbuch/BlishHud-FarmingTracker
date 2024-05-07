@@ -50,7 +50,7 @@ namespace FarmingTracker
             {
                 _hintLabel.Text = "resetting...";
 
-                if (_isTrackStatsRunning)
+                if (_isUpdateStatsRunning)
                     return; // prevents farming time updates and prevents hintText from being overriden
 
                 _hasToResetStats = false;
@@ -104,13 +104,13 @@ namespace FarmingTracker
                     _hintLabel.BasicTooltipText = "";
                 }
 
-                if (!_isTrackStatsRunning && !_hasToResetStats)
+                if (!_isUpdateStatsRunning && !_hasToResetStats)
                 {
-                    _isTrackStatsRunning = true;
+                    _isUpdateStatsRunning = true;
                     Task.Run(async () =>
                     {
-                        await TrackStats();
-                        _isTrackStatsRunning = false;
+                        await UpdateStats();
+                        _isUpdateStatsRunning = false;
                     });
                 }
             }
@@ -134,7 +134,7 @@ namespace FarmingTracker
             }
         }
 
-        private async Task TrackStats() // todo UpdateStats mit UpdateStatsInModel(), UpdateStatsInUi()?
+        private async Task UpdateStats() 
         {
             try
             {
@@ -143,7 +143,7 @@ namespace FarmingTracker
                     return;
 
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
-                await UpdateStats(drfMessages);
+                await UpdateStatsInModel(drfMessages);
                 UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
                 _profitService.UpdateProfit(_stats, _elapsedFarmingTimeLabel.ElapsedTime);
                 _lastStatsUpdateSuccessfull = true;
@@ -158,7 +158,7 @@ namespace FarmingTracker
             }
             catch (Exception exception)
             {
-                Module.Logger.Error(exception, $"{nameof(TrackStats)} failed.");
+                Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
@@ -175,7 +175,7 @@ namespace FarmingTracker
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
 
-        private async Task UpdateStats(List<DrfMessage> drfMessages)
+        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
         {      
             DrfResultAdder.UpdateCurrencyById(drfMessages, _stats.CurrencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _stats.ItemById);
@@ -297,7 +297,7 @@ namespace FarmingTracker
             UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
         }
 
-        private bool _isTrackStatsRunning;
+        private bool _isUpdateStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
