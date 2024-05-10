@@ -54,9 +54,9 @@ namespace FarmingTracker
             if (!currenciesWithoutDetails.Any())
                 return;
 
-            Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo weg
+            Module.Logger.Info("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId))); // todo debug
 
-            var missingInApiCurrencyIds = new List<int>();  // todo weg
+            var missingInApiCurrencyIds = new List<int>();  // todo debug?
 
             foreach (var currencyWithoutDetails in currenciesWithoutDetails)
             {
@@ -71,7 +71,7 @@ namespace FarmingTracker
             }
 
             if(missingInApiCurrencyIds.Any())
-                Module.Logger.Info("currencies api miss   " + string.Join(" ", missingInApiCurrencyIds)); // todo weg
+                Module.Logger.Info("currencies api miss   " + string.Join(" ", missingInApiCurrencyIds)); // todo debug
         }
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
@@ -80,7 +80,7 @@ namespace FarmingTracker
             if (!itemIdsWithoutDetails.Any())
                 return;
 
-            Module.Logger.Info("items      id=0       " + string.Join(" ", itemIdsWithoutDetails)); // todo weg
+            Module.Logger.Info("items      id=0       " + string.Join(" ", itemIdsWithoutDetails)); // todo debug
             var apiItemsTask = gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemIdsWithoutDetails);
             var apiPricesTask = gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemIdsWithoutDetails);
             
@@ -115,7 +115,7 @@ namespace FarmingTracker
             apiPrices ??= apiPricesTask.Result;
 
             if (apiItems.Any())
-                Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
+                Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo debug
 
             foreach (var apiItem in apiItems)
             {
