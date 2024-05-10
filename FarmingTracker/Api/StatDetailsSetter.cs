@@ -76,19 +76,48 @@ namespace FarmingTracker
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
-            var itemsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).ToList();
-            if (!itemsWithoutDetails.Any())
+            var itemIdsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).Select(i => i.ApiId).ToList();
+            if (!itemIdsWithoutDetails.Any())
                 return;
 
-            Module.Logger.Info("items      id=0       " + string.Join(" ", itemsWithoutDetails.Select(c => c.ApiId))); // todo weg
-            var apiItems = await GetApiItems(gw2ApiManager, itemsWithoutDetails);
-                
+            Module.Logger.Info("items      id=0       " + string.Join(" ", itemIdsWithoutDetails)); // todo weg
+            var apiItemsTask = gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemIdsWithoutDetails);
+            var apiPricesTask = gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemIdsWithoutDetails);
+            
+            IReadOnlyList<Item> apiItems = null;
+            IReadOnlyList<CommercePrices> apiPrices = null;
+
+            try
+            {
+                await Task.WhenAll(apiItemsTask, apiPricesTask);
+            }
+            catch (Exception e)
+            {
+                if(apiItemsTask.IsFaulted)
+                {
+                    if (ApiCouldNotFindIds(apiItemsTask.Exception))
+                        apiItems = new List<Item>();
+                    else
+                        throw new Gw2ApiException($"API error: get stat details from v2.items failed", e);
+                }
+
+                if (apiPricesTask.IsFaulted)
+                {
+                    if (ApiCouldNotFindIds(apiPricesTask.Exception))
+                        apiPrices = new List<CommercePrices>();
+                    else
+                        throw new Gw2ApiException($"API error: get trading post prices from v2.prices failed", e);
+                }
+            }
+
+            // only set a result when task for it completed successfully otherwise it was already set in catch.
+            apiItems ??= apiItemsTask.Result;
+            apiPrices ??= apiPricesTask.Result;
+
             if (apiItems.Any())
                 Module.Logger.Info("items      api        " + string.Join(" ", apiItems.Select(c => c.Id))); // todo weg
-                
-            var apiPrices = await GetApiPrices(gw2ApiManager, itemsWithoutDetails);
 
-            foreach (var apiItem in apiItems) // must be BELOW GetApiPrices() because when throws, IconAssetId wont be set and api calls will be retried.
+            foreach (var apiItem in apiItems)
             {
                 var item = itemById[apiItem.Id];
                 item.Name = apiItem.Name;
@@ -103,45 +132,21 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice; 
-            }
-        }
-
-        private static async Task<IReadOnlyList<CommercePrices>> GetApiPrices(Gw2ApiManager gw2ApiManager, List<Stat> itemsWithoutDetails)
-        {
-            try
-            {
-                return await gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-            }
-            catch (Exception e) when (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
-            { // handling NotFoundException is not enough because that occurs on random api failures too.
-                return new List<CommercePrices>();
-            }
-            catch (Exception e)
-            {
-                throw new Gw2ApiException($"API error: V2.Commerce {nameof(SetItemDetailsFromApi)}", e);
-            }
-        }
-
-        private static async Task<IReadOnlyList<Item>> GetApiItems(Gw2ApiManager gw2ApiManager, List<Stat> itemsWithoutDetails)
-        {
-            try
-            {
-                return await gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemsWithoutDetails.Select(c => c.ApiId));
-            }
-            catch (Exception e) when (e.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS))
-            { // handling NotFoundException is not enough because that occurs on random api failures too.
-                return new List<Item>();
-            }
-            catch (Exception e)
-            {
-                throw new Gw2ApiException($"API error: V2.Items {nameof(SetItemDetailsFromApi)}", e);
+                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice;
             }
         }
 
         private static int GetIconAssetId(RenderUrl icon)
         {
             return int.Parse(Path.GetFileNameWithoutExtension(icon.Url.AbsoluteUri));
+        }
+
+        // can happen when something is not on the trading post (v2.prices)
+        // can happen for items like heart items or deprecated items (v2.items)
+        // handling NotFoundException is not enough because that occurs on random api failures too.
+        private static bool ApiCouldNotFindIds(Exception exception)
+        {
+            return exception.InnerException.Message.Contains(GW2_API_DOES_NOT_KNOW_IDS);
         }
 
         private Dictionary<int, CurrencyDetails> _currencyDetailsByIdCache = new Dictionary<int, CurrencyDetails>();
