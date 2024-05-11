@@ -7,15 +7,15 @@ namespace FarmingTracker
 {
     public class ElapsedFarmingTimeLabel : Label
     {
-        public ElapsedFarmingTimeLabel(Services services, Container parent)
+        public ElapsedFarmingTimeLabel(Services services, Stopwatch farmingTimeStopwatch, Container parent)
         {
+            _farmingTimeStopwatch = farmingTimeStopwatch;
+
             Text = CreateFarmingTimeText("-:--:--");
             Font = services.FontService.Fonts[FontSize.Size14];
             AutoSizeHeight = true;
             AutoSizeWidth = true;
             Parent = parent;
-
-            _farmingTimeStopwatch.Restart();
         }
 
         public TimeSpan ElapsedTime => _farmingTimeStopwatch.Elapsed;

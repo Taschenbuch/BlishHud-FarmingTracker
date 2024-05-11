@@ -7,10 +7,10 @@ namespace FarmingTracker
 {
     public class TrackerCornerIcon : CornerIcon
     {
-        public TrackerCornerIcon(ContentsManager contentsManager, StandardWindow farmingTrackerWindow)
+        public TrackerCornerIcon(ContentsManager contentsManager, FarmingTrackerWindowService farmingTrackerWindowService)
         {
-            _farmingTrackerWindow = farmingTrackerWindow;
-            _cornerIconTexture = contentsManager.GetTexture(@"cornerIcon.png"); // todo ersetzen
+            _farmingTrackerWindowService = farmingTrackerWindowService;
+            _cornerIconTexture = contentsManager.GetTexture(@"cornerIcon.png");
             _cornerIconHoverTexture = contentsManager.GetTexture(@"cornerIconHover.png");
 
             Icon = _cornerIconTexture;
@@ -32,11 +32,11 @@ namespace FarmingTracker
 
         private void OnCornerIconClick(object sender, Blish_HUD.Input.MouseEventArgs e)
         {
-            _farmingTrackerWindow.ToggleWindow();
+            _farmingTrackerWindowService.ToggleWindow();
         }
 
         private readonly Texture2D _cornerIconTexture;
         private readonly Texture2D _cornerIconHoverTexture;
-        private readonly StandardWindow _farmingTrackerWindow;
+        private readonly FarmingTrackerWindowService _farmingTrackerWindowService;
     }
 }

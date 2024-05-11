@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Blish_HUD;
-using Blish_HUD.Content;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace FarmingTracker
 {
@@ -42,39 +40,26 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            _farmingTrackerWindow = CreateFarmingTrackerWindow();
-            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindow);
+            _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
+            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindowService);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            _farmingTrackerWindow.Update2(gameTime);
+            _farmingTrackerWindowService.Update(gameTime);
         }
 
         protected override void Unload()
         {
             _moduleSettingsView?.Dispose();
             _trackerCornerIcon?.Dispose();
-            _farmingTrackerWindow?.Dispose();
+            _farmingTrackerWindowService?.Dispose();
             _services?.Dispose();
         }
 
-        private FarmingTrackerWindow CreateFarmingTrackerWindow()
-        {
-            var windowWidth = 560;
-            var windowHeight = 640;
-            var flowPanelWidth = windowWidth - 47;
-
-            return new FarmingTrackerWindow(
-                AsyncTexture2D.FromAssetId(155997),
-                new Rectangle(25, 26, windowWidth, windowHeight),
-                new Rectangle(40, 20, windowWidth - 20, windowHeight - 50),
-                flowPanelWidth,
-                _services);
-        }
 
         private TrackerCornerIcon _trackerCornerIcon;
-        private FarmingTrackerWindow _farmingTrackerWindow;
+        private FarmingTrackerWindowService _farmingTrackerWindowService;
         private Services _services;
         private ModuleSettingsView _moduleSettingsView;
     }

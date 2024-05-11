@@ -1,8 +1,6 @@
-﻿using Blish_HUD;
-using Blish_HUD.Content;
-using Blish_HUD.Controls;
+﻿using Blish_HUD.Controls;
+using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,37 +10,27 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class FarmingTrackerWindow : StandardWindow
+    public class FarmingSummaryTabView : View
     {
-        public FarmingTrackerWindow(
-            AsyncTexture2D background,
-            Rectangle windowRegion, 
-            Rectangle contentRegion, 
-            int flowPanelWidth, 
-            Services services) 
-            : base(background, windowRegion, contentRegion)
+        public FarmingSummaryTabView(int flowPanelWidth, Services services) 
         {
+            _flowPanelWidth = flowPanelWidth;
             _services = services;
-            _windowEmblemTexture = services.ContentsManager.GetTexture(@"windowEmblem.png");
-
-            Title = "Farming Tracker";
-            Emblem = _windowEmblemTexture;
-            SavesPosition = true;
-            Id = "Ecksofa.FarmingTracker: FarmingTrackerWindow";
-            Location = new Point(300, 300);
-            Parent = GameService.Graphics.SpriteScreen;            
-            CreateUi(flowPanelWidth, services);
-
-            _timeSinceModuleStartStopwatch.Start();
+            _timeSinceModuleStartStopwatch.Restart();
+            _farmingTimeStopwatch.Restart();
         }
 
-        protected override void DisposeControl()
+        protected override void Unload()
         {
-            _windowEmblemTexture?.Dispose();
-            base.DisposeControl();
+            // todo ? events?
         }
 
-        public void Update2(GameTime gameTime) // Update2() because Update() does not always update
+        protected override void Build(Container buildPanel)
+        {
+            CreateUi(_flowPanelWidth, _farmingTimeStopwatch, _services, buildPanel);
+        }
+
+        public void Update(GameTime gameTime)
         {
             _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
@@ -186,10 +174,10 @@ namespace FarmingTracker
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_stats.ItemById);
 
             CoinSplitter.ReplaceCoinWithGoldSilverCopper(_stats.CurrencyById);
-            Debug_LogItemsWithoutDetailsFromApi(); // todo weg
+            Debug_LogItemsWithoutDetailsFromApi(); // todo debug?
         }
 
-        private void Debug_LogItemsWithoutDetailsFromApi()  // todo weg
+        private void Debug_LogItemsWithoutDetailsFromApi()  // todo debug?
         {
             // missing currency check ist jetzt in SetDetailsFromApi
             var missingItems = _stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
@@ -198,7 +186,7 @@ namespace FarmingTracker
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
-        private void CreateUi(int flowPanelWidth, Services services)
+        private void CreateUi(int flowPanelWidth, Stopwatch farmingTimeStopwatch, Services services, Container buildPanel)
         {
             _rootFlowPanel = new FlowPanel()
             {
@@ -207,7 +195,7 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
-                Parent = this,
+                Parent = buildPanel,
             };
 
             var drfErrorPanel = new Panel
@@ -253,7 +241,7 @@ namespace FarmingTracker
                 Parent = _rootFlowPanel
             };
 
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, farmingTimeStopwatch, _controlsFlowPanel);
 
             _hintLabel = new Label
             {
@@ -262,7 +250,6 @@ namespace FarmingTracker
                 AutoSizeWidth = true,
                 Parent = _controlsFlowPanel
             };
-
 
             var profitTooltip = 
                 "Rough profit when selling everything to vendor or on trading post (listing).\n" +
@@ -300,6 +287,7 @@ namespace FarmingTracker
         private bool _isUpdateStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
+        private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private ProfitService _profitService;
         private FlowPanel _rootFlowPanel;
@@ -312,7 +300,7 @@ namespace FarmingTracker
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
-        private readonly Texture2D _windowEmblemTexture;
+        private readonly int _flowPanelWidth;
         private readonly Services _services;
         private readonly Stats _stats = new Stats();
         private readonly StatsPanels _statsPanels = new StatsPanels();
