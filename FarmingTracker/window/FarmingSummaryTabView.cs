@@ -172,7 +172,7 @@ namespace FarmingTracker
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.CurrencyById);
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.ItemById);
 
-            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_services.Stats.CurrencyById);
+            CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
             Debug_LogItemsWithoutDetailsFromApi(); // todo debug?
         }
 
