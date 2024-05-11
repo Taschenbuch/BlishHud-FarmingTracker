@@ -7,20 +7,14 @@ using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
-    public class ModuleSettingsView : View, IDisposable
+    public class SettingsTabView : View
     {
-        public ModuleSettingsView(Services services)
+        public SettingsTabView(Services services)
         {
             _services = services;
         }
 
-        // workaround until Unload-is-not-called-bug is fixed in blish core.
-        public void Dispose() 
-        {
-            Unload();
-        }
-
-        protected override void Unload() // bug: that is currently not called in blish 1.1.1 due to a bug
+        protected override void Unload()
         {
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _drfConnectionStatusValueLabel = null;
@@ -32,14 +26,13 @@ namespace FarmingTracker
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                OuterControlPadding = new Vector2(10, 5),
                 ControlPadding = new Vector2(0, 20),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
             };
 
-            var font = _services.FontService.Fonts[ContentService.FontSize.Size18];
+            var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
 
             var drfConnectionStatusPanel = new Panel
             {
@@ -60,8 +53,6 @@ namespace FarmingTracker
                 Parent = drfConnectionStatusPanel,
             };
 
-            var xAlignValueLocation = drfConnectionStatusTitleLabel.Right + 10;
-
             _drfConnectionStatusValueLabel = new Label
             {
                 Text = "", // set later
@@ -69,11 +60,10 @@ namespace FarmingTracker
                 StrokeText = true,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Location = new Point(xAlignValueLocation + 10, 10),
+                Location = new Point(drfConnectionStatusTitleLabel.Right + 20, 10),
                 Parent = drfConnectionStatusPanel,
             };
 
-            _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged; // hack: until bug is fixed that SettingsView.Unload() is not called.
             _services.Drf.DrfConnectionStatusChanged += OnDrfConnectionStatusChanged;
             OnDrfConnectionStatusChanged();
 
@@ -85,6 +75,7 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanCollapse = true,
                 Collapsed = true,
+                ShowBorder = true,
                 OuterControlPadding = new Vector2(xAlignLabelPadding, 5),
                 ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.AutoSize,
@@ -114,7 +105,7 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Location = new Point(xAlignValueLocation, 0),
+                Location = new Point(drfTokenLabel.Right + 10, 0),
                 Parent = drfTokenInputPanel,
             };
 

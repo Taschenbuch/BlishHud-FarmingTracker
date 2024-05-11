@@ -12,7 +12,7 @@ namespace FarmingTracker
             Text = text;
             PlaceholderText = "Enter token...";
             Font = font;
-            Width = 400; // widest token because no monospace: 00000000-0000-0000-0000-000000000000
+            Width = 350; // widest token because no monospace: 00000000-0000-0000-0000-000000000000
             Height = 40;
             Parent = parent;
 

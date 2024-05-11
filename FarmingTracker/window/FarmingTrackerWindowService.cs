@@ -35,12 +35,13 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
+            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), () => new SettingsTabView(services), "Settings");
             _farmingSummaryTabView = new FarmingSummaryTabView(flowPanelWidth, services);
             _farmingTrackerWindow.Tabs.Add(new Tab(_sessionSummaryTabIconTexture, () => _farmingSummaryTabView, "Session summary"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView(), "Timeline view"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView(), "Filter"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView(), "Sort"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(156737), () => new PlaceholderTabView(), "Settings"));
+            _farmingTrackerWindow.Tabs.Add(_settingsTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView(), "Help"));
         }
 
@@ -52,6 +53,12 @@ namespace FarmingTracker
             _sortTabIconTexture?.Dispose();
             _helpTabIconTexture?.Dispose();
             _farmingTrackerWindow?.Dispose();
+        }
+
+        public void ShowWindowAndSelectSettingsTab()
+        {
+            _farmingTrackerWindow.Show();
+            _farmingTrackerWindow.SelectedTab = _settingsTab;
         }
 
         public void ToggleWindow()
@@ -71,6 +78,7 @@ namespace FarmingTracker
         private readonly Texture2D _timelineTabIconTexture;
         private readonly Texture2D _sessionSummaryTabIconTexture;
         private readonly TabbedWindow2 _farmingTrackerWindow;
+        private readonly Tab _settingsTab;
         private readonly FarmingSummaryTabView _farmingSummaryTabView;
     }
 }
