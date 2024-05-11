@@ -16,6 +16,11 @@ namespace FarmingTracker
             var flowPanelWidth = windowWidth - 47;
 
             _windowEmblemTexture = services.ContentsManager.GetTexture(@"windowEmblem.png");
+            _helpTabIconTexture = services.ContentsManager.GetTexture(@"helpTabIcon.png");
+            _filterTabIconTexture = services.ContentsManager.GetTexture(@"filterTabIcon.png");
+            _sortTabIconTexture = services.ContentsManager.GetTexture(@"sortTabIcon.png");
+            _timelineTabIconTexture = services.ContentsManager.GetTexture(@"timelineTabIcon.png");
+            _sessionSummaryTabIconTexture = services.ContentsManager.GetTexture(@"sessionSummaryTabIcon.png");
 
             _farmingTrackerWindow = new TabbedWindow2(
                 AsyncTexture2D.FromAssetId(155997),
@@ -31,17 +36,21 @@ namespace FarmingTracker
             };
 
             _farmingSummaryTabView = new FarmingSummaryTabView(flowPanelWidth, services);
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(440022), () => _farmingSummaryTabView, "Session summary"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(733360), () => new PlaceholderTabView(), "Timeline view")); // alternative 841721
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(155945), () => new PlaceholderTabView(), "Filter")); // todo ersetzen mit custom
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(156756), () => new PlaceholderTabView(), "Sort")); // todo ersetzen mit custom
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(157110), () => new PlaceholderTabView(), "Settings"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(759447), () => new PlaceholderTabView(), "Help")); // todo ersetzen mit custom
+            _farmingTrackerWindow.Tabs.Add(new Tab(_sessionSummaryTabIconTexture, () => _farmingSummaryTabView, "Session summary"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView(), "Timeline view"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView(), "Filter"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView(), "Sort"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(AsyncTexture2D.FromAssetId(156737), () => new PlaceholderTabView(), "Settings"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView(), "Help"));
         }
 
         public void Dispose()
         {
             _windowEmblemTexture?.Dispose();
+            _sessionSummaryTabIconTexture?.Dispose();
+            _filterTabIconTexture?.Dispose();
+            _sortTabIconTexture?.Dispose();
+            _helpTabIconTexture?.Dispose();
             _farmingTrackerWindow?.Dispose();
         }
 
@@ -56,6 +65,11 @@ namespace FarmingTracker
         }
 
         private readonly Texture2D _windowEmblemTexture;
+        private readonly Texture2D _helpTabIconTexture;
+        private readonly Texture2D _filterTabIconTexture;
+        private readonly Texture2D _sortTabIconTexture;
+        private readonly Texture2D _timelineTabIconTexture;
+        private readonly Texture2D _sessionSummaryTabIconTexture;
         private readonly TabbedWindow2 _farmingTrackerWindow;
         private readonly FarmingSummaryTabView _farmingSummaryTabView;
     }
