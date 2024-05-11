@@ -7,19 +7,19 @@ namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(Stat item, Services services)
+        public StatContainer(Stat stat, Services services)
         {
             _backgroundImage = new Image(AsyncTexture2D.FromAssetId(1318622))
             {
-                BasicTooltipText = item.Tooltip,
+                BasicTooltipText = stat.Tooltip,
                 Location = new Point(BACKGROUND_IMAGE_MARGIN),
                 Parent = this,
             };
 
-            _icon = new Image(AsyncTexture2D.FromAssetId(item.IconAssetId))
+            _icon = new Image(AsyncTexture2D.FromAssetId(stat.IconAssetId))
             {
-                BasicTooltipText = item.Tooltip,
-                Opacity = item.Count > 0 ? 1f : 0.3f,
+                BasicTooltipText = stat.Tooltip,
+                Opacity = stat.Count > 0 ? 1f : 0.3f,
                 Size = new Point(60),
                 Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN),
                 Parent = this
@@ -27,7 +27,7 @@ namespace FarmingTracker
 
             new Label
             {
-                Text = item.Count.ToString(),
+                Text = stat.Count.ToString(),
                 Font = services.FontService.Fonts[ContentService.FontSize.Size20],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,

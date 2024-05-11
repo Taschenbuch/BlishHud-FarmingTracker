@@ -19,7 +19,7 @@ namespace FarmingTracker
 
             if(coin.HasToDisplayGold)
             {
-                var goldItem = new Stat
+                var goldStat = new Stat
                 {
                     Name = "Gold",
                     Count = coin.Gold,
@@ -27,12 +27,12 @@ namespace FarmingTracker
                     ApiId = GOLD_FAKE_ID,
                 };
                 
-                currencyById[goldItem.ApiId] = goldItem;
+                currencyById[goldStat.ApiId] = goldStat;
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverItem = new Stat
+                var silverStat = new Stat
                 {
                     Name = "Silver",
                     Count = coin.Silver,
@@ -40,12 +40,12 @@ namespace FarmingTracker
                     ApiId = SILVER_FAKE_ID,
                 };
 
-                currencyById[silverItem.ApiId] = silverItem;
+                currencyById[silverStat.ApiId] = silverStat;
             }
             
             if(coin.HasToDisplayCopper) 
             {
-                var copperItem = new Stat
+                var copperStat = new Stat
                 {
                     Name = "Copper",
                     Count = coin.Copper,
@@ -53,7 +53,7 @@ namespace FarmingTracker
                     ApiId = COPPER_FAKE_ID,
                 };
 
-                currencyById[copperItem.ApiId] = copperItem;
+                currencyById[copperStat.ApiId] = copperStat;
             }
         }
 
