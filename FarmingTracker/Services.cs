@@ -24,5 +24,6 @@ namespace FarmingTracker
         public Gw2ApiManager Gw2ApiManager { get; }
         public SettingService SettingService { get; }
         public Drf Drf { get; set; }
+        public Stats Stats { get; } = new Stats();
     }
 }

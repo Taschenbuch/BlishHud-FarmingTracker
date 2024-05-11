@@ -108,9 +108,9 @@ namespace FarmingTracker
         {
             try
             {
-                _stats.ItemById.Clear();
-                _stats.CurrencyById.Clear();
-                UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
+                _services.Stats.ItemById.Clear();
+                _services.Stats.CurrencyById.Clear();
+                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -132,8 +132,8 @@ namespace FarmingTracker
 
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
-                UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
-                _profitService.UpdateProfit(_stats, _elapsedFarmingTimeLabel.ElapsedTime);
+                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+                _profitService.UpdateProfit(_services.Stats, _elapsedFarmingTimeLabel.ElapsedTime);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
@@ -165,22 +165,22 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _stats.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _stats.ItemById);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Stats.CurrencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, _services.Stats.ItemById);
 
-            await _statDetailsSetter.SetDetailsFromApi(_stats, _services.Gw2ApiManager);
+            await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
 
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_stats.CurrencyById);
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_stats.ItemById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.CurrencyById);
+            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.ItemById);
 
-            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_stats.CurrencyById);
+            CoinSplitter.ReplaceCoinWithGoldSilverCopper(_services.Stats.CurrencyById);
             Debug_LogItemsWithoutDetailsFromApi(); // todo debug?
         }
 
         private void Debug_LogItemsWithoutDetailsFromApi()  // todo debug?
         {
             // missing currency check ist jetzt in SetDetailsFromApi
-            var missingItems = _stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
+            var missingItems = _services.Stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
 
             if (missingItems.Any())
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
@@ -281,7 +281,7 @@ namespace FarmingTracker
                 Parent = _rootFlowPanel
             };
 
-            UiUpdater.UpdateStatsInUi(_stats, _statsPanels, _services);
+            UiUpdater.UpdateStatsInUi(_statsPanels, _services);
         }
 
         private bool _isUpdateStatsRunning;
@@ -302,7 +302,6 @@ namespace FarmingTracker
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly int _flowPanelWidth;
         private readonly Services _services;
-        private readonly Stats _stats = new Stats();
         private readonly StatsPanels _statsPanels = new StatsPanels();
     }
 }

@@ -7,16 +7,15 @@ namespace FarmingTracker
     public class UiUpdater
     {
         public static void UpdateStatsInUi(
-            Stats stats,
             StatsPanels statsPanels,
             Services services)
         {
-            var sortedCurrencies = stats.CurrencyById.Values
+            var sortedCurrencies = services.Stats.CurrencyById.Values
                 .Where(c => !c.IsCoin)
                 .OrderBy(c => c.ApiId)
                 .ToList();
 
-            var sortedItems = stats.ItemById.Values
+            var sortedItems = services.Stats.ItemById.Values
                 .OrderBy(i => i.Count >= 0 ? -1 : 1)
                 .ThenBy(i => i.ApiId)
                 .ToList();
@@ -27,8 +26,8 @@ namespace FarmingTracker
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
 
-            var noItemChangesDetected = !stats.ItemById.Any();
-            var noCurrencyChangesDetected = !stats.CurrencyById.Any();
+            var noItemChangesDetected = !services.Stats.ItemById.Any();
+            var noCurrencyChangesDetected = !services.Stats.CurrencyById.Any();
 
             if(statsPanels.FarmedItemsFlowPanel.IsEmpty())
                 ControlFactory.CreateHintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
