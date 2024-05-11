@@ -17,7 +17,6 @@ namespace FarmingTracker
             _flowPanelWidth = flowPanelWidth;
             _services = services;
             _timeSinceModuleStartStopwatch.Restart();
-            _farmingTimeStopwatch.Restart();
         }
 
         protected override void Unload()
@@ -27,7 +26,7 @@ namespace FarmingTracker
 
         protected override void Build(Container buildPanel)
         {
-            CreateUi(_flowPanelWidth, _farmingTimeStopwatch, _services, buildPanel);
+            CreateUi(_flowPanelWidth, _services, buildPanel);
         }
 
         public void Update(GameTime gameTime)
@@ -48,7 +47,7 @@ namespace FarmingTracker
                 return; // a reset is enough work for a single update loop iteration.
             }
 
-            _profitService.UpdateProfitPerHourEveryFiveSeconds(_elapsedFarmingTimeLabel.ElapsedTime);
+            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_updateLoop.UpdateIntervalEnded())
@@ -133,7 +132,7 @@ namespace FarmingTracker
                 _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
                 UiUpdater.UpdateStatsInUi(_statsPanels, _services);
-                _profitService.UpdateProfit(_services.Stats, _elapsedFarmingTimeLabel.ElapsedTime);
+                _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
@@ -186,7 +185,7 @@ namespace FarmingTracker
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
-        private void CreateUi(int flowPanelWidth, Stopwatch farmingTimeStopwatch, Services services, Container buildPanel)
+        private void CreateUi(int flowPanelWidth, Services services, Container buildPanel)
         {
             _rootFlowPanel = new FlowPanel()
             {
@@ -241,7 +240,7 @@ namespace FarmingTracker
                 Parent = _rootFlowPanel
             };
 
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, farmingTimeStopwatch, _controlsFlowPanel);
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
 
             _hintLabel = new Label
             {
@@ -287,7 +286,6 @@ namespace FarmingTracker
         private bool _isUpdateStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
-        private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private ProfitService _profitService;
         private FlowPanel _rootFlowPanel;

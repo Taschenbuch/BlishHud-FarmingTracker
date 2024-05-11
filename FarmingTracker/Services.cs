@@ -1,6 +1,6 @@
 ﻿using Blish_HUD.Modules.Managers;
 using System;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace FarmingTracker
 {
@@ -12,6 +12,7 @@ namespace FarmingTracker
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
             Drf = new Drf(settingService); // todo ggf. nur settingService übergeben, wenn er nur den braucht?
+            FarmingTimeStopwatch.Restart();
         }
 
         public void Dispose()
@@ -25,5 +26,6 @@ namespace FarmingTracker
         public SettingService SettingService { get; }
         public Drf Drf { get; set; }
         public Stats Stats { get; } = new Stats();
+        public Stopwatch FarmingTimeStopwatch { get; } = new Stopwatch();
     }
 }

@@ -1,15 +1,14 @@
 ﻿using Blish_HUD.Controls;
 using System;
-using System.Diagnostics;
 using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
     public class ElapsedFarmingTimeLabel : Label
     {
-        public ElapsedFarmingTimeLabel(Services services, Stopwatch farmingTimeStopwatch, Container parent)
+        public ElapsedFarmingTimeLabel(Services services, Container parent)
         {
-            _farmingTimeStopwatch = farmingTimeStopwatch;
+            _services = services;
 
             Text = CreateFarmingTimeText("-:--:--");
             Font = services.FontService.Fonts[FontSize.Size14];
@@ -18,11 +17,9 @@ namespace FarmingTracker
             Parent = parent;
         }
 
-        public TimeSpan ElapsedTime => _farmingTimeStopwatch.Elapsed;
-
         public void UpdateTimeEverySecond()
         {
-            var farmingTime = _farmingTimeStopwatch.Elapsed;
+            var farmingTime = _services.FarmingTimeStopwatch.Elapsed;
             var oneSecondHasPassed = farmingTime >= _oldFarmingTime + TimeSpan.FromSeconds(1);
             if (oneSecondHasPassed)
             {
@@ -34,7 +31,7 @@ namespace FarmingTracker
 
         public void RestartTime()
         {
-            _farmingTimeStopwatch.Restart();
+            _services.FarmingTimeStopwatch.Restart();
             _oldFarmingTime = TimeSpan.Zero;
             UpdateLabelText(TimeSpan.Zero);
         }
@@ -62,6 +59,6 @@ namespace FarmingTracker
         }
 
         private TimeSpan _oldFarmingTime = TimeSpan.Zero;
-        private readonly Stopwatch _farmingTimeStopwatch = new Stopwatch();
+        private readonly Services _services;
     }
 }
