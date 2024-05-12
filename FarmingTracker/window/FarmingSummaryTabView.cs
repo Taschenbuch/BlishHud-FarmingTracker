@@ -80,7 +80,7 @@ namespace FarmingTracker
                 if(_services.Drf.DrfConnectionStatus != DrfConnectionStatus.Connected) 
                 {
                     _errorHintVisible = true;
-                    _drfErrorLabel.Text = DrfConnectionStatusService.GetTrackerWindowDrfConnectionStatusText(_services.Drf.DrfConnectionStatus);
+                    _drfErrorLabel.Text = DrfConnectionStatusService.GetFarmingSummaryTabDrfConnectionStatusText(_services.Drf.DrfConnectionStatus);
                     return;
                 }
 

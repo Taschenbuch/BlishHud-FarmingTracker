@@ -22,7 +22,7 @@ namespace FarmingTracker
             }
         }
 
-        public static string GetModuleSettingDrfConnectionStatusText(
+        public static string GetSettingTabDrfConnectionStatusText(
             DrfConnectionStatus drfConnectionStatus, 
             int reconnectTriesCounter, 
             int reconnectDelaySeconds)
@@ -47,7 +47,7 @@ namespace FarmingTracker
             }
         }
 
-        public static string GetTrackerWindowDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
+        public static string GetFarmingSummaryTabDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
         {
             return drfConnectionStatus switch
             {
