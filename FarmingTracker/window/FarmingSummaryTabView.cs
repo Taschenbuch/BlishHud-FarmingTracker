@@ -54,36 +54,13 @@ namespace FarmingTracker
             {
                 _updateLoop.ResetRunningTime();
                 _updateLoop.UseFarmingUpdateInterval();
-                
+
                 ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
-
+                
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
+                ShowOrHideApiErrorHint(apiToken, _hintLabel, _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds);
                 if (!apiToken.CanAccessApi)
-                {
-                    _apiErrorHintVisible = true;
-                    var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
-                    var isGivingBlishSomeTimeToGiveToken = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
-                    var loadingHintVisible = apiToken.ApiTokenMissing && isGivingBlishSomeTimeToGiveToken;
-
-                    LogApiTokenErrorOnce(apiTokenErrorMessage, loadingHintVisible);
-
-                    _hintLabel.Text = loadingHintVisible
-                        ? "Loading... (this may take a few seconds)"
-                        : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
-
-                    _hintLabel.BasicTooltipText = loadingHintVisible
-                        ? ""
-                        : apiTokenErrorMessage;
-
                     return; // dont continue to prevent api error hint being overriden by "update..." etc.
-                }
-
-                if (_apiErrorHintVisible) // only reset hintLabel when api error hint is currently visible because. This prevents overriding other hints
-                {
-                    _apiErrorHintVisible = false;
-                    _hintLabel.Text = "";
-                    _hintLabel.BasicTooltipText = "";
-                }
 
                 if (!_isUpdateStatsRunning)
                 {
@@ -164,6 +141,36 @@ namespace FarmingTracker
             {
                 openSettingsButton.Hide();
                 farmingRootFlowPanel.Show();
+            }
+        }
+
+        private void ShowOrHideApiErrorHint(ApiToken apiToken, Label hintLabel, double timeSinceModuleStartInSeconds)
+        {
+            if (!apiToken.CanAccessApi)
+            {
+                _apiErrorHintVisible = true;
+                var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
+                var isGivingBlishSomeTimeToGiveToken = timeSinceModuleStartInSeconds < 20;
+                var loadingHintVisible = apiToken.ApiTokenMissing && isGivingBlishSomeTimeToGiveToken;
+
+                LogApiTokenErrorOnce(apiTokenErrorMessage, loadingHintVisible);
+
+                hintLabel.Text = loadingHintVisible
+                    ? "Loading... (this may take a few seconds)"
+                    : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
+
+                hintLabel.BasicTooltipText = loadingHintVisible
+                    ? ""
+                    : apiTokenErrorMessage;
+
+                return;
+            }
+
+            if (_apiErrorHintVisible) // only reset hintLabel when api error hint is currently visible because. This prevents overriding other hints
+            {
+                _apiErrorHintVisible = false;
+                hintLabel.Text = "";
+                hintLabel.BasicTooltipText = "";
             }
         }
 
