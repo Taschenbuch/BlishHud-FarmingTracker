@@ -12,11 +12,10 @@ namespace FarmingTracker
 {
     public class FarmingSummaryTabView : View
     {
-        public FarmingSummaryTabView(int flowPanelWidth, Services services) 
+        public FarmingSummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
         {
-            _flowPanelWidth = flowPanelWidth;
             _services = services;
-            _rootFlowPanel = CreateUi(_flowPanelWidth, _services);
+            _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
         }
 
@@ -34,9 +33,9 @@ namespace FarmingTracker
         {
             _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues
+            if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
-                _hintLabel.Text = "resetting...";
+                _hintLabel.Text = "resetting... (this may take a few seconds)";
 
                 if (_isUpdateStatsRunning)
                     return; // prevents farming time updates and prevents hintText from being overriden
@@ -55,11 +54,13 @@ namespace FarmingTracker
             {
                 _updateLoop.ResetRunningTime();
                 _updateLoop.UseFarmingUpdateInterval();
+                
+                ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
 
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 if (!apiToken.CanAccessApi)
                 {
-                    _errorHintVisible = true;
+                    _apiErrorHintVisible = true;
                     var apiTokenErrorMessage = apiToken.CreateApiTokenErrorTooltipText();
                     var isGivingBlishSomeTimeToGiveToken = _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds < 20;
                     var loadingHintVisible = apiToken.ApiTokenMissing && isGivingBlishSomeTimeToGiveToken;
@@ -67,32 +68,24 @@ namespace FarmingTracker
                     LogApiTokenErrorOnce(apiTokenErrorMessage, loadingHintVisible);
 
                     _hintLabel.Text = loadingHintVisible
-                        ? "Loading..."
+                        ? "Loading... (this may take a few seconds)"
                         : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
 
-                    _hintLabel.BasicTooltipText = loadingHintVisible 
-                        ? "" 
+                    _hintLabel.BasicTooltipText = loadingHintVisible
+                        ? ""
                         : apiTokenErrorMessage;
 
-                    return;
+                    return; // dont continue to prevent api error hint being overriden by "update..." etc.
                 }
 
-                if(_services.Drf.DrfConnectionStatus != DrfConnectionStatus.Connected) 
+                if (_apiErrorHintVisible) // only reset hintLabel when api error hint is currently visible because. This prevents overriding other hints
                 {
-                    _errorHintVisible = true;
-                    _drfErrorLabel.Text = DrfConnectionStatusService.GetFarmingSummaryTabDrfConnectionStatusText(_services.Drf.DrfConnectionStatus);
-                    return;
-                }
-
-                if(_errorHintVisible)
-                {
-                    _errorHintVisible = false;
-                    _drfErrorLabel.Text = Constants.EMPTY_LABEL;
+                    _apiErrorHintVisible = false;
                     _hintLabel.Text = "";
                     _hintLabel.BasicTooltipText = "";
                 }
 
-                if (!_isUpdateStatsRunning && !_hasToResetStats)
+                if (!_isUpdateStatsRunning)
                 {
                     _isUpdateStatsRunning = true;
                     Task.Run(async () =>
@@ -152,6 +145,28 @@ namespace FarmingTracker
             }
         }
 
+        private static void ShowOrHideDrfErrorLabelAndStatPanels(
+            DrfConnectionStatus drfConnectionStatus,
+            Label drfErrorLabel,
+            OpenSettingsButton openSettingsButton,
+            FlowPanel farmingRootFlowPanel)
+        {
+            drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
+                ? Constants.EMPTY_LABEL
+                : DrfConnectionStatusService.GetFarmingSummaryTabDrfConnectionStatusText(drfConnectionStatus);
+
+            if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)
+            {
+                openSettingsButton.Show();
+                farmingRootFlowPanel.Hide();
+            }
+            else
+            {
+                openSettingsButton.Hide();
+                farmingRootFlowPanel.Show();
+            }
+        }
+
         private void LogApiTokenErrorOnce(string apiTokenErrorMessage, bool loadingHintVisible)
         {
             if (loadingHintVisible)
@@ -186,7 +201,7 @@ namespace FarmingTracker
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
-        private FlowPanel CreateUi(int flowPanelWidth, Services services)
+        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -197,13 +212,6 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.Fill,
             };
 
-            var drfErrorPanel = new Panel
-            {
-                HeightSizingMode = SizingMode.AutoSize,
-                WidthSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel,
-            };
-
             _drfErrorLabel = new Label
             {
                 Text = Constants.EMPTY_LABEL,
@@ -212,8 +220,20 @@ namespace FarmingTracker
                 StrokeText = true,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Left = 20,
-                Parent = drfErrorPanel
+                Parent = rootFlowPanel
+            };
+
+            _openSettingsButton = new OpenSettingsButton("Add DRF Token", farmingTrackerWindowService, rootFlowPanel);
+            _openSettingsButton.Hide();
+
+            _farmingRootFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                CanScroll = true,
+                ControlPadding = new Vector2(0, 10),
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = rootFlowPanel
             };
 
             _resetButton = new StandardButton()
@@ -222,7 +242,7 @@ namespace FarmingTracker
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
                 Left = 460,
-                Parent = rootFlowPanel,
+                Parent = _farmingRootFlowPanel,
             };
 
             _resetButton.Click += (s, e) =>
@@ -237,7 +257,7 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(20, 0),
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _farmingRootFlowPanel
             };
 
             _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
@@ -256,8 +276,8 @@ namespace FarmingTracker
                 $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
 
             var font = services.FontService.Fonts[FontSize.Size16];
-            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, rootFlowPanel);
-            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, rootFlowPanel);
+            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _farmingRootFlowPanel);
+            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
@@ -267,7 +287,7 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _farmingRootFlowPanel
             };
 
             _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
@@ -277,7 +297,7 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _farmingRootFlowPanel
             };
 
             UiUpdater.UpdateStatsInUi(_statsPanels, _services);
@@ -291,15 +311,16 @@ namespace FarmingTracker
         private ProfitService _profitService;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
+        private OpenSettingsButton _openSettingsButton;
+        private FlowPanel _farmingRootFlowPanel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
         private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
         private string _oldApiTokenErrorTooltip = string.Empty;
-        private bool _errorHintVisible;
+        private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
-        private readonly int _flowPanelWidth;
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
     }

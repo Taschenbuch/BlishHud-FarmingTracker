@@ -36,7 +36,8 @@ namespace FarmingTracker
             };
 
             _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), () => new SettingsTabView(services), "Settings");
-            _farmingSummaryTabView = new FarmingSummaryTabView(flowPanelWidth, services);
+            _farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
+
             _farmingTrackerWindow.Tabs.Add(new Tab(_sessionSummaryTabIconTexture, () => _farmingSummaryTabView, "Session summary"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView(), "Timeline view"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView(), "Filter"));

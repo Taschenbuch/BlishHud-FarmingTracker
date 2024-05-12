@@ -4,14 +4,14 @@ namespace FarmingTracker
 {
     public class OpenSettingsButton : StandardButton
     {
-        public OpenSettingsButton(FarmingTrackerWindowService farmingTrackerWindowService, Container parent)
+        public OpenSettingsButton(string buttonText, FarmingTrackerWindowService farmingTrackerWindowService, Container parent)
         {
             _farmingTrackerWindowService = farmingTrackerWindowService;
 
-            Text = "Open Settings";
+            Text = buttonText;
             BasicTooltipText = "Open farming tracker settings";
-            Width            = 150;
-            Parent           = parent;
+            Width = 150;
+            Parent = parent;
 
             Click += OnSettingsButtonClick;
         }
