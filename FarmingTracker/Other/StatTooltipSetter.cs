@@ -2,24 +2,26 @@
 
 namespace FarmingTracker
 {
-    public class IconAssetIdAndTooltipSetter
+    public class StatTooltipSetter
     {
-        public static void SetTooltipAndMissingIconAssetIds(Dictionary<int, Stat> statById)
+        public static void SetTooltip(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
-            {
                 stat.Tooltip = CreateTooltip(stat);
-
-                if (stat.ApiDetailsAreMissing)
-                    stat.IconAssetId = Constants.BUG_TEXTURE_ASSET_ID;
-            }
         }
 
         private static string CreateTooltip(Stat stat)
         {
-            if (stat.ApiDetailsAreMissing)
+            if (stat.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet)
+            {
+                var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                Module.Logger.Error(errorMessage);
+                return errorMessage;
+            }
+
+            if (stat.DetailsState == StatDetailsState.MissingBecauseUnknownByApi)
                 return
-                    $"Unknown item (ID: {stat.ApiId})\n" +
+                    $"Unknown item/currency (ID: {stat.ApiId})\n" +
                     $"GW2 API has no information about it.\n" +
                     $"This issue typically occurs for items related to renown hearts.\n" +
                     $"You can look it up with the wiki if you want:\n" +

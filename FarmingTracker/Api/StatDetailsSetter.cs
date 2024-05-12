@@ -50,11 +50,11 @@ namespace FarmingTracker
 
         public static void SetCurrencyDetails(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
-            var currenciesWithoutDetails = currencyById.Values.Where(c => c.ApiDetailsAreMissing).ToList();
+            var currenciesWithoutDetails = currencyById.Values.Where(c => c.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (!currenciesWithoutDetails.Any())
                 return;
 
-            Module.Logger.Debug("currencies id=0       " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId)));
+            Module.Logger.Debug("currencies no details " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId)));
 
             var missingInApiCurrencyIds = new List<int>();
 
@@ -65,9 +65,13 @@ namespace FarmingTracker
                     currencyWithoutDetails.Name = currencyDetails.Name;
                     currencyWithoutDetails.Description = currencyDetails.Description;
                     currencyWithoutDetails.IconAssetId = currencyDetails.IconAssetId;
+                    currencyWithoutDetails.DetailsState = StatDetailsState.SetByApi;
                 }
                 else
+                {
                     missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
+                    currencyWithoutDetails.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
+                }
             }
 
             if(missingInApiCurrencyIds.Any())
@@ -76,11 +80,11 @@ namespace FarmingTracker
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
-            var itemIdsWithoutDetails = itemById.Values.Where(i => i.ApiDetailsAreMissing).Select(i => i.ApiId).ToList();
+            var itemIdsWithoutDetails = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).Select(i => i.ApiId).ToList();
             if (!itemIdsWithoutDetails.Any())
                 return;
 
-            Module.Logger.Debug("items      id=0       " + string.Join(" ", itemIdsWithoutDetails));
+            Module.Logger.Debug("items      no details " + string.Join(" ", itemIdsWithoutDetails));
             var apiItemsTask = gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemIdsWithoutDetails);
             var apiPricesTask = gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemIdsWithoutDetails);
             
@@ -114,8 +118,14 @@ namespace FarmingTracker
             apiItems ??= apiItemsTask.Result;
             apiPrices ??= apiPricesTask.Result;
 
+            foreach (var apiPrice in apiPrices)
+            {
+                var item = itemById[apiPrice.Id];
+                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice;
+            }
+
             if (apiItems.Any())
-                Module.Logger.Debug("items      api        " + string.Join(" ", apiItems.Select(c => c.Id)));
+                Module.Logger.Debug("items      from api   " + string.Join(" ", apiItems.Select(c => c.Id)));
 
             foreach (var apiItem in apiItems)
             {
@@ -124,15 +134,17 @@ namespace FarmingTracker
                 item.Description = apiItem.Description;
                 item.IconAssetId = GetIconAssetId(apiItem.Icon);
                 var canNotBeSoldToVendor = apiItem.Flags.Any(f => f == ItemFlag.NoSell);
-                item.Profit.SellToVendorInCopper = canNotBeSoldToVendor
-                    ? 0
-                    : apiItem.VendorValue;
+                item.Profit.SellToVendorInCopper = canNotBeSoldToVendor ? 0 : apiItem.VendorValue; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.DetailsState = StatDetailsState.SetByApi;
             }
 
-            foreach (var apiPrice in apiPrices)
+            var itemsUnknownByApi = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            if (itemsUnknownByApi.Any())
             {
-                var item = itemById[apiPrice.Id];
-                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice;
+                Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
+
+                foreach (var itemNotFoundByApi in itemsUnknownByApi)
+                    itemNotFoundByApi.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
             }
         }
 

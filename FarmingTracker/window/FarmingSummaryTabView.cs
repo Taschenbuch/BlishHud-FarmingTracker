@@ -100,7 +100,7 @@ namespace FarmingTracker
                 if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull)
                     return;
 
-                _hintLabel.Text = "updating..."; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
+                _hintLabel.Text = "updating... (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
                 UiUpdater.UpdateStatsInUi(_statsPanels, _services);
                 _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
@@ -192,20 +192,10 @@ namespace FarmingTracker
 
             await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
 
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.CurrencyById);
-            IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.ItemById);
-            DebugLogItemsWithoutDetailsFromApi();
+            StatTooltipSetter.SetTooltip(_services.Stats.CurrencyById);
+            StatTooltipSetter.SetTooltip(_services.Stats.ItemById);
 
             CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
-        }
-
-        private void DebugLogItemsWithoutDetailsFromApi()
-        {
-            // missing currency check ist jetzt in SetDetailsFromApi
-            var missingItems = _services.Stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
-
-            if (missingItems.Any())
-                Module.Logger.Debug("items      api MISS   " + string.Join(" ", missingItems));
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services)
