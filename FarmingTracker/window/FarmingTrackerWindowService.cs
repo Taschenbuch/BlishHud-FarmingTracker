@@ -39,11 +39,11 @@ namespace FarmingTracker
             _farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
 
             _farmingTrackerWindow.Tabs.Add(new Tab(_sessionSummaryTabIconTexture, () => _farmingSummaryTabView, "Session summary"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView(), "Timeline view"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView(), "Filter"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView(), "Sort"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView("CUSTOM FILTERING"), "Filter"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView(), "Help"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView("HELP"), "Help"));
         }
 
         public void Dispose()
