@@ -16,17 +16,18 @@ namespace FarmingTracker
         {
             _flowPanelWidth = flowPanelWidth;
             _services = services;
+            _rootFlowPanel = CreateUi(_flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
         }
 
         protected override void Unload()
         {
-            // todo ? events?
+            // NOOP because CreateUi() is called in ctor instead of Build()
         }
 
         protected override void Build(Container buildPanel)
         {
-            CreateUi(_flowPanelWidth, _services, buildPanel);
+            _rootFlowPanel.Parent = buildPanel;
         }
 
         public void Update(GameTime gameTime)
@@ -185,23 +186,22 @@ namespace FarmingTracker
                 Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
         }
 
-        private void CreateUi(int flowPanelWidth, Services services, Container buildPanel)
+        private FlowPanel CreateUi(int flowPanelWidth, Services services)
         {
-            _rootFlowPanel = new FlowPanel()
+            var rootFlowPanel = new FlowPanel()
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
                 ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
-                Parent = buildPanel,
             };
 
             var drfErrorPanel = new Panel
             {
                 HeightSizingMode = SizingMode.AutoSize,
                 WidthSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel,
+                Parent = rootFlowPanel,
             };
 
             _drfErrorLabel = new Label
@@ -222,7 +222,7 @@ namespace FarmingTracker
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
                 Left = 460,
-                Parent = _rootFlowPanel,
+                Parent = rootFlowPanel,
             };
 
             _resetButton.Click += (s, e) =>
@@ -237,7 +237,7 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(20, 0),
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
+                Parent = rootFlowPanel
             };
 
             _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
@@ -256,8 +256,8 @@ namespace FarmingTracker
                 $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
 
             var font = services.FontService.Fonts[FontSize.Size16];
-            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _rootFlowPanel);
-            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _rootFlowPanel);
+            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, rootFlowPanel);
+            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, rootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
@@ -267,7 +267,7 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
+                Parent = rootFlowPanel
             };
 
             _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
@@ -277,10 +277,11 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _rootFlowPanel
+                Parent = rootFlowPanel
             };
 
             UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+            return rootFlowPanel;
         }
 
         private bool _isUpdateStatsRunning;
@@ -288,7 +289,7 @@ namespace FarmingTracker
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private ProfitService _profitService;
-        private FlowPanel _rootFlowPanel;
+        private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
         private StandardButton _resetButton;
         private FlowPanel _controlsFlowPanel;
