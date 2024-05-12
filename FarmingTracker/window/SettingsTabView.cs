@@ -78,7 +78,7 @@ namespace FarmingTracker
                 ShowBorder = true,
                 OuterControlPadding = new Vector2(xAlignLabelPadding, 5),
                 ControlPadding = new Vector2(0, 10),
-                WidthSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel,
             };
