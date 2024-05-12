@@ -11,7 +11,7 @@ namespace FarmingTracker
                 stat.Tooltip = CreateTooltip(stat);
 
                 if (stat.ApiDetailsAreMissing)
-                    stat.IconAssetId = Constants.BUG_TEXTURE_ASSET_ID; // otherwise AsyncTexture2d.FromAssetId will return null for AssetId = 0
+                    stat.IconAssetId = Constants.BUG_TEXTURE_ASSET_ID;
             }
         }
 

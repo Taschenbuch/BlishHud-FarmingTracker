@@ -187,18 +187,18 @@ namespace FarmingTracker
 
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.CurrencyById);
             IconAssetIdAndTooltipSetter.SetTooltipAndMissingIconAssetIds(_services.Stats.ItemById);
+            DebugLogItemsWithoutDetailsFromApi();
 
             CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
-            Debug_LogItemsWithoutDetailsFromApi(); // todo debug?
         }
 
-        private void Debug_LogItemsWithoutDetailsFromApi()  // todo debug?
+        private void DebugLogItemsWithoutDetailsFromApi()
         {
             // missing currency check ist jetzt in SetDetailsFromApi
             var missingItems = _services.Stats.ItemById.Values.Where(c => c.NotFoundByApi).Select(i => i.ApiId).ToList();
 
             if (missingItems.Any())
-                Module.Logger.Info("items      api MISS   " + string.Join(" ", missingItems));
+                Module.Logger.Debug("items      api MISS   " + string.Join(" ", missingItems));
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services)
