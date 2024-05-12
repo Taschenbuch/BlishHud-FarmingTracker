@@ -21,6 +21,7 @@ namespace FarmingTracker
             _sortTabIconTexture = services.ContentsManager.GetTexture(@"sortTabIcon.png");
             _timelineTabIconTexture = services.ContentsManager.GetTexture(@"timelineTabIcon.png");
             _sessionSummaryTabIconTexture = services.ContentsManager.GetTexture(@"sessionSummaryTabIcon.png");
+            _searchTabIconTexture = services.ContentsManager.GetTexture(@"searchTabIcon.png");
 
             _farmingTrackerWindow = new TabbedWindow2(
                 AsyncTexture2D.FromAssetId(155997),
@@ -42,6 +43,7 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView("CUSTOM FILTERING"), "Filter"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_searchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView("HELP"), "Help"));
         }
@@ -53,6 +55,7 @@ namespace FarmingTracker
             _filterTabIconTexture?.Dispose();
             _sortTabIconTexture?.Dispose();
             _helpTabIconTexture?.Dispose();
+            _searchTabIconTexture?.Dispose();
             _farmingTrackerWindow?.Dispose();
         }
 
@@ -78,6 +81,7 @@ namespace FarmingTracker
         private readonly Texture2D _sortTabIconTexture;
         private readonly Texture2D _timelineTabIconTexture;
         private readonly Texture2D _sessionSummaryTabIconTexture;
+        private readonly Texture2D _searchTabIconTexture;
         private readonly TabbedWindow2 _farmingTrackerWindow;
         private readonly Tab _settingsTab;
         private readonly FarmingSummaryTabView _farmingSummaryTabView;
