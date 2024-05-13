@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blish_HUD;
 using Blish_HUD.Graphics.UI;
+using Blish_HUD.Input;
 using Blish_HUD.Modules;
 using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
@@ -37,7 +38,7 @@ namespace FarmingTracker
         protected override async Task LoadAsync()
         {
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
-            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, _farmingTrackerWindowService);
+            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, CornerIconClickEventHandler);
         }
 
         protected override void Update(GameTime gameTime)
@@ -52,6 +53,7 @@ namespace FarmingTracker
             _services?.Dispose();
         }
 
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSessionSummaryTab();
 
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindowService _farmingTrackerWindowService;

@@ -36,10 +36,13 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
+            var farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
+            _sessionSummaryTab = new Tab(_sessionSummaryTabIconTexture, () => farmingSummaryTabView, "Session summary");
+            _farmingSummaryTabView = farmingSummaryTabView;
+            
             _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), () => new SettingsTabView(services), "Settings");
-            _farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
 
-            _farmingTrackerWindow.Tabs.Add(new Tab(_sessionSummaryTabIconTexture, () => _farmingSummaryTabView, "Session summary"));
+            _farmingTrackerWindow.Tabs.Add(_sessionSummaryTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView("CUSTOM FILTERING"), "Filter"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
@@ -65,9 +68,15 @@ namespace FarmingTracker
             _farmingTrackerWindow.SelectedTab = _settingsTab;
         }
 
-        public void ToggleWindow()
+        public void ToggleWindowAndSelectSessionSummaryTab()
         {
-            _farmingTrackerWindow.ToggleWindow();
+            if(_farmingTrackerWindow.Visible)
+                _farmingTrackerWindow.Hide();
+            else
+            {
+                _farmingTrackerWindow.SelectedTab = _sessionSummaryTab;
+                _farmingTrackerWindow.Show();
+            }
         }
 
         public void Update(GameTime gameTime)
@@ -85,5 +94,6 @@ namespace FarmingTracker
         private readonly TabbedWindow2 _farmingTrackerWindow;
         private readonly Tab _settingsTab;
         private readonly FarmingSummaryTabView _farmingSummaryTabView;
+        private readonly Tab _sessionSummaryTab;
     }
 }
