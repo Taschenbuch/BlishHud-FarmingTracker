@@ -10,7 +10,7 @@ namespace FarmingTracker
 
             Text = buttonText;
             BasicTooltipText = "Open farming tracker settings";
-            Width = 150;
+            Width = 300;
             Parent = parent;
 
             Click += OnSettingsButtonClick;

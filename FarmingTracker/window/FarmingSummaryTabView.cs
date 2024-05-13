@@ -220,7 +220,7 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
-            _openSettingsButton = new OpenSettingsButton("Add DRF Token", farmingTrackerWindowService, rootFlowPanel);
+            _openSettingsButton = new OpenSettingsButton("Open settings tab to setup DRF", farmingTrackerWindowService, rootFlowPanel);
             _openSettingsButton.Hide();
 
             _farmingRootFlowPanel = new FlowPanel()

@@ -5,7 +5,7 @@
   "package": "FarmingTracker.dll",
   "manifest_version": 1,
 
-  "description": "Tracks item and currency changes on your account. Click on its menu icon at the top left of the gw2 screen to show the tracker window. This module uses DRF to track items and currencies. You have to create a DRF Account, add the DRF token to the module settings and use the drf.dll. Check module settings for details. Requires at least Window 8 because of websocket support.",
+  "description": "Tracks item and currency changes on your account.\n- Click on its menu icon at the top left of the gw2 screen to show the tracker window.\n- This module uses DRF to track items and currencies. Instructions for setting up DRF can be found in the settings.\n- Requires at least 'Window 8' because of websocket support.\n- The GW2 API is used too for various things like calculating the profit and getting item/currency icons and details. While DRF is very fast, the GW2 API may still delay the tracking by several seconds.\n- Differences from session tracker module: can track every item; does not show total counts on account; tracks much faster because of DRF.",
   "dependencies": {
     "bh.blishhud": ">=1.1.1"
   },

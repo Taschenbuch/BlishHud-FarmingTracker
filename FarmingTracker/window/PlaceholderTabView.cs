@@ -5,16 +5,21 @@ namespace FarmingTracker
 {
     public class PlaceholderTabView : View
     {
-        public PlaceholderTabView(string featureText)
+        public PlaceholderTabView(string featureText, bool onlyShowFeatureText = false)
         {
             _featureText = featureText;
+            _onlyShowFeatureText = onlyShowFeatureText;
         }
 
         protected override void Build(Container buildPanel)
         {
-            ControlFactory.CreateHintLabel(buildPanel, $"{_featureText} not yet implemented. May come with a future release!");
+            var text = _onlyShowFeatureText
+                ? _featureText
+                : $"{_featureText} not yet implemented. May come with a future release!";
+            ControlFactory.CreateHintLabel(buildPanel, text);
         }
 
         private readonly string _featureText;
+        private readonly bool _onlyShowFeatureText;
     }
 }

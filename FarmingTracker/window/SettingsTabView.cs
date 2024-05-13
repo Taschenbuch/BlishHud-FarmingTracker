@@ -6,6 +6,8 @@ using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using MonoGame.Extended.BitmapFonts;
 
 namespace FarmingTracker
 {
@@ -33,15 +35,16 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
             };
-            
-            await CreateDrfTokenSettings(rootFlowPanel);
+
+            var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
+            CreateDrfStatusLabel(font, rootFlowPanel);
+            await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
+            CreateAddDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
         }
 
-        private async Task CreateDrfTokenSettings(FlowPanel rootFlowPanel)
+        private void CreateDrfStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)
         {
-            var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
-
             var drfConnectionStatusPanel = new Panel
             {
                 WidthSizingMode = SizingMode.AutoSize,
@@ -49,15 +52,13 @@ namespace FarmingTracker
                 Parent = rootFlowPanel,
             };
 
-            var xAlignLabelPadding = 5;
-
             var drfConnectionStatusTitleLabel = new Label
             {
                 Text = "DRF Connection:",
                 Font = font,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Location = new Point(xAlignLabelPadding, 10),
+                Location = new Point(0, 10),
                 Parent = drfConnectionStatusPanel,
             };
 
@@ -74,17 +75,18 @@ namespace FarmingTracker
 
             _services.Drf.DrfConnectionStatusChanged += OnDrfConnectionStatusChanged;
             OnDrfConnectionStatusChanged();
+        }
 
-            await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
-
-            var drfTokenInputFlowPanel = new FlowPanel
+        private void CreateAddDrfTokenPanel(BitmapFont font, FlowPanel rootFlowPanel)
+        {
+            var addDrfTokenFlowPanel = new FlowPanel
             {
-                Title = "Add DRF Token (click)",
+                Title = "Setup DRF (click)",
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                BackgroundColor = Color.Black * 0.5f,
                 CanCollapse = true,
                 Collapsed = true,
-                ShowBorder = true,
-                OuterControlPadding = new Vector2(xAlignLabelPadding, 5),
+                OuterControlPadding = new Vector2(5, 5),
                 ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
@@ -95,7 +97,7 @@ namespace FarmingTracker
             {
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = drfTokenInputFlowPanel,
+                Parent = addDrfTokenFlowPanel,
             };
 
             var drfTokenLabel = new Label
@@ -136,20 +138,39 @@ namespace FarmingTracker
                 _services.SettingService.DrfTokenSetting.Value = drfTokenTextBox.Text;
                 drfTokenValidationLabel.Text = DrfToken.CreateDrfTokenHintText(drfTokenTextBox.Text);
             };
+            
+            var buttonTooltip = "Open DRF website in your default web browser.";
+            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "\nSetup DRF DLL and DRF account:", font);
+            ControlFactory.CreateHintLabel(
+                addDrfTokenFlowPanel,
+                "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
+                "2. Create a drf account on the website and link it with your GW2 Account(s).");
 
-            var drfTokenHelpLabel = new Label // todo besseren ort für umfassendere help überlegen
-            {
-                Text = "How to get a DRF Token:\n" +
-                "1. Open https://drf.rs in your browser.\n" + // todo clickable link
-                "2. Create a drf account and link it with your GW2 Account(s).\n" +
-                "3. Open the drf.rs settings page.\n" +
-                "4. Click on 'Regenerate Token'.\n" +
-                "5. Copy the 'DRF Token'.\n" +
-                "6. Paste it with CTRL + V into the text input here.",
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                Parent = drfTokenInputFlowPanel,
-            };
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Show drf.dll setup instructions", buttonTooltip, addDrfTokenFlowPanel);
+            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Test DRF:", font);
+            ControlFactory.CreateHintLabel(
+                addDrfTokenFlowPanel,
+                "1. Click the button below to open the DRF web live tracker.\n" +
+                "2. Use this web live tracker to check if the tracking is working.\n" +
+                "e.g. by opening an unidentified gear.\n" +
+                "The items should appear almost instantly in the web live tracker.");
+
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, addDrfTokenFlowPanel);
+            
+            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Does NOT work? :-( DRF Discord can help:", font);
+            CreateButtonToOpenUrlInDefaultBrowser("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", addDrfTokenFlowPanel);
+            
+            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
+            ControlFactory.CreateHintLabel(
+                addDrfTokenFlowPanel,
+                "1. Click the button below to open the drf.rs settings page.\n" +
+                "2. Click on 'Regenerate Token'.\n" +
+                "3. Copy the 'DRF Token'.\n" +
+                "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
+                "5. Done! Open the first tab again to see the tracked items/currencies :-)");
+
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, addDrfTokenFlowPanel);
+
         }
 
         private void OnDrfConnectionStatusChanged(object sender = null, EventArgs e = null)
@@ -162,7 +183,27 @@ namespace FarmingTracker
                 _services.Drf.ReconnectDelaySeconds);
         }
 
-        public static ViewContainer CreateSetting(Container parent, SettingEntry settingEntry)
+        private static void CreateButtonToOpenUrlInDefaultBrowser(string url, string buttonText, string buttonTooltip, Container parent)
+        {
+            var patchNotesButton = new StandardButton
+            {
+                Text = buttonText,
+                BasicTooltipText = buttonTooltip,
+                Width = 300,
+                Parent = parent
+            };
+
+            patchNotesButton.Click += (s, e) =>
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            };
+        }
+
+        private static ViewContainer CreateSetting(Container parent, SettingEntry settingEntry)
         {
             var viewContainer = new ViewContainer { Parent = parent };
             viewContainer.Show(SettingView.FromType(settingEntry, parent.Width));

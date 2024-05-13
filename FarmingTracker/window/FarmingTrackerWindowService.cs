@@ -48,7 +48,7 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_searchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView("HELP"), "Help"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true), "Help"));
         }
 
         public void Dispose()
