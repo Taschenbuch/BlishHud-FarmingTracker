@@ -1,6 +1,8 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
+using Blish_HUD.Settings.UI.Views;
+using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using System;
 using System.Threading.Tasks;
@@ -31,7 +33,13 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
             };
+            
+            await CreateDrfTokenSettings(rootFlowPanel);
+            CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+        }
 
+        private async Task CreateDrfTokenSettings(FlowPanel rootFlowPanel)
+        {
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
 
             var drfConnectionStatusPanel = new Panel
@@ -152,6 +160,13 @@ namespace FarmingTracker
                 drfConnectionStatus,
                 _services.Drf.ReconnectTriesCounter,
                 _services.Drf.ReconnectDelaySeconds);
+        }
+
+        public static ViewContainer CreateSetting(Container parent, SettingEntry settingEntry)
+        {
+            var viewContainer = new ViewContainer { Parent = parent };
+            viewContainer.Show(SettingView.FromType(settingEntry, parent.Width));
+            return viewContainer;
         }
 
         private readonly Services _services;

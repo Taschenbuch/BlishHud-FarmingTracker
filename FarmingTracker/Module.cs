@@ -39,6 +39,9 @@ namespace FarmingTracker
         {
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
             _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, CornerIconClickEventHandler);
+
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated; ;
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
         }
 
         protected override void Update(GameTime gameTime)
@@ -51,8 +54,11 @@ namespace FarmingTracker
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindowService?.Dispose();
             _services?.Dispose();
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated; ;
         }
 
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSessionSummaryTab();
         private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSessionSummaryTab();
 
         private TrackerCornerIcon _trackerCornerIcon;
