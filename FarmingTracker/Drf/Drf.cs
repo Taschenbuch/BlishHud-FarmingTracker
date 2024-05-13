@@ -13,7 +13,7 @@ namespace FarmingTracker
             _settingService = settingsService;
             InitializeEventHandlers();
             FireAndForgetConnectToDrf();
-            settingsService.DrfToken.SettingChanged += OnDrfTokenSettingChanged;
+            settingsService.DrfTokenSetting.SettingChanged += OnDrfTokenSettingChanged;
         }
 
         public DrfConnectionStatus DrfConnectionStatus { get; private set; } = DrfConnectionStatus.Disconnected;
@@ -30,7 +30,7 @@ namespace FarmingTracker
 
         public void Dispose()
         {
-            _settingService.DrfToken.SettingChanged -= OnDrfTokenSettingChanged;
+            _settingService.DrfTokenSetting.SettingChanged -= OnDrfTokenSettingChanged;
             _drfWebSocketClient.Dispose();
             // todo events unsubscriben nötig!
         }
@@ -155,7 +155,7 @@ namespace FarmingTracker
 
         private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
         {
-            var drfToken = _settingService.DrfToken.Value;
+            var drfToken = _settingService.DrfTokenSetting.Value;
 
             if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
                 await _drfWebSocketClient.Connect(drfToken);
@@ -164,7 +164,7 @@ namespace FarmingTracker
         private async void FireAndForgetConnectToDrf()
         {
             //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
-            await _drfWebSocketClient.Connect(_settingService.DrfToken.Value);
+            await _drfWebSocketClient.Connect(_settingService.DrfTokenSetting.Value);
         }
 
         private readonly SettingService _settingService;

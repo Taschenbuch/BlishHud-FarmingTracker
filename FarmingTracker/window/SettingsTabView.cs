@@ -111,11 +111,11 @@ namespace FarmingTracker
 
             // todo tooltip für label und textbox
             // todo verbot + häckchen icon nutzen?            
-            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfToken.Value, font, drfTokenTextBoxFlowPanel);
+            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfTokenSetting.Value, font, drfTokenTextBoxFlowPanel);
 
             var drfTokenValidationLabel = new Label
             {
-                Text = DrfToken.CreateDrfTokenHintText(_services.SettingService.DrfToken.Value),
+                Text = DrfToken.CreateDrfTokenHintText(_services.SettingService.DrfTokenSetting.Value),
                 TextColor = Color.Yellow,
                 Font = font,
                 AutoSizeHeight = true,
@@ -125,7 +125,7 @@ namespace FarmingTracker
 
             drfTokenTextBox.SanitizedTextChanged += (s, e) =>
             {
-                _services.SettingService.DrfToken.Value = drfTokenTextBox.Text;
+                _services.SettingService.DrfTokenSetting.Value = drfTokenTextBox.Text;
                 drfTokenValidationLabel.Text = DrfToken.CreateDrfTokenHintText(drfTokenTextBox.Text);
             };
 

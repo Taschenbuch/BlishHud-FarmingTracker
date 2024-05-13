@@ -6,7 +6,7 @@ namespace FarmingTracker
     {
         public SettingService(SettingCollection settings)
         {
-            DrfToken = settings.DefineSetting(
+            DrfTokenSetting = settings.DefineSetting(
                 "drf token",
                 string.Empty,
                 () => "DRF Token/Key", 
@@ -15,6 +15,6 @@ namespace FarmingTracker
                 "Copy the token. Paste the token with CTRL + V into this input.");
         }
 
-        public SettingEntry<string> DrfToken { get; }
+        public SettingEntry<string> DrfTokenSetting { get; }
     }
 }
