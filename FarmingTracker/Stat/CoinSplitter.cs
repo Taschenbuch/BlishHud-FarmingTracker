@@ -27,6 +27,7 @@ namespace FarmingTracker
                     {
                         Name = "Gold",
                         IconAssetId = Constants.GOLD_ICON_ASSET_ID,
+                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
                     },
                 };
                 
@@ -43,6 +44,7 @@ namespace FarmingTracker
                     { 
                         Name = "Silver",
                         IconAssetId = Constants.SILVER_ICON_ASSET_ID,
+                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
                     },
                 };
 
@@ -59,6 +61,7 @@ namespace FarmingTracker
                     {
                         Name = "Copper",
                         IconAssetId = Constants.COPPER_ICON_ASSET_ID,
+                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
                     },
                 };
 
