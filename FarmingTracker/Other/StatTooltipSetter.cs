@@ -12,14 +12,14 @@ namespace FarmingTracker
 
         private static string CreateTooltip(Stat stat)
         {
-            if (stat.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet)
+            if (stat.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
             {
                 var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
                 Module.Logger.Error(errorMessage);
                 return errorMessage;
             }
 
-            if (stat.DetailsState == StatDetailsState.MissingBecauseUnknownByApi)
+            if (stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
                 return
                     $"Unknown item/currency (ID: {stat.ApiId})\n" +
                     $"GW2 API has no information about it.\n" +
@@ -27,10 +27,10 @@ namespace FarmingTracker
                     $"You can look it up with the wiki if you want:\n" +
                     $"https://wiki.guildwars2.com/wiki/Special:RunQuery/Search_by_id";
 
-            var tooltip = $"{stat.Count} {stat.Name}";
+            var tooltip = $"{stat.Count} {stat.Details.Name}";
 
-            if(!string.IsNullOrWhiteSpace(stat.Description))
-                tooltip += $"\n{stat.Description}";
+            if(!string.IsNullOrWhiteSpace(stat.Details.Description))
+                tooltip += $"\n{stat.Details.Description}";
 
             var canBeSoldToVendor = stat.Profit.SellToVendorInCopper > 0;
             if (canBeSoldToVendor)

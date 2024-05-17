@@ -50,7 +50,7 @@ namespace FarmingTracker
 
         public static void SetCurrencyDetails(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
-            var currenciesWithoutDetails = currencyById.Values.Where(c => c.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var currenciesWithoutDetails = currencyById.Values.Where(c => c.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (!currenciesWithoutDetails.Any())
                 return;
 
@@ -62,15 +62,15 @@ namespace FarmingTracker
             {
                 if (currencyDetailsByIdCache.TryGetValue(currencyWithoutDetails.ApiId, out var currencyDetails))
                 {
-                    currencyWithoutDetails.Name = currencyDetails.Name;
-                    currencyWithoutDetails.Description = currencyDetails.Description;
-                    currencyWithoutDetails.IconAssetId = currencyDetails.IconAssetId;
-                    currencyWithoutDetails.DetailsState = StatDetailsState.SetByApi;
+                    currencyWithoutDetails.Details.Name = currencyDetails.Name;
+                    currencyWithoutDetails.Details.Name = currencyDetails.Description;
+                    currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
+                    currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
                 }
                 else
                 {
                     missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
-                    currencyWithoutDetails.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
+                    currencyWithoutDetails.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
                 }
             }
 
@@ -80,7 +80,7 @@ namespace FarmingTracker
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
-            var itemIdsWithoutDetails = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).Select(i => i.ApiId).ToList();
+            var itemIdsWithoutDetails = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).Select(i => i.ApiId).ToList();
             if (!itemIdsWithoutDetails.Any())
                 return;
 
@@ -130,21 +130,24 @@ namespace FarmingTracker
             foreach (var apiItem in apiItems)
             {
                 var item = itemById[apiItem.Id];
-                item.Name = apiItem.Name;
-                item.Description = apiItem.Description;
-                item.IconAssetId = GetIconAssetId(apiItem.Icon);
+                item.Details.Name = apiItem.Name;
+                item.Details.Description = apiItem.Description;
+                item.Details.IconAssetId = GetIconAssetId(apiItem.Icon);
+                item.Details.Rarity = apiItem.Rarity;
+                item.Details.Flag = apiItem.Flags;
+                item.Details.Type = apiItem.Type;
                 var canNotBeSoldToVendor = apiItem.Flags.Any(f => f == ItemFlag.NoSell);
                 item.Profit.SellToVendorInCopper = canNotBeSoldToVendor ? 0 : apiItem.VendorValue; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
-                item.DetailsState = StatDetailsState.SetByApi;
+                item.Details.State = ApiStatDetailsState.SetByApi;
             }
 
-            var itemsUnknownByApi = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
                 Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
 
                 foreach (var itemNotFoundByApi in itemsUnknownByApi)
-                    itemNotFoundByApi.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
+                    itemNotFoundByApi.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
             }
         }
 

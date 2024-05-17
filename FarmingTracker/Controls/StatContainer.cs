@@ -16,7 +16,7 @@ namespace FarmingTracker
                 Parent = this,
             };
 
-            _icon = new Image(AsyncTexture2D.FromAssetId(stat.IconAssetId))
+            _icon = new Image(AsyncTexture2D.FromAssetId(stat.Details.IconAssetId))
             {
                 BasicTooltipText = stat.Tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,

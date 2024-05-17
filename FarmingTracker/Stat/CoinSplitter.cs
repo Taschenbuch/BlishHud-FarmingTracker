@@ -21,10 +21,13 @@ namespace FarmingTracker
             {
                 var goldStat = new Stat
                 {
-                    Name = "Gold",
-                    Count = coin.Gold,
-                    IconAssetId = Constants.GOLD_ICON_ASSET_ID,
                     ApiId = GOLD_FAKE_ID,
+                    Count = coin.Gold,
+                    Details =
+                    {
+                        Name = "Gold",
+                        IconAssetId = Constants.GOLD_ICON_ASSET_ID,
+                    },
                 };
                 
                 currencyById[goldStat.ApiId] = goldStat;
@@ -34,10 +37,13 @@ namespace FarmingTracker
             {
                 var silverStat = new Stat
                 {
-                    Name = "Silver",
-                    Count = coin.Silver,
-                    IconAssetId = Constants.SILVER_ICON_ASSET_ID,
                     ApiId = SILVER_FAKE_ID,
+                    Count = coin.Silver,
+                    Details =
+                    { 
+                        Name = "Silver",
+                        IconAssetId = Constants.SILVER_ICON_ASSET_ID,
+                    },
                 };
 
                 currencyById[silverStat.ApiId] = silverStat;
@@ -47,10 +53,13 @@ namespace FarmingTracker
             {
                 var copperStat = new Stat
                 {
-                    Name = "Copper",
-                    Count = coin.Copper,
-                    IconAssetId = Constants.COPPER_ICON_ASSET_ID,
                     ApiId = COPPER_FAKE_ID,
+                    Count = coin.Copper,
+                    Details =
+                    {
+                        Name = "Copper",
+                        IconAssetId = Constants.COPPER_ICON_ASSET_ID,
+                    },
                 };
 
                 currencyById[copperStat.ApiId] = copperStat;

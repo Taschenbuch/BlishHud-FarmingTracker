@@ -34,7 +34,6 @@ namespace FarmingTracker
 
         private readonly Texture2D _cornerIconTexture;
         private readonly Texture2D _cornerIconHoverTexture;
-        private readonly FarmingTrackerWindowService _farmingTrackerWindowService;
         private readonly EventHandler<MouseEventArgs> _cornerIconClickEventHandler;
     }
 }
