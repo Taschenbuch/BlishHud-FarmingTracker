@@ -17,13 +17,13 @@ namespace FarmingTracker
             var contentHeight = windowHeight - 20;
             var flowPanelWidth = contentWidth - 40;
 
-            _windowEmblemTexture = services.ContentsManager.GetTexture(@"windowEmblem.png");
-            _helpTabIconTexture = services.ContentsManager.GetTexture(@"helpTabIcon.png");
-            _filterTabIconTexture = services.ContentsManager.GetTexture(@"filterTabIcon.png");
-            _sortTabIconTexture = services.ContentsManager.GetTexture(@"sortTabIcon.png");
-            _timelineTabIconTexture = services.ContentsManager.GetTexture(@"timelineTabIcon.png");
-            _sessionSummaryTabIconTexture = services.ContentsManager.GetTexture(@"sessionSummaryTabIcon.png");
-            _searchTabIconTexture = services.ContentsManager.GetTexture(@"searchTabIcon.png");
+            _windowEmblemTexture = services.ContentsManager.GetTexture(@"window-emblem.png");
+            _helpTabIconTexture = services.ContentsManager.GetTexture(@"help-tab-icon.png");
+            _filterTabIconTexture = services.ContentsManager.GetTexture(@"filter-tab-icon.png");
+            _sortTabIconTexture = services.ContentsManager.GetTexture(@"sort-tab-icon.png");
+            _timelineTabIconTexture = services.ContentsManager.GetTexture(@"timeline-tab-icon.png");
+            _sessionSummaryTabIconTexture = services.ContentsManager.GetTexture(@"session-summary-tab-icon.png");
+            _searchTabIconTexture = services.ContentsManager.GetTexture(@"search-tab-icon.png");
 
             _farmingTrackerWindow = new TabbedWindow2(
                 AsyncTexture2D.FromAssetId(155997),

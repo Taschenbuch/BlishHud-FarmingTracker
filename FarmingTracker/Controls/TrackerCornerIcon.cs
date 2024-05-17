@@ -12,8 +12,8 @@ namespace FarmingTracker
         public TrackerCornerIcon(ContentsManager contentsManager, EventHandler<MouseEventArgs> cornerIconClickEventHandler)
         {
             _cornerIconClickEventHandler = cornerIconClickEventHandler;
-            _cornerIconTexture = contentsManager.GetTexture(@"cornerIcon.png");
-            _cornerIconHoverTexture = contentsManager.GetTexture(@"cornerIconHover.png");
+            _cornerIconTexture = contentsManager.GetTexture(@"corner-icon.png");
+            _cornerIconHoverTexture = contentsManager.GetTexture(@"corner-icon-hover.png");
 
             Icon = _cornerIconTexture;
             HoverIcon = _cornerIconHoverTexture;
