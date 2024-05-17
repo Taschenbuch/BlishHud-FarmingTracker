@@ -1,4 +1,7 @@
-﻿namespace FarmingTracker
+﻿using Gw2Sharp.WebApi.V2.Models;
+using System;
+
+namespace FarmingTracker
 {
     public class Constants
     {
@@ -8,5 +11,8 @@
         public const int COPPER_ICON_ASSET_ID = 156902;
         public const int BUG_TEXTURE_ASSET_ID = 157084;
         public const int PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS = 5;
+        public static ItemRarity[] ALL_ITEM_RARITIES => (ItemRarity[])Enum.GetValues(typeof(ItemRarity));
+        public static ItemType[] ALL_ITEM_TYPES => (ItemType[])Enum.GetValues(typeof(ItemType));
+        public static ItemFlag[] ALL_ITEM_FLAGS => (ItemFlag[])Enum.GetValues(typeof(ItemFlag));
     }
 }

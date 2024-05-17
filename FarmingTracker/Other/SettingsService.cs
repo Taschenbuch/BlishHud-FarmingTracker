@@ -1,6 +1,8 @@
 ﻿using Blish_HUD.Input;
 using Blish_HUD.Settings;
+using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace FarmingTracker
 {
@@ -21,9 +23,17 @@ namespace FarmingTracker
                 new KeyBinding(ModifierKeys.Ctrl | ModifierKeys.Alt | ModifierKeys.Shift, Keys.F),
                 () => "show/hide window",
                 () => "Double-click to change the key binding. Will show or hide the farming tracker window.");
+
+            var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
+            TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
+            FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
+        public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; }
+        public SettingEntry<List<ItemType>> TypeStatsFilterSetting { get; }
+        public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; }
     }
 }

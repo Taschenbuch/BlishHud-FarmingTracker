@@ -32,6 +32,12 @@ namespace FarmingTracker
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
+            if(_services.UpdateLoop.GetAndResetUiHasToBeUpdated())
+            {
+                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+                return;
+            }
+
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _hintLabel.Text = "resetting... (this may take a few seconds)";

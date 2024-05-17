@@ -45,7 +45,7 @@ namespace FarmingTracker
 
             _farmingTrackerWindow.Tabs.Add(_sessionSummaryTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new PlaceholderTabView("CUSTOM FILTERING"), "Filter"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new FilterTabView(services), "Filter"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
             _farmingTrackerWindow.Tabs.Add(new Tab(_searchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);

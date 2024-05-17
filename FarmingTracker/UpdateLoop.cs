@@ -30,10 +30,28 @@ namespace FarmingTracker
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
+        public void TriggerUiUpdate()
+        {
+            lock(_uiUpdateLock)
+                _uiHasToBeUpdated = true;
+        }
+
+        public bool GetAndResetUiHasToBeUpdated()
+        {
+            lock (_uiUpdateLock)
+            {
+                var uiHasToBeUpdated = _uiHasToBeUpdated;
+                _uiHasToBeUpdated = false;
+                return uiHasToBeUpdated;
+            }
+        }
+
         public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 5_000;
         public const int WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS = 2_000;
         private const int FARMING_UPDATE_INTERVAL_MS = 1_000; // todo rename
         private double _runningTimeMs;
         private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
+        private bool _uiHasToBeUpdated;
+        private static readonly object _uiUpdateLock = new object();
     }
 }
