@@ -11,9 +11,11 @@ namespace FarmingTracker
     {
         public FarmingTrackerWindowService(Services services)
         {
-            var windowWidth = 560;
-            var windowHeight = 640;
-            var flowPanelWidth = windowWidth - 47;
+            var windowWidth = 570;
+            var windowHeight = 650;
+            var contentWidth = windowWidth - 80;
+            var contentHeight = windowHeight - 20;
+            var flowPanelWidth = contentWidth - 40;
 
             _windowEmblemTexture = services.ContentsManager.GetTexture(@"windowEmblem.png");
             _helpTabIconTexture = services.ContentsManager.GetTexture(@"helpTabIcon.png");
@@ -25,8 +27,8 @@ namespace FarmingTracker
 
             _farmingTrackerWindow = new TabbedWindow2(
                 AsyncTexture2D.FromAssetId(155997),
-                new Rectangle(-25, 26, windowWidth + 60, windowHeight),
-                new Rectangle(40, 20, windowWidth - 40, windowHeight - 50))
+                new Rectangle(20, 26, windowWidth, windowHeight),
+                new Rectangle(80, 20, contentWidth, contentHeight))
             {
                 Title = "Farming Tracker",
                 Emblem = _windowEmblemTexture,
