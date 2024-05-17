@@ -62,6 +62,9 @@ namespace FarmingTracker
             if (profitPerHourInCopper > int.MaxValue)
                 return int.MaxValue;
 
+            if (profitPerHourInCopper <= int.MinValue)
+                return int.MinValue + 1; // hack: +1 to prevent that Math.Abs() crashes, because (-1 * int.MinValue) is bigger than int.MaxValue.
+
             return (int)profitPerHourInCopper;
         }
 
