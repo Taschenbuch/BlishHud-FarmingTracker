@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
@@ -31,7 +30,7 @@ namespace FarmingTracker
 
         public void Update(GameTime gameTime)
         {
-            _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
+            _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
@@ -50,10 +49,10 @@ namespace FarmingTracker
             _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
-            if (_updateLoop.UpdateIntervalEnded())
+            if (_services.UpdateLoop.UpdateIntervalEnded())
             {
-                _updateLoop.ResetRunningTime();
-                _updateLoop.UseFarmingUpdateInterval();
+                _services.UpdateLoop.ResetRunningTime();
+                _services.UpdateLoop.UseFarmingUpdateInterval();
 
                 ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
                 
@@ -110,7 +109,7 @@ namespace FarmingTracker
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message);
-                _updateLoop.UseRetryAfterApiFailureUpdateInterval();
+                _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
@@ -304,7 +303,6 @@ namespace FarmingTracker
         private bool _isUpdateStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
-        private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private ProfitService _profitService;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;

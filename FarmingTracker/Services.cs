@@ -20,6 +20,7 @@ namespace FarmingTracker
             Drf.Dispose();
         }
 
+        public UpdateLoop UpdateLoop { get; set; } = new UpdateLoop();
         public FontService FontService { get; } = new FontService();
         public ContentsManager ContentsManager { get; }
         public Gw2ApiManager Gw2ApiManager { get; }

@@ -36,6 +36,7 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
+            var updateLoop = new UpdateLoop();
             var farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
             _sessionSummaryTab = new Tab(_sessionSummaryTabIconTexture, () => farmingSummaryTabView, "Session summary");
             _farmingSummaryTabView = farmingSummaryTabView;
