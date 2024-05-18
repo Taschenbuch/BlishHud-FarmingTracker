@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class UiUpdater
     {
-        public static void UpdateStatsInUi(StatsPanels statsPanels, Services services)
+        public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
             var items = FilterItems(services.Stats.ItemById.Values, services);
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
     // MS = milliseconds
     public class UpdateLoop
@@ -30,19 +28,19 @@ namespace FarmingTracker
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public void TriggerUiUpdate()
+        public void TriggerUpdateStatPane()
         {
-            lock(_uiUpdateLock)
-                _uiHasToBeUpdated = true;
+            lock(_updateLock)
+                _statPanelsHaveToBeUpdated = true;
         }
 
-        public bool GetAndResetUiHasToBeUpdated()
+        public bool GetAndResetStatPanelsHaveToBeUpdated()
         {
-            lock (_uiUpdateLock)
+            lock (_updateLock)
             {
-                var uiHasToBeUpdated = _uiHasToBeUpdated;
-                _uiHasToBeUpdated = false;
-                return uiHasToBeUpdated;
+                var statPanelsHaveToBeUpdated = _statPanelsHaveToBeUpdated;
+                _statPanelsHaveToBeUpdated = false;
+                return statPanelsHaveToBeUpdated;
             }
         }
 
@@ -51,7 +49,7 @@ namespace FarmingTracker
         private const int FARMING_UPDATE_INTERVAL_MS = 1_000; // todo rename
         private double _runningTimeMs;
         private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
-        private bool _uiHasToBeUpdated;
-        private static readonly object _uiUpdateLock = new object();
+        private bool _statPanelsHaveToBeUpdated;
+        private static readonly object _updateLock = new object();
     }
 }
