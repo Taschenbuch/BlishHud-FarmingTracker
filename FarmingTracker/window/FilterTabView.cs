@@ -111,12 +111,7 @@ namespace FarmingTracker
                 Parent = filterIconPanel
             };
 
-            var filterIcon = new Image(filterTabIconTexture) // captureType is not overriden: clicking on the icon will prevent that panel expands/collapses
-            {
-                Location = new Point(230, 3),
-                Opacity = 0.8f,
-                Parent = filterIconPanel,
-            };
+            var filterIcon = new ClickThroughImage(filterTabIconTexture, new Point(230, 3), filterIconPanel);
 
             var buttonFlowPanel = new FlowPanel
             {
