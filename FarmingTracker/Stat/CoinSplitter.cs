@@ -23,6 +23,7 @@ namespace FarmingTracker
                 {
                     ApiId = GOLD_FAKE_ID,
                     Count = coin.Gold,
+                    Tooltip = TOOLTIP,
                     Details =
                     {
                         Name = "Gold",
@@ -40,6 +41,7 @@ namespace FarmingTracker
                 {
                     ApiId = SILVER_FAKE_ID,
                     Count = coin.Silver,
+                    Tooltip = TOOLTIP,
                     Details =
                     { 
                         Name = "Silver",
@@ -57,6 +59,7 @@ namespace FarmingTracker
                 {
                     ApiId = COPPER_FAKE_ID,
                     Count = coin.Copper,
+                    Tooltip = TOOLTIP,
                     Details =
                     {
                         Name = "Copper",
@@ -72,5 +75,6 @@ namespace FarmingTracker
         private const int GOLD_FAKE_ID = -3;
         private const int SILVER_FAKE_ID = -2;
         private const int COPPER_FAKE_ID = -1;
+        private const string TOOLTIP = "Changes in 'raw gold'.\nIn other words coins spent or gained.";
     }
 }

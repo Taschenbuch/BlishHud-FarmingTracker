@@ -275,6 +275,9 @@ namespace FarmingTracker
             var profitTooltip = 
                 "Rough profit when selling everything to vendor or on trading post (listing).\n" +
                 "15% trading post fee is already deducted.\n" +
+                "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
+                "'raw gold' changes are also visible in the currency panel below.\n" +
+                "Lost items reduce the profit accordingly.\n" +
                 $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
 
             var font = services.FontService.Fonts[FontSize.Size16];
