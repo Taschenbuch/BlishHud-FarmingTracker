@@ -6,10 +6,10 @@ namespace FarmingTracker
     {
         public static void SplitCoinIntoGoldSilverCopperStats(Dictionary<int, Stat> currencyById)
         {
-            // do NOT remove coin from currencyById!
-            currencyById.Remove(GOLD_FAKE_ID);
-            currencyById.Remove(SILVER_FAKE_ID);
-            currencyById.Remove(COPPER_FAKE_ID);
+            // do NOT remove coin from currencyById! Removing coin would reset the coin count to 0 before every stats update!
+            currencyById.Remove(GOLD_FAKE_API_ID);
+            currencyById.Remove(SILVER_FAKE_API_ID);
+            currencyById.Remove(COPPER_FAKE_API_ID);
 
             var hasEarnedOrLostCoin = currencyById.TryGetValue(Coin.COIN_CURRENCY_ID, out var coinsInCopperItem);
             if (!hasEarnedOrLostCoin)
@@ -19,62 +19,41 @@ namespace FarmingTracker
 
             if(coin.HasToDisplayGold)
             {
-                var goldStat = new Stat
-                {
-                    ApiId = GOLD_FAKE_ID,
-                    Count = coin.Gold,
-                    Tooltip = TOOLTIP,
-                    Details =
-                    {
-                        Name = "Gold",
-                        IconAssetId = Constants.GOLD_ICON_ASSET_ID,
-                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
-                    },
-                };
-                
+                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, Constants.GOLD_ICON_ASSET_ID);
                 currencyById[goldStat.ApiId] = goldStat;
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = new Stat
-                {
-                    ApiId = SILVER_FAKE_ID,
-                    Count = coin.Silver,
-                    Tooltip = TOOLTIP,
-                    Details =
-                    { 
-                        Name = "Silver",
-                        IconAssetId = Constants.SILVER_ICON_ASSET_ID,
-                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
-                    },
-                };
-
+                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, Constants.SILVER_ICON_ASSET_ID);
                 currencyById[silverStat.ApiId] = silverStat;
             }
             
-            if(coin.HasToDisplayCopper) 
+            if(coin.HasToDisplayCopper)
             {
-                var copperStat = new Stat
-                {
-                    ApiId = COPPER_FAKE_ID,
-                    Count = coin.Copper,
-                    Tooltip = TOOLTIP,
-                    Details =
-                    {
-                        Name = "Copper",
-                        IconAssetId = Constants.COPPER_ICON_ASSET_ID,
-                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it
-                    },
-                };
-
+                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, Constants.COPPER_ICON_ASSET_ID);
                 currencyById[copperStat.ApiId] = copperStat;
             }
         }
 
-        private const int GOLD_FAKE_ID = -3;
-        private const int SILVER_FAKE_ID = -2;
-        private const int COPPER_FAKE_ID = -1;
-        private const string TOOLTIP = "Changes in 'raw gold'.\nIn other words coins spent or gained.";
+        private static Stat CreateCoinStat(string name, int count, int apiId, int iconAssetId)
+        {
+            return new Stat
+            {
+                ApiId = apiId,
+                Count = count,
+                Tooltip = "Changes in 'raw gold'.\nIn other words coins spent or gained.",
+                Details =
+                    {
+                        Name = name,
+                        IconAssetId = iconAssetId,
+                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it.
+                    },
+            };
+        }
+
+        private const int GOLD_FAKE_API_ID = -3;
+        private const int SILVER_FAKE_API_ID = -2;
+        private const int COPPER_FAKE_API_ID = -1;
     }
 }
