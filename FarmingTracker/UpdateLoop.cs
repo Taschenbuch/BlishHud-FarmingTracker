@@ -28,7 +28,7 @@
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public void TriggerUpdateStatPane()
+        public void TriggerUpdateStatPanels()
         {
             lock(_updateLock)
                 _statPanelsHaveToBeUpdated = true;

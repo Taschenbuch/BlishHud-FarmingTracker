@@ -16,7 +16,7 @@ namespace FarmingTracker
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
-            services.UpdateLoop.TriggerUpdateStatPane();
+            services.UpdateLoop.TriggerUpdateStatPanels();
         }
 
         protected override void Unload()
@@ -48,7 +48,7 @@ namespace FarmingTracker
 
                 _hasToResetStats = false;
                 ResetStats();
-                _services.UpdateLoop.TriggerUpdateStatPane();
+                _services.UpdateLoop.TriggerUpdateStatPanels();
                 _elapsedFarmingTimeLabel.RestartTime();
                 _resetButton.Enabled = true;
                 return; // that is enough work for a single update loop iteration.
@@ -108,7 +108,7 @@ namespace FarmingTracker
 
                 _hintLabel.Text = "updating... (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
-                _services.UpdateLoop.TriggerUpdateStatPane();
+                _services.UpdateLoop.TriggerUpdateStatPanels();
                 _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";

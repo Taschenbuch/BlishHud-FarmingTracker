@@ -149,7 +149,7 @@ namespace FarmingTracker
                     }
 
                     filterSettingEntry.Value = filter;
-                    services.UpdateLoop.TriggerUpdateStatPane();
+                    services.UpdateLoop.TriggerUpdateStatPanels();
                 };
             }
 
