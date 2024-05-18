@@ -38,7 +38,7 @@ namespace FarmingTracker
         protected override async Task LoadAsync()
         {
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
-            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, CornerIconClickEventHandler);
+            _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
 
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated; ;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;

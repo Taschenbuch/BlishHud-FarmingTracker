@@ -17,13 +17,7 @@ namespace FarmingTracker
             var contentHeight = windowHeight - 20;
             var flowPanelWidth = contentWidth - 40;
 
-            _windowEmblemTexture = services.ContentsManager.GetTexture(@"window-emblem.png");
-            _helpTabIconTexture = services.ContentsManager.GetTexture(@"help-tab-icon.png");
-            _filterTabIconTexture = services.ContentsManager.GetTexture(@"filter-tab-icon.png");
-            _sortTabIconTexture = services.ContentsManager.GetTexture(@"sort-tab-icon.png");
-            _timelineTabIconTexture = services.ContentsManager.GetTexture(@"timeline-tab-icon.png");
-            _sessionSummaryTabIconTexture = services.ContentsManager.GetTexture(@"session-summary-tab-icon.png");
-            _searchTabIconTexture = services.ContentsManager.GetTexture(@"search-tab-icon.png");
+            var textureService = services.TextureService;
 
             _farmingTrackerWindow = new TabbedWindow2(
                 AsyncTexture2D.FromAssetId(155997),
@@ -31,7 +25,7 @@ namespace FarmingTracker
                 new Rectangle(80, 20, contentWidth, contentHeight))
             {
                 Title = "Farming Tracker",
-                Emblem = _windowEmblemTexture,
+                Emblem = textureService.WindowEmblemTexture,
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: FarmingTrackerWindow",
                 Location = new Point(300, 300),
@@ -40,28 +34,22 @@ namespace FarmingTracker
 
             var updateLoop = new UpdateLoop();
             var farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
-            _sessionSummaryTab = new Tab(_sessionSummaryTabIconTexture, () => farmingSummaryTabView, "Session summary");
+            _sessionSummaryTab = new Tab(services.TextureService.SessionSummaryTabIconTexture, () => farmingSummaryTabView, "Session summary");
             _farmingSummaryTabView = farmingSummaryTabView;
             
             _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), () => new SettingsTabView(services), "Settings");
 
             _farmingTrackerWindow.Tabs.Add(_sessionSummaryTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(_timelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_filterTabIconTexture, () => new FilterTabView(_filterTabIconTexture, services), "Filter"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_sortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(_searchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, () => new FilterTabView(services), "Filter"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(_helpTabIconTexture, () => new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true), "Help"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, () => new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true), "Help"));
         }
 
         public void Dispose()
         {
-            _windowEmblemTexture?.Dispose();
-            _sessionSummaryTabIconTexture?.Dispose();
-            _filterTabIconTexture?.Dispose();
-            _sortTabIconTexture?.Dispose();
-            _helpTabIconTexture?.Dispose();
-            _searchTabIconTexture?.Dispose();
             _farmingTrackerWindow?.Dispose();
         }
 
@@ -87,13 +75,6 @@ namespace FarmingTracker
             _farmingSummaryTabView?.Update(gameTime);
         }
 
-        private readonly Texture2D _windowEmblemTexture;
-        private readonly Texture2D _helpTabIconTexture;
-        private readonly Texture2D _filterTabIconTexture;
-        private readonly Texture2D _sortTabIconTexture;
-        private readonly Texture2D _timelineTabIconTexture;
-        private readonly Texture2D _sessionSummaryTabIconTexture;
-        private readonly Texture2D _searchTabIconTexture;
         private readonly TabbedWindow2 _farmingTrackerWindow;
         private readonly Tab _settingsTab;
         private readonly FarmingSummaryTabView _farmingSummaryTabView;

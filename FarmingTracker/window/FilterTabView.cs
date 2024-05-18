@@ -2,7 +2,6 @@
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,9 +9,8 @@ namespace FarmingTracker
 {
     public class FilterTabView : View
     {
-        public FilterTabView(Texture2D filterTabIconTexture, Services services)
+        public FilterTabView(Services services)
         {
-            _filterTabIconTexture = filterTabIconTexture;
             _services = services;
         }
 
@@ -74,19 +72,18 @@ namespace FarmingTracker
                     filterPanel.Collapse();
             };
 
-            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
         }
 
         private static FlowPanel CreateFilterSettingPanel<T>(
             string panelTitel,
             T[] allPossibleFilterElements, 
             SettingEntry<List<T>> filterSettingEntry,
-            Texture2D filterTabIconTexture,
             Services services, 
             Container parent)
         {
@@ -111,7 +108,7 @@ namespace FarmingTracker
                 Parent = filterIconPanel
             };
 
-            var filterIcon = new ClickThroughImage(filterTabIconTexture, new Point(230, 3), filterIconPanel);
+            var filterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(230, 3), filterIconPanel);
 
             var buttonFlowPanel = new FlowPanel
             {
@@ -205,7 +202,6 @@ namespace FarmingTracker
             return textWithBlanks;
         }
 
-        private readonly Texture2D _filterTabIconTexture;
         private readonly Services _services;
     }
 }
