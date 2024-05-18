@@ -13,27 +13,29 @@ namespace FarmingTracker
             _services = services;
         }
 
-        protected override void Unload()
-        {
-            // todo 
-        }
-
         protected override void Build(Container buildPanel)
         {
             var rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                ControlPadding = new Vector2(20, 20),
+                ControlPadding = new Vector2(20, 10),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
             };
 
-            ControlFactory.CreateHintLabel(rootFlowPanel, "Items that are hidden by filters are still included in the profit calculation.");
-            CreateFilterSettingPanel("Rarity", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Type", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Flag", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel);
+            ControlFactory.CreateHintLabel(
+                rootFlowPanel, 
+                "- Unchecked means hidden by filter.\n" +
+                "- A filter, e.g. rarity filter, will not be applied if all its checkboxes\nare unchecked. In this case no items are hidden by the filter.\n" +
+                "- Items hidden by filters are still included in the profit calculation.");
+
+            CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel);
+            CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel);
+            CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel);
+            CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel);
+            CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel);
         }
 
         private static void CreateFilterSettingPanel<T>(
@@ -48,7 +50,7 @@ namespace FarmingTracker
                 Title = panelTitel,
                 ShowBorder = true,
                 CanCollapse = true,
-                BackgroundColor = Microsoft.Xna.Framework.Color.Black * 0.5f,
+                BackgroundColor = Color.Black * 0.5f,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 OuterControlPadding = new Vector2(10, 10),
                 ControlPadding = new Vector2(0, 10),
@@ -57,11 +59,27 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
-            var allButton = new StandardButton
+            var buttonFlowPanel = new FlowPanel
             {
-                Text = "All",
-                Width = 50,
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                ControlPadding = new Vector2(10, 0),
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
                 Parent = filterFlowPanel
+            };
+
+            var showAllButton = new StandardButton
+            {
+                Text = "Show all",
+                Width = 80,
+                Parent = buttonFlowPanel
+            };
+
+            var hideAllButton = new StandardButton
+            {
+                Text = "Hide all",
+                Width = 80,
+                Parent = buttonFlowPanel
             };
 
             var filterCheckboxes = new List<Checkbox>();
@@ -96,7 +114,13 @@ namespace FarmingTracker
                 };
             }
 
-            allButton.Click += (s, e) =>
+            hideAllButton.Click += (s, e) =>
+            {
+                foreach (var filterCheckbox in filterCheckboxes)
+                    filterCheckbox.Checked = false;
+            };
+
+            showAllButton.Click += (s, e) =>
             {
                 foreach (var filterCheckbox in filterCheckboxes)
                     filterCheckbox.Checked = true;

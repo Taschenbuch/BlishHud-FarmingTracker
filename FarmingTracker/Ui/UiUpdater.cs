@@ -8,13 +8,14 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var items = FilterItems(services.Stats.ItemById.Values, services);
+            var items = FilterService.FilterItems(services.Stats.ItemById.Values, services);
+            var currencies = FilterService.FilterCurrencies(services.Stats.CurrencyById.Values, services);
 
             items = items
                 .OrderBy(i => i.Count >= 0 ? -1 : 1)
                 .ThenBy(i => i.ApiId);
 
-            var sortedCurrencies = services.Stats.CurrencyById.Values
+            var sortedCurrencies = currencies
                 .Where(c => !c.IsCoin)
                 .OrderBy(c => c.ApiId)
                 .ToList();
@@ -33,23 +34,6 @@ namespace FarmingTracker
 
             if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
                 ControlFactory.CreateHintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
-        }
-
-        private static IEnumerable<Stat> FilterItems(IEnumerable<Stat> items, Services services)
-        {
-            var rarityFilter = services.SettingService.RarityStatsFilterSetting.Value;
-            if (rarityFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => rarityFilter.Contains(i.Details.Rarity));
-
-            var typeFilter = services.SettingService.TypeStatsFilterSetting.Value;
-            if (typeFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => typeFilter.Contains(i.Details.Type));
-
-            var flagFilter = services.SettingService.FlagStatsFilterSetting.Value;
-            if (flagFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => i.Details.Flag.List.Any(f => flagFilter.Contains(f)));
-
-            return items;
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)

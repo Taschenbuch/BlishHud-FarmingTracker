@@ -25,6 +25,8 @@ namespace FarmingTracker
                 () => "Double-click to change the key binding. Will show or hide the farming tracker window.");
 
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            CountFilterSetting = internalSettings.DefineSetting("count stats filter", new List<CountFilter>(Constants.ALL_COUNTS));
+            SellMethodFilterSetting = internalSettings.DefineSetting("sellable items filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
             RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
             TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
             FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
@@ -32,6 +34,8 @@ namespace FarmingTracker
 
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
+        public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
+        public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
         public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; }
         public SettingEntry<List<ItemType>> TypeStatsFilterSetting { get; }
         public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; }

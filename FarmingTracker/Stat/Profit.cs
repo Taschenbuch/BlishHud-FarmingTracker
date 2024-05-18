@@ -5,6 +5,7 @@ namespace FarmingTracker
     public class Profit
     {
         public int MaxProfitInCopper { get; set; }
+        public bool CanNotBeSold => !CanBeSoldToVendor && !CanBeSoldOnTradingPost;
         public bool CanBeSoldToVendor { get; set; }
         public bool CanBeSoldOnTradingPost => SellByListingInTradingPostProfitInCopper > 0 || SellToBuyOrderInTradingPostProfitInCopper > 0;
         public int SellByListingInTradingPostProfitInCopper => _sellByListingInTradingPostProfitInCopper;

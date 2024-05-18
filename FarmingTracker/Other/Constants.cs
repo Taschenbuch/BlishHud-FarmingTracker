@@ -12,6 +12,8 @@ namespace FarmingTracker
         public const int BUG_TEXTURE_ASSET_ID = 157084;
         public const int PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS = 5;
         public static ItemRarity[] ALL_ITEM_RARITIES => (ItemRarity[])Enum.GetValues(typeof(ItemRarity));
+        public static SellMethodFilter[] ALL_SELL_METHODS => (SellMethodFilter[])Enum.GetValues(typeof(SellMethodFilter));
+        public static CountFilter[] ALL_COUNTS => (CountFilter[])Enum.GetValues(typeof(CountFilter));
         public static ItemType[] ALL_ITEM_TYPES => (ItemType[])Enum.GetValues(typeof(ItemType));
         public static ItemFlag[] ALL_ITEM_FLAGS => (ItemFlag[])Enum.GetValues(typeof(ItemFlag));
     }
