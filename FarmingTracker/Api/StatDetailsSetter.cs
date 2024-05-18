@@ -63,7 +63,7 @@ namespace FarmingTracker
                 if (currencyDetailsByIdCache.TryGetValue(currencyWithoutDetails.ApiId, out var currencyDetails))
                 {
                     currencyWithoutDetails.Details.Name = currencyDetails.Name;
-                    currencyWithoutDetails.Details.Name = currencyDetails.Description;
+                    currencyWithoutDetails.Details.Description = currencyDetails.Description;
                     currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
                     currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
                 }
