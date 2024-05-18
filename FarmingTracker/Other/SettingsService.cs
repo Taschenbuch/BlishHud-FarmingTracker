@@ -13,7 +13,7 @@ namespace FarmingTracker
             DrfTokenSetting = settings.DefineSetting(
                 "drf token",
                 string.Empty,
-                () => "DRF Token/Key", 
+                () => "DRF Token/Key",
                 () => "Create an account on https://drf.rs/ and link it with your GW2 Account(s).\n" +
                 "Open the drf.rs settings page. Click on 'Regenerate Token'.\n" +
                 "Copy the token. Paste the token with CTRL + V into this input.");
@@ -31,6 +31,23 @@ namespace FarmingTracker
             TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
             FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
             CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
+            
+            // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
+            RemoveUnknownEnumValues(CountFilterSetting);
+            RemoveUnknownEnumValues(SellMethodFilterSetting);
+            RemoveUnknownEnumValues(RarityStatsFilterSetting);
+            RemoveUnknownEnumValues(TypeStatsFilterSetting);
+            RemoveUnknownEnumValues(FlagStatsFilterSetting);
+            RemoveUnknownEnumValues(CurrencyFilterSetting);
+        }
+
+        private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> filterSetting) where T : System.Enum
+        {
+            var filterElements = new List<T>(filterSetting.Value); // otherwise foreach wont work
+
+            foreach (var filterElement in filterElements)
+                if (FilterService.IsUnknownFilterElement<T>((int)(object)filterElement))
+                    filterSetting.Value.Remove(filterElement);
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }

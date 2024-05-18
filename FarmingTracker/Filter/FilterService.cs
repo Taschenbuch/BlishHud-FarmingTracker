@@ -1,5 +1,4 @@
-﻿using Blish_HUD.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,6 +6,11 @@ namespace FarmingTracker
 {
     public class FilterService
     {
+        public static bool IsUnknownFilterElement<T>(int currencyId)
+        {
+            return !Enum.IsDefined(typeof(T), currencyId);
+        }
+
         public static IEnumerable<Stat> FilterCurrencies(IEnumerable<Stat> currencies, Services services)
         {
             currencies = currencies.Where(c => !c.IsCoin);
@@ -49,8 +53,8 @@ namespace FarmingTracker
 
         private static bool IsShownByCurrencyFilter(Stat c, List<CurrencyFilter> currencyFilter)
         {
-            var currencyUnknownToModule = !Enum.IsDefined(typeof(CurrencyFilter), c.ApiId); // e.g. when new currency is released
-            if (currencyUnknownToModule)
+            var isUnknownCurrency = IsUnknownFilterElement<CurrencyFilter>(c.ApiId); // e.g. when new currency is released
+            if (isUnknownCurrency)
                 return true;
 
             if (currencyFilter.Contains((CurrencyFilter)c.ApiId))
