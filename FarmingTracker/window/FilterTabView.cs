@@ -187,7 +187,7 @@ namespace FarmingTracker
             var noneSelected = !selectedFilterElements.Any();
             var allSelected = selectedFilterElements.Count() == allPossibleFilterElements.Count();
             var filterIsInactive = noneSelected || allSelected;
-            filterIcon.Opacity = filterIsInactive ? 0.2f : 0.8f;
+            filterIcon.Opacity = filterIsInactive ? 0.1f : 0.8f;
         }
 
         private static string AddBlanksBetweenUpperCasedWords(string textWithUpperCasedWords)
