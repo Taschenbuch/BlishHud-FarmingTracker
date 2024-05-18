@@ -2,14 +2,17 @@
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
     public class FilterTabView : View
     {
-        public FilterTabView(Services services)
+        public FilterTabView(Texture2D filterTabIconTexture, Services services)
         {
+            _filterTabIconTexture = filterTabIconTexture;
             _services = services;
         }
 
@@ -28,8 +31,10 @@ namespace FarmingTracker
             new CollapsibleHelp(
                 "- Checked = visible.\n" +
                 "- Unchecked = hidden by filter.\n" +
-                "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items are hidden by the filter.\n" +
-                "- Items hidden by filters are still included in the profit calculation.",
+                "- Items hidden by filters are still included in the profit calculation.\n" +
+                "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items will be hidden by the filter.\n" +
+                "- filter icon on filter panel header: TRANSPARENT: filter wont hide stats. OPAQUE: filter will hide stats.\n" +
+                "- expand/collapse panels: for a better overview expand/collapse the filter panels by using the expand/collapse-all-buttons or by clicking on the filter panel headers.",
                 450, 
                 rootFlowPanel);
 
@@ -69,21 +74,29 @@ namespace FarmingTracker
                     filterPanel.Collapse();
             };
 
-            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _filterTabIconTexture, _services, rootFlowPanel));
         }
 
         private static FlowPanel CreateFilterSettingPanel<T>(
-            string panelTitel, 
+            string panelTitel,
             T[] allPossibleFilterElements, 
-            SettingEntry<List<T>> filterSettingEntry, 
+            SettingEntry<List<T>> filterSettingEntry,
+            Texture2D filterTabIconTexture,
             Services services, 
-            FlowPanel rootFlowPanel)
+            Container parent)
         {
+            var filterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
             var filterFlowPanel = new FlowPanel
             {
                 Title = panelTitel,
@@ -95,7 +108,14 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(0, 10),
                 Width = 300,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = filterIconPanel
+            };
+
+            var filterIcon = new Image(filterTabIconTexture) // captureType is not overriden: clicking on the icon will prevent that panel expands/collapses
+            {
+                Location = new Point(230, 3),
+                Opacity = 0.8f,
+                Parent = filterIconPanel,
             };
 
             var buttonFlowPanel = new FlowPanel
@@ -122,14 +142,15 @@ namespace FarmingTracker
             };
 
             var filterCheckboxes = new List<Checkbox>();
+            var selectedFilterElements = filterSettingEntry.Value;
+            UpdateOpacity(filterIcon, selectedFilterElements, allPossibleFilterElements);
+
             foreach (var filterElement in allPossibleFilterElements)
             {
-                var filter = filterSettingEntry.Value;
-
                 var filterCheckbox = new Checkbox()
                 {
                     Text = AddBlanksBetweenUpperCasedWords(filterElement.ToString()),
-                    Checked = filter.Contains(filterElement),
+                    Checked = selectedFilterElements.Contains(filterElement),
                     Parent = filterFlowPanel,
                 };
 
@@ -139,16 +160,17 @@ namespace FarmingTracker
                 {
                     if (filterCheckbox.Checked)
                     {
-                        if (!filter.Contains(filterElement))
-                            filter.Add(filterElement);
+                        if (!selectedFilterElements.Contains(filterElement))
+                            selectedFilterElements.Add(filterElement);
                     }
                     else
                     {
-                        if (filter.Contains(filterElement))
-                            filter.Remove(filterElement);
+                        if (selectedFilterElements.Contains(filterElement))
+                            selectedFilterElements.Remove(filterElement);
                     }
 
-                    filterSettingEntry.Value = filter;
+                    UpdateOpacity(filterIcon, selectedFilterElements, allPossibleFilterElements);
+                    filterSettingEntry.Value = selectedFilterElements;
                     services.UpdateLoop.TriggerUpdateStatPanels();
                 };
             }
@@ -168,6 +190,14 @@ namespace FarmingTracker
             return filterFlowPanel;
         }
 
+        private static void UpdateOpacity<T>(Image filterIcon, List<T> selectedFilterElements, T[] allPossibleFilterElements)
+        {
+            var noneSelected = !selectedFilterElements.Any();
+            var allSelected = selectedFilterElements.Count() == allPossibleFilterElements.Count();
+            var filterIsInactive = noneSelected || allSelected;
+            filterIcon.Opacity = filterIsInactive ? 0.2f : 0.8f;
+        }
+
         private static string AddBlanksBetweenUpperCasedWords(string textWithUpperCasedWords)
         {
             var textWithBlanks = "";
@@ -180,6 +210,7 @@ namespace FarmingTracker
             return textWithBlanks;
         }
 
+        private readonly Texture2D _filterTabIconTexture;
         private readonly Services _services;
     }
 }
