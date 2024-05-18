@@ -16,6 +16,7 @@ namespace FarmingTracker
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
+            services.UpdateLoop.TriggerUiUpdate();
         }
 
         protected override void Unload()
@@ -32,10 +33,10 @@ namespace FarmingTracker
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            if(_services.UpdateLoop.GetAndResetUiHasToBeUpdated())
+            if (_services.UpdateLoop.GetAndResetUiHasToBeUpdated())
             {
                 UiUpdater.UpdateStatsInUi(_statsPanels, _services);
-                return;
+                return; // that is enough work for a single update loop iteration.
             }
 
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
@@ -47,15 +48,16 @@ namespace FarmingTracker
 
                 _hasToResetStats = false;
                 ResetStats();
+                _services.UpdateLoop.TriggerUiUpdate();
                 _elapsedFarmingTimeLabel.RestartTime();
                 _resetButton.Enabled = true;
-                return; // a reset is enough work for a single update loop iteration.
+                return; // that is enough work for a single update loop iteration.
             }
 
             _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
-            if (_services.UpdateLoop.UpdateIntervalEnded())
+            if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
             {
                 _services.UpdateLoop.ResetRunningTime();
                 _services.UpdateLoop.UseFarmingUpdateInterval();
@@ -85,7 +87,6 @@ namespace FarmingTracker
             {
                 _services.Stats.ItemById.Clear();
                 _services.Stats.CurrencyById.Clear();
-                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -107,7 +108,7 @@ namespace FarmingTracker
 
                 _hintLabel.Text = "updating... (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
-                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+                _services.UpdateLoop.TriggerUiUpdate();
                 _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
@@ -305,7 +306,6 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
-            UiUpdater.UpdateStatsInUi(_statsPanels, _services);
             return rootFlowPanel;
         }
 
