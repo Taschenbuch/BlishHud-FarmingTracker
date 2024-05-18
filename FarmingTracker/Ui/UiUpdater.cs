@@ -16,7 +16,6 @@ namespace FarmingTracker
                 .ThenBy(i => i.ApiId);
 
             var sortedCurrencies = currencies
-                .Where(c => !c.IsCoin)
                 .OrderBy(c => c.ApiId)
                 .ToList();
 

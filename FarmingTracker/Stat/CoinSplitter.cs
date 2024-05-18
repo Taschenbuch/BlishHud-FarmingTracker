@@ -52,8 +52,9 @@ namespace FarmingTracker
             };
         }
 
-        private const int GOLD_FAKE_API_ID = -3;
-        private const int SILVER_FAKE_API_ID = -2;
-        private const int COPPER_FAKE_API_ID = -1;
+        // used by enum, do not change value without handling potential issues caused by changing ist
+        public const int GOLD_FAKE_API_ID = -3; 
+        public const int SILVER_FAKE_API_ID = -2;
+        public const int COPPER_FAKE_API_ID = -1;
     }
 }
