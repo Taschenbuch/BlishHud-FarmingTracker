@@ -30,10 +30,10 @@ namespace FarmingTracker
             var noCurrencyChangesDetected = !services.Stats.CurrencyById.Any();
 
             if (statsPanels.FarmedItemsFlowPanel.IsEmpty())
-                ControlFactory.CreateHintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
+                new HintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
 
             if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
-                ControlFactory.CreateHintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
+                new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
