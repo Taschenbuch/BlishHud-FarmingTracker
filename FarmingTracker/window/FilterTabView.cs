@@ -1,11 +1,8 @@
 ﻿using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Blish_HUD.Settings;
-using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using static Blish_HUD.GameIntegration.AudioIntegration;
 
 namespace FarmingTracker
 {
@@ -32,7 +29,8 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
             };
-            
+
+            ControlFactory.CreateHintLabel(rootFlowPanel, "Items that are hidden by filters are still included in the profit calculation.");
             CreateFilterSettingPanel("Rarity", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel);
             CreateFilterSettingPanel("Type", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel);
             CreateFilterSettingPanel("Flag", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel);
