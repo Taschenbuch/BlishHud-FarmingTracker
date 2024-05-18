@@ -32,49 +32,38 @@ namespace FarmingTracker
             if(!string.IsNullOrWhiteSpace(stat.Details.Description))
                 tooltip += $"\n{stat.Details.Description}";
 
-            var canBeSoldToVendor = stat.Profit.SellToVendorInCopper > 0;
-            if (canBeSoldToVendor)
+            if (stat.Profit.CanBeSoldToVendor)
+                tooltip += CreateSellPricesTooltip("Vendor", stat.Profit.SellToVendorProfitInCopper, stat.Count);
+
+            if (stat.Profit.CanBeSoldOnTradingPost)
             {
-                tooltip += "\n\nVendor:";
-
-                var signFaktor = stat.Count < 0 ? -1 : 1;
-                var coinEach = new Coin(signFaktor * stat.Profit.SellToVendorInCopper);
-
-                if (stat.Count == 1)
-                {
-                    tooltip += $"\n{coinEach.CreateCoinText()}";
-                }
-                else
-                {
-                    var coinAll = new Coin(stat.Count * stat.Profit.SellToVendorInCopper);
-                    tooltip += $"\n{coinEach.CreateCoinText()} each";
-                    tooltip += $"\n{coinAll.CreateCoinText()} all";
-                }
-            }
-
-            var canBeSoldOnTradingPost = stat.Profit.SellByListingInTradingPostInCopper > 0;
-            if (canBeSoldOnTradingPost)
-            {
-                tooltip += "\n\nTP Sell:";
-
-                var signFaktor = stat.Count < 0 ? -1 : 1;
-                var coinEach = new Coin(signFaktor * stat.Profit.SellByListingInTradingPostInCopper);
-
-                if (stat.Count == 1)
-                {
-                    tooltip += $"\n{coinEach.CreateCoinText()}";
-                }
-                else
-                {
-                    var coinAll = new Coin(stat.Count * stat.Profit.SellByListingInTradingPostInCopper);
-                    tooltip += $"\n{coinEach.CreateCoinText()} each";
-                    tooltip += $"\n{coinAll.CreateCoinText()} all";
-                }
-                tooltip += "\n(15% TP fee was deducted)";
+                tooltip += CreateSellPricesTooltip("TP sell", stat.Profit.SellByListingInTradingPostProfitInCopper, stat.Count);
+                tooltip += CreateSellPricesTooltip("TP buy", stat.Profit.SellToBuyOrderInTradingPostProfitInCopper, stat.Count);
             }
 
             return tooltip;
         }
 
+        private static string CreateSellPricesTooltip(string tooltipHeader, int singleSellPrice, int count)
+        {
+            var tooltip = $"\n\n{tooltipHeader}:";
+
+            var signFaktor = count < 0 ? -1 : 1;
+            var coinEach = new Coin(signFaktor * singleSellPrice);
+            var coinEachText = coinEach.CreateCoinText();
+
+            if (count == 1)
+            {
+                tooltip += $"\n{coinEachText}";
+            }
+            else
+            {
+                var coinAll = new Coin(count * singleSellPrice);
+                tooltip += $"\n{coinAll.CreateCoinText()} (all)";
+                tooltip += $"\n{coinEachText} (each)";
+            }
+
+            return tooltip;
+        }
     }
 }

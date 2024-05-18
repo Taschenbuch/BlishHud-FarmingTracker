@@ -121,7 +121,7 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice;
+                item.Profit.SetTpSellAndBuyProfit(apiPrice.Sells.UnitPrice, apiPrice.Buys.UnitPrice);
             }
 
             if (apiItems.Any())
@@ -136,8 +136,9 @@ namespace FarmingTracker
                 item.Details.Rarity = apiItem.Rarity;
                 item.Details.Flag = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
-                var canNotBeSoldToVendor = apiItem.Flags.Any(f => f == ItemFlag.NoSell);
-                item.Profit.SellToVendorInCopper = canNotBeSoldToVendor ? 0 : apiItem.VendorValue; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
+                item.Profit.CanBeSoldToVendor = canBeSoldToVendor;
+                item.Profit.SellToVendorProfitInCopper = canBeSoldToVendor ? apiItem.VendorValue : 0; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
 
