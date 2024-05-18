@@ -103,12 +103,12 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 OuterControlPadding = new Vector2(10, 10),
                 ControlPadding = new Vector2(0, 10),
-                Width = 300,
+                Width = 450,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = filterIconPanel
             };
 
-            var filterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(230, 3), filterIconPanel);
+            var filterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), filterIconPanel);
 
             var buttonFlowPanel = new FlowPanel
             {
