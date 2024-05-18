@@ -33,15 +33,51 @@ namespace FarmingTracker
                 450, 
                 rootFlowPanel);
 
-            CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel);
-            CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel);
+            var buttonFlowPanel = new FlowPanel
+            {
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                ControlPadding = new Vector2(5, 0),
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = rootFlowPanel
+            };
+
+            var filterPanels = new List<FlowPanel>();
+            var expandAllButton = new StandardButton
+            {
+                Text = "Expand all",
+                Width = 90,
+                Parent = buttonFlowPanel
+            };
+
+            var collapseAllButton = new StandardButton
+            {
+                Text = "Collapse all",
+                Width = 90,
+                Parent = buttonFlowPanel
+            };
+
+            expandAllButton.Click += (s, e) =>
+            {
+                foreach (var filterPanel in filterPanels)
+                    filterPanel.Expand();
+            };
+
+            collapseAllButton.Click += (s, e) =>
+            {
+                foreach (var filterPanel in filterPanels)
+                    filterPanel.Collapse();
+            };
+
+            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
         }
 
-        private static void CreateFilterSettingPanel<T>(
+        private static FlowPanel CreateFilterSettingPanel<T>(
             string panelTitel, 
             T[] allPossibleFilterElements, 
             SettingEntry<List<T>> filterSettingEntry, 
@@ -128,6 +164,8 @@ namespace FarmingTracker
                 foreach (var filterCheckbox in filterCheckboxes)
                     filterCheckbox.Checked = true;
             };
+
+            return filterFlowPanel;
         }
 
         private static string AddBlanksBetweenUpperCasedWords(string textWithUpperCasedWords)
