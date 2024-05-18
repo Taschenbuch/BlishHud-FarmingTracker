@@ -25,11 +25,13 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            ControlFactory.CreateHintLabel(
-                rootFlowPanel, 
-                "- Unchecked means hidden by filter.\n" +
-                "- A filter, e.g. rarity filter, will not be applied if all its checkboxes\nare unchecked. In this case no items are hidden by the filter.\n" +
-                "- Items hidden by filters are still included in the profit calculation.");
+            new CollapsibleHelp(
+                "- Checked = visible.\n" +
+                "- Unchecked = hidden by filter.\n" +
+                "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items are hidden by the filter.\n" +
+                "- Items hidden by filters are still included in the profit calculation.",
+                450, 
+                rootFlowPanel);
 
             CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel);
             CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel);
