@@ -165,7 +165,7 @@ namespace FarmingTracker
                 addDrfTokenFlowPanel,
                 "1. Click the button below to open the drf.rs settings page.\n" +
                 "2. Click on 'Regenerate Token'.\n" +
-                "3. Copy the 'DRF Token'.\n" +
+                "3. Copy the 'DRF Token' by clicking on the copy icon.\n" +
                 "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
                 "5. Done! Open the first tab again to see the tracked items/currencies :-)");
 
