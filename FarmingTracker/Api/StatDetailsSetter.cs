@@ -134,7 +134,7 @@ namespace FarmingTracker
                 item.Details.Description = apiItem.Description;
                 item.Details.IconAssetId = GetIconAssetId(apiItem.Icon);
                 item.Details.Rarity = apiItem.Rarity;
-                item.Details.Flag = apiItem.Flags;
+                item.Details.Flags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
                 item.Profit.CanBeSoldToVendor = canBeSoldToVendor;

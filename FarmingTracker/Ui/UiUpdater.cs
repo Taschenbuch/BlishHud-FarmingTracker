@@ -8,18 +8,31 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var items = FilterService.FilterItems(services.Stats.ItemById.Values, services);
-            var currencies = FilterService.FilterCurrencies(services.Stats.CurrencyById.Values, services);
+            var currencies = services.Stats.CurrencyById.Values.Where(c => !c.IsCoin).ToList(); // removing coin does not count to filtering by user settings.
+            var items = services.Stats.ItemById.Values.ToList();
+            
+            var currenciesCountBeforeFiltering = currencies.Count();
+            var itemsCountBeforeFiltering = items.Count();
 
-            items = items
-                .OrderBy(i => i.Count >= 0 ? -1 : 1)
-                .ThenBy(i => i.ApiId);
+            currencies = FilterService.FilterCurrencies(currencies, services);
+            items = FilterService.FilterItems(items, services);
 
-            var sortedCurrencies = currencies
+            currencies = currencies
                 .OrderBy(c => c.ApiId)
                 .ToList();
 
-            var currencyControls = CreateStatControls(sortedCurrencies, services);
+            items = items
+                .OrderBy(i => i.Count >= 0 ? -1 : 1)
+                .ThenBy(i => i.ApiId)
+                .ToList();
+            
+            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
+            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
+
+            statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
+            statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
+
+            var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);

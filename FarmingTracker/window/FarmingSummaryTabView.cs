@@ -286,12 +286,28 @@ namespace FarmingTracker
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
+            var currenciesFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
             {
                 Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
                 Width = flowPanelWidth,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = currenciesFilterIconPanel
+            };
+
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
+
+            var itemsFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
             };
@@ -303,8 +319,10 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
+                Parent = itemsFilterIconPanel
             };
+
+            _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
             return rootFlowPanel;
         }

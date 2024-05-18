@@ -182,12 +182,12 @@ namespace FarmingTracker
             return filterFlowPanel;
         }
 
-        private static void UpdateOpacity<T>(Image filterIcon, List<T> selectedFilterElements, T[] allPossibleFilterElements)
+        private static void UpdateOpacity<T>(ClickThroughImage filterIcon, List<T> selectedFilterElements, T[] allPossibleFilterElements)
         {
             var noneSelected = !selectedFilterElements.Any();
             var allSelected = selectedFilterElements.Count() == allPossibleFilterElements.Count();
             var filterIsInactive = noneSelected || allSelected;
-            filterIcon.Opacity = filterIsInactive ? 0.1f : 0.8f;
+            filterIcon.SetOpacity(filterIsInactive);
         }
 
         private static string AddBlanksBetweenUpperCasedWords(string textWithUpperCasedWords)

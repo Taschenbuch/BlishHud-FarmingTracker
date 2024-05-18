@@ -11,7 +11,7 @@ namespace FarmingTracker
         public string Description { get; set; } = string.Empty;
         public ItemRarity Rarity { get; set; } = ItemRarity.Unknown;
         public ItemType Type { get; set; } = ItemType.Unknown;
-        public ApiFlags<ItemFlag> Flag { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
+        public ApiFlags<ItemFlag> Flags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
         public int IconAssetId { get; set; } = Constants.BUG_TEXTURE_ASSET_ID; // prevents that FromAssetId() returns null and crashes new Image()
     }
 }

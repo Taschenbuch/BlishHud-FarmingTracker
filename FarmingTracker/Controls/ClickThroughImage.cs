@@ -1,5 +1,4 @@
-﻿using Blish_HUD.Content;
-using Blish_HUD.Controls;
+﻿using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,11 +10,17 @@ namespace FarmingTracker
         {
             Location = location;
             Parent = parent;
+            SetOpacity(true);
         }
 
         protected override CaptureType CapturesInput()
         {
             return CaptureType.None;
+        }
+
+        public void SetOpacity(bool isTransparent)
+        {
+            Opacity = isTransparent ? 0.1f : 0.8f;
         }
     }
 }
