@@ -1,9 +1,9 @@
 ﻿using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Blish_HUD;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System;
+using Blish_HUD.Graphics.UI;
 
 namespace FarmingTracker
 {
@@ -32,20 +32,62 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            var updateLoop = new UpdateLoop();
             var farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
-            _sessionSummaryTab = new Tab(services.TextureService.SessionSummaryTabIconTexture, () => farmingSummaryTabView, "Session summary");
+
+            IView sessionSummaryViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Session Summary";
+                return farmingSummaryTabView;
+            }
+
             _farmingSummaryTabView = farmingSummaryTabView;
-            
-            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), () => new SettingsTabView(services), "Settings");
+
+            IView timelineViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Timeline View";
+                return new PlaceholderTabView("TIMELINE VIEW");
+            }
+
+            IView filterViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Filter";
+                return new FilterTabView(services);
+            }
+
+            IView sortViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Sort";
+                return new PlaceholderTabView("CUSTOM SORTING");
+            }
+
+            IView searchViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Search";
+                return new PlaceholderTabView("SEARCHING");
+            }
+
+            IView settingViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Settings";
+                return new SettingsTabView(services);
+            }
+
+            IView helpViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = "Help";
+                return new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true);
+            }
+
+            _sessionSummaryTab = new Tab(services.TextureService.SessionSummaryTabIconTexture, sessionSummaryViewFunc, "Session summary");
+            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), settingViewFunc, "Settings");
 
             _farmingTrackerWindow.Tabs.Add(_sessionSummaryTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, () => new PlaceholderTabView("TIMELINE VIEW"), "Timeline view"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, () => new FilterTabView(services), "Filter"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, () => new PlaceholderTabView("CUSTOM SORTING"), "Sort"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, () => new PlaceholderTabView("SEARCHING"), "Search"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, timelineViewFunc, "Timeline view"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, filterViewFunc, "Filter"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, sortViewFunc, "Sort"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, searchViewFunc, "Search"));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, () => new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true), "Help"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, helpViewFunc, "Help"));
         }
 
         public void Dispose()
