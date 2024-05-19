@@ -24,7 +24,14 @@ namespace FarmingTracker
                 () => "show/hide window",
                 () => "Double-click to change the key binding. Will show or hide the farming tracker window.");
 
+            RarityIconBorderIsVisibleSetting = settings.DefineSetting(
+                "rarity icon border is visible",
+                true,
+                () => "rarity colored icon border",
+                () => "Show a border in rarity color around item icons.");
+
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            // filter
             CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
             SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
             RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
@@ -52,6 +59,7 @@ namespace FarmingTracker
 
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
+        public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
         public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; }

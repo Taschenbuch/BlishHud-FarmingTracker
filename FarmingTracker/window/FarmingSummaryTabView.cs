@@ -9,7 +9,7 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class FarmingSummaryTabView : View
+    public class FarmingSummaryTabView : View, IDisposable
     {
         public FarmingSummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
         {
@@ -17,6 +17,12 @@ namespace FarmingTracker
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStatPanels();
+            services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
+        }
+
+        public void Dispose()
+        {
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnRarityIconBorderVisibleSettingChanged;
         }
 
         protected override void Unload()
@@ -325,6 +331,11 @@ namespace FarmingTracker
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
             return rootFlowPanel;
+        }
+
+        private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
+        {
+            _services.UpdateLoop.TriggerUpdateStatPanels();
         }
 
         private bool _isUpdateStatsRunning;

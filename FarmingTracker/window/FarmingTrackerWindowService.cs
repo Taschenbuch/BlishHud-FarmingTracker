@@ -92,6 +92,7 @@ namespace FarmingTracker
 
         public void Dispose()
         {
+            _farmingSummaryTabView?.Dispose();
             _farmingTrackerWindow?.Dispose();
         }
 

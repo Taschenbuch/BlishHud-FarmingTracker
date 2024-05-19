@@ -41,6 +41,7 @@ namespace FarmingTracker
             await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
             CreateAddDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
         }
 
         private void CreateDrfStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)
