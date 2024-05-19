@@ -37,7 +37,7 @@ namespace FarmingTracker
 
             var expandedHeight = label.Height + collapsedHeight + HELP_LABEL_BORDER_SIZE;
 
-            var blackContainer = new LocationContainer()
+            var blackContainer = new Panel()
             {
                 BackgroundColor = Color.Black * 0.5f,
                 Width = expandedWidth - 20,
