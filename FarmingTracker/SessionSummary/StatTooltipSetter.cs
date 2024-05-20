@@ -32,34 +32,34 @@ namespace FarmingTracker
             if(!string.IsNullOrWhiteSpace(stat.Details.Description))
                 tooltip += $"\n{stat.Details.Description}";
 
-            if (stat.Profit.CanBeSoldToVendor)
-                tooltip += CreateSellPricesTooltip("Vendor", stat.Profit.SellToVendorProfitInCopper, stat.Count);
+            var isSingleItem = stat.Count == 1;
 
-            if (stat.Profit.CanBeSoldOnTradingPost)
+            if (stat.ProfitEach.CanBeSoldToVendor)
             {
-                tooltip += CreateSellPricesTooltip("TP sell", stat.Profit.SellByListingInTradingPostProfitInCopper, stat.Count);
-                tooltip += CreateSellPricesTooltip("TP buy", stat.Profit.SellToBuyOrderInTradingPostProfitInCopper, stat.Count);
+                tooltip += CreateProfitTooltipPart("Vendor", isSingleItem, stat.CountSign, stat.ProfitEach.VendorProfitInCopper, stat.ProfitAll.VendorProfitInCopper);
+            }
+
+            if (stat.ProfitEach.CanBeSoldOnTp)
+            {
+                tooltip += CreateProfitTooltipPart("TP sell", isSingleItem, stat.CountSign, stat.ProfitEach.TpSellProfitInCopper, stat.ProfitAll.TpSellProfitInCopper);
+                tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.ProfitEach.TpBuyProfitInCopper, stat.ProfitAll.TpBuyProfitInCopper);
+                tooltip += "\n\n(15% trading post fee is already deducted from TP sell/buy.)";
             }
 
             return tooltip;
         }
 
-        private static string CreateSellPricesTooltip(string tooltipHeader, int singleSellPrice, int count)
+        private static string CreateProfitTooltipPart(string tooltipHeader, bool isSingleItem, int sign, int profitInCopperEach, int profitInCopperAll)
         {
+            var coinEachText = new Coin(sign * profitInCopperEach).CreateCoinText();
+            var coinAllText = new Coin(sign * profitInCopperAll).CreateCoinText();
             var tooltip = $"\n\n{tooltipHeader}:";
 
-            var signFaktor = count < 0 ? -1 : 1;
-            var coinEach = new Coin(signFaktor * singleSellPrice);
-            var coinEachText = coinEach.CreateCoinText();
-
-            if (count == 1)
-            {
+            if (isSingleItem)
                 tooltip += $"\n{coinEachText}";
-            }
             else
             {
-                var coinAll = new Coin(count * singleSellPrice);
-                tooltip += $"\n{coinAll.CreateCoinText()} (all)";
+                tooltip += $"\n{coinAllText} (all)";
                 tooltip += $"\n{coinEachText} (each)";
             }
 

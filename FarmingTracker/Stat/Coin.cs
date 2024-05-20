@@ -6,7 +6,7 @@ namespace FarmingTracker
     {
         public Coin(int coinsInCopper)
         {
-            var signFactor = coinsInCopper < 0 ? -1 : 1;
+            var sign = Math.Sign(coinsInCopper);
             var unsignedValueInCopper = Math.Abs(coinsInCopper);
             var unsignedGold = unsignedValueInCopper / 10000;
             var unsignedSilver = (unsignedValueInCopper - unsignedGold * 10000) / 100;
@@ -15,13 +15,13 @@ namespace FarmingTracker
             UnsignedGold = unsignedGold;
             UnsignedSilver = unsignedSilver;
             UnsignedCopper = unsignedCopper;
-            Gold = signFactor * unsignedGold;
-            Silver = signFactor * unsignedSilver;
-            Copper = signFactor * unsignedCopper;
-            SignFaktor = signFactor;
+            Gold = sign * unsignedGold;
+            Silver = sign * unsignedSilver;
+            Copper = sign * unsignedCopper;
+            Sign = sign;
         }
 
-        public int SignFaktor { get; }
+        public int Sign { get; }
         public int UnsignedGold { get; }
         public int UnsignedSilver { get; }
         public int UnsignedCopper { get; }
@@ -35,7 +35,7 @@ namespace FarmingTracker
 
         public object CreateCoinText()
         {
-            var coinText = SignFaktor == -1 ? "-" : "";
+            var coinText = Sign == -1 ? "-" : "";
 
             if (Gold != 0)
                 coinText += $"{UnsignedGold} g ";

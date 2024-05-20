@@ -121,7 +121,8 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.Profit.SetTpSellAndBuyProfit(apiPrice.Sells.UnitPrice, apiPrice.Buys.UnitPrice);
+                item.ProfitEach.SetTpSellAndBuyProfit(apiPrice.Sells.UnitPrice, apiPrice.Buys.UnitPrice);
+                item.ProfitAll.SetTpSellAndBuyProfit(item.Count * apiPrice.Sells.UnitPrice, item.Count * apiPrice.Buys.UnitPrice);
             }
 
             if (apiItems.Any())
@@ -137,8 +138,10 @@ namespace FarmingTracker
                 item.Details.Flags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
-                item.Profit.CanBeSoldToVendor = canBeSoldToVendor;
-                item.Profit.SellToVendorProfitInCopper = canBeSoldToVendor ? apiItem.VendorValue : 0; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.ProfitEach.CanBeSoldToVendor = canBeSoldToVendor;
+                item.ProfitAll.CanBeSoldToVendor = canBeSoldToVendor;
+                item.ProfitEach.SetVendorProfit(canBeSoldToVendor ? apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.ProfitAll.SetVendorProfit(canBeSoldToVendor ? item.Count * apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
 

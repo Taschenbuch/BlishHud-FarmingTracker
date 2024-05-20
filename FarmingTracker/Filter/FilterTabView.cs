@@ -141,7 +141,7 @@ namespace FarmingTracker
             {
                 var filterCheckbox = new Checkbox()
                 {
-                    Text = Helper.AddBlanksBetweenUpperCasedWords(filterElement.ToString()),
+                    Text = Helper.ConvertEnumValueToTextWithBlanks(filterElement.ToString()),
                     Checked = selectedFilterElements.Contains(filterElement),
                     Parent = filterFlowPanel,
                 };
