@@ -138,7 +138,7 @@ namespace FarmingTracker
             };
 
             var filterCheckboxes = new List<Checkbox>();
-            var selectedFilterElements = filterSettingEntry.Value;
+            var selectedFilterElements = filterSettingEntry.Value.ToList();
             UpdateOpacity(filterIcon, selectedFilterElements, allPossibleFilterElements);
 
             foreach (var filterElement in allPossibleFilterElements)

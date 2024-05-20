@@ -15,7 +15,7 @@ namespace FarmingTracker
 
         public static List<Stat> SortItems(List<Stat> items, Services services)
         {
-            var sortByWithDirectionList = services.SettingService.SortByWithDirectionListSetting.Value;
+            var sortByWithDirectionList = services.SettingService.SortByWithDirectionListSetting.Value.ToList();
             if (!sortByWithDirectionList.Any())
                 return items;
 

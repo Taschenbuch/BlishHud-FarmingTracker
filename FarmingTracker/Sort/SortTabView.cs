@@ -64,8 +64,9 @@ namespace FarmingTracker
             {
                 var sortByWithDirection = SortByWithDirection.Name_Ascending;
                 AddSingleSortPanel(allSortsFlowPanel, sortPanels, sortByWithDirection);
-                _services.SettingService.SortByWithDirectionListSetting.Value.Add(sortByWithDirection);
-                _services.SettingService.SortByWithDirectionListSetting.Value = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                var sortByList = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                sortByList.Add(sortByWithDirection);
+                _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
             };
 
             foreach (var sortByWithDirection in _services.SettingService.SortByWithDirectionListSetting.Value.ToList())
@@ -88,9 +89,10 @@ namespace FarmingTracker
                     return;
                 }
 
-                _services.SettingService.SortByWithDirectionListSetting.Value.RemoveAt(sortPanelIndex);
-                _services.SettingService.SortByWithDirectionListSetting.Value.Insert(sortPanelIndex, singleSortPanel.GetSelectedSortBy());
-                _services.SettingService.SortByWithDirectionListSetting.Value = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                var sortByList = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                sortByList.RemoveAt(sortPanelIndex);
+                sortByList.Insert(sortPanelIndex, singleSortPanel.GetSelectedSortBy());
+                _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
                 _services.UpdateLoop.TriggerUpdateStatPanels();
             };
 
@@ -103,8 +105,9 @@ namespace FarmingTracker
                     return;
                 }
 
-                _services.SettingService.SortByWithDirectionListSetting.Value.RemoveAt(sortPanelIndex);
-                _services.SettingService.SortByWithDirectionListSetting.Value = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                var sortByList = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+                sortByList.RemoveAt(sortPanelIndex);
+                _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
                 
                 singleSortPanel.Parent = null;
                 sortPanels.Remove(singleSortPanel);

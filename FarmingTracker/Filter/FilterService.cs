@@ -14,11 +14,11 @@ namespace FarmingTracker
 
         public static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
         {
-            var countFilter = services.SettingService.CountFilterSetting.Value;
+            var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
                 currencies = currencies.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
 
-            var currencyFilter = services.SettingService.CurrencyFilterSetting.Value;
+            var currencyFilter = services.SettingService.CurrencyFilterSetting.Value.ToList();
             if (currencyFilter.Any()) // prevents that all items are hidden, when no filter is set
                 currencies = currencies.Where(c => IsShownByCurrencyFilter(c, currencyFilter)).ToList();
 
@@ -27,23 +27,23 @@ namespace FarmingTracker
 
         public static List<Stat> FilterItems(List<Stat> items, Services services)
         {
-            var countFilter = services.SettingService.CountFilterSetting.Value;
+            var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
                 items = items.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
 
-            var sellMethodFilter = services.SettingService.SellMethodFilterSetting.Value;
+            var sellMethodFilter = services.SettingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
                 items = items.Where(i => IsShownBySellMethodFilter(i, sellMethodFilter)).ToList();
 
-            var rarityFilter = services.SettingService.RarityStatsFilterSetting.Value;
+            var rarityFilter = services.SettingService.RarityStatsFilterSetting.Value.ToList();
             if (rarityFilter.Any()) // prevents that all items are hidden, when no filter is set
                 items = items.Where(i => rarityFilter.Contains(i.Details.Rarity)).ToList();
 
-            var typeFilter = services.SettingService.TypeStatsFilterSetting.Value;
+            var typeFilter = services.SettingService.TypeStatsFilterSetting.Value.ToList();
             if (typeFilter.Any()) // prevents that all items are hidden, when no filter is set
                 items = items.Where(i => typeFilter.Contains(i.Details.Type)).ToList();
 
-            var flagFilter = services.SettingService.FlagStatsFilterSetting.Value;
+            var flagFilter = services.SettingService.FlagStatsFilterSetting.Value.ToList();
             if (flagFilter.Any()) // prevents that all items are hidden, when no filter is set
                 items = items.Where(i => IsShownByItemFlagFilter(i, flagFilter)).ToList();
 
