@@ -3,6 +3,7 @@ using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -31,6 +32,8 @@ namespace FarmingTracker
                 () => "Show a border in rarity color around item icons.");
 
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            // sort
+            SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
             // filter
             CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
             SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
@@ -38,8 +41,9 @@ namespace FarmingTracker
             TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
             FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
             CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
-            
+
             // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
+            RemoveUnknownEnumValues(SortByWithDirectionListSetting);
             RemoveUnknownEnumValues(CountFilterSetting);
             RemoveUnknownEnumValues(SellMethodFilterSetting);
             RemoveUnknownEnumValues(RarityStatsFilterSetting);
@@ -48,18 +52,19 @@ namespace FarmingTracker
             RemoveUnknownEnumValues(CurrencyFilterSetting);
         }
 
-        private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> filterSetting) where T : System.Enum
+        private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> ListSetting) where T : System.Enum
         {
-            var filterElements = new List<T>(filterSetting.Value); // otherwise foreach wont work
+            var elements = new List<T>(ListSetting.Value); // otherwise foreach wont work
 
-            foreach (var filterElement in filterElements)
-                if (FilterService.IsUnknownFilterElement<T>((int)(object)filterElement))
-                    filterSetting.Value.Remove(filterElement);
+            foreach (var element in elements)
+                if (FilterService.IsUnknownFilterElement<T>((int)(object)element))
+                    ListSetting.Value.Remove(element);
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
+        public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
         public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; }

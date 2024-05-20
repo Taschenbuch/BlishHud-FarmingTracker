@@ -1,0 +1,30 @@
+﻿namespace FarmingTracker
+{
+    public enum SortByWithDirection
+    {
+        Name_Ascending,
+        Name_Descending,
+        Rarity_Ascending,
+        Rarity_Descending,
+        Count_Ascending,
+        Count_Descending,
+        PositiveAndNegativeCount_Ascending,
+        PositiveAndNegativeCount_Descending,
+        ApiId_Ascending,
+        ApiId_Descending,
+        ItemType_Ascending,
+        ItemType_Descending,
+        ProfitAll_Ascending,
+        ProfitAll_Descending,
+        ProfitPerItem_Ascending,
+        ProfitPerItem_Descending,
+        VendorProfitAll_Ascending,
+        VendorProfitAll_Descending,
+        VendorProfitPerItem_Ascending,
+        VendorProfitPerItem_Descending,
+        TradingPostProfitAll_Ascending,
+        TradingPostProfitAll_Descending,
+        TradingPostProfitPerItem_Ascending,
+        TradingPostProfitPerItem_Descending,
+    }
+}

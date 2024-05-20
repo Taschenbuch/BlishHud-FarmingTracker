@@ -56,8 +56,8 @@ namespace FarmingTracker
 
             IView sortViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Sort";
-                return new PlaceholderTabView("CUSTOM SORTING");
+                _farmingTrackerWindow.Subtitle = "Sort (items)";
+                return new SortTabView(services);
             }
 
             IView searchViewFunc()

@@ -10,22 +10,16 @@ namespace FarmingTracker
         {
             var currencies = services.Stats.CurrencyById.Values.Where(c => !c.IsCoin).ToList(); // removing coin does not count to filtering by user settings.
             var items = services.Stats.ItemById.Values.ToList();
-            
+
             var currenciesCountBeforeFiltering = currencies.Count();
             var itemsCountBeforeFiltering = items.Count();
 
             currencies = FilterService.FilterCurrencies(currencies, services);
             items = FilterService.FilterItems(items, services);
 
-            currencies = currencies
-                .OrderBy(c => c.ApiId)
-                .ToList();
+            currencies = SortService.SortCurrencies(currencies);
+            items = SortService.SortItems(items, services);
 
-            items = items
-                .OrderBy(i => i.Count >= 0 ? -1 : 1)
-                .ThenBy(i => i.ApiId)
-                .ToList();
-            
             var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
             var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
 
