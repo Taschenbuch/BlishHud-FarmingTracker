@@ -32,67 +32,67 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            var farmingSummaryTabView = new FarmingSummaryTabView(this, flowPanelWidth, services);
+            var summaryTabView = new SummaryTabView(this, flowPanelWidth, services);
 
-            IView sessionSummaryViewFunc()
+            IView SummaryViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Session Summary";
-                return farmingSummaryTabView;
+                _farmingTrackerWindow.Subtitle = SUMMARY_TAB_TITLE;
+                return summaryTabView;
             }
 
-            _farmingSummaryTabView = farmingSummaryTabView;
+            _summaryTabView = summaryTabView;
 
-            IView timelineViewFunc()
+            IView TimelineViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Timeline View";
-                return new PlaceholderTabView("TIMELINE VIEW");
+                _farmingTrackerWindow.Subtitle = TIMELINE_TAB_TITLE;
+                return new PlaceholderTabView(TIMELINE_TAB_TITLE);
             }
 
-            IView filterViewFunc()
+            IView FilterViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Filter";
+                _farmingTrackerWindow.Subtitle = FILTER_TAB_TITLE;
                 return new FilterTabView(services);
             }
 
-            IView sortViewFunc()
+            IView SortViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Sort (items)";
+                _farmingTrackerWindow.Subtitle = SORT_TAB_TITLE;
                 return new SortTabView(services);
             }
 
-            IView searchViewFunc()
+            IView SearchViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Search";
-                return new PlaceholderTabView("SEARCHING");
+                _farmingTrackerWindow.Subtitle = SEARCH_TAB_TITLE;
+                return new PlaceholderTabView(SEARCH_TAB_TITLE);
             }
 
-            IView settingViewFunc()
+            IView SettingViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Settings";
+                _farmingTrackerWindow.Subtitle = SETTINGS_TAB_TITLE;
                 return new SettingsTabView(services);
             }
 
-            IView helpViewFunc()
+            IView HelpViewFunc()
             {
-                _farmingTrackerWindow.Subtitle = "Help";
+                _farmingTrackerWindow.Subtitle = HELP_TAB_TITLE;
                 return new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true);
             }
 
-            _sessionSummaryTab = new Tab(services.TextureService.SessionSummaryTabIconTexture, sessionSummaryViewFunc, "Session summary");
-            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), settingViewFunc, "Settings");
+            _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
+            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), SettingViewFunc, SETTINGS_TAB_TITLE);
 
-            _farmingTrackerWindow.Tabs.Add(_sessionSummaryTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, timelineViewFunc, "Timeline view"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, filterViewFunc, "Filter"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, sortViewFunc, "Sort"));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, searchViewFunc, "Search"));
+            _farmingTrackerWindow.Tabs.Add(_summaryTab);
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, SearchViewFunc, SEARCH_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, helpViewFunc, "Help"));
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, HelpViewFunc, HELP_TAB_TITLE));
         }
 
         public void Dispose()
         {
-            _farmingSummaryTabView?.Dispose();
+            _summaryTabView?.Dispose();
             _farmingTrackerWindow?.Dispose();
         }
 
@@ -102,25 +102,32 @@ namespace FarmingTracker
             _farmingTrackerWindow.SelectedTab = _settingsTab;
         }
 
-        public void ToggleWindowAndSelectSessionSummaryTab()
+        public void ToggleWindowAndSelectSummaryTab()
         {
             if(_farmingTrackerWindow.Visible)
                 _farmingTrackerWindow.Hide();
             else
             {
-                _farmingTrackerWindow.SelectedTab = _sessionSummaryTab;
+                _farmingTrackerWindow.SelectedTab = _summaryTab;
                 _farmingTrackerWindow.Show();
             }
         }
 
         public void Update(GameTime gameTime)
         {
-            _farmingSummaryTabView?.Update(gameTime);
+            _summaryTabView?.Update(gameTime);
         }
 
         private readonly TabbedWindow2 _farmingTrackerWindow;
         private readonly Tab _settingsTab;
-        private readonly FarmingSummaryTabView _farmingSummaryTabView;
-        private readonly Tab _sessionSummaryTab;
+        private readonly SummaryTabView _summaryTabView;
+        private readonly Tab _summaryTab;
+        private const string SEARCH_TAB_TITLE = "Search";
+        private const string SUMMARY_TAB_TITLE = "Farming Summary";
+        private const string TIMELINE_TAB_TITLE = "Farming Timeline";
+        private const string FILTER_TAB_TITLE = "Filter";
+        private const string SORT_TAB_TITLE = "Sort (items)";
+        private const string SETTINGS_TAB_TITLE = "Settings";
+        private const string HELP_TAB_TITLE = "Help";
     }
 }

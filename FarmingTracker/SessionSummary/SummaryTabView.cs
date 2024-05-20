@@ -9,9 +9,9 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class FarmingSummaryTabView : View, IDisposable
+    public class SummaryTabView : View, IDisposable
     {
-        public FarmingSummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
+        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
         {
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
@@ -142,7 +142,7 @@ namespace FarmingTracker
         {
             drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
                 ? Constants.EMPTY_LABEL
-                : DrfConnectionStatusService.GetFarmingSummaryTabDrfConnectionStatusText(drfConnectionStatus);
+                : DrfConnectionStatusService.GetSummaryTabDrfConnectionStatusText(drfConnectionStatus);
 
             if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)
             {

@@ -47,7 +47,7 @@ namespace FarmingTracker
             }
         }
 
-        public static string GetFarmingSummaryTabDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
+        public static string GetSummaryTabDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
         {
             return drfConnectionStatus switch
             {
