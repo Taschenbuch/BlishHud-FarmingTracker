@@ -35,6 +35,7 @@ namespace FarmingTracker
             new Label
             {
                 Text = stat.Count.ToString(),
+                BasicTooltipText = stat.Tooltip,
                 Font = services.FontService.Fonts[ContentService.FontSize.Size20],
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
