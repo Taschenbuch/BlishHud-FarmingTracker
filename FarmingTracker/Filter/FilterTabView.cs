@@ -141,7 +141,7 @@ namespace FarmingTracker
             {
                 var filterCheckbox = new Checkbox()
                 {
-                    Text = AddBlanksBetweenUpperCasedWords(filterElement.ToString()),
+                    Text = Helper.AddBlanksBetweenUpperCasedWords(filterElement.ToString()),
                     Checked = selectedFilterElements.Contains(filterElement),
                     Parent = filterFlowPanel,
                 };
@@ -188,18 +188,6 @@ namespace FarmingTracker
             var allSelected = selectedFilterElements.Count() == allPossibleFilterElements.Count();
             var filterIsInactive = noneSelected || allSelected;
             filterIcon.SetOpacity(filterIsInactive);
-        }
-
-        private static string AddBlanksBetweenUpperCasedWords(string textWithUpperCasedWords)
-        {
-            var textWithBlanks = "";
-
-            foreach (var character in textWithUpperCasedWords)
-                textWithBlanks += char.IsUpper(character)
-                    ? $" {character}" // blank
-                    : $"{character}"; // no blank
-
-            return textWithBlanks;
         }
 
         private readonly Services _services;
