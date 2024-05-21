@@ -37,10 +37,11 @@ namespace FarmingTracker
                 Text = stat.Count.ToString(),
                 BasicTooltipText = stat.Tooltip,
                 Font = services.FontService.Fonts[ContentService.FontSize.Size20],
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
+                HorizontalAlignment = HorizontalAlignment.Right,
                 StrokeText = true,
-                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN + 3, BACKGROUND_IMAGE_MARGIN + ICON_MARGIN + 1),
+                AutoSizeHeight = true,
+                Width = ICON_SIZE - 5,
+                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN, BACKGROUND_IMAGE_MARGIN + ICON_MARGIN + 1),
                 Parent = this
             };
 
