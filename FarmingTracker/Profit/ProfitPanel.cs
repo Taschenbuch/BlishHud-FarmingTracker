@@ -41,7 +41,7 @@ namespace FarmingTracker
             };
         }
 
-        public void SetProfit(int profitInCopper)
+        public void SetProfit(long profitInCopper)
         {
             var coin = new Coin(profitInCopper);
 

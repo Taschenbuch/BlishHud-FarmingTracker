@@ -7,9 +7,9 @@ namespace FarmingTracker
     public class DrfDrop
     {
         [JsonProperty("items")]
-        public Dictionary<int, int> Items { get; set; } = new Dictionary<int, int>();
+        public Dictionary<int, long> Items { get; set; } = new Dictionary<int, long>();
         [JsonProperty("curr")]
-        public Dictionary<int, int> Currencies { get; set; } = new Dictionary<int, int>();
+        public Dictionary<int, long> Currencies { get; set; } = new Dictionary<int, long>();
         [JsonProperty("mf")]
         public int MagicFind{ get; set; }
         public DateTime TimeStamp { get; set; }

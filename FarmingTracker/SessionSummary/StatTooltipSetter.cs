@@ -49,7 +49,7 @@ namespace FarmingTracker
             return tooltip;
         }
 
-        private static string CreateProfitTooltipPart(string tooltipHeader, bool isSingleItem, int sign, int profitInCopperEach, int profitInCopperAll)
+        private static string CreateProfitTooltipPart(string tooltipHeader, bool isSingleItem, long sign, long profitInCopperEach, long profitInCopperAll)
         {
             var coinEachText = new Coin(sign * profitInCopperEach).CreateCoinText();
             var coinAllText = new Coin(sign * profitInCopperAll).CreateCoinText();

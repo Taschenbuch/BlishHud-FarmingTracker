@@ -4,7 +4,7 @@ namespace FarmingTracker
 {
     public class Coin
     {
-        public Coin(int coinsInCopper)
+        public Coin(long coinsInCopper)
         {
             var sign = Math.Sign(coinsInCopper);
             var unsignedValueInCopper = Math.Abs(coinsInCopper);
@@ -21,13 +21,13 @@ namespace FarmingTracker
             Sign = sign;
         }
 
-        public int Sign { get; }
-        public int UnsignedGold { get; }
-        public int UnsignedSilver { get; }
-        public int UnsignedCopper { get; }
-        public int Gold { get; }
-        public int Silver { get; }
-        public int Copper { get; }
+        public long Sign { get; }
+        public long UnsignedGold { get; }
+        public long UnsignedSilver { get; }
+        public long UnsignedCopper { get; }
+        public long Gold { get; }
+        public long Silver { get; }
+        public long Copper { get; }
         public bool HasToDisplayGold => Gold != 0;
         public bool HasToDisplaySilver => Gold != 0 || Silver != 0;
         public bool HasToDisplayCopper => Gold != 0|| Silver != 0 || Copper != 0;

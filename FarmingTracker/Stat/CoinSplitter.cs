@@ -36,7 +36,7 @@ namespace FarmingTracker
             }
         }
 
-        private static Stat CreateCoinStat(string name, int count, int apiId, int iconAssetId)
+        private static Stat CreateCoinStat(string name, long count, int apiId, int iconAssetId)
         {
             return new Stat
             {

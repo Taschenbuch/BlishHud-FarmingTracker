@@ -6,8 +6,8 @@ namespace FarmingTracker
     public class Stat
     {
         public int ApiId { get; set; }
-        public int Count { get; set; }
-        public int CountSign => Math.Sign(Count);
+        public long Count { get; set; }
+        public long CountSign => Math.Sign(Count);
         public ApiStatDetails Details { get; set; } = new ApiStatDetails();
         public Profit ProfitEach { get; set; } = new Profit();
         public Profit ProfitAll { get; set; } = new Profit();
