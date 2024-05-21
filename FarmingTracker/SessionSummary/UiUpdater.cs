@@ -8,8 +8,9 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var currencies = services.Stats.CurrencyById.Values.Where(c => !c.IsCoin).ToList(); // removing coin does not count to filtering by user settings.
-            var items = services.Stats.ItemById.Values.ToList();
+            var items = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.ItemById.Values.ToList());
+            var currencies = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.CurrencyById.Values.ToList());
+            currencies = currencies.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
 
             var currenciesCountBeforeFiltering = currencies.Count();
             var itemsCountBeforeFiltering = items.Count();
@@ -40,6 +41,16 @@ namespace FarmingTracker
 
             if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
                 new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
+        }
+
+        // normally after an api error, the UI is not updated. So stats that did not get api details yet, do not show up in the UI until the next success api call.
+        // But when the UI is updated due to a user action (changed sort, changed filter, ...), those missing-details-stats would be displayed without name, icon, tooltip.
+        // this method prevents that they are displayed.
+        private static List<Stat> RemoveStatsNotUpdatedYetDueToApiError(List<Stat> stats)
+        {
+            return stats
+                .Where(c => c.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet)
+                .ToList();
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
