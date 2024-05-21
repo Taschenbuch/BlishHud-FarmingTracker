@@ -4,19 +4,25 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class FarmingSummaryTabView : View
+    public class SummaryTabView : View, IDisposable
     {
-        public FarmingSummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
+        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
         {
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
             _timeSinceModuleStartStopwatch.Restart();
+            services.UpdateLoop.TriggerUpdateStatPanels();
+            services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
+        }
+
+        public void Dispose()
+        {
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnRarityIconBorderVisibleSettingChanged;
         }
 
         protected override void Unload()
@@ -31,7 +37,13 @@ namespace FarmingTracker
 
         public void Update(GameTime gameTime)
         {
-            _updateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
+            _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
+
+            if (_services.UpdateLoop.GetAndResetStatPanelsHaveToBeUpdated())
+            {
+                UiUpdater.UpdateStatPanels(_statsPanels, _services);
+                return; // that is enough work for a single update loop iteration.
+            }
 
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
@@ -42,18 +54,19 @@ namespace FarmingTracker
 
                 _hasToResetStats = false;
                 ResetStats();
+                _services.UpdateLoop.TriggerUpdateStatPanels();
                 _elapsedFarmingTimeLabel.RestartTime();
                 _resetButton.Enabled = true;
-                return; // a reset is enough work for a single update loop iteration.
+                return; // that is enough work for a single update loop iteration.
             }
 
             _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
-            if (_updateLoop.UpdateIntervalEnded())
+            if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
             {
-                _updateLoop.ResetRunningTime();
-                _updateLoop.UseFarmingUpdateInterval();
+                _services.UpdateLoop.ResetRunningTime();
+                _services.UpdateLoop.UseFarmingUpdateInterval();
 
                 ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
                 
@@ -80,7 +93,6 @@ namespace FarmingTracker
             {
                 _services.Stats.ItemById.Clear();
                 _services.Stats.CurrencyById.Clear();
-                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -102,7 +114,7 @@ namespace FarmingTracker
 
                 _hintLabel.Text = "updating... (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
-                UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+                _services.UpdateLoop.TriggerUpdateStatPanels();
                 _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
@@ -110,7 +122,7 @@ namespace FarmingTracker
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message);
-                _updateLoop.UseRetryAfterApiFailureUpdateInterval();
+                _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
                 _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
@@ -130,7 +142,7 @@ namespace FarmingTracker
         {
             drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
                 ? Constants.EMPTY_LABEL
-                : DrfConnectionStatusService.GetFarmingSummaryTabDrfConnectionStatusText(drfConnectionStatus);
+                : DrfConnectionStatusService.GetSummaryTabDrfConnectionStatusText(drfConnectionStatus);
 
             if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)
             {
@@ -270,6 +282,9 @@ namespace FarmingTracker
             var profitTooltip = 
                 "Rough profit when selling everything to vendor or on trading post (listing).\n" +
                 "15% trading post fee is already deducted.\n" +
+                "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
+                "'raw gold' changes are also visible in the currency panel below.\n" +
+                "Lost items reduce the profit accordingly.\n" +
                 $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
 
             var font = services.FontService.Fonts[FontSize.Size16];
@@ -277,12 +292,28 @@ namespace FarmingTracker
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
+            var currenciesFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
             {
                 Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
                 Width = flowPanelWidth,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = currenciesFilterIconPanel
+            };
+
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
+
+            var itemsFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
             };
@@ -294,17 +325,22 @@ namespace FarmingTracker
                 CanCollapse = true,
                 Width = flowPanelWidth,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
+                Parent = itemsFilterIconPanel
             };
 
-            UiUpdater.UpdateStatsInUi(_statsPanels, _services);
+            _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
+
             return rootFlowPanel;
+        }
+
+        private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
+        {
+            _services.UpdateLoop.TriggerUpdateStatPanels();
         }
 
         private bool _isUpdateStatsRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
-        private readonly UpdateLoop _updateLoop = new UpdateLoop();
         private ProfitService _profitService;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;

@@ -16,7 +16,7 @@ namespace FarmingTracker
             var text = _onlyShowFeatureText
                 ? _featureText
                 : $"{_featureText} not yet implemented. May come with a future release!";
-            ControlFactory.CreateHintLabel(buildPanel, text);
+            new HintLabel(buildPanel, text);
         }
 
         private readonly string _featureText;

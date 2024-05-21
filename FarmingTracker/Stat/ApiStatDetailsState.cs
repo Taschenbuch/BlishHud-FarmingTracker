@@ -1,6 +1,6 @@
 ﻿namespace FarmingTracker
 {
-    public enum StatDetailsState
+    public enum ApiStatDetailsState
     {
         MissingBecauseApiNotCalledYet,
         MissingBecauseUnknownByApi, // e.g. some items from reknown hearts

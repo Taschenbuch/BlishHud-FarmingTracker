@@ -26,29 +26,27 @@ namespace FarmingTracker
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
 
-        private void SetTotalAndPerHourProfit(int totalProfitInCopper, int profitPerHourInCopper)
+        private void SetTotalAndPerHourProfit(long totalProfitInCopper, long profitPerHourInCopper)
         {
             _totalProfitPanel.SetProfit(totalProfitInCopper);
             _profitPerHourPanel.SetProfit(profitPerHourInCopper);
             _totalProfitInCopper = totalProfitInCopper;
         }
 
-        private static int CalculateTotalProfitInCopper(Stats stats)
+        private static long CalculateTotalProfitInCopper(Stats stats)
         {
             var coinsInCopper = stats.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-            var itemSellProfitsInCopper = stats.ItemById.Values.Sum(s => s.Profit.MaxProfitInCopper * s.Count);
-            var totalProfit = coinsInCopper + itemSellProfitsInCopper;
+            var itemsSellProfitInCopper = stats.ItemById.Values.Sum(s => s.CountSign * s.ProfitAll.MaxProfitInCopper);
+            var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
             Module.Logger.Debug(
-                $"totalProfit {totalProfit} | " +
-                $"coinsInCopper {coinsInCopper} | " +
-                $"itemSellProfitsInCopper {itemSellProfitsInCopper} | " +
-                $"maxProfits {string.Join(" ", stats.ItemById.Values.Select(s => s.Profit.MaxProfitInCopper * s.Count))}");
+                $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
+                $"maxProfitsPerItem {string.Join(" ", stats.ItemById.Values.Select(s => s.CountSign * s.ProfitAll.MaxProfitInCopper))}");
 
             return totalProfit;
         }
 
-        private static int CalculateProfitPerHourInCopper(int totalProfitInCopper, TimeSpan elapsedFarmingTime)
+        private static long CalculateProfitPerHourInCopper(long totalProfitInCopper, TimeSpan elapsedFarmingTime)
         {
             if (totalProfitInCopper == 0)
                 return 0;
@@ -59,10 +57,13 @@ namespace FarmingTracker
 
             var profitPerHourInCopper = totalProfitInCopper / elapsedFarmingTime.TotalHours;
 
-            if (profitPerHourInCopper > int.MaxValue)
-                return int.MaxValue;
+            if (profitPerHourInCopper > long.MaxValue)
+                return long.MaxValue;
 
-            return (int)profitPerHourInCopper;
+            if (profitPerHourInCopper <= long.MinValue)
+                return long.MinValue + 1; // hack: +1 to prevent that Math.Abs() crashes, because (-1 * long.MinValue) is bigger than long.MaxValue.
+
+            return (long)profitPerHourInCopper;
         }
 
 
@@ -82,6 +83,6 @@ namespace FarmingTracker
         private readonly ProfitPanel _profitPerHourPanel;
         private readonly Stopwatch _stopwatch = new Stopwatch();  // do not use elapsedFarmingTime, because it can be resetted and maybe other stuff in the future.
         private TimeSpan _oldTime = TimeSpan.Zero;
-        private int _totalProfitInCopper;
+        private long _totalProfitInCopper;
     }
 }

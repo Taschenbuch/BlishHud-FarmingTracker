@@ -17,7 +17,7 @@ namespace FarmingTracker
             if (hasToInitializeCache)
                 _currencyDetailsByIdCache = await CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            SetCurrencyDetails(stats.CurrencyById, _currencyDetailsByIdCache);
+            SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
             await SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
         }
 
@@ -48,9 +48,9 @@ namespace FarmingTracker
             return currencyDetailsById;
         }
 
-        public static void SetCurrencyDetails(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
+        public static void SetCurrencyDetailsFromCache(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
-            var currenciesWithoutDetails = currencyById.Values.Where(c => c.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var currenciesWithoutDetails = currencyById.Values.Where(c => c.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (!currenciesWithoutDetails.Any())
                 return;
 
@@ -62,15 +62,15 @@ namespace FarmingTracker
             {
                 if (currencyDetailsByIdCache.TryGetValue(currencyWithoutDetails.ApiId, out var currencyDetails))
                 {
-                    currencyWithoutDetails.Name = currencyDetails.Name;
-                    currencyWithoutDetails.Description = currencyDetails.Description;
-                    currencyWithoutDetails.IconAssetId = currencyDetails.IconAssetId;
-                    currencyWithoutDetails.DetailsState = StatDetailsState.SetByApi;
+                    currencyWithoutDetails.Details.Name = currencyDetails.Name;
+                    currencyWithoutDetails.Details.Description = currencyDetails.Description;
+                    currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
+                    currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
                 }
                 else
                 {
                     missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
-                    currencyWithoutDetails.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
+                    currencyWithoutDetails.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
                 }
             }
 
@@ -80,7 +80,7 @@ namespace FarmingTracker
 
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
-            var itemIdsWithoutDetails = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).Select(i => i.ApiId).ToList();
+            var itemIdsWithoutDetails = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).Select(i => i.ApiId).ToList();
             if (!itemIdsWithoutDetails.Any())
                 return;
 
@@ -121,7 +121,8 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.Profit.SellByListingInTradingPostInCopper = apiPrice.Sells.UnitPrice;
+                item.ProfitEach.SetTpSellAndBuyProfit(apiPrice.Sells.UnitPrice, apiPrice.Buys.UnitPrice);
+                item.ProfitAll.SetTpSellAndBuyProfit(item.Count * apiPrice.Sells.UnitPrice, item.Count * apiPrice.Buys.UnitPrice);
             }
 
             if (apiItems.Any())
@@ -130,21 +131,27 @@ namespace FarmingTracker
             foreach (var apiItem in apiItems)
             {
                 var item = itemById[apiItem.Id];
-                item.Name = apiItem.Name;
-                item.Description = apiItem.Description;
-                item.IconAssetId = GetIconAssetId(apiItem.Icon);
-                var canNotBeSoldToVendor = apiItem.Flags.Any(f => f == ItemFlag.NoSell);
-                item.Profit.SellToVendorInCopper = canNotBeSoldToVendor ? 0 : apiItem.VendorValue; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
-                item.DetailsState = StatDetailsState.SetByApi;
+                item.Details.Name = apiItem.Name;
+                item.Details.Description = apiItem.Description;
+                item.Details.IconAssetId = GetIconAssetId(apiItem.Icon);
+                item.Details.Rarity = apiItem.Rarity;
+                item.Details.Flags = apiItem.Flags;
+                item.Details.Type = apiItem.Type;
+                var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
+                item.ProfitEach.CanBeSoldToVendor = canBeSoldToVendor;
+                item.ProfitAll.CanBeSoldToVendor = canBeSoldToVendor;
+                item.ProfitEach.SetVendorProfit(canBeSoldToVendor ? apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.ProfitAll.SetVendorProfit(canBeSoldToVendor ? item.Count * apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.Details.State = ApiStatDetailsState.SetByApi;
             }
 
-            var itemsUnknownByApi = itemById.Values.Where(i => i.DetailsState == StatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
                 Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
 
                 foreach (var itemNotFoundByApi in itemsUnknownByApi)
-                    itemNotFoundByApi.DetailsState = StatDetailsState.MissingBecauseUnknownByApi;
+                    itemNotFoundByApi.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
             }
         }
 

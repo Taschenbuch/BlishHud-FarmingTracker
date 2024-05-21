@@ -35,7 +35,8 @@ namespace FarmingTracker
             };
         }
 
-        public void SetValue(int unsignedCoinValue, bool isZeroValueVisible = false)
+        // coin parameter is gold OR silver OR copper.
+        public void SetValue(long unsignedCoinValue, bool isZeroValueVisible = false)
         {
             Parent = null;
 
@@ -54,6 +55,6 @@ namespace FarmingTracker
         private readonly Label _coinLabel;
         private readonly Image _coinImage;
         private readonly Container _parent;
-        private const int MAX_COIN_DISPLAY_VALUE = 1_000_000;
+        private const long MAX_COIN_DISPLAY_VALUE = 1_000_000;
     }
 }

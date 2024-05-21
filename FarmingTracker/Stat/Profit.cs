@@ -4,33 +4,34 @@ namespace FarmingTracker
 {
     public class Profit
     {
-        public int MaxProfitInCopper { get; set; }
+        public long MaxProfitInCopper { get; private set; }
+        public long MaxTpProfitInCopper { get; private set; }
+        public long TpSellProfitInCopper { get; private set; } // sell by listing a sell order
+        public long TpBuyProfitInCopper { get; private set; } // sell by instant sell to buy order
+        public long VendorProfitInCopper { get; private set; } // sell to npc vendor
+        public bool CanNotBeSold => !CanBeSoldToVendor && !CanBeSoldOnTp;
+        public bool CanBeSoldToVendor { get; set; }
+        public bool CanBeSoldOnTp => TpSellProfitInCopper > 0 || TpBuyProfitInCopper > 0;
 
-        public int SellToVendorInCopper
+        public void SetVendorProfit(long vendorProfitInCopper)
         {
-            get => _sellToVendorInCopper;
-            set
-            {
-                _sellToVendorInCopper = value;
-                SetMaxProfit();
-            }
-        }
-        public int SellByListingInTradingPostInCopper // includes listing and exchange fee (15%)
-        {
-            get => _sellByListingInTradingPostInCopper;
-            set
-            {
-                _sellByListingInTradingPostInCopper = value * 85 / 100; // 85/100 is -15% tp fee with integer rounding
-                SetMaxProfit();
-            }
+            VendorProfitInCopper = Math.Abs(vendorProfitInCopper);
+            SetMaxProfit();
         }
 
-        public void SetMaxProfit()
+        public void SetTpSellAndBuyProfit(long tpSellPriceInCopper, long tpBuyPriceInCopper)
         {
-            MaxProfitInCopper = Math.Max(_sellToVendorInCopper, _sellByListingInTradingPostInCopper);
+            // 85/100 is -15% tp fee with integer rounding
+            TpSellProfitInCopper = Math.Abs(tpSellPriceInCopper) * 85 / 100;
+            TpBuyProfitInCopper = Math.Abs(tpBuyPriceInCopper) * 85 / 100;
+            SetMaxProfit();
         }
 
-        private int _sellByListingInTradingPostInCopper;
-        private int _sellToVendorInCopper;
+        private void SetMaxProfit()
+        {
+            var maxTpProfitInCopper = Math.Max(TpSellProfitInCopper, TpBuyProfitInCopper);  // because their could be only buy orders and no sell orders or the other way around.
+            MaxTpProfitInCopper = maxTpProfitInCopper;
+            MaxProfitInCopper = Math.Max(VendorProfitInCopper, maxTpProfitInCopper);
+        }
     }
 }

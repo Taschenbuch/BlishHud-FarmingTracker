@@ -40,14 +40,14 @@ namespace FarmingTracker
                 case DrfConnectionStatus.AuthenticationFailed:
                     return $"Authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(";
                 case DrfConnectionStatus.ModuleError:
-                    return $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord: https://discord.com/invite/FYKN3qh";
+                    return $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord:\nhttps://discord.com/invite/FYKN3qh";
                 default:
                     Module.Logger.Error($"Fallback: Unknown Status. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
                     return $"Unknown Status.{SMILEY_VERTICAL_SPACE}:-(";
             }
         }
 
-        public static string GetFarmingSummaryTabDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
+        public static string GetSummaryTabDrfConnectionStatusText(DrfConnectionStatus drfConnectionStatus)
         {
             return drfConnectionStatus switch
             {
@@ -55,7 +55,7 @@ namespace FarmingTracker
                 DrfConnectionStatus.Connecting => $"DRF connecting...",
                 DrfConnectionStatus.TryReconnect => $"DRF connect failed. Next reconnect try in a few seconds{SMILEY_VERTICAL_SPACE}:-(",
                 DrfConnectionStatus.AuthenticationFailed => $"DRF authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(",
-                DrfConnectionStatus.ModuleError => $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord https://discord.com/invite/FYKN3qh",
+                DrfConnectionStatus.ModuleError => $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord:\nhttps://discord.com/invite/FYKN3qh",
                 _ => "",
             }; ;
         }

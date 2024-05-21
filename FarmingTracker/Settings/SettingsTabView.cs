@@ -41,6 +41,7 @@ namespace FarmingTracker
             await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
             CreateAddDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
         }
 
         private void CreateDrfStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)
@@ -140,15 +141,15 @@ namespace FarmingTracker
             };
             
             var buttonTooltip = "Open DRF website in your default web browser.";
-            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "\nSetup DRF DLL and DRF account:", font);
-            ControlFactory.CreateHintLabel(
+            new HintLabel(addDrfTokenFlowPanel, "\nSetup DRF DLL and DRF account:", font);
+            new HintLabel(
                 addDrfTokenFlowPanel,
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
                 "2. Create a drf account on the website and link it with your GW2 Account(s).");
 
             CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Show drf.dll setup instructions", buttonTooltip, addDrfTokenFlowPanel);
-            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Test DRF:", font);
-            ControlFactory.CreateHintLabel(
+            new HintLabel(addDrfTokenFlowPanel, "Test DRF:", font);
+            new HintLabel(
                 addDrfTokenFlowPanel,
                 "1. Click the button below to open the DRF web live tracker.\n" +
                 "2. Use this web live tracker to check if the tracking is working.\n" +
@@ -157,15 +158,15 @@ namespace FarmingTracker
 
             CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, addDrfTokenFlowPanel);
             
-            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Does NOT work? :-( DRF Discord can help:", font);
+            new HintLabel(addDrfTokenFlowPanel, "Does NOT work? :-( DRF Discord can help:", font);
             CreateButtonToOpenUrlInDefaultBrowser("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", addDrfTokenFlowPanel);
             
-            ControlFactory.CreateHintLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
-            ControlFactory.CreateHintLabel(
+            new HintLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
+            new HintLabel(
                 addDrfTokenFlowPanel,
                 "1. Click the button below to open the drf.rs settings page.\n" +
                 "2. Click on 'Regenerate Token'.\n" +
-                "3. Copy the 'DRF Token'.\n" +
+                "3. Copy the 'DRF Token' by clicking on the copy icon.\n" +
                 "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
                 "5. Done! Open the first tab again to see the tracked items/currencies :-)");
 

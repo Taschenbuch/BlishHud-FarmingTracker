@@ -17,7 +17,7 @@ namespace FarmingTracker
             UpdateStatById(currencyIdAndCounts, oldCurrencyById);
         }
 
-        private static void UpdateStatById(IEnumerable<KeyValuePair<int, int>> itemIdAndCounts, Dictionary<int, Stat> oldItemById)
+        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> itemIdAndCounts, Dictionary<int, Stat> oldItemById)
         {
             foreach (var itemIdAndCount in itemIdAndCounts)
             {

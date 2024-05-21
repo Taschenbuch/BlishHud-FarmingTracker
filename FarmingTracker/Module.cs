@@ -15,10 +15,10 @@ namespace FarmingTracker
     {
         public static readonly Logger Logger = Logger.GetLogger<Module>();
 
-        internal SettingsManager SettingsManager => this.ModuleParameters.SettingsManager;
-        internal ContentsManager ContentsManager => this.ModuleParameters.ContentsManager;
-        internal DirectoriesManager DirectoriesManager => this.ModuleParameters.DirectoriesManager;
-        internal Gw2ApiManager Gw2ApiManager => this.ModuleParameters.Gw2ApiManager;
+        internal SettingsManager SettingsManager => ModuleParameters.SettingsManager;
+        internal ContentsManager ContentsManager => ModuleParameters.ContentsManager;
+        internal DirectoriesManager DirectoriesManager => ModuleParameters.DirectoriesManager;
+        internal Gw2ApiManager Gw2ApiManager => ModuleParameters.Gw2ApiManager;
 
         [ImportingConstructor]
         public Module([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(moduleParameters)
@@ -38,7 +38,7 @@ namespace FarmingTracker
         protected override async Task LoadAsync()
         {
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
-            _trackerCornerIcon = new TrackerCornerIcon(ContentsManager, CornerIconClickEventHandler);
+            _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
 
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated; ;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
@@ -58,8 +58,8 @@ namespace FarmingTracker
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated; ;
         }
 
-        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSessionSummaryTab();
-        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSessionSummaryTab();
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
 
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindowService _farmingTrackerWindowService;

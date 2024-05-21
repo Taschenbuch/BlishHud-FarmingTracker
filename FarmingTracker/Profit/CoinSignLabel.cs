@@ -15,9 +15,9 @@ namespace FarmingTracker
             Parent = parent;
         }
 
-        internal void SetSign(int signFaktor)
+        internal void SetSign(long sign)
         {
-            Text = signFaktor == -1
+            Text = sign == -1
                 ? "-" 
                 : Constants.EMPTY_LABEL;
         }
