@@ -17,7 +17,7 @@ namespace FarmingTracker
             if (hasToInitializeCache)
                 _currencyDetailsByIdCache = await CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            SetCurrencyDetails(stats.CurrencyById, _currencyDetailsByIdCache);
+            SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
             await SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
         }
 
@@ -48,7 +48,7 @@ namespace FarmingTracker
             return currencyDetailsById;
         }
 
-        public static void SetCurrencyDetails(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
+        public static void SetCurrencyDetailsFromCache(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
             var currenciesWithoutDetails = currencyById.Values.Where(c => c.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (!currenciesWithoutDetails.Any())
