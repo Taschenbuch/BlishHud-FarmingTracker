@@ -1,5 +1,4 @@
 ﻿using Blish_HUD;
-using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
@@ -14,7 +13,7 @@ namespace FarmingTracker
             Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
 
             // inventory slot background
-            new Image(AsyncTexture2D.FromAssetId(1318622))
+            new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(1318622))
             {
                 BasicTooltipText = stat.Tooltip,
                 Size = new Point(BACKGROUND_SIZE),
@@ -23,7 +22,7 @@ namespace FarmingTracker
             };
 
             // stat icon
-            new Image(AsyncTexture2D.FromAssetId(stat.Details.IconAssetId))
+            new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId))
             {
                 BasicTooltipText = stat.Tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
@@ -32,6 +31,7 @@ namespace FarmingTracker
                 Parent = this
             };
 
+            // stat count
             new Label
             {
                 Text = stat.Count.ToString(),

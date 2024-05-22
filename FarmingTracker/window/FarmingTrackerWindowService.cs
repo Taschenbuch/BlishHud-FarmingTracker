@@ -20,7 +20,7 @@ namespace FarmingTracker
             var textureService = services.TextureService;
 
             _farmingTrackerWindow = new TabbedWindow2(
-                AsyncTexture2D.FromAssetId(155997),
+                services.TextureService.WindowBackgroundTexture,
                 new Rectangle(20, 26, windowWidth, windowHeight),
                 new Rectangle(80, 20, contentWidth, contentHeight))
             {
@@ -79,7 +79,7 @@ namespace FarmingTracker
             }
 
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
-            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), SettingViewFunc, SETTINGS_TAB_TITLE);
+            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, SettingViewFunc, SETTINGS_TAB_TITLE);
 
             _farmingTrackerWindow.Tabs.Add(_summaryTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));

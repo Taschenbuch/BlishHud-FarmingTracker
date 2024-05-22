@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class CoinPanel : FlowPanel
     {
-        public CoinPanel(int coinIconAssetId, Color textColor, string tooltip, BitmapFont font, Container parent)
+        public CoinPanel(AsyncTexture2D coinTexture, Color textColor, string tooltip, BitmapFont font, Container parent)
         {
             _parent = parent;
 
@@ -27,7 +27,7 @@ namespace FarmingTracker
                 Parent = this,
             };
 
-            _coinImage = new Image(AsyncTexture2D.FromAssetId(coinIconAssetId))
+            _coinImage = new Image(coinTexture)
             {
                 Size = new Point(_coinLabel.Height * 11 / 10),
                 BasicTooltipText = tooltip,

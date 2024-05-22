@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class ProfitPanel : FlowPanel
     {
-        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, Container parent)
+        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, Services services, Container parent)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             ControlPadding = new Vector2(5, 0);
@@ -26,9 +26,9 @@ namespace FarmingTracker
             };
 
             _signLabel = new CoinSignLabel(tooltip, font, _rootPanel);
-            _goldPanel = new CoinPanel(Constants.GOLD_ICON_ASSET_ID, Color.Gold, tooltip, font, _rootPanel);
-            _silverPanel = new CoinPanel(Constants.SILVER_ICON_ASSET_ID, Color.LightGray, tooltip, font, _rootPanel);
-            _copperPanel = new CoinPanel(Constants.COPPER_ICON_ASSET_ID, Color.SandyBrown, tooltip, font, _rootPanel);
+            _goldPanel = new CoinPanel(services.TextureService.GoldCoinTexture, Color.Gold, tooltip, font, _rootPanel);
+            _silverPanel = new CoinPanel(services.TextureService.SilverCoinTexture, Color.LightGray, tooltip, font, _rootPanel);
+            _copperPanel = new CoinPanel(services.TextureService.CopperCoinTexture, Color.SandyBrown, tooltip, font, _rootPanel);
 
             new Label
             {
