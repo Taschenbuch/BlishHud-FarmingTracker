@@ -13,9 +13,11 @@ namespace FarmingTracker
             Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
 
             // inventory slot background
+            var tooltip = StatTooltipSetter.CreateTooltip(stat);
+
             new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(1318622))
             {
-                BasicTooltipText = stat.Tooltip,
+                BasicTooltipText = tooltip,
                 Size = new Point(BACKGROUND_SIZE),
                 Location = new Point(BACKGROUND_IMAGE_MARGIN),
                 Parent = this,
@@ -24,7 +26,7 @@ namespace FarmingTracker
             // stat icon
             new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId))
             {
-                BasicTooltipText = stat.Tooltip,
+                BasicTooltipText = tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
                 Size = new Point(ICON_SIZE),
                 Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN),
@@ -35,7 +37,7 @@ namespace FarmingTracker
             new Label
             {
                 Text = stat.Count.ToString(),
-                BasicTooltipText = stat.Tooltip,
+                BasicTooltipText = tooltip,
                 Font = services.FontService.Fonts[ContentService.FontSize.Size20],
                 HorizontalAlignment = HorizontalAlignment.Right,
                 StrokeText = true,
@@ -47,16 +49,16 @@ namespace FarmingTracker
 
             var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
-                AddRarityBorder(stat);
+                AddRarityBorder(stat, tooltip);
         }
 
-        private void AddRarityBorder(Stat stat)
+        private void AddRarityBorder(Stat stat, string tooltip)
         {
             var borderColor = DetermineBorderColor(stat.Details.Rarity);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_RIGHT_OR_BOTTOM_LOCATION, BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION, BORDER_RIGHT_OR_BOTTOM_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, stat.Tooltip, this);
+            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, tooltip, this);
+            new BorderContainer(new Point(BORDER_RIGHT_OR_BOTTOM_LOCATION, BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, tooltip, this);
+            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, tooltip, this);
+            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION, BORDER_RIGHT_OR_BOTTOM_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, tooltip, this);
         }
 
         private static Color DetermineBorderColor(Gw2SharpType.ItemRarity rarity)

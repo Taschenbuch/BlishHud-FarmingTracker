@@ -42,12 +42,11 @@ namespace FarmingTracker
             {
                 ApiId = apiId,
                 Count = count,
-                Tooltip = "Changes in 'raw gold'.\nIn other words coins spent or gained.",
                 Details =
                     {
                         Name = name,
                         IconAssetId = iconAssetId,
-                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it.
+                        State = ApiStatDetailsState.CustomCoinStat // prevents that module tries to get api details for it.
                     },
             };
         }

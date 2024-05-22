@@ -204,9 +204,6 @@ namespace FarmingTracker
 
             await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
 
-            StatTooltipSetter.SetTooltip(_services.Stats.CurrencyById);
-            StatTooltipSetter.SetTooltip(_services.Stats.ItemById);
-
             CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
         }
 
