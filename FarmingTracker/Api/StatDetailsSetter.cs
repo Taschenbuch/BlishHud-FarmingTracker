@@ -65,6 +65,7 @@ namespace FarmingTracker
                     currencyWithoutDetails.Details.Name = currencyDetails.Name;
                     currencyWithoutDetails.Details.Description = currencyDetails.Description;
                     currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
+                    currencyWithoutDetails.Details.WikiSearchTerm = currencyDetails.Name;
                     currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
                 }
                 else
@@ -137,6 +138,7 @@ namespace FarmingTracker
                 item.Details.Rarity = apiItem.Rarity;
                 item.Details.Flags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
+                item.Details.WikiSearchTerm = apiItem.ChatLink;
                 var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
                 item.ProfitEach.CanBeSoldToVendor = canBeSoldToVendor;
                 item.ProfitAll.CanBeSoldToVendor = canBeSoldToVendor;

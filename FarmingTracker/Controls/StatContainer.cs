@@ -1,7 +1,10 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
+using Blish_HUD.Input;
 using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
+using System;
+using System.Diagnostics;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
@@ -10,6 +13,7 @@ namespace FarmingTracker
     {
         public StatContainer(Stat stat, Services services)
         {
+            _stat = stat;
             Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
 
             // inventory slot background
@@ -77,6 +81,45 @@ namespace FarmingTracker
             };
         }
 
+        protected override void OnRightMouseButtonPressed(MouseEventArgs e)
+        {
+            if(_stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
+                OpenWikiIdQueryInDefaultBrowser(_stat.ApiId);
+
+            if(_stat.Details.HasWikiSearchTerm)
+                OpenWikiSearchInDefaultBrowser(_stat.Details.WikiSearchTerm);
+
+            base.OnRightMouseButtonPressed(e);
+        }
+
+        private static void OpenWikiSearchInDefaultBrowser(string wikiSearchTerm)
+        {
+            var url = $"https://wiki.guildwars2.com/index.php?&search={Uri.EscapeDataString(wikiSearchTerm)}";
+            OpenUrlInDefaultBrowser(url);
+        }
+
+        private static void OpenWikiIdQueryInDefaultBrowser(int apiId)
+        {
+            var url = $"https://wiki.guildwars2.com/wiki/Special:RunQuery/Search_by_id?title=Special%3ARunQuery%2FSearch_by_id&pfRunQueryFormName=Search+by+id&Search+by+id%5Bid%5D={apiId}&Search+by+id%5Bcontext%5D=&wpRunQuery=&pf_free_text=";
+            OpenUrlInDefaultBrowser(url);
+        }
+
+        private static void OpenUrlInDefaultBrowser(string url)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception e)
+            {
+                Module.Logger.Error(e, "Failed to open url in default browser.");
+            }
+        }
+
         // icon
         private const int ICON_SIZE = 60;
         private const int ICON_MARGIN = 1;
@@ -88,5 +131,6 @@ namespace FarmingTracker
         private const int BORDER_LENGTH = BACKGROUND_SIZE;
         private const int BORDER_LEFT_OR_TOP_LOCATION = BACKGROUND_IMAGE_MARGIN;
         private const int BORDER_RIGHT_OR_BOTTOM_LOCATION = BORDER_LEFT_OR_TOP_LOCATION + BORDER_LENGTH - BORDER_THICKNESS;
+        private readonly Stat _stat;
     }
 }

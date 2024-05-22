@@ -19,8 +19,7 @@
                     $"Unknown item/currency (ID: {stat.ApiId})\n" +
                     $"GW2 API has no information about it.\n" +
                     $"This issue typically occurs for items related to renown hearts.\n" +
-                    $"You can look it up with the wiki if you want:\n" +
-                    $"https://wiki.guildwars2.com/wiki/Special:RunQuery/Search_by_id";
+                    $"Right click to search its ID in the wiki in your default browser.";
             
             return CreateRegularTooltip(stat);
         }
@@ -45,6 +44,8 @@
                 tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.ProfitEach.TpBuyProfitInCopper, stat.ProfitAll.TpBuyProfitInCopper);
                 tooltip += "\n\n(15% trading post fee is already deducted from TP sell/buy.)";
             }
+
+            tooltip += "\n\nRight click to open its wiki page in your default browser.";
 
             return tooltip;
         }

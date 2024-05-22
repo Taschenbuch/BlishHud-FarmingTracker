@@ -40,8 +40,12 @@ const messages = [
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123456789012345},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // max coin profit
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":10000000000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
-  // api miss item 95195
-  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"95195":3},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // items + currencies available in api
+  '{"kind":"data","payload":{"character":"3","drop":{"items":{"19925":12},"curr":{"64":8},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // api miss item 78599 (lvl 80 boost)
+  '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":3},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // api miss currency 80
+  '{"kind":"data","payload":{"character":"3","drop":{"items":{},"curr":{"80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // // api miss item 95195, currency 17
   // '{"kind":"data","payload":{"character":"4","drop":{"items":{"95195":5},"curr":{"17":1},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // // api miss currency 17
