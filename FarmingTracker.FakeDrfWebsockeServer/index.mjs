@@ -35,8 +35,11 @@ async function sendDrop(webSocket) {
 
 const messages = [
   // count: small/large, positive/negative
-  '{"kind":"data","payload":{"character":"1","drop":{"items":{"12538":1,"12537":-1,"12255":123, "12536":-123, "12248":45678, "12243":-45678},"curr":{},"mf":312,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
-  // '{"kind":"data","payload":{"character":"2","drop":{"items":{"68063":1},"curr":{"1":2},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"1","drop":{"items":{"12538":1,"12537":-1,"12255":123, "12536":-123, "12248":45678, "12243":-45678},"curr":{},"mf":312,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // above max coin profit
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123456789012345},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // max coin profit
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":10000000000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // api miss item 95195
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"95195":3},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // // api miss item 95195, currency 17
