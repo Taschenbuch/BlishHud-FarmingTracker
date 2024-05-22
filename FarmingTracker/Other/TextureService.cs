@@ -44,6 +44,9 @@ namespace FarmingTracker
 
         public AsyncTexture2D GetTextureFromAssetCacheOrFallback(int assetId)
         {
+            if (assetId == 0) // happens regularily for stats unknown by gw2 api. Prevents that log is spammed with log messages from blish core AsyncTexture2D.TryFromAssetId(). 
+                return FallbackTexture;
+
             try
             {
                 if (AsyncTexture2D.TryFromAssetId(assetId, out AsyncTexture2D texture))
