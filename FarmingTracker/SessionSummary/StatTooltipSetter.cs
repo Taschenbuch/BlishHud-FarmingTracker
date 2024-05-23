@@ -4,24 +4,33 @@
     {
         public static string CreateTooltip(Stat stat)
         {
-            if (stat.Details.State == ApiStatDetailsState.CustomCoinStat)
-                return "Changes in 'raw gold'.\nIn other words coins spent or gained.";
-
-            if (stat.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
+            switch (stat.Details.State)
             {
-                var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
-                Module.Logger.Error(errorMessage);
-                return errorMessage;
+                case ApiStatDetailsState.SetByApi:
+                    return CreateRegularTooltip(stat);
+                case ApiStatDetailsState.GoldCoinCustomStat:
+                case ApiStatDetailsState.SilveCoinCustomStat:
+                case ApiStatDetailsState.CopperCoinCustomStat:
+                    return "Changes in 'raw gold'.\nIn other words coins spent or gained.";
+                case ApiStatDetailsState.MissingBecauseUnknownByApi:
+                    return
+                        $"Unknown item/currency (ID: {stat.ApiId})\n" +
+                        $"GW2 API has no information about it.\n" +
+                        $"This issue typically occurs for items related to renown hearts.\n" +
+                        $"Right click to search its ID in the wiki in your default browser.";
+                case ApiStatDetailsState.MissingBecauseApiNotCalledYet:
+                {
+                    var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                    Module.Logger.Error(errorMessage);
+                    return errorMessage;
+                }
+                default:
+                {
+                    var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                    Module.Logger.Error(errorMessage);
+                    return errorMessage;
+                }
             }
-
-            if (stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
-                return
-                    $"Unknown item/currency (ID: {stat.ApiId})\n" +
-                    $"GW2 API has no information about it.\n" +
-                    $"This issue typically occurs for items related to renown hearts.\n" +
-                    $"Right click to search its ID in the wiki in your default browser.";
-            
-            return CreateRegularTooltip(stat);
         }
 
         private static string CreateRegularTooltip(Stat stat)

@@ -19,35 +19,34 @@ namespace FarmingTracker
 
             if(coin.HasToDisplayGold)
             {
-                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, TextureService.GOLD_ICON_ASSET_ID);
+                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat);
                 currencyById[goldStat.ApiId] = goldStat;
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, TextureService.SILVER_ICON_ASSET_ID);
+                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat);
                 currencyById[silverStat.ApiId] = silverStat;
             }
             
             if(coin.HasToDisplayCopper)
             {
-                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, TextureService.COPPER_ICON_ASSET_ID);
+                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat);
                 currencyById[copperStat.ApiId] = copperStat;
             }
         }
 
-        private static Stat CreateCoinStat(string name, long count, int apiId, int iconAssetId)
+        private static Stat CreateCoinStat(string name, long count, int apiId, ApiStatDetailsState apiStatDetailsState)
         {
             return new Stat
             {
                 ApiId = apiId,
                 Count = count,
                 Details =
-                    {
-                        Name = name,
-                        IconAssetId = iconAssetId,
-                        State = ApiStatDetailsState.CustomCoinStat // prevents that module tries to get api details for it.
-                    },
+                {
+                    Name = name,
+                    State = apiStatDetailsState // prevents that module tries to get api details for it.
+                },
             };
         }
 

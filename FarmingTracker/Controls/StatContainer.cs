@@ -1,4 +1,5 @@
 ﻿using Blish_HUD;
+using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Blish_HUD.Input;
 using FarmingTracker.Controls;
@@ -28,7 +29,7 @@ namespace FarmingTracker
             };
 
             // stat icon
-            new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId))
+            new Image(GetStatIconTexture(stat, services))
             {
                 BasicTooltipText = tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
@@ -54,6 +55,17 @@ namespace FarmingTracker
             var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
                 AddRarityBorder(stat, tooltip);
+        }
+
+        private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
+        {
+            return stat.Details.State switch
+            {
+                ApiStatDetailsState.GoldCoinCustomStat => services.TextureService.GoldCoinTexture,
+                ApiStatDetailsState.SilveCoinCustomStat => services.TextureService.SilverCoinTexture,
+                ApiStatDetailsState.CopperCoinCustomStat => services.TextureService.CopperCoinTexture,
+                _ => services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId),
+            };
         }
 
         private void AddRarityBorder(Stat stat, string tooltip)
