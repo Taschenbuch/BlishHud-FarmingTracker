@@ -98,7 +98,7 @@ namespace FarmingTracker
             var filterFlowPanel = new FlowPanel
             {
                 Title = panelTitel,
-                ShowBorder = true,
+                ShowBorder = true, // hack: adds some padding at the bottom. otherwise last checkbox touches flowpanel bottom border.
                 CanCollapse = true,
                 BackgroundColor = Color.Black * 0.5f,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
