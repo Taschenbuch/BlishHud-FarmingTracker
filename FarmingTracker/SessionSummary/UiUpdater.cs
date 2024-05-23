@@ -13,9 +13,7 @@ namespace FarmingTracker
             currencies = currencies.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
 
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
-
-            currencies = SortService.SortCurrencies(currencies);
-            items = SortService.SortItems(items, services);
+            (items, currencies) = SortService.SortStats(items, currencies, services);
 
             var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);

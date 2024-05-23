@@ -5,7 +5,15 @@ namespace FarmingTracker
 {
     public class SortService
     {
-        public static List<Stat> SortCurrencies(List<Stat> currencies)
+        public static (List<Stat> items, List<Stat> currencies) SortStats(List<Stat> items, List<Stat> currencies, Services services)
+        {
+            currencies = SortService.SortCurrencies(currencies);
+            items = SortService.SortItems(items, services);
+
+            return (items, currencies);
+        }
+
+        private static List<Stat> SortCurrencies(List<Stat> currencies)
         {
             // WARNING: sorting currency by count will mess up gold-silver-copper-splitted-coin
             return currencies
@@ -13,7 +21,7 @@ namespace FarmingTracker
                 .ToList();
         }
 
-        public static List<Stat> SortItems(List<Stat> items, Services services)
+        private static List<Stat> SortItems(List<Stat> items, Services services)
         {
             var sortByWithDirectionList = services.SettingService.SortByWithDirectionListSetting.Value.ToList();
             if (!sortByWithDirectionList.Any())
