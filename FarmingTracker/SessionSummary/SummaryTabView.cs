@@ -222,7 +222,7 @@ namespace FarmingTracker
             {
                 Text = Constants.EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size18],
-                TextColor = Color.Yellow, 
+                TextColor = Color.Yellow,
                 StrokeText = true,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
@@ -276,7 +276,7 @@ namespace FarmingTracker
                 Parent = _controlsFlowPanel
             };
 
-            var profitTooltip = 
+            var profitTooltip =
                 "Rough profit when selling everything to vendor or on trading post (listing).\n" +
                 "15% trading post fee is already deducted.\n" +
                 "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
@@ -289,6 +289,8 @@ namespace FarmingTracker
             var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _services, _farmingRootFlowPanel);
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
+
+            new SearchPanel(_services, _farmingRootFlowPanel);
 
             var currenciesFilterIconPanel = new Panel
             {

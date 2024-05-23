@@ -58,12 +58,6 @@ namespace FarmingTracker
                 return new SortTabView(services);
             }
 
-            IView SearchViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = SEARCH_TAB_TITLE;
-                return new PlaceholderTabView(SEARCH_TAB_TITLE);
-            }
-
             IView SettingViewFunc()
             {
                 _farmingTrackerWindow.Subtitle = SETTINGS_TAB_TITLE;
@@ -77,7 +71,6 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, SearchViewFunc, SEARCH_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
         }
 
@@ -113,7 +106,6 @@ namespace FarmingTracker
         private readonly Tab _settingsTab;
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
-        private const string SEARCH_TAB_TITLE = "Search";
         private const string SUMMARY_TAB_TITLE = "Farming Summary";
         private const string TIMELINE_TAB_TITLE = "Farming Timeline";
         private const string FILTER_TAB_TITLE = "Filter";

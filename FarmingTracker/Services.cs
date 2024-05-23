@@ -29,5 +29,6 @@ namespace FarmingTracker
         public Drf Drf { get; }
         public Stats Stats { get; } = new Stats();
         public Stopwatch FarmingTimeStopwatch { get; } = new Stopwatch();
+        public string SearchTerm { get; set; } = string.Empty;
     }
 }

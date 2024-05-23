@@ -12,6 +12,7 @@ namespace FarmingTracker
             var items = services.Stats.ItemById.Values.ToList();
 
             (items, currencies) = RemoveStatsNotUpdatedYetDueToApiError(items, currencies, services);
+            (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
             (items, currencies) = SortService.SortStats(items, currencies, services);
 
