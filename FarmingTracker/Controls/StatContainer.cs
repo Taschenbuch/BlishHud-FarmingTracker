@@ -17,10 +17,10 @@ namespace FarmingTracker
             _stat = stat;
             Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
 
-            // inventory slot background
             var tooltip = StatTooltipSetter.CreateTooltip(stat);
 
-            new Image(services.TextureService.GetTextureFromAssetCacheOrFallback(1318622))
+            // inventory slot background
+            new Image(services.TextureService.InventorySlotBackgroundTexture)
             {
                 BasicTooltipText = tooltip,
                 Size = new Point(BACKGROUND_SIZE),
@@ -52,6 +52,7 @@ namespace FarmingTracker
                 Parent = this
             };
 
+            // stat count
             var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
                 AddRarityBorder(stat, tooltip);
