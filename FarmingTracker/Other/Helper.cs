@@ -18,5 +18,10 @@
 
             return textWithBlanks;
         }
+
+        public static string CreateSwitchCaseNotFoundMessage<T>(T enumValue, string enumName, string usedFallbackText) where T : System.Enum
+        {
+            return $"Fallback: {usedFallbackText}. Because switch case missing or should not be be handled here: {enumName}.{enumValue}.";
+        }
     }
 }

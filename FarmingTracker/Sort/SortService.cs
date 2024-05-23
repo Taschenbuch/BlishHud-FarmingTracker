@@ -81,7 +81,7 @@ namespace FarmingTracker
                 case SortByWithDirection.TradingPostProfitPerItem_Descending:
                     return items.ThenByDescending(i => i.CountSign * i.ProfitEach.MaxTpProfitInCopper);
                 default:
-                    Module.Logger.Error($"Fallback: dont sort. Because switch case missing or should not be be handled here: {nameof(SortByWithDirection)}.{sortByWithDirection}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(sortByWithDirection, nameof(SortByWithDirection), "dont sort"));
                     return items;
             }
         }

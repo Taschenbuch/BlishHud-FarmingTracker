@@ -6,7 +6,7 @@ namespace FarmingTracker
     {
         public static string CreateDrfTokenHintText(string drfToken)
         {
-            var drfTokenFormat = DrfToken.ValidateFormat(drfToken);
+            var drfTokenFormat = ValidateFormat(drfToken);
 
             switch (drfTokenFormat)
             {
@@ -17,7 +17,7 @@ namespace FarmingTracker
                 case DrfTokenFormat.EmptyToken:
                     return "DRF Token required.\nModule wont work without it.";
                 default:
-                    Module.Logger.Error($"Fallback: no hint. Because switch case missing or should not be be handled here: {nameof(DrfTokenFormat)}.{drfTokenFormat}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(drfTokenFormat, nameof(DrfTokenFormat), "no hint"));
                     return "";
             }
         }
