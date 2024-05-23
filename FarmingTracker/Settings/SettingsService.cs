@@ -3,7 +3,6 @@ using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FarmingTracker
 {

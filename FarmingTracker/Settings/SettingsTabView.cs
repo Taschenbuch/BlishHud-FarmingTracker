@@ -37,14 +37,14 @@ namespace FarmingTracker
             };
 
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
-            CreateDrfStatusLabel(font, rootFlowPanel);
+            CreateDrfConnectionStatusLabel(font, rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
-            CreateAddDrfTokenPanel(font, rootFlowPanel);
+            CreateSetupDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
         }
 
-        private void CreateDrfStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)
+        private void CreateDrfConnectionStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)
         {
             var drfConnectionStatusPanel = new Panel
             {
@@ -78,7 +78,7 @@ namespace FarmingTracker
             OnDrfConnectionStatusChanged();
         }
 
-        private void CreateAddDrfTokenPanel(BitmapFont font, FlowPanel rootFlowPanel)
+        private void CreateSetupDrfTokenPanel(BitmapFont font, FlowPanel rootFlowPanel)
         {
             var addDrfTokenFlowPanel = new FlowPanel
             {
@@ -89,7 +89,7 @@ namespace FarmingTracker
                 Collapsed = true,
                 OuterControlPadding = new Vector2(5, 5),
                 ControlPadding = new Vector2(0, 10),
-                WidthSizingMode = SizingMode.Fill,
+                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel,
             };
@@ -101,9 +101,12 @@ namespace FarmingTracker
                 Parent = addDrfTokenFlowPanel,
             };
 
+            var drfTokenTooltip = "Add DRF token from DRF website here. How generate this token is described below.";
+
             var drfTokenLabel = new Label
             {
                 Text = "DRF Token:",
+                BasicTooltipText = drfTokenTooltip,
                 Font = font,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
@@ -120,9 +123,7 @@ namespace FarmingTracker
                 Parent = drfTokenInputPanel,
             };
 
-            // todo tooltip für label und textbox
-            // todo verbot + häckchen icon nutzen?            
-            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfTokenSetting.Value, font, drfTokenTextBoxFlowPanel);
+            var drfTokenTextBox = new DrfTokenTextBox(_services.SettingService.DrfTokenSetting.Value, drfTokenTooltip, font, drfTokenTextBoxFlowPanel);
 
             var drfTokenValidationLabel = new Label
             {
@@ -145,7 +146,7 @@ namespace FarmingTracker
             new HintLabel(
                 addDrfTokenFlowPanel,
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
-                "2. Create a drf account on the website and link it with your GW2 Account(s).");
+                "2. Create a drf account on the website and link it with your\nGW2 Account(s).");
 
             CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Show drf.dll setup instructions", buttonTooltip, addDrfTokenFlowPanel);
             new HintLabel(addDrfTokenFlowPanel, "Test DRF:", font);
@@ -171,7 +172,6 @@ namespace FarmingTracker
                 "5. Done! Open the first tab again to see the tracked items/currencies :-)");
 
             CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, addDrfTokenFlowPanel);
-
         }
 
         private void OnDrfConnectionStatusChanged(object sender = null, EventArgs e = null)

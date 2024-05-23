@@ -15,7 +15,6 @@ namespace FarmingTracker
             var windowHeight = 650;
             var contentWidth = windowWidth - 80;
             var contentHeight = windowHeight - 20;
-            var flowPanelWidth = contentWidth - 40;
 
             var textureService = services.TextureService;
 
@@ -32,7 +31,7 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            var summaryTabView = new SummaryTabView(this, flowPanelWidth, services);
+            var summaryTabView = new SummaryTabView(this, services);
 
             IView SummaryViewFunc()
             {

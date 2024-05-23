@@ -11,10 +11,10 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services) 
+        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Services services) 
         {
             _services = services;
-            _rootFlowPanel = CreateUi(farmingTrackerWindowService, flowPanelWidth, _services);
+            _rootFlowPanel = CreateUi(farmingTrackerWindowService, _services);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStatPanels();
             services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
@@ -207,7 +207,7 @@ namespace FarmingTracker
             CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
         }
 
-        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, int flowPanelWidth, Services services)
+        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -301,7 +301,7 @@ namespace FarmingTracker
                 Title = "Currencies",
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = flowPanelWidth,
+                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = currenciesFilterIconPanel
             };
@@ -320,7 +320,7 @@ namespace FarmingTracker
                 Title = "Items",
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = flowPanelWidth,
+                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = itemsFilterIconPanel
             };

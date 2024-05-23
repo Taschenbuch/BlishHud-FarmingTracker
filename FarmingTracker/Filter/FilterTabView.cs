@@ -104,7 +104,7 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 OuterControlPadding = new Vector2(10, 10),
                 ControlPadding = new Vector2(0, 10),
-                Width = 450,
+                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = filterIconPanel
             };
