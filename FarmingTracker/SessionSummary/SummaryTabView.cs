@@ -282,6 +282,7 @@ namespace FarmingTracker
                 "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
                 "'raw gold' changes are also visible in the currency panel below.\n" +
                 "Lost items reduce the profit accordingly.\n" +
+                "Module and DRF website profit calculation may differ because different algorithms are used.\n" +
                 $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
 
             var font = services.FontService.Fonts[FontSize.Size16];
