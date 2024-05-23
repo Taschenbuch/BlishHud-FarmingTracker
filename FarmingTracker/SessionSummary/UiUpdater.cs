@@ -8,10 +8,10 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var items = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.ItemById.Values.ToList());
-            var currencies = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.CurrencyById.Values.ToList());
-            currencies = currencies.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
+            var currencies = services.Stats.CurrencyById.Values.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
+            var items = services.Stats.ItemById.Values.ToList();
 
+            (items, currencies) = RemoveStatsNotUpdatedYetDueToApiError(items, currencies, services);
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
             (items, currencies) = SortService.SortStats(items, currencies, services);
 
@@ -29,6 +29,14 @@ namespace FarmingTracker
 
             if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
                 new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
+        }
+
+        private static (List<Stat> items, List<Stat> currencies) RemoveStatsNotUpdatedYetDueToApiError(List<Stat> items, List<Stat> currencies, Services services)
+        {
+            items = RemoveStatsNotUpdatedYetDueToApiError(items);
+            currencies = RemoveStatsNotUpdatedYetDueToApiError(currencies);
+
+            return (items, currencies);
         }
 
         // normally after an api error, the UI is not updated. So stats that did not get api details yet, do not show up in the UI until the next success api call.
