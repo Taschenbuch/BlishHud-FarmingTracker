@@ -47,7 +47,7 @@ namespace FarmingTracker
 
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
-                _hintLabel.Text = "resetting... (this may take a few seconds)";
+                _hintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
                 if (_isUpdateStatsRunning)
                     return; // prevents farming time updates and prevents hintText from being overriden
@@ -112,7 +112,7 @@ namespace FarmingTracker
                 if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull)
                     return;
 
-                _hintLabel.Text = "updating... (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
+                _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
                 _services.UpdateLoop.TriggerUpdateStatPanels();
                 _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
