@@ -7,8 +7,8 @@ namespace FarmingTracker
     {
         public static (List<Stat> items, List<Stat> currencies) SortStats(List<Stat> items, List<Stat> currencies, Services services)
         {
-            currencies = SortService.SortCurrencies(currencies);
-            items = SortService.SortItems(items, services);
+            currencies = SortCurrencies(currencies);
+            items = SortItems(items, services);
 
             return (items, currencies);
         }
