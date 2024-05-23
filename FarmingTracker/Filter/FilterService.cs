@@ -12,7 +12,28 @@ namespace FarmingTracker
             return !Enum.IsDefined(typeof(T), currencyId);
         }
 
-        public static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
+        public static (List<Stat> items, List<Stat> currencies) FilterStatsAndSetFunnelOpacity(
+            List<Stat> items, 
+            List<Stat> currencies, 
+            StatsPanels statsPanels,
+            Services services)
+        {
+            var currenciesCountBeforeFiltering = currencies.Count();
+            var itemsCountBeforeFiltering = items.Count();
+
+            currencies = FilterCurrencies(currencies, services);
+            items = FilterItems(items, services);
+
+            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
+            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
+
+            statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
+            statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
+
+            return (items, currencies);
+        }
+
+        private static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -25,7 +46,7 @@ namespace FarmingTracker
             return currencies;
         }
 
-        public static List<Stat> FilterItems(List<Stat> items, Services services)
+        private static List<Stat> FilterItems(List<Stat> items, Services services)
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set

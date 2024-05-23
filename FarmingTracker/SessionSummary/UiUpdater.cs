@@ -12,20 +12,10 @@ namespace FarmingTracker
             var currencies = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.CurrencyById.Values.ToList());
             currencies = currencies.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
 
-            var currenciesCountBeforeFiltering = currencies.Count();
-            var itemsCountBeforeFiltering = items.Count();
-
-            currencies = FilterService.FilterCurrencies(currencies, services);
-            items = FilterService.FilterItems(items, services);
+            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
 
             currencies = SortService.SortCurrencies(currencies);
             items = SortService.SortItems(items, services);
-
-            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
-            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
-
-            statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
-            statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
 
             var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);
