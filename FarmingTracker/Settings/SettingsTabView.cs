@@ -8,7 +8,6 @@ using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
-using NAudio.MediaFoundation;
 
 namespace FarmingTracker
 {
@@ -22,8 +21,12 @@ namespace FarmingTracker
         protected override void Unload()
         {
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
-            _services.SettingService.CountColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.CountBackgroundOpacitySetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.CountBackgroundColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.CountTextColorSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.StatIconSizeSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
 
@@ -33,7 +36,7 @@ namespace FarmingTracker
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                ControlPadding = new Vector2(0, 20),
+                ControlPadding = new Vector2(0, 10),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
@@ -44,17 +47,67 @@ namespace FarmingTracker
             await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountColorSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountTextColorSetting);
             CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            CreateIconSizeDropdown(rootFlowPanel, _services);
+            CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
-            _services.SettingService.CountColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.CountTextColorSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.StatIconSizeSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
         }
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
         {
             _services.UpdateLoop.TriggerUpdateStatPanels();
+        }
+
+        private void CreateIconSizeDropdown(Container parent, Services services)
+        {
+            var settingTooltipText = services.SettingService.StatIconSizeSetting.GetDescriptionFunc();
+
+            var iconSizePanel = new Panel
+            {
+                BasicTooltipText = settingTooltipText,
+                HeightSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            var iconSizeLabel = new Label
+            {
+                Text = services.SettingService.StatIconSizeSetting.GetDisplayNameFunc(),
+                BasicTooltipText = settingTooltipText,
+                Top = 4,
+                Left = 5,
+                AutoSizeWidth = true,
+                AutoSizeHeight = true,
+                Parent = iconSizePanel,
+            };
+
+            var iconSizeDropDown = new Dropdown
+            {
+                BasicTooltipText = settingTooltipText,
+                Left = iconSizeLabel.Right + 5,
+                Width = 60,
+                Parent = iconSizePanel
+            };
+
+            foreach (string dropDownValue in Enum.GetNames(typeof(StatIconSize)))
+                iconSizeDropDown.Items.Add(dropDownValue);
+
+            iconSizeDropDown.SelectedItem = services.SettingService.StatIconSizeSetting.Value.ToString();
+            iconSizeDropDown.ValueChanged += (s, o) => services.UpdateLoop.TriggerUpdateStatPanels();
+            iconSizeDropDown.ValueChanged += (s, o) =>
+            {
+                services.SettingService.StatIconSizeSetting.Value = (StatIconSize)Enum.Parse(typeof(StatIconSize), iconSizeDropDown.SelectedItem);
+            };
         }
 
         private void CreateDrfConnectionStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)

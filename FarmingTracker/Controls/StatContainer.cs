@@ -1,5 +1,4 @@
-﻿using Blish_HUD;
-using Blish_HUD.Content;
+﻿using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Blish_HUD.Input;
 using FarmingTracker.Controls;
@@ -15,7 +14,20 @@ namespace FarmingTracker
         public StatContainer(Stat stat, Services services)
         {
             _stat = stat;
-            Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
+
+            // icon
+            var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
+            var iconMargin = 1;
+            // background
+            var backgroundSize = iconSize + 2 * iconMargin;
+            var backgroundMargin = 1;
+            // rarity border
+            var rarityBorderThickness = 2;
+            var rarityBorderLength = backgroundSize;
+            var rarityBorderLeftOrTopLocation = backgroundMargin;
+            var rarityBorderRightOrBottomLocation = rarityBorderLeftOrTopLocation + rarityBorderLength - rarityBorderThickness;
+
+            Size = new Point(backgroundSize + 2 * backgroundMargin);
 
             var tooltip = StatTooltipSetter.CreateTooltip(stat);
 
@@ -23,8 +35,8 @@ namespace FarmingTracker
             new Image(services.TextureService.InventorySlotBackgroundTexture)
             {
                 BasicTooltipText = tooltip,
-                Size = new Point(BACKGROUND_SIZE),
-                Location = new Point(BACKGROUND_IMAGE_MARGIN),
+                Size = new Point(backgroundSize),
+                Location = new Point(backgroundMargin),
                 Parent = this,
             };
 
@@ -33,8 +45,8 @@ namespace FarmingTracker
             {
                 BasicTooltipText = tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
-                Size = new Point(ICON_SIZE),
-                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN),
+                Size = new Point(iconSize),
+                Location = new Point(backgroundMargin + iconMargin),
                 Parent = this
             };
 
@@ -44,19 +56,20 @@ namespace FarmingTracker
                 Text = stat.Count.ToString(),
                 BasicTooltipText = tooltip,
                 Font = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value],
-                TextColor = services.SettingService.CountColorSetting.Value.GetColor(),
-                HorizontalAlignment = HorizontalAlignment.Right,
+                TextColor = services.SettingService.CountTextColorSetting.Value.GetColor(),
+                HorizontalAlignment = services.SettingService.CountHoritzontalAlignmentSetting.Value,
+                BackgroundColor = services.SettingService.CountBackgroundColorSetting.Value.GetColor() * (services.SettingService.CountBackgroundOpacitySetting.Value / 255f),
                 StrokeText = true,
                 AutoSizeHeight = true,
-                Width = ICON_SIZE - 5,
-                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN, BACKGROUND_IMAGE_MARGIN + ICON_MARGIN + 1),
+                Width = iconSize - 5,
+                Location = new Point(backgroundMargin + iconMargin, backgroundMargin + iconMargin + 1),
                 Parent = this
             };
 
             // stat count
             var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
-                AddRarityBorder(stat, tooltip);
+                AddRarityBorder(stat, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, tooltip);
         }
 
         private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
@@ -70,13 +83,13 @@ namespace FarmingTracker
             };
         }
 
-        private void AddRarityBorder(Stat stat, string tooltip)
+        private void AddRarityBorder(Stat stat, int borderLeftOrTopLocation, int borderRightOrBottomLocation, int borderThickness, int borderLength, string tooltip)
         {
             var borderColor = DetermineBorderColor(stat.Details.Rarity);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, tooltip, this);
-            new BorderContainer(new Point(BORDER_RIGHT_OR_BOTTOM_LOCATION, BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION, BORDER_RIGHT_OR_BOTTOM_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderRightOrBottomLocation, borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation, borderRightOrBottomLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
         }
 
         private static Color DetermineBorderColor(Gw2SharpType.ItemRarity rarity)
@@ -134,17 +147,7 @@ namespace FarmingTracker
             }
         }
 
-        // icon
-        private const int ICON_SIZE = 60;
-        private const int ICON_MARGIN = 1;
-        // background
-        private const int BACKGROUND_SIZE = ICON_SIZE + 2 * ICON_MARGIN;
-        private const int BACKGROUND_IMAGE_MARGIN = 1;
-        // rarity border
-        private const int BORDER_THICKNESS = 2;
-        private const int BORDER_LENGTH = BACKGROUND_SIZE;
-        private const int BORDER_LEFT_OR_TOP_LOCATION = BACKGROUND_IMAGE_MARGIN;
-        private const int BORDER_RIGHT_OR_BOTTOM_LOCATION = BORDER_LEFT_OR_TOP_LOCATION + BORDER_LENGTH - BORDER_THICKNESS;
+
         private readonly Stat _stat;
     }
 }

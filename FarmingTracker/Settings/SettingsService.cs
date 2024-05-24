@@ -1,4 +1,5 @@
 ﻿using Blish_HUD;
+using Blish_HUD.Controls;
 using Blish_HUD.Input;
 using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
@@ -31,17 +32,43 @@ namespace FarmingTracker
                 () => "rarity colored icon border",
                 () => "Show a border in rarity color around item icons.");
 
-            CountColorSetting = settings.DefineSetting(
-               "count color",
+            CountBackgroundColorSetting = settings.DefineSetting(
+                "count background color",
+                ColorType.Black,
+                () => "count background color",
+                () => "Change item/currency count background color. It is not visible when count background opacity slider is set to full transparency.");
+
+            CountBackgroundOpacitySetting = settings.DefineSetting(
+                "count background opacity",
+                0,
+                () => "count background opacity",
+                () => "Change item/currency count background opacity / transparency.");
+            
+            CountBackgroundOpacitySetting.SetRange(0, 255);
+
+            CountTextColorSetting = settings.DefineSetting(
+               "count text color",
                ColorType.White,
-               () => "count color",
-               () => "Change item/currency count font color.");
+               () => "count text color",
+               () => "Change item/currency count text color.");
 
             CountFontSizeSetting = settings.DefineSetting(
                "count font size",
                ContentService.FontSize.Size20,
-               () => "count font size",
+               () => "count text size",
                () => "Change item/currency count font size.");
+
+            CountHoritzontalAlignmentSetting = settings.DefineSetting(
+               "count horizontal alignment",
+               HorizontalAlignment.Right,
+               () => "count horizontal alignment",
+               () => "Change item/currency count horizontal alignment. Dont use 'center'. It can cut off at both ends.");
+
+            StatIconSizeSetting = settings.DefineSetting(
+                "stat icon size",
+                StatIconSize.M,
+                () => "icon size",
+                () => "Change item/currency icon size.");
 
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             // sort
@@ -76,8 +103,12 @@ namespace FarmingTracker
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
-        public SettingEntry<ColorType> CountColorSetting { get; }
+        public SettingEntry<ColorType> CountTextColorSetting { get; }
+        public SettingEntry<ColorType> CountBackgroundColorSetting { get; }
+        public SettingEntry<int> CountBackgroundOpacitySetting { get; }
         public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
+        public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; }
+        public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
