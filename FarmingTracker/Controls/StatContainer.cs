@@ -44,6 +44,7 @@ namespace FarmingTracker
                 Text = stat.Count.ToString(),
                 BasicTooltipText = tooltip,
                 Font = services.FontService.Fonts[ContentService.FontSize.Size20],
+                TextColor = services.SettingService.CountColorSetting.Value.GetColor(),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 StrokeText = true,
                 AutoSizeHeight = true,

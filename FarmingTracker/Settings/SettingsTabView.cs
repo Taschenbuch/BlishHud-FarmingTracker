@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
+using NAudio.MediaFoundation;
 
 namespace FarmingTracker
 {
@@ -21,6 +22,7 @@ namespace FarmingTracker
         protected override void Unload()
         {
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
+            _services.SettingService.CountColorSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
 
@@ -42,6 +44,14 @@ namespace FarmingTracker
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountColorSetting);
+
+            _services.SettingService.CountColorSetting.SettingChanged += OnSettingChanged;
+        }
+
+        private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
+        {
+            _services.UpdateLoop.TriggerUpdateStatPanels();
         }
 
         private void CreateDrfConnectionStatusLabel(BitmapFont font, FlowPanel rootFlowPanel)

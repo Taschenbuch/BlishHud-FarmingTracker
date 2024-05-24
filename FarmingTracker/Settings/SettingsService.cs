@@ -30,6 +30,12 @@ namespace FarmingTracker
                 () => "rarity colored icon border",
                 () => "Show a border in rarity color around item icons.");
 
+            CountColorSetting = settings.DefineSetting(
+               "count color",
+               ColorType.White,
+               () => "count color",
+               () => "Change item/currency count font color.");
+
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
@@ -63,6 +69,7 @@ namespace FarmingTracker
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
+        public SettingEntry<ColorType> CountColorSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
