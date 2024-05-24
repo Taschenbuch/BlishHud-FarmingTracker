@@ -23,6 +23,7 @@ namespace FarmingTracker
         {
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _services.SettingService.CountColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.CountFontSizeSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
 
@@ -45,8 +46,10 @@ namespace FarmingTracker
             CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
             CreateSetting(rootFlowPanel, _services.SettingService.CountColorSetting);
+            CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
 
             _services.SettingService.CountColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.CountFontSizeSetting.SettingChanged += OnSettingChanged;
         }
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)

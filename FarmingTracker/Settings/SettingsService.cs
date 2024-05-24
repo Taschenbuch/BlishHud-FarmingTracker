@@ -1,4 +1,5 @@
-﻿using Blish_HUD.Input;
+﻿using Blish_HUD;
+using Blish_HUD.Input;
 using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
@@ -36,6 +37,12 @@ namespace FarmingTracker
                () => "count color",
                () => "Change item/currency count font color.");
 
+            CountFontSizeSetting = settings.DefineSetting(
+               "count font size",
+               ContentService.FontSize.Size20,
+               () => "count font size",
+               () => "Change item/currency count font size.");
+
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
@@ -70,6 +77,7 @@ namespace FarmingTracker
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
         public SettingEntry<ColorType> CountColorSetting { get; }
+        public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
