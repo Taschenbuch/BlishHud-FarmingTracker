@@ -1,50 +1,62 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace FarmingTracker
 {
     public class StatTooltipSetter
     {
-        public static void SetTooltip(Dictionary<int, Stat> statById)
+        public static string CreateTooltip(Stat stat)
         {
-            foreach (var stat in statById.Values)
-                stat.Tooltip = CreateTooltip(stat);
+            switch (stat.Details.State)
+            {
+                case ApiStatDetailsState.SetByApi:
+                    return CreateRegularTooltip(stat);
+                case ApiStatDetailsState.GoldCoinCustomStat:
+                case ApiStatDetailsState.SilveCoinCustomStat:
+                case ApiStatDetailsState.CopperCoinCustomStat:
+                    return "Changes in 'raw gold'.\nIn other words coins spent or gained.";
+                case ApiStatDetailsState.MissingBecauseUnknownByApi:
+                    return
+                        $"Unknown item/currency (ID: {stat.ApiId})\n" +
+                        $"GW2 API has no information about it.\n" +
+                        $"This issue typically occurs for items related to renown hearts.\n" +
+                        $"Right click to search its ID in the wiki in your default browser.";
+                case ApiStatDetailsState.MissingBecauseApiNotCalledYet:
+                {
+                    var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                    Module.Logger.Error(errorMessage);
+                    return errorMessage;
+                }
+                default:
+                {
+                    var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                    Module.Logger.Error(errorMessage);
+                    return errorMessage;
+                }
+            }
         }
 
-        private static string CreateTooltip(Stat stat)
+        private static string CreateRegularTooltip(Stat stat)
         {
-            if (stat.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
-            {
-                var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
-                Module.Logger.Error(errorMessage);
-                return errorMessage;
-            }
-
-            if (stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
-                return
-                    $"Unknown item/currency (ID: {stat.ApiId})\n" +
-                    $"GW2 API has no information about it.\n" +
-                    $"This issue typically occurs for items related to renown hearts.\n" +
-                    $"You can look it up with the wiki if you want:\n" +
-                    $"https://wiki.guildwars2.com/wiki/Special:RunQuery/Search_by_id";
-
             var tooltip = $"{stat.Count} {stat.Details.Name}";
 
-            if(!string.IsNullOrWhiteSpace(stat.Details.Description))
+            if (!string.IsNullOrWhiteSpace(stat.Details.Description))
                 tooltip += $"\n{stat.Details.Description}";
 
-            var isSingleItem = stat.Count == 1;
+            var isSingleItem = Math.Abs(stat.Count) == 1;
 
-            if (stat.ProfitEach.CanBeSoldToVendor)
+            if (stat.Profits.CanBeSoldToVendor)
             {
-                tooltip += CreateProfitTooltipPart("Vendor", isSingleItem, stat.CountSign, stat.ProfitEach.VendorProfitInCopper, stat.ProfitAll.VendorProfitInCopper);
+                tooltip += CreateProfitTooltipPart("Vendor", isSingleItem, stat.CountSign, stat.Profits.Each.VendorProfitInCopper, stat.Profits.All.VendorProfitInCopper);
             }
 
-            if (stat.ProfitEach.CanBeSoldOnTp)
+            if (stat.Profits.CanBeSoldOnTp)
             {
-                tooltip += CreateProfitTooltipPart("TP sell", isSingleItem, stat.CountSign, stat.ProfitEach.TpSellProfitInCopper, stat.ProfitAll.TpSellProfitInCopper);
-                tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.ProfitEach.TpBuyProfitInCopper, stat.ProfitAll.TpBuyProfitInCopper);
+                tooltip += CreateProfitTooltipPart("TP sell", isSingleItem, stat.CountSign, stat.Profits.Each.TpSellProfitInCopper, stat.Profits.All.TpSellProfitInCopper);
+                tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.Profits.Each.TpBuyProfitInCopper, stat.Profits.All.TpBuyProfitInCopper);
                 tooltip += "\n\n(15% trading post fee is already deducted from TP sell/buy.)";
             }
+
+            tooltip += "\n\nRight click to open its wiki page in your default browser.";
 
             return tooltip;
         }

@@ -1,5 +1,4 @@
-﻿using Blish_HUD.Content;
-using Blish_HUD.Controls;
+﻿using Blish_HUD.Controls;
 using Blish_HUD;
 using Microsoft.Xna.Framework;
 using System;
@@ -15,12 +14,11 @@ namespace FarmingTracker
             var windowHeight = 650;
             var contentWidth = windowWidth - 80;
             var contentHeight = windowHeight - 20;
-            var flowPanelWidth = contentWidth - 40;
 
             var textureService = services.TextureService;
 
             _farmingTrackerWindow = new TabbedWindow2(
-                AsyncTexture2D.FromAssetId(155997),
+                services.TextureService.WindowBackgroundTexture,
                 new Rectangle(20, 26, windowWidth, windowHeight),
                 new Rectangle(80, 20, contentWidth, contentHeight))
             {
@@ -32,7 +30,7 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
-            var summaryTabView = new SummaryTabView(this, flowPanelWidth, services);
+            var summaryTabView = new SummaryTabView(this, services);
 
             IView SummaryViewFunc()
             {
@@ -60,34 +58,20 @@ namespace FarmingTracker
                 return new SortTabView(services);
             }
 
-            IView SearchViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = SEARCH_TAB_TITLE;
-                return new PlaceholderTabView(SEARCH_TAB_TITLE);
-            }
-
             IView SettingViewFunc()
             {
                 _farmingTrackerWindow.Subtitle = SETTINGS_TAB_TITLE;
                 return new SettingsTabView(services);
             }
 
-            IView HelpViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = HELP_TAB_TITLE;
-                return new PlaceholderTabView("Check 'Setup DRF' on settings tab for help.", true);
-            }
-
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
-            _settingsTab = new Tab(AsyncTexture2D.FromAssetId(156737), SettingViewFunc, SETTINGS_TAB_TITLE);
+            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, SettingViewFunc, SETTINGS_TAB_TITLE);
 
             _farmingTrackerWindow.Tabs.Add(_summaryTab);
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SearchTabIconTexture, SearchViewFunc, SEARCH_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.HelpTabIconTexture, HelpViewFunc, HELP_TAB_TITLE));
         }
 
         public void Dispose()
@@ -122,12 +106,10 @@ namespace FarmingTracker
         private readonly Tab _settingsTab;
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
-        private const string SEARCH_TAB_TITLE = "Search";
         private const string SUMMARY_TAB_TITLE = "Farming Summary";
         private const string TIMELINE_TAB_TITLE = "Farming Timeline";
         private const string FILTER_TAB_TITLE = "Filter";
         private const string SORT_TAB_TITLE = "Sort (items)";
         private const string SETTINGS_TAB_TITLE = "Settings";
-        private const string HELP_TAB_TITLE = "Help";
     }
 }

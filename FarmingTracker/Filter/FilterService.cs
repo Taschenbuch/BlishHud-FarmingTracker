@@ -12,11 +12,32 @@ namespace FarmingTracker
             return !Enum.IsDefined(typeof(T), currencyId);
         }
 
-        public static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
+        public static (List<Stat> items, List<Stat> currencies) FilterStatsAndSetFunnelOpacity(
+            List<Stat> items, 
+            List<Stat> currencies, 
+            StatsPanels statsPanels,
+            Services services)
+        {
+            var currenciesCountBeforeFiltering = currencies.Count();
+            var itemsCountBeforeFiltering = items.Count();
+
+            currencies = FilterCurrencies(currencies, services);
+            items = FilterItems(items, services);
+
+            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
+            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
+
+            statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
+            statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
+
+            return (items, currencies);
+        }
+
+        private static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                currencies = currencies.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
+                currencies = currencies.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
 
             var currencyFilter = services.SettingService.CurrencyFilterSetting.Value.ToList();
             if (currencyFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -25,11 +46,11 @@ namespace FarmingTracker
             return currencies;
         }
 
-        public static List<Stat> FilterItems(List<Stat> items, Services services)
+        private static List<Stat> FilterItems(List<Stat> items, Services services)
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
+                items = items.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
 
             var sellMethodFilter = services.SettingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -72,24 +93,27 @@ namespace FarmingTracker
 
         private static bool IsShownBySellMethodFilter(Stat stat, List<SellMethodFilter> sellMethodFilter)
         {
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.ProfitEach.CanBeSoldToVendor)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.Profits.CanBeSoldToVendor)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.ProfitEach.CanBeSoldOnTp)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.Profits.CanBeSoldOnTp)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.ProfitEach.CanNotBeSold)
+            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.Profits.CanNotBeSold)
                 return true;
 
             return false;
         }
 
-        private static bool IsShownByCountFilter(Stat stat, List<CountFilter> countFilter)
+        private static bool IsShownByCountSignFilter(Stat stat, List<CountFilter> countFilter)
         {
             if (countFilter.Contains(CountFilter.PositiveCount) && stat.Count > 0)
                 return true;
 
             if (countFilter.Contains(CountFilter.NegativeCount) && stat.Count < 0)
+                return true;
+
+            if (stat.Details.IsCustomCoinStat)
                 return true;
 
             return false;

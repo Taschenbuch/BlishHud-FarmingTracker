@@ -29,16 +29,38 @@ async function sendDrop(webSocket) {
   for (const message of messages) {
     console.log(`send to client: ${message}`);
     webSocket.send(message);
-    await wait(3000);
+    await wait(1000);
   }
 }
 
 const messages = [
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":1},"curr":{"1":123456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // profit test: same item, different counts
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":1},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":2},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // count: small/large, positive/negative
-  '{"kind":"data","payload":{"character":"1","drop":{"items":{"12538":1,"12537":-1,"12255":123, "12536":-123, "12248":45678, "12243":-45678},"curr":{},"mf":312,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
-  // '{"kind":"data","payload":{"character":"2","drop":{"items":{"68063":1},"curr":{"1":2},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
-  // api miss item 95195
-  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"95195":3},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"1","drop":{"items":{"12538":1,"12537":-1,"12255":123, "12536":-123, "12248":45678, "12243":-45678},"curr":{},"mf":312,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // coin: none, only copper, only silver, only gold, mixed
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"2":1},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}', // no coin
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123400},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":120056},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":120000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":3400},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":3456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":56},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // coin: above max coin profit
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123456789012345},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // max coin profit
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":10000000000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // all types: custom coin, api miss currency+item, api has currency+items
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"19925":12, "78599":6},"curr":{"1":123456,"64":8, "80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // items + currencies available in api
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"19925":12},"curr":{"64":8},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // api miss item 78599 (lvl 80 boost)
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":3},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // api miss currency 80
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{},"curr":{"80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // // api miss item 95195, currency 17
   // '{"kind":"data","payload":{"character":"4","drop":{"items":{"95195":5},"curr":{"17":1},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // // api miss currency 17

@@ -7,9 +7,10 @@ namespace FarmingTracker
 {
     public class DrfTokenTextBox : TextBox
     {
-        public DrfTokenTextBox(string text, BitmapFont font, Container parent)
+        public DrfTokenTextBox(string text, string tooltip, BitmapFont font, Container parent)
         {
             Text = text;
+            BasicTooltipText = tooltip;
             PlaceholderText = "Enter token...";
             Font = font;
             Width = 350; // widest token because no monospace: 00000000-0000-0000-0000-000000000000

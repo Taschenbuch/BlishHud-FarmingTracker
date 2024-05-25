@@ -19,6 +19,13 @@ namespace FarmingTracker
 
             SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
             await SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
+            SetProfits(stats.ItemById);
+        }
+
+        private void SetProfits(Dictionary<int, Stat> itemById)
+        {
+            foreach (var item in itemById.Values)
+                item.SetProfits();
         }
 
         // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).
@@ -65,6 +72,7 @@ namespace FarmingTracker
                     currencyWithoutDetails.Details.Name = currencyDetails.Name;
                     currencyWithoutDetails.Details.Description = currencyDetails.Description;
                     currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
+                    currencyWithoutDetails.Details.WikiSearchTerm = currencyDetails.Name;
                     currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
                 }
                 else
@@ -121,8 +129,8 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.ProfitEach.SetTpSellAndBuyProfit(apiPrice.Sells.UnitPrice, apiPrice.Buys.UnitPrice);
-                item.ProfitAll.SetTpSellAndBuyProfit(item.Count * apiPrice.Sells.UnitPrice, item.Count * apiPrice.Buys.UnitPrice);
+                item.Profits.ApiSellsUnitPriceInCopper = apiPrice.Sells.UnitPrice;
+                item.Profits.ApiBuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
             }
 
             if (apiItems.Any())
@@ -137,11 +145,8 @@ namespace FarmingTracker
                 item.Details.Rarity = apiItem.Rarity;
                 item.Details.Flags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
-                var canBeSoldToVendor = !apiItem.Flags.Any(f => f == ItemFlag.NoSell) && apiItem.VendorValue != 0;
-                item.ProfitEach.CanBeSoldToVendor = canBeSoldToVendor;
-                item.ProfitAll.CanBeSoldToVendor = canBeSoldToVendor;
-                item.ProfitEach.SetVendorProfit(canBeSoldToVendor ? apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
-                item.ProfitAll.SetVendorProfit(canBeSoldToVendor ? item.Count * apiItem.VendorValue : 0); // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
+                item.Details.WikiSearchTerm = apiItem.ChatLink;
+                item.Profits.ApiVendorValueInCopper = apiItem.VendorValue; 
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
 

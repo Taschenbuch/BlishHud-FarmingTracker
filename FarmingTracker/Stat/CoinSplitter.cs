@@ -1,54 +1,54 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
     public class CoinSplitter
     {
-        public static void SplitCoinIntoGoldSilverCopperStats(Dictionary<int, Stat> currencyById)
+        public static List<Stat> ReplaceCoinWithGoldSilverCopperStats(List<Stat> currencies)
         {
-            // do NOT remove coin from currencyById! Removing coin would reset the coin count to 0 before every stats update!
-            currencyById.Remove(GOLD_FAKE_API_ID);
-            currencyById.Remove(SILVER_FAKE_API_ID);
-            currencyById.Remove(COPPER_FAKE_API_ID);
+            var coinStat = currencies.SingleOrDefault(c => c.IsCoin);
+            var noCoinsEarnedOrLost = coinStat == null;
+            if (noCoinsEarnedOrLost)
+                return currencies;
 
-            var hasEarnedOrLostCoin = currencyById.TryGetValue(Coin.COIN_CURRENCY_ID, out var coinsInCopperItem);
-            if (!hasEarnedOrLostCoin)
-                return;
-
-            var coin = new Coin(coinsInCopperItem.Count);
+            var localizedCoinName = coinStat.Details.Name; // for wiki because "coin" in spanish will not work in english wiki
+            var coin = new Coin(coinStat.Count);
 
             if(coin.HasToDisplayGold)
             {
-                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, Constants.GOLD_ICON_ASSET_ID);
-                currencyById[goldStat.ApiId] = goldStat;
+                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
+                currencies.Add(goldStat);
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, Constants.SILVER_ICON_ASSET_ID);
-                currencyById[silverStat.ApiId] = silverStat;
+                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
+                currencies.Add(silverStat);
             }
             
             if(coin.HasToDisplayCopper)
             {
-                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, Constants.COPPER_ICON_ASSET_ID);
-                currencyById[copperStat.ApiId] = copperStat;
+                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
+                currencies.Add(copperStat);
             }
+            
+            currencies.Remove(coinStat);
+            return currencies;
         }
 
-        private static Stat CreateCoinStat(string name, long count, int apiId, int iconAssetId)
+        private static Stat CreateCoinStat(string name, long count, int apiId, ApiStatDetailsState apiStatDetailsState, string localizedCoinName)
         {
             return new Stat
             {
                 ApiId = apiId,
                 Count = count,
-                Tooltip = "Changes in 'raw gold'.\nIn other words coins spent or gained.",
                 Details =
-                    {
-                        Name = name,
-                        IconAssetId = iconAssetId,
-                        State = ApiStatDetailsState.SetByApi // prevents that module tries to get api details for it.
-                    },
+                {
+                    Name = name,
+                    WikiSearchTerm = localizedCoinName,
+                    State = apiStatDetailsState // to get get correct coin texture later
+                },
             };
         }
 

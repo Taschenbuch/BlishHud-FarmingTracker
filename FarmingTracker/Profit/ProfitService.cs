@@ -36,12 +36,12 @@ namespace FarmingTracker
         private static long CalculateTotalProfitInCopper(Stats stats)
         {
             var coinsInCopper = stats.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-            var itemsSellProfitInCopper = stats.ItemById.Values.Sum(s => s.CountSign * s.ProfitAll.MaxProfitInCopper);
+            var itemsSellProfitInCopper = stats.ItemById.Values.Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
             Module.Logger.Debug(
                 $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                $"maxProfitsPerItem {string.Join(" ", stats.ItemById.Values.Select(s => s.CountSign * s.ProfitAll.MaxProfitInCopper))}");
+                $"maxProfitsPerItem {string.Join(" ", stats.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
 
             return totalProfit;
         }

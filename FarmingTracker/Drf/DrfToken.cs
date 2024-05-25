@@ -6,18 +6,18 @@ namespace FarmingTracker
     {
         public static string CreateDrfTokenHintText(string drfToken)
         {
-            var drfTokenFormat = DrfToken.ValidateFormat(drfToken);
+            var drfTokenFormat = ValidateFormat(drfToken);
 
             switch (drfTokenFormat)
             {
                 case DrfTokenFormat.ValidFormat:
                     return "";
                 case DrfTokenFormat.InvalidFormat:
-                    return "Incomplete or invalid DRF Token format.\nExpected format:\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx with x = a-f, 0-9";
+                    return "Incomplete or invalid DRF Token format.\nExpected format:\nxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\nwith x = a-f, 0-9";
                 case DrfTokenFormat.EmptyToken:
                     return "DRF Token required.\nModule wont work without it.";
                 default:
-                    Module.Logger.Error($"Fallback: no hint. Because switch case missing or should not be be handled here: {nameof(DrfTokenFormat)}.{drfTokenFormat}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(drfTokenFormat, nameof(DrfTokenFormat), "no hint"));
                     return "";
             }
         }

@@ -5,7 +5,15 @@ namespace FarmingTracker
 {
     public class SortService
     {
-        public static List<Stat> SortCurrencies(List<Stat> currencies)
+        public static (List<Stat> items, List<Stat> currencies) SortStats(List<Stat> items, List<Stat> currencies, Services services)
+        {
+            currencies = SortCurrencies(currencies);
+            items = SortItems(items, services);
+
+            return (items, currencies);
+        }
+
+        private static List<Stat> SortCurrencies(List<Stat> currencies)
         {
             // WARNING: sorting currency by count will mess up gold-silver-copper-splitted-coin
             return currencies
@@ -13,7 +21,7 @@ namespace FarmingTracker
                 .ToList();
         }
 
-        public static List<Stat> SortItems(List<Stat> items, Services services)
+        private static List<Stat> SortItems(List<Stat> items, Services services)
         {
             var sortByWithDirectionList = services.SettingService.SortByWithDirectionListSetting.Value.ToList();
             if (!sortByWithDirectionList.Any())
@@ -57,31 +65,31 @@ namespace FarmingTracker
                 case SortByWithDirection.ItemType_Descending:
                     return items.ThenByDescending(i => i.Details.Type);
                 case SortByWithDirection.ProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitAll.MaxProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.All.MaxProfitInCopper);
                 case SortByWithDirection.ProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitAll.MaxProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitEach.MaxProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.Each.MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitEach.MaxProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.MaxProfitInCopper);
                 case SortByWithDirection.VendorProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitAll.VendorProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.All.VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitAll.VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitEach.VendorProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.Each.VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitEach.VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.VendorProfitInCopper);
                 case SortByWithDirection.TradingPostProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitAll.MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.All.MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitAll.MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.ProfitEach.MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profits.Each.MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.ProfitEach.MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.MaxTpProfitInCopper);
                 default:
-                    Module.Logger.Error($"Fallback: dont sort. Because switch case missing or should not be be handled here: {nameof(SortByWithDirection)}.{sortByWithDirection}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(sortByWithDirection, nameof(SortByWithDirection), "dont sort"));
                     return items;
             }
         }

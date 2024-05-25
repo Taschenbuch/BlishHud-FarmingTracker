@@ -17,7 +17,7 @@ namespace FarmingTracker
                 case DrfConnectionStatus.AuthenticationFailed:
                     return RED;
                 default:
-                    Module.Logger.Error($"Fallback: white. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(drfConnectionStatus, nameof(DrfConnectionStatus), "white"));
                     return RED;
             }
         }
@@ -42,7 +42,7 @@ namespace FarmingTracker
                 case DrfConnectionStatus.ModuleError:
                     return $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord:\nhttps://discord.com/invite/FYKN3qh";
                 default:
-                    Module.Logger.Error($"Fallback: Unknown Status. Because switch case missing or should not be be handled here: {nameof(drfConnectionStatus)}.{drfConnectionStatus}.");
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(drfConnectionStatus, nameof(DrfConnectionStatus), "unknown status"));
                     return $"Unknown Status.{SMILEY_VERTICAL_SPACE}:-(";
             }
         }
@@ -57,7 +57,7 @@ namespace FarmingTracker
                 DrfConnectionStatus.AuthenticationFailed => $"DRF authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(",
                 DrfConnectionStatus.ModuleError => $"Module Error.{SMILEY_VERTICAL_SPACE}:-( Report bug on Discord:\nhttps://discord.com/invite/FYKN3qh",
                 _ => "",
-            }; ;
+            };
         }
 
         private const string SMILEY_VERTICAL_SPACE = "  ";

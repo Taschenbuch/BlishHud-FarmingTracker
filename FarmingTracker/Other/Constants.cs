@@ -6,18 +6,19 @@ namespace FarmingTracker
 {
     public class Constants
     {
+        public const int PANEL_WIDTH = 450; // prevents overlap with window scrollbar
+        public const string UPDATING_HINT_TEXT = "updating...";
+        public const string RESETTING_HINT_TEXT = "resetting...";
         public const string EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else
-        public const int GOLD_ICON_ASSET_ID = 156904;
-        public const int SILVER_ICON_ASSET_ID = 156907;
-        public const int COPPER_ICON_ASSET_ID = 156902;
-        public const int BUG_TEXTURE_ASSET_ID = 157084;
         public const int PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS = 5;
+        // enum lists
         public static Gw2SharpType.ItemRarity[] ALL_ITEM_RARITIES => (Gw2SharpType.ItemRarity[])Enum.GetValues(typeof(Gw2SharpType.ItemRarity));
         public static SellMethodFilter[] ALL_SELL_METHODS => (SellMethodFilter[])Enum.GetValues(typeof(SellMethodFilter));
         public static CountFilter[] ALL_COUNTS => (CountFilter[])Enum.GetValues(typeof(CountFilter));
         public static Gw2SharpType.ItemType[] ALL_ITEM_TYPES => (Gw2SharpType.ItemType[])Enum.GetValues(typeof(Gw2SharpType.ItemType));
         public static Gw2SharpType.ItemFlag[] ALL_ITEM_FLAGS => (Gw2SharpType.ItemFlag[])Enum.GetValues(typeof(Gw2SharpType.ItemFlag));
         public static CurrencyFilter[] ALL_CURRENCIES => (CurrencyFilter[])Enum.GetValues(typeof(CurrencyFilter));
+        // colors
         public static Color JunkColor = new Color(113, 97, 95);
         public static Color BasicColor = new Color(113, 97, 95);
         public static Color FineColor = new Color(85, 153, 255);

@@ -12,6 +12,12 @@ namespace FarmingTracker
         public ItemRarity Rarity { get; set; } = ItemRarity.Unknown;
         public ItemType Type { get; set; } = ItemType.Unknown;
         public ApiFlags<ItemFlag> Flags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
-        public int IconAssetId { get; set; } = Constants.BUG_TEXTURE_ASSET_ID; // prevents that FromAssetId() returns null and crashes new Image()
+        public int IconAssetId { get; set; } = TextureService.MISSING_ASSET_ID;
+        public string WikiSearchTerm { get; set; } = string.Empty;
+        public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
+        public bool IsCustomCoinStat => 
+            State == ApiStatDetailsState.GoldCoinCustomStat 
+            || State == ApiStatDetailsState.SilveCoinCustomStat 
+            || State == ApiStatDetailsState.CopperCoinCustomStat;
     }
 }

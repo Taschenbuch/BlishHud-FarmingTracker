@@ -8,24 +8,12 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var items = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.ItemById.Values.ToList());
-            var currencies = RemoveStatsNotUpdatedYetDueToApiError(services.Stats.CurrencyById.Values.ToList());
-            currencies = currencies.Where(c => !c.IsCoin).ToList(); // remove coin before the counting-to-check-if-stats-were-filtered
-
-            var currenciesCountBeforeFiltering = currencies.Count();
-            var itemsCountBeforeFiltering = items.Count();
-
-            currencies = FilterService.FilterCurrencies(currencies, services);
-            items = FilterService.FilterItems(items, services);
-
-            currencies = SortService.SortCurrencies(currencies);
-            items = SortService.SortItems(items, services);
-
-            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
-            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
-
-            statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
-            statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
+            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Stats);
+            currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
+            (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
+            (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
+            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
+            (items, currencies) = SortService.SortStats(items, currencies, services);
 
             var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);
@@ -33,24 +21,11 @@ namespace FarmingTracker
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
 
-            var noItemChangesDetected = !services.Stats.ItemById.Any();
-            var noCurrencyChangesDetected = !services.Stats.CurrencyById.Any();
-
             if (statsPanels.FarmedItemsFlowPanel.IsEmpty())
                 new HintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
 
             if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
                 new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
-        }
-
-        // normally after an api error, the UI is not updated. So stats that did not get api details yet, do not show up in the UI until the next success api call.
-        // But when the UI is updated due to a user action (changed sort, changed filter, ...), those missing-details-stats would be displayed without name, icon, tooltip.
-        // this method prevents that they are displayed.
-        private static List<Stat> RemoveStatsNotUpdatedYetDueToApiError(List<Stat> stats)
-        {
-            return stats
-                .Where(c => c.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet)
-                .ToList();
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)

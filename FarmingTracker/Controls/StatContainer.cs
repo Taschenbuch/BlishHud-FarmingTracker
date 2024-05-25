@@ -1,6 +1,6 @@
-﻿using Blish_HUD;
-using Blish_HUD.Content;
+﻿using Blish_HUD.Content;
 using Blish_HUD.Controls;
+using Blish_HUD.Input;
 using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
@@ -11,52 +11,83 @@ namespace FarmingTracker
     {
         public StatContainer(Stat stat, Services services)
         {
-            Size = new Point(BACKGROUND_SIZE + 2 * BACKGROUND_IMAGE_MARGIN);
+            _stat = stat;
+
+            // icon
+            var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
+            var iconMargin = 1;
+            // background
+            var backgroundSize = iconSize + 2 * iconMargin;
+            var backgroundMargin = 1;
+            // rarity border
+            var rarityBorderThickness = 2;
+            var rarityBorderLength = backgroundSize;
+            var rarityBorderLeftOrTopLocation = backgroundMargin;
+            var rarityBorderRightOrBottomLocation = rarityBorderLeftOrTopLocation + rarityBorderLength - rarityBorderThickness;
+
+            Size = new Point(backgroundSize + 2 * backgroundMargin);
+
+            var tooltip = StatTooltipSetter.CreateTooltip(stat);
 
             // inventory slot background
-            new Image(AsyncTexture2D.FromAssetId(1318622))
+            new Image(services.TextureService.InventorySlotBackgroundTexture)
             {
-                BasicTooltipText = stat.Tooltip,
-                Size = new Point(BACKGROUND_SIZE),
-                Location = new Point(BACKGROUND_IMAGE_MARGIN),
+                BasicTooltipText = tooltip,
+                Size = new Point(backgroundSize),
+                Location = new Point(backgroundMargin),
                 Parent = this,
             };
 
             // stat icon
-            new Image(AsyncTexture2D.FromAssetId(stat.Details.IconAssetId))
+            new Image(GetStatIconTexture(stat, services))
             {
-                BasicTooltipText = stat.Tooltip,
+                BasicTooltipText = tooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
-                Size = new Point(ICON_SIZE),
-                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN),
+                Size = new Point(iconSize),
+                Location = new Point(backgroundMargin + iconMargin),
                 Parent = this
             };
 
+            // stat count
             new Label
             {
                 Text = stat.Count.ToString(),
-                BasicTooltipText = stat.Tooltip,
-                Font = services.FontService.Fonts[ContentService.FontSize.Size20],
-                HorizontalAlignment = HorizontalAlignment.Right,
+                BasicTooltipText = tooltip,
+                Font = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value],
+                TextColor = services.SettingService.CountTextColorSetting.Value.GetColor(),
+                HorizontalAlignment = services.SettingService.CountHoritzontalAlignmentSetting.Value,
+                BackgroundColor = services.SettingService.CountBackgroundColorSetting.Value.GetColor() * (services.SettingService.CountBackgroundOpacitySetting.Value / 255f),
                 StrokeText = true,
                 AutoSizeHeight = true,
-                Width = ICON_SIZE - 5,
-                Location = new Point(BACKGROUND_IMAGE_MARGIN + ICON_MARGIN, BACKGROUND_IMAGE_MARGIN + ICON_MARGIN + 1),
+                Width = iconSize - 5,
+                Location = new Point(backgroundMargin + iconMargin, backgroundMargin + iconMargin + 1),
                 Parent = this
             };
 
+            // stat count
             var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
-                AddRarityBorder(stat);
+                AddRarityBorder(stat, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, tooltip);
         }
 
-        private void AddRarityBorder(Stat stat)
+        private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
+        {
+            return stat.Details.State switch
+            {
+                ApiStatDetailsState.GoldCoinCustomStat => services.TextureService.GoldCoinTexture,
+                ApiStatDetailsState.SilveCoinCustomStat => services.TextureService.SilverCoinTexture,
+                ApiStatDetailsState.CopperCoinCustomStat => services.TextureService.CopperCoinTexture,
+                _ => services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId),
+            };
+        }
+
+        private void AddRarityBorder(Stat stat, int borderLeftOrTopLocation, int borderRightOrBottomLocation, int borderThickness, int borderLength, string tooltip)
         {
             var borderColor = DetermineBorderColor(stat.Details.Rarity);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_RIGHT_OR_BOTTOM_LOCATION, BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_THICKNESS, BORDER_LENGTH), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, stat.Tooltip, this);
-            new BorderContainer(new Point(BORDER_LEFT_OR_TOP_LOCATION, BORDER_RIGHT_OR_BOTTOM_LOCATION), new Point(BORDER_LENGTH, BORDER_THICKNESS), borderColor, stat.Tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderRightOrBottomLocation, borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
+            new BorderContainer(new Point(borderLeftOrTopLocation, borderRightOrBottomLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
         }
 
         private static Color DetermineBorderColor(Gw2SharpType.ItemRarity rarity)
@@ -75,16 +106,17 @@ namespace FarmingTracker
             };
         }
 
-        // icon
-        private const int ICON_SIZE = 60;
-        private const int ICON_MARGIN = 1;
-        // background
-        private const int BACKGROUND_SIZE = ICON_SIZE + 2 * ICON_MARGIN;
-        private const int BACKGROUND_IMAGE_MARGIN = 1;
-        // rarity border
-        private const int BORDER_THICKNESS = 2;
-        private const int BORDER_LENGTH = BACKGROUND_SIZE;
-        private const int BORDER_LEFT_OR_TOP_LOCATION = BACKGROUND_IMAGE_MARGIN;
-        private const int BORDER_RIGHT_OR_BOTTOM_LOCATION = BORDER_LEFT_OR_TOP_LOCATION + BORDER_LENGTH - BORDER_THICKNESS;
+        protected override void OnRightMouseButtonPressed(MouseEventArgs e)
+        {
+            if(_stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
+                WikiService.OpenWikiIdQueryInDefaultBrowser(_stat.ApiId);
+
+            if(_stat.Details.HasWikiSearchTerm)
+                WikiService.OpenWikiSearchInDefaultBrowser(_stat.Details.WikiSearchTerm);
+
+            base.OnRightMouseButtonPressed(e);
+        }
+
+        private readonly Stat _stat;
     }
 }
