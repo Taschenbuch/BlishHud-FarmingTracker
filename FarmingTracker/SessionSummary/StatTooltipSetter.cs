@@ -1,4 +1,6 @@
-﻿namespace FarmingTracker
+﻿using System;
+
+namespace FarmingTracker
 {
     public class StatTooltipSetter
     {
@@ -40,7 +42,7 @@
             if (!string.IsNullOrWhiteSpace(stat.Details.Description))
                 tooltip += $"\n{stat.Details.Description}";
 
-            var isSingleItem = stat.Count == 1;
+            var isSingleItem = Math.Abs(stat.Count) == 1;
 
             if (stat.ProfitEach.CanBeSoldToVendor)
             {
