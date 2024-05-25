@@ -72,12 +72,12 @@ namespace FarmingTracker
                     filterPanel.Collapse();
             };
 
-            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, false, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, true, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, false, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, false, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, true, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, false, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel, "Coin will never be hidden."));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
+            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
         }
 
         private static FlowPanel CreateFilterSettingPanel<T>(
@@ -85,8 +85,8 @@ namespace FarmingTracker
             T[] allPossibleFilterElements, 
             SettingEntry<List<T>> filterSettingEntry,
             Services services, 
-            bool hasOverlappingFilterElements,
-            Container parent)
+            Container parent,
+            string hintText = "")
         {
             var filterIconPanel = new Panel
             {
@@ -111,8 +111,8 @@ namespace FarmingTracker
 
             var filterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), filterIconPanel);
 
-            if(hasOverlappingFilterElements)
-                new HintLabel(filterFlowPanel, "Some items match several of these options. These items are\nonly hidden if all matching options are unselected.");
+            if(!string.IsNullOrWhiteSpace(hintText))
+                new HintLabel(filterFlowPanel, hintText);
 
             var buttonFlowPanel = new FlowPanel
             {
@@ -195,5 +195,6 @@ namespace FarmingTracker
         }
 
         private readonly Services _services;
+        private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are\nonly hidden if all matching options are unselected.";
     }
 }

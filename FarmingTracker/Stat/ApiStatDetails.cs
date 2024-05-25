@@ -15,5 +15,9 @@ namespace FarmingTracker
         public int IconAssetId { get; set; } = TextureService.MISSING_ASSET_ID;
         public string WikiSearchTerm { get; set; } = string.Empty;
         public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
+        public bool IsCustomCoinStat => 
+            State == ApiStatDetailsState.GoldCoinCustomStat 
+            || State == ApiStatDetailsState.SilveCoinCustomStat 
+            || State == ApiStatDetailsState.CopperCoinCustomStat;
     }
 }

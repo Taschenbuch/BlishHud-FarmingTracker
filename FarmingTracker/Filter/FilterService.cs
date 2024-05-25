@@ -37,7 +37,7 @@ namespace FarmingTracker
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                currencies = currencies.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
+                currencies = currencies.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
 
             var currencyFilter = services.SettingService.CurrencyFilterSetting.Value.ToList();
             if (currencyFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -50,7 +50,7 @@ namespace FarmingTracker
         {
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(c => IsShownByCountFilter(c, countFilter)).ToList();
+                items = items.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
 
             var sellMethodFilter = services.SettingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -105,12 +105,15 @@ namespace FarmingTracker
             return false;
         }
 
-        private static bool IsShownByCountFilter(Stat stat, List<CountFilter> countFilter)
+        private static bool IsShownByCountSignFilter(Stat stat, List<CountFilter> countFilter)
         {
             if (countFilter.Contains(CountFilter.PositiveCount) && stat.Count > 0)
                 return true;
 
             if (countFilter.Contains(CountFilter.NegativeCount) && stat.Count < 0)
+                return true;
+
+            if (stat.Details.IsCustomCoinStat)
                 return true;
 
             return false;
