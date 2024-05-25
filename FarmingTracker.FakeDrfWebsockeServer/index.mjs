@@ -29,7 +29,7 @@ async function sendDrop(webSocket) {
   for (const message of messages) {
     console.log(`send to client: ${message}`);
     webSocket.send(message);
-    await wait(3000);
+    await wait(1000);
   }
 }
 
