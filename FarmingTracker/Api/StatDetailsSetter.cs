@@ -19,6 +19,13 @@ namespace FarmingTracker
 
             SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
             await SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
+            SetProfits(stats.ItemById);
+        }
+
+        private void SetProfits(Dictionary<int, Stat> itemById)
+        {
+            foreach (var item in itemById.Values)
+                item.SetProfits();
         }
 
         // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).
@@ -142,9 +149,6 @@ namespace FarmingTracker
                 item.Profits.ApiVendorValueInCopper = apiItem.VendorValue; 
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
-
-            foreach (var item in itemById.Values)
-                item.SetProfits();
 
             var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())

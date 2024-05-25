@@ -204,7 +204,6 @@ namespace FarmingTracker
 
             await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
 
-            CoinSplitter.SplitCoinIntoGoldSilverCopperStats(_services.Stats.CurrencyById);
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)

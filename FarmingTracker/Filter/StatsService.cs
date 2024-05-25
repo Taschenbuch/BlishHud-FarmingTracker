@@ -3,8 +3,16 @@ using System.Linq;
 
 namespace FarmingTracker
 {
-    public class RemoveStatsService
+    public class StatsService
     {
+        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(Stats stats)
+        {
+            var items = stats.ItemById.Values.ToList();
+            var currencies = stats.CurrencyById.Values.ToList();
+
+            return (items, currencies);
+        }
+
         public static (List<Stat> items, List<Stat> currencies) RemoveStatsNotUpdatedYetDueToApiError(List<Stat> items, List<Stat> currencies)
         {
             items = RemoveStatsNotUpdatedYetDueToApiError(items);

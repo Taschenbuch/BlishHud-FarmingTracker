@@ -1,39 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
     public class CoinSplitter
     {
-        public static void SplitCoinIntoGoldSilverCopperStats(Dictionary<int, Stat> currencyById)
+        public static List<Stat> ReplaceCoinWithGoldSilverCopperStats(List<Stat> currencies)
         {
-            // do NOT remove coin from currencyById! Removing coin would reset the coin count to 0 before every stats update!
-            currencyById.Remove(GOLD_FAKE_API_ID);
-            currencyById.Remove(SILVER_FAKE_API_ID);
-            currencyById.Remove(COPPER_FAKE_API_ID);
+            var coinStat = currencies.SingleOrDefault(c => c.IsCoin);
+            var noCoinsEarnedOrLost = coinStat == null;
+            if (noCoinsEarnedOrLost)
+                return currencies;
 
-            var hasEarnedOrLostCoin = currencyById.TryGetValue(Coin.COIN_CURRENCY_ID, out var coinsInCopperItem);
-            if (!hasEarnedOrLostCoin)
-                return;
-
-            var coin = new Coin(coinsInCopperItem.Count);
+            var coin = new Coin(coinStat.Count);
 
             if(coin.HasToDisplayGold)
             {
                 var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat);
-                currencyById[goldStat.ApiId] = goldStat;
+                currencies.Add(goldStat);
             }
 
             if(coin.HasToDisplaySilver) 
             {
                 var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat);
-                currencyById[silverStat.ApiId] = silverStat;
+                currencies.Add(silverStat);
             }
             
             if(coin.HasToDisplayCopper)
             {
                 var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat);
-                currencyById[copperStat.ApiId] = copperStat;
+                currencies.Add(copperStat);
             }
+            
+            currencies.Remove(coinStat);
+            return currencies;
         }
 
         private static Stat CreateCoinStat(string name, long count, int apiId, ApiStatDetailsState apiStatDetailsState)
@@ -45,7 +45,7 @@ namespace FarmingTracker
                 Details =
                 {
                     Name = name,
-                    State = apiStatDetailsState // prevents that module tries to get api details for it.
+                    State = apiStatDetailsState // to get get correct coin texture later
                 },
             };
         }
