@@ -44,15 +44,15 @@ namespace FarmingTracker
 
             var isSingleItem = Math.Abs(stat.Count) == 1;
 
-            if (stat.ProfitEach.CanBeSoldToVendor)
+            if (stat.Profits.CanBeSoldToVendor)
             {
-                tooltip += CreateProfitTooltipPart("Vendor", isSingleItem, stat.CountSign, stat.ProfitEach.VendorProfitInCopper, stat.ProfitAll.VendorProfitInCopper);
+                tooltip += CreateProfitTooltipPart("Vendor", isSingleItem, stat.CountSign, stat.Profits.Each.VendorProfitInCopper, stat.Profits.All.VendorProfitInCopper);
             }
 
-            if (stat.ProfitEach.CanBeSoldOnTp)
+            if (stat.Profits.CanBeSoldOnTp)
             {
-                tooltip += CreateProfitTooltipPart("TP sell", isSingleItem, stat.CountSign, stat.ProfitEach.TpSellProfitInCopper, stat.ProfitAll.TpSellProfitInCopper);
-                tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.ProfitEach.TpBuyProfitInCopper, stat.ProfitAll.TpBuyProfitInCopper);
+                tooltip += CreateProfitTooltipPart("TP sell", isSingleItem, stat.CountSign, stat.Profits.Each.TpSellProfitInCopper, stat.Profits.All.TpSellProfitInCopper);
+                tooltip += CreateProfitTooltipPart("TP buy", isSingleItem, stat.CountSign, stat.Profits.Each.TpBuyProfitInCopper, stat.Profits.All.TpBuyProfitInCopper);
                 tooltip += "\n\n(15% trading post fee is already deducted from TP sell/buy.)";
             }
 

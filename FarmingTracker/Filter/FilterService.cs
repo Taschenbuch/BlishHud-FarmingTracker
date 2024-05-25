@@ -93,13 +93,13 @@ namespace FarmingTracker
 
         private static bool IsShownBySellMethodFilter(Stat stat, List<SellMethodFilter> sellMethodFilter)
         {
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.ProfitEach.CanBeSoldToVendor)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.Profits.CanBeSoldToVendor)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.ProfitEach.CanBeSoldOnTp)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.Profits.CanBeSoldOnTp)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.ProfitEach.CanNotBeSold)
+            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.Profits.CanNotBeSold)
                 return true;
 
             return false;

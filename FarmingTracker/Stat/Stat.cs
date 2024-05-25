@@ -9,8 +9,12 @@ namespace FarmingTracker
         public long Count { get; set; }
         public long CountSign => Math.Sign(Count);
         public ApiStatDetails Details { get; set; } = new ApiStatDetails();
-        public Profit ProfitEach { get; set; } = new Profit();
-        public Profit ProfitAll { get; set; } = new Profit();
+        public Profits Profits { get; set; } = new Profits();
         public bool IsCoin => ApiId == Coin.COIN_CURRENCY_ID;
+
+        public void SetProfits()
+        {
+            Profits.SetProfits(Count, Details.Flags);
+        }
     }
 }
