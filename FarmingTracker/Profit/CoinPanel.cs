@@ -36,7 +36,7 @@ namespace FarmingTracker
         }
 
         // coin parameter is gold OR silver OR copper.
-        public void SetValue(long unsignedCoinValue, bool isZeroValueVisible = false)
+        public void SetValue(long unsignedCoinValue, bool isZeroValueVisible)
         {
             Parent = null;
 

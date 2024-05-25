@@ -47,8 +47,8 @@ namespace FarmingTracker
 
             _signLabel.SetSign(coin.Sign); // always show sign label
             // order of setting gold, silver, copper is important because parent is flowpanel!
-            _goldPanel.SetValue(coin.UnsignedGold);
-            _silverPanel.SetValue(coin.UnsignedSilver);
+            _goldPanel.SetValue(coin.UnsignedGold, false);
+            _silverPanel.SetValue(coin.UnsignedSilver, coin.UnsignedGold != 0);
             _copperPanel.SetValue(coin.UnsignedCopper, true); // always show copper
         }
 
