@@ -23,6 +23,7 @@ namespace FarmingTracker
 
             // no dispose necessary:
             SettingsTabIconTexture = GetTextureFromAssetCacheOrFallback(156737);
+            DebugTabIconTexture = GetTextureFromAssetCacheOrFallback(440025);
             WindowBackgroundTexture = GetTextureFromAssetCacheOrFallback(155997);
             InventorySlotBackgroundTexture = GetTextureFromAssetCacheOrFallback(1318622);
         }
@@ -72,6 +73,7 @@ namespace FarmingTracker
         public Texture2D SilverCoinTexture { get; }
         public Texture2D CopperCoinTexture { get; }
         public AsyncTexture2D SettingsTabIconTexture { get; }
+        public AsyncTexture2D DebugTabIconTexture { get; }
         public AsyncTexture2D WindowBackgroundTexture { get; }
         public AsyncTexture2D InventorySlotBackgroundTexture { get; }
 

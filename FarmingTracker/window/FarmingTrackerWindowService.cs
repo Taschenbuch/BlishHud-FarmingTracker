@@ -64,6 +64,12 @@ namespace FarmingTracker
                 return new SettingsTabView(services);
             }
 
+            IView DebugViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = DEBUG_TAB_TITLE;
+                return new DebugTabView(services);
+            }
+
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
             _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, SettingViewFunc, SETTINGS_TAB_TITLE);
 
@@ -72,6 +78,9 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
+#if DEBUG
+            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.DebugTabIconTexture, DebugViewFunc, DEBUG_TAB_TITLE));
+#endif
         }
 
         public void Dispose()
@@ -111,5 +120,6 @@ namespace FarmingTracker
         private const string FILTER_TAB_TITLE = "Filter";
         private const string SORT_TAB_TITLE = "Sort (items)";
         private const string SETTINGS_TAB_TITLE = "Settings";
+        private const string DEBUG_TAB_TITLE = "Debug";
     }
 }

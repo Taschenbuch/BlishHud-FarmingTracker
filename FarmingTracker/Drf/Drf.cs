@@ -8,12 +8,13 @@ namespace FarmingTracker
 {
     public class Drf : IDisposable
     {
-        public Drf(SettingService settingsService)
+        public Drf(SettingService settingService)
         {
-            _settingService = settingsService;
+            _settingService = settingService;
             InitializeEventHandlers();
-            FireAndForgetConnectToDrf();
-            settingsService.DrfTokenSetting.SettingChanged += OnDrfTokenSettingChanged;
+            FireAndForgetConnectToDrf(); // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
+            settingService.DrfTokenSetting.SettingChanged += OnDrfTokenSettingChanged;
+            settingService.IsFakeDrfServerUsedSetting.SettingChanged += OnIsFakeDrfServerUsedSettingChanged;
         }
 
         public DrfConnectionStatus DrfConnectionStatus { get; private set; } = DrfConnectionStatus.Disconnected;
@@ -31,6 +32,7 @@ namespace FarmingTracker
         public void Dispose()
         {
             _settingService.DrfTokenSetting.SettingChanged -= OnDrfTokenSettingChanged;
+            _settingService.IsFakeDrfServerUsedSetting.SettingChanged -= OnIsFakeDrfServerUsedSettingChanged;
             _drfWebSocketClient.Dispose();
             // todo events unsubscriben nötig!
         }
@@ -134,7 +136,6 @@ namespace FarmingTracker
                     $"{reconnectTriesCounter}. try to reconnect to DRF after {reconnectDelaySeconds}s delay. " +
                     $"This message will only appear for the first 6 tries and every 20 tries.");
 
-            // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
             FireAndForgetConnectToDrf();
         }
 
@@ -163,8 +164,16 @@ namespace FarmingTracker
 
         private async void FireAndForgetConnectToDrf()
         {
-            //_drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
+            _drfWebSocketClient.WebSocketUrl = _settingService.IsFakeDrfServerUsedSetting.Value
+                ? "ws://localhost:8080"
+                : "wss://drf.rs/ws";
+
             await _drfWebSocketClient.Connect(_settingService.DrfTokenSetting.Value);
+        }
+
+        private void OnIsFakeDrfServerUsedSettingChanged(object sender, ValueChangedEventArgs<bool> e)
+        {
+            FireAndForgetConnectToDrf();
         }
 
         private readonly SettingService _settingService;
