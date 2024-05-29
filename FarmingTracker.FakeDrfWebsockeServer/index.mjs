@@ -34,7 +34,10 @@ async function sendDrop(webSocket) {
 }
 
 const messages = [
-  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":1},"curr":{"1":123456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // all rarities name test
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"19620":1,"96144":1,"85016":1,"84731":1,"83008":1,"87557":1,"46740":2,"19925":-1},"curr":{"1":123456, "2":-3},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // tooltip test
+  '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599": 1, "19620":1,"96144":1,"85016":1,"84731":1,"83008":-2,"87557":2,"46740":1,"19925":-1},"curr":{"1":123456, "2":-3, "80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // profit test: same item, different counts
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":1},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":2},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
@@ -45,7 +48,7 @@ const messages = [
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":123400},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":120056},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
-  '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":120000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":120000},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":3400},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":3456},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"2","drop":{"items":{},"curr":{"1":56},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',

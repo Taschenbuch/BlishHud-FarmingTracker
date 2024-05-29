@@ -27,21 +27,22 @@ namespace FarmingTracker
 
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
-            var tooltip = StatTooltipSetter.CreateTooltip(stat);
+            var statIconTexture = GetStatIconTexture(stat, services);
+            var statTooltip = new StatTooltip(stat, statIconTexture, services);
 
             // inventory slot background
             new Image(services.TextureService.InventorySlotBackgroundTexture)
             {
-                BasicTooltipText = tooltip,
+                Tooltip = statTooltip,
                 Size = new Point(backgroundSize),
                 Location = new Point(backgroundMargin),
                 Parent = this,
             };
 
             // stat icon
-            new Image(GetStatIconTexture(stat, services))
+            new Image(statIconTexture)
             {
-                BasicTooltipText = tooltip,
+                Tooltip = statTooltip,
                 Opacity = stat.Count > 0 ? 1f : 0.3f,
                 Size = new Point(iconSize),
                 Location = new Point(backgroundMargin + iconMargin),
@@ -52,7 +53,7 @@ namespace FarmingTracker
             new Label
             {
                 Text = stat.Count.ToString(),
-                BasicTooltipText = tooltip,
+                Tooltip = statTooltip,
                 Font = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value],
                 TextColor = services.SettingService.CountTextColorSetting.Value.GetColor(),
                 HorizontalAlignment = services.SettingService.CountHoritzontalAlignmentSetting.Value,
@@ -64,10 +65,8 @@ namespace FarmingTracker
                 Parent = this
             };
 
-            // stat count
-            var isNotCurrency = stat.Details.Rarity != Gw2SharpType.ItemRarity.Unknown;
-            if (services.SettingService.RarityIconBorderIsVisibleSetting.Value && isNotCurrency)
-                AddRarityBorder(stat, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, tooltip);
+            if (services.SettingService.RarityIconBorderIsVisibleSetting.Value)
+                AddRarityBorder(stat.Details.Rarity, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, statTooltip);
         }
 
         private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
@@ -81,29 +80,13 @@ namespace FarmingTracker
             };
         }
 
-        private void AddRarityBorder(Stat stat, int borderLeftOrTopLocation, int borderRightOrBottomLocation, int borderThickness, int borderLength, string tooltip)
+        private void AddRarityBorder(Gw2SharpType.ItemRarity rarity, int borderLeftOrTopLocation, int borderRightOrBottomLocation, int borderThickness, int borderLength, StatTooltip tooltip)
         {
-            var borderColor = DetermineBorderColor(stat.Details.Rarity);
+            var borderColor = ColorService.GetRarityBorderColor(rarity);
             new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
             new BorderContainer(new Point(borderRightOrBottomLocation, borderLeftOrTopLocation), new Point(borderThickness, borderLength), borderColor, tooltip, this);
             new BorderContainer(new Point(borderLeftOrTopLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
             new BorderContainer(new Point(borderLeftOrTopLocation, borderRightOrBottomLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
-        }
-
-        private static Color DetermineBorderColor(Gw2SharpType.ItemRarity rarity)
-        {
-            return rarity switch
-            {
-                Gw2SharpType.ItemRarity.Junk => Constants.JunkColor,
-                Gw2SharpType.ItemRarity.Basic => Constants.BasicColor,
-                Gw2SharpType.ItemRarity.Fine => Constants.FineColor,
-                Gw2SharpType.ItemRarity.Masterwork => Constants.MasterworkColor,
-                Gw2SharpType.ItemRarity.Rare => Constants.RareColor,
-                Gw2SharpType.ItemRarity.Exotic => Constants.ExoticColor,
-                Gw2SharpType.ItemRarity.Ascended => Constants.AscendedColor,
-                Gw2SharpType.ItemRarity.Legendary => Constants.LegendaryColor,
-                _ => Color.Transparent, // includes .Unknown which match currencies
-            };
         }
 
         protected override void OnRightMouseButtonPressed(MouseEventArgs e)

@@ -6,14 +6,18 @@ namespace FarmingTracker
 {
     public class ProfitPanel : FlowPanel
     {
-        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, Services services, Container parent)
+        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, Services services, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             ControlPadding = new Vector2(5, 0);
             BasicTooltipText = tooltip;
             WidthSizingMode = SizingMode.AutoSize;
-            HeightSizingMode = SizingMode.AutoSize;
             Parent = parent;
+
+            if(height > 0)
+                Height = height;
+            else
+                HeightSizingMode = SizingMode.AutoSize;
 
             _rootPanel = new FlowPanel
             {

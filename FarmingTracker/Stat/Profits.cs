@@ -5,9 +5,9 @@ namespace FarmingTracker
 {
     public class Profits
     {
-        public bool CanNotBeSold { get; private set; }
-        public bool CanBeSoldOnTp { get; private set; }
-        public bool CanBeSoldToVendor { get; private set; }
+        public bool CanNotBeSold { get; private set; } = true; // default true, because currencies do not set this
+        public bool CanBeSoldOnTp { get; private set; } = true;
+        public bool CanBeSoldToVendor { get; private set; } = true;
         public Profit Each { get; set; } = new Profit();
         public Profit All { get; set; } = new Profit();
         public long ApiVendorValueInCopper { get; set; }

@@ -5,12 +5,12 @@ namespace FarmingTracker.Controls
 {
     public class BorderContainer : Container
     {
-        public BorderContainer(Point location, Point size, Color borderColor, string tooltip, Container parent)
+        public BorderContainer(Point location, Point size, Color borderColor, Tooltip tooltip, Container parent)
         {
             Location = location;
             Size = size;
             BackgroundColor = borderColor;
-            BasicTooltipText = tooltip;
+            Tooltip = tooltip;
             Parent = parent;
         }
     }
