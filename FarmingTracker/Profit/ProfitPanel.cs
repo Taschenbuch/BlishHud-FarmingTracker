@@ -30,9 +30,9 @@ namespace FarmingTracker
             };
 
             _signLabel = new CoinSignLabel(tooltip, font, _rootPanel);
-            _goldPanel = new CoinPanel(services.TextureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, _rootPanel);
-            _silverPanel = new CoinPanel(services.TextureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, _rootPanel);
-            _copperPanel = new CoinPanel(services.TextureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, _rootPanel);
+            _goldPanel = new CoinPanel(services.TextureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, _rootPanel);
+            _silverPanel = new CoinPanel(services.TextureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, _rootPanel);
+            _copperPanel = new CoinPanel(services.TextureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, _rootPanel);
 
             new Label
             {

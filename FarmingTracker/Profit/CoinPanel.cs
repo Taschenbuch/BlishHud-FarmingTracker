@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class CoinPanel : FlowPanel
     {
-        public CoinPanel(AsyncTexture2D coinTexture, Color textColor, string tooltip, BitmapFont font, Container parent)
+        public CoinPanel(AsyncTexture2D coinTexture, Color textColor, string tooltip, BitmapFont font, bool widthFixed, Container parent)
         {
             _parent = parent;
 
@@ -23,9 +23,19 @@ namespace FarmingTracker
                 Font = font,
                 TextColor = textColor,
                 AutoSizeHeight = true,
-                AutoSizeWidth = true,
+                HorizontalAlignment = HorizontalAlignment.Right, // for better alignment of silver and copper
                 Parent = this,
             };
+
+            if(widthFixed)
+            {
+                _coinLabel.Width = 20; // for better alignment of silver and copper
+            }
+            else
+            {
+                _coinLabel.AutoSizeWidth = true;
+            }
+
 
             _coinImage = new Image(coinTexture)
             {
