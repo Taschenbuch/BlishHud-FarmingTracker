@@ -2,6 +2,8 @@
 using static Blish_HUD.ContentService;
 using System.Collections.Generic;
 using System.Linq;
+using MonoGame.Extended.BitmapFonts;
+using FarmingTracker.Controls;
 
 namespace FarmingTracker
 {
@@ -23,9 +25,10 @@ namespace FarmingTracker
             if (stat.Profits.CanNotBeSold)
                 return;
 
-            AddEmptyLine(parent);
+            if(!stat.IsSingleItem) // hack: because single item has empty string table headers and not headers like "each" and "all". the empty header still use space.
+                AddEmptyLine(parent);
 
-            var profitRootFlowPanel = new FlowPanel
+            var profitColumnsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleLeftToRight,
                 HeightSizingMode = SizingMode.AutoSize,
@@ -35,136 +38,156 @@ namespace FarmingTracker
 
             var font = services.FontService.Fonts[FontSize.Size16];
 
+            AddTitleColumn(stat, font, profitColumnsFlowPanel);
+
+            if(stat.IsSingleItem)
+            {
+                AddProfitColumn("", stat.Profits.Each, stat, font, services, profitColumnsFlowPanel);
+            }
+            else
+            {
+                AddProfitColumn("all", stat.Profits.All, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("each", stat.Profits.Each, stat, font, services, profitColumnsFlowPanel);
+            }
+
+            if (stat.Profits.CanBeSoldOnTp)
+                AddText("\n(15% trading post fee is already deducted from TP sell/buy)", parent);
+        }
+
+        private static void AddTitleColumn(Stat stat, BitmapFont font, Container parent)
+        {
             var titleColumnFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 HeightSizingMode = SizingMode.AutoSize,
                 WidthSizingMode = SizingMode.AutoSize,
-                Parent = profitRootFlowPanel,
+                Parent = parent,
             };
 
-            var allColumnFlowPanel = new FlowPanel
-            {
-                FlowDirection = ControlFlowDirection.SingleTopToBottom,
-                HeightSizingMode = SizingMode.AutoSize,
-                WidthSizingMode = SizingMode.AutoSize,
-                Parent = stat.IsSingleItem ? null : profitRootFlowPanel,
-            };
-
-            var eachColumnFlowPanel = new FlowPanel
-            {
-                FlowDirection = ControlFlowDirection.SingleTopToBottom,
-                HeightSizingMode = SizingMode.AutoSize,
-                WidthSizingMode = SizingMode.AutoSize,
-                Parent = profitRootFlowPanel,
-            };
-
-            var rowHeight = 22;
-
-            var titleColumnLabels = new List<Label>();
-
-            var topLeftLabel = new Label
+            // empty top left cell
+            new Label
             {
                 Text = Constants.EMPTY_LABEL,
                 Font = font,
-                Height = rowHeight,
+                AutoSizeWidth = true,
+                Height = ROW_HEIGHT,
                 Parent = titleColumnFlowPanel,
             };
 
-            titleColumnLabels.Add(topLeftLabel);
-
-            if (stat.Profits.CanBeSoldToVendor)
-            {
-                var vendorRowTitleLabel = new Label
-                {
-                    Text = "Vendor",
-                    Font = font,
-                    Height = rowHeight,
-                    Parent = titleColumnFlowPanel,
-                };
-
-                titleColumnLabels.Add(vendorRowTitleLabel);
-            }
-
             if (stat.Profits.CanBeSoldOnTp)
             {
-                var tpSellTitleLabel = new Label
+                // TP Sell title
+                new Label
                 {
                     Text = "TP Sell",
                     Font = font,
-                    Height = rowHeight,
+                    AutoSizeWidth = true,
+                    Height = ROW_HEIGHT,
                     Parent = titleColumnFlowPanel,
                 };
 
-                var tpBuyTitleLabel = new Label
+                // TP Buy title
+                new Label
                 {
                     Text = "TP Buy",
                     Font = font,
-                    Height = rowHeight,
+                    AutoSizeWidth = true,
+                    Height = ROW_HEIGHT,
                     Parent = titleColumnFlowPanel,
                 };
-
-                titleColumnLabels.Add(tpSellTitleLabel);
-                titleColumnLabels.Add(tpBuyTitleLabel);
-            }
-
-            var titleColumnWidth = titleColumnLabels.Max(l => l.Width) + 20;
-            foreach (var titleColumn in titleColumnLabels)
-                titleColumn.Width = titleColumnWidth;
-
-            var padding = " ";
-
-            new Label
-            {
-                Text = $"{padding}all",
-                Font = font,
-                Height = rowHeight,
-                AutoSizeWidth = true,
-                Parent = allColumnFlowPanel,
-            };
-
-            new Label
-            {
-                Text = stat.IsSingleItem ? Constants.EMPTY_LABEL : $"{padding}each",
-                Font = font,
-                Height = rowHeight,
-                AutoSizeWidth = true,
-                Parent = eachColumnFlowPanel,
-            };
-
-            if (stat.Profits.CanBeSoldOnTp)
-            {
-                var allTpSellProfitPanel = new ProfitPanel("", "", font, services, allColumnFlowPanel, rowHeight);
-                allTpSellProfitPanel.SetProfit(stat.CountSign * stat.Profits.All.TpSellProfitInCopper);
-
-                var allTpBuyProfitPanel = new ProfitPanel("", "", font, services, allColumnFlowPanel, rowHeight);
-                allTpBuyProfitPanel.SetProfit(stat.CountSign * stat.Profits.All.TpBuyProfitInCopper);
-
-                var eachTpSellProfitPanel = new ProfitPanel("", "", font, services, eachColumnFlowPanel, rowHeight);
-                eachTpSellProfitPanel.SetProfit(stat.CountSign * stat.Profits.Each.TpSellProfitInCopper);
-
-                var eachTpBuyProfitPanel = new ProfitPanel("", "", font, services, eachColumnFlowPanel, rowHeight);
-                eachTpBuyProfitPanel.SetProfit(stat.CountSign * stat.Profits.Each.TpBuyProfitInCopper);
             }
 
             if (stat.Profits.CanBeSoldToVendor)
             {
-                var allVendorProfitPanel = new ProfitPanel("", "", font, services, allColumnFlowPanel, rowHeight);
-                allVendorProfitPanel.SetProfit(stat.CountSign * stat.Profits.All.VendorProfitInCopper);
-
-                var eachVendorProfitPanel = new ProfitPanel("", "", font, services, eachColumnFlowPanel, rowHeight);
-                eachVendorProfitPanel.SetProfit(stat.CountSign * stat.Profits.Each.VendorProfitInCopper);
+                // Vendor title
+                new Label
+                {
+                    Text = "Vendor",
+                    Font = font,
+                    AutoSizeWidth = true,
+                    Height = ROW_HEIGHT,
+                    Parent = titleColumnFlowPanel,
+                };
             }
+
+            var maxChildWidth = titleColumnFlowPanel.Children.Max(l => l.Width);
+            foreach (var childControl in titleColumnFlowPanel.Children)
+            {
+                ((Label)childControl).AutoSizeWidth = false;
+                childControl.Width = maxChildWidth;
+            }
+        }
+
+        private static void AddProfitColumn(
+            string columnHeaderText,
+            Profit profit,
+            Stat stat,
+            BitmapFont font,
+            Services services,
+            Container parent)
+        {
+            var columnFlowPanel = new FlowPanel
+            {
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                HeightSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.AutoSize,
+                Parent = parent,
+            };
+
+            // Profit column header
+            var headerLabel = new Label
+            {
+                Text = columnHeaderText,
+                Font = font,
+                Height = ROW_HEIGHT,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Parent = columnFlowPanel,
+            };
+
+            var profitPanels = new List<ProfitPanel>();
+            var containers = new List<FixedWidthContainer>();
 
             if (stat.Profits.CanBeSoldOnTp)
             {
-                new Label
+                // TP Sell profit
+                var tpSellProfitContainer = new FixedWidthContainer(columnFlowPanel);
+                var tpSellProfitPanel = new ProfitPanel("", "", font, services, tpSellProfitContainer, ROW_HEIGHT);
+                tpSellProfitPanel.SetProfit(stat.CountSign * profit.TpSellProfitInCopper);
+                profitPanels.Add(tpSellProfitPanel);
+                containers.Add(tpSellProfitContainer);
+
+                // TP Buy profit
+                var tpBuyProfitContainer = new FixedWidthContainer(columnFlowPanel);
+                var tpBuyProfitPanel = new ProfitPanel("", "", font, services, tpBuyProfitContainer, ROW_HEIGHT);
+                tpBuyProfitPanel.SetProfit(stat.CountSign * profit.TpBuyProfitInCopper);
+                profitPanels.Add(tpBuyProfitPanel);
+                containers.Add(tpBuyProfitContainer);
+            }
+
+            if (stat.Profits.CanBeSoldToVendor)
+            {
+                // Vendor profit
+                var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
+                var vendorProfitPanel = new ProfitPanel("", "", font, services, vendorProfitContainer, ROW_HEIGHT);
+                vendorProfitPanel.SetProfit(stat.CountSign * profit.VendorProfitInCopper);
+                profitPanels.Add(vendorProfitPanel);
+                containers.Add(vendorProfitContainer);
+            }
+
+            foreach (var profitPanel in profitPanels)
+            {
+                profitPanel.ContentResized += (s, e) =>
                 {
-                    Text = "\n(15% trading post fee is already deducted from TP sell/buy.)",
-                    Font = font,
-                    AutoSizeHeight = true,
-                    AutoSizeWidth = true,
-                    Parent = parent,
+                    var maxProfitPanelWidth = profitPanels.Max(p => p.Width);
+                    var columnWidth = maxProfitPanelWidth + 30;
+
+                    headerLabel.Width = columnWidth;
+
+                    for (int i = 0; i < containers.Count; i++)
+                    {
+                        containers[i].Width = columnWidth;
+                        profitPanels[i].Right = columnWidth;
+                    }
                 };
             }
         }
@@ -177,5 +200,7 @@ namespace FarmingTracker
                 Parent = parent,
             };
         }
+
+        private const int ROW_HEIGHT = 22;
     }
 }

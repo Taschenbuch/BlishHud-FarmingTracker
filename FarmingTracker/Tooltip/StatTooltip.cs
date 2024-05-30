@@ -2,8 +2,6 @@
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
 using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
@@ -31,7 +29,7 @@ namespace FarmingTracker
                 case ApiStatDetailsState.GoldCoinCustomStat:
                 case ApiStatDetailsState.SilveCoinCustomStat:
                 case ApiStatDetailsState.CopperCoinCustomStat:
-                    StatTooltipService.AddText("Changes in 'raw gold'.\nIn other words coins spent or gained.", rootFlowPanel);
+                    StatTooltipService.AddText($"{stat.Count}\nChanges in 'raw gold'.\nIn other words coins spent or gained.", rootFlowPanel);
                     break;
                 case ApiStatDetailsState.MissingBecauseUnknownByApi:
                 {
@@ -45,7 +43,7 @@ namespace FarmingTracker
                 }
                 case ApiStatDetailsState.MissingBecauseApiNotCalledYet:
                 {
-                    var errorMessage = $"Error: Api was not called for stat (id: {stat.ApiId}).";
+                    var errorMessage = $"Module error: API was not called for stat. Stats like that should not be displayed (id: {stat.ApiId}).";
                     Module.Logger.Error(errorMessage);
                     StatTooltipService.AddText(errorMessage, rootFlowPanel);
                     break;
@@ -53,7 +51,7 @@ namespace FarmingTracker
                 default:
                 {
                     Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(stat.Details.State, nameof(ApiStatDetailsState), "use error tooltip"));
-                    StatTooltipService.AddText("Module Error: unexpected state", rootFlowPanel);
+                    StatTooltipService.AddText("Module error: unexpected state", rootFlowPanel);
                     break;
                 }
             }
@@ -89,7 +87,7 @@ namespace FarmingTracker
             };
 
             nameLabel.Left = iconImage.Right + 5;
-            nameLabel.Top = (iconImage.Height - nameLabel.Height) / 2;
+            nameLabel.Top = (iconImage.Height - nameLabel.Height) / 2;  
         }
 
         private static void AddDescription(Stat stat, Container parent)
