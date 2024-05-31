@@ -38,7 +38,7 @@ namespace FarmingTracker
 
             var font = services.FontService.Fonts[FontSize.Size16];
 
-            AddTitleColumn(stat, font, profitColumnsFlowPanel);
+            AddTitleColumn(stat, font, services, profitColumnsFlowPanel);
 
             if(stat.IsSingleItem)
             {
@@ -54,7 +54,7 @@ namespace FarmingTracker
                 AddText("\n(15% trading post fee is already deducted from TP sell/buy)", parent);
         }
 
-        private static void AddTitleColumn(Stat stat, BitmapFont font, Container parent)
+        private static void AddTitleColumn(Stat stat, BitmapFont font, Services services, Container parent)
         {
             var titleColumnFlowPanel = new FlowPanel
             {
@@ -77,45 +77,23 @@ namespace FarmingTracker
             if (stat.Profits.CanBeSoldOnTp)
             {
                 // TP Sell title
-                new Label
-                {
-                    Text = "TP Sell",
-                    Font = font,
-                    AutoSizeWidth = true,
-                    Height = ROW_HEIGHT,
-                    Parent = titleColumnFlowPanel,
-                };
-
+                new IconLabel("TP Sell", services.TextureService.TradingPostTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
                 // TP Buy title
-                new Label
-                {
-                    Text = "TP Buy",
-                    Font = font,
-                    AutoSizeWidth = true,
-                    Height = ROW_HEIGHT,
-                    Parent = titleColumnFlowPanel,
-                };
+                new IconLabel("TP Buy", services.TextureService.TradingPostTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
             }
 
             if (stat.Profits.CanBeSoldToVendor)
             {
                 // Vendor title
-                new Label
-                {
-                    Text = "Vendor",
-                    Font = font,
-                    AutoSizeWidth = true,
-                    Height = ROW_HEIGHT,
-                    Parent = titleColumnFlowPanel,
-                };
+                new IconLabel("Vendor", services.TextureService.MerchantTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
             }
 
-            var maxChildWidth = titleColumnFlowPanel.Children.Max(l => l.Width);
-            foreach (var childControl in titleColumnFlowPanel.Children)
-            {
-                ((Label)childControl).AutoSizeWidth = false;
-                childControl.Width = maxChildWidth;
-            }
+            //var maxChildWidth = titleColumnFlowPanel.Children.Max(l => l.Width);
+            //foreach (var childControl in titleColumnFlowPanel.Children)
+            //{
+            //    //((Label)childControl).AutoSizeWidth = false;
+            //    childControl.Width = maxChildWidth;
+            //}
         }
 
         private static void AddProfitColumn(

@@ -30,6 +30,8 @@ namespace FarmingTracker
             DebugTabIconTexture = GetTextureFromAssetCacheOrFallback(440025);
             WindowBackgroundTexture = GetTextureFromAssetCacheOrFallback(155997);
             InventorySlotBackgroundTexture = GetTextureFromAssetCacheOrFallback(1318622);
+            MerchantTexture = GetTextureFromAssetCacheOrFallback(156761);
+            TradingPostTexture = GetTextureFromAssetCacheOrFallback(255379);
         }
 
         public void Dispose()
@@ -83,6 +85,8 @@ namespace FarmingTracker
         public AsyncTexture2D DebugTabIconTexture { get; }
         public AsyncTexture2D WindowBackgroundTexture { get; }
         public AsyncTexture2D InventorySlotBackgroundTexture { get; }
+        public AsyncTexture2D MerchantTexture { get; }
+        public AsyncTexture2D TradingPostTexture { get; }
 
         public const int MISSING_ASSET_ID = 0;
     }
