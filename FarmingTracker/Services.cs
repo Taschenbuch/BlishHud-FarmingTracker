@@ -10,7 +10,7 @@ namespace FarmingTracker
         {
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
-            Drf = new Drf(settingService); // todo ggf. nur settingService übergeben, wenn er nur den braucht?
+            Drf = new Drf(settingService);
             TextureService = new TextureService(contentsManager);
             FarmingTimeStopwatch.Restart();
         }
