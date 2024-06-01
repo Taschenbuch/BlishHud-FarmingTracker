@@ -10,7 +10,7 @@ namespace FarmingTracker
         public IconLabel(string text, AsyncTexture2D texture, int height, BitmapFont font, Container parent)
         {
             HeightSizingMode = SizingMode.AutoSize;
-            Width = 75;
+            Width = 77;
             Parent = parent;
 
             new Image(texture)

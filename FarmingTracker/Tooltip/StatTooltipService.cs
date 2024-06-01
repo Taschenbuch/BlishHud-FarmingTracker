@@ -1,5 +1,4 @@
 ﻿using Blish_HUD.Controls;
-using static Blish_HUD.ContentService;
 using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.BitmapFonts;
@@ -9,18 +8,19 @@ namespace FarmingTracker
 {
     public class StatTooltipService
     {
-        public static void AddText(string text, Container parent)
+        public static void AddText(string text, BitmapFont font, Container parent)
         {
             new Label
             {
                 Text = text,
+                Font = font,
                 AutoSizeWidth = true,
                 AutoSizeHeight = true,
                 Parent = parent,
             };
         }
 
-        public static void AddProfitTable(Stat stat, Services services, Container parent)
+        public static void AddProfitTable(Stat stat, BitmapFont font, Services services, Container parent)
         {
             if (stat.Profits.CanNotBeSold)
                 return;
@@ -36,8 +36,6 @@ namespace FarmingTracker
                 Parent = parent,
             };
 
-            var font = services.FontService.Fonts[FontSize.Size16];
-
             AddTitleColumn(stat, font, services, profitColumnsFlowPanel);
 
             if(stat.IsSingleItem)
@@ -51,7 +49,7 @@ namespace FarmingTracker
             }
 
             if (stat.Profits.CanBeSoldOnTp)
-                AddText("\n(15% trading post fee is already deducted from TP sell/buy)", parent);
+                AddText("\n(15% trading post fee is already deducted from TP sell/buy)", font, parent);
         }
 
         private static void AddTitleColumn(Stat stat, BitmapFont font, Services services, Container parent)
@@ -87,13 +85,6 @@ namespace FarmingTracker
                 // Vendor title
                 new IconLabel("Vendor", services.TextureService.MerchantTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
             }
-
-            //var maxChildWidth = titleColumnFlowPanel.Children.Max(l => l.Width);
-            //foreach (var childControl in titleColumnFlowPanel.Children)
-            //{
-            //    //((Label)childControl).AutoSizeWidth = false;
-            //    childControl.Width = maxChildWidth;
-            //}
         }
 
         private static void AddProfitColumn(
