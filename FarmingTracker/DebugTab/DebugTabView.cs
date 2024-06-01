@@ -53,10 +53,10 @@ namespace FarmingTracker
             drfMessage.Kind = "data";
             drfMessage.Payload.Character = "1";
 
-            foreach (var item in items)
+            foreach (var item in items.Where(s => s.Count != 0))
                 drfMessage.Payload.Drop.Items.Add(item.ApiId, item.Count);
 
-            foreach (var currency in currencies.Take(DrfWebSocketClient.MAX_CURRENCIES_IN_A_SINGLE_DROP))
+            foreach (var currency in currencies.Where(s => s.Count != 0).Take(DrfWebSocketClient.MAX_CURRENCIES_IN_A_SINGLE_DROP))
                 drfMessage.Payload.Drop.Currencies.Add(currency.ApiId, currency.Count);
 
             return drfMessage;
