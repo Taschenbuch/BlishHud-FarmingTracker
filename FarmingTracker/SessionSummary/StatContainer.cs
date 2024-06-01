@@ -29,6 +29,7 @@ namespace FarmingTracker
 
             var statIconTexture = GetStatIconTexture(stat, services);
             var statTooltip = new StatTooltip(stat, statIconTexture, services);
+            _statTooltip = statTooltip;
 
             // inventory slot background
             new Image(services.TextureService.InventorySlotBackgroundTexture)
@@ -100,6 +101,13 @@ namespace FarmingTracker
             base.OnRightMouseButtonPressed(e);
         }
 
+        protected override void DisposeControl()
+        {
+            _statTooltip?.Dispose();
+            base.DisposeControl();
+        }
+
         private readonly Stat _stat;
+        private StatTooltip _statTooltip;
     }
 }

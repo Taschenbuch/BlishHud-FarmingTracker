@@ -7,7 +7,7 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class StatTooltip : Tooltip
+    public class StatTooltip : DisposableTooltip
     {
         public StatTooltip(Stat stat, AsyncTexture2D statIconTexture, Services services)
         {

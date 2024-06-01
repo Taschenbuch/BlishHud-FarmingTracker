@@ -28,14 +28,9 @@ namespace FarmingTracker
             };
 
             if(widthFixed)
-            {
                 _coinLabel.Width = 20; // for better alignment of silver and copper
-            }
             else
-            {
                 _coinLabel.AutoSizeWidth = true;
-            }
-
 
             _coinImage = new Image(coinTexture)
             {
@@ -60,6 +55,15 @@ namespace FarmingTracker
                 _coinImage.Parent = this;
                 Parent = _parent;
             }
+        }
+
+        protected override void DisposeControl()
+        {
+            // because those may not have a parent set
+            _coinLabel?.Dispose();
+            _coinImage?.Dispose();
+
+            base.DisposeControl();
         }
 
         private readonly Label _coinLabel;

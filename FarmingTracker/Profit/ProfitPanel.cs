@@ -59,6 +59,16 @@ namespace FarmingTracker
             _copperPanel.SetValue(coin.UnsignedCopper, true); // always show copper
         }
 
+        protected override void DisposeControl()
+        {
+            // because those may not have a parent set
+            _goldPanel?.Dispose();
+            _silverPanel?.Dispose();
+            _copperPanel?.Dispose();
+
+            base.DisposeControl();
+        }
+
         private readonly FlowPanel _coinsFlowPanel;
         private readonly CoinSignLabel _signLabel;
         private readonly CoinPanel _goldPanel;
