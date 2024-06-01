@@ -66,7 +66,7 @@ namespace FarmingTracker
                 item.Details.Description = apiItem.Description;
                 item.Details.IconAssetId = TextureService.GetIconAssetId(apiItem.Icon);
                 item.Details.Rarity = apiItem.Rarity;
-                item.Details.Flags = apiItem.Flags;
+                item.Details.ItemFlags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 item.Details.WikiSearchTerm = apiItem.ChatLink;
                 item.Profits.ApiVendorValueInCopper = apiItem.VendorValue;
