@@ -345,7 +345,7 @@ namespace FarmingTracker
         // This results in a drf message with all currencies currently in the wallet instead of just the difference
         private static List<DrfMessage> RemoveInvalidMessages(List<DrfMessage> drfMessages)
         {
-            return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= 10).ToList();
+            return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= MAX_CURRENCIES_IN_A_SINGLE_DROP).ToList();
         }
 
         private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);
@@ -359,6 +359,7 @@ namespace FarmingTracker
         private const string CLOSED_BY_SERVER_BECAUSE_AUTHENTICATION_FAILED_DESCRIPTION = "no valid session provided";
         private const int PARTIAL_RECEIVE_BUFFER_SIZE = 4000;
         private const int RECEIVE_BUFFER_SIZE = 10 * PARTIAL_RECEIVE_BUFFER_SIZE;
+        public const int MAX_CURRENCIES_IN_A_SINGLE_DROP = 10;
         private readonly byte[] _receiveBuffer = new byte[RECEIVE_BUFFER_SIZE];
         private CancellationTokenSource _disposeCts = new CancellationTokenSource();
         private CancellationTokenSource _letOnlyLatestWaitCts = new CancellationTokenSource();
