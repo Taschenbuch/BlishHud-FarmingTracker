@@ -12,10 +12,5 @@ namespace FarmingTracker
         public ApiStatDetails Details { get; set; } = new ApiStatDetails();
         public Profits Profits { get; set; } = new Profits();
         public bool IsCoin => ApiId == Coin.COIN_CURRENCY_ID;
-
-        public void SetProfits()
-        {
-            Profits.SetProfits(Count, Details.Flags);
-        }
     }
 }

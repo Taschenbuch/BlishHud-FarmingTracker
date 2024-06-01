@@ -15,13 +15,7 @@ namespace FarmingTracker
 
             CurrencyDetailsSetter.SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
             await ItemDetailsSetter.SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
-            SetProfits(stats.ItemById);
-        }
-
-        private void SetProfits(Dictionary<int, Stat> itemById)
-        {
-            foreach (var item in itemById.Values)
-                item.SetProfits();
+            StatProfitSetter.SetProfits(stats.ItemById);
         }
 
         private Dictionary<int, CurrencyDetails> _currencyDetailsByIdCache = new Dictionary<int, CurrencyDetails>();

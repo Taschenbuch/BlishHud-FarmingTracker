@@ -52,8 +52,8 @@ namespace FarmingTracker
             foreach (var apiPrice in apiPrices)
             {
                 var item = itemById[apiPrice.Id];
-                item.Profits.ApiSellsUnitPriceInCopper = apiPrice.Sells.UnitPrice;
-                item.Profits.ApiBuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
+                item.Details.SellsUnitPriceInCopper = apiPrice.Sells.UnitPrice;
+                item.Details.BuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
             }
 
             if (apiItems.Any())
@@ -69,7 +69,7 @@ namespace FarmingTracker
                 item.Details.ItemFlags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 item.Details.WikiSearchTerm = apiItem.ChatLink;
-                item.Profits.ApiVendorValueInCopper = apiItem.VendorValue;
+                item.Details.VendorValueInCopper = apiItem.VendorValue;
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
 
