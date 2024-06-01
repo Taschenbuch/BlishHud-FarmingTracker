@@ -1,5 +1,4 @@
 ﻿using Blish_HUD.Controls;
-using Microsoft.Xna.Framework;
 
 namespace FarmingTracker.Controls
 {
