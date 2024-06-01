@@ -6,13 +6,18 @@ namespace FarmingTracker
 {
     public class Hacks
     {
-        public static void ClearAndAddChildrenWithoutUiFlickering(ControlCollection<Control> childs, Container parent)
+        public static void ClearAndAddChildrenWithoutUiFlickering(ControlCollection<Control> children, Container parent)
         {
-            foreach (var item in childs)
+            var oldChildren = parent.Children;
+
+            foreach (var item in children)
                 GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update
 
-            GetPrivateField(parent, "_children").SetValue(parent, childs);
+            GetPrivateField(parent, "_children").SetValue(parent, children);
             parent.Invalidate();
+
+            foreach (var oldChild in oldChildren) 
+                oldChild.Dispose(); // called at the end because when called at the beginning it triggers an enumeration was modified exception.
         }
 
         private static FieldInfo GetPrivateField(object target, string fieldName)

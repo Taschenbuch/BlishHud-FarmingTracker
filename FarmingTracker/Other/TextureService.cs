@@ -1,7 +1,9 @@
 ﻿using Blish_HUD.Content;
 using Blish_HUD.Modules.Managers;
+using Gw2Sharp.WebApi;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
 
 namespace FarmingTracker
 {
@@ -22,9 +24,16 @@ namespace FarmingTracker
             FallbackTexture = contentsManager.GetTexture("fallback_157084.png");
 
             // no dispose necessary:
+
+            SmallGoldCoinTexture = GetTextureFromAssetCacheOrFallback(156904);
+            SmallSilverCoinTexture = GetTextureFromAssetCacheOrFallback(156907);
+            SmallCopperCoinTexture = GetTextureFromAssetCacheOrFallback(156902);
             SettingsTabIconTexture = GetTextureFromAssetCacheOrFallback(156737);
+            DebugTabIconTexture = GetTextureFromAssetCacheOrFallback(440025);
             WindowBackgroundTexture = GetTextureFromAssetCacheOrFallback(155997);
             InventorySlotBackgroundTexture = GetTextureFromAssetCacheOrFallback(1318622);
+            MerchantTexture = GetTextureFromAssetCacheOrFallback(156761);
+            TradingPostTexture = GetTextureFromAssetCacheOrFallback(255379);
         }
 
         public void Dispose()
@@ -40,6 +49,11 @@ namespace FarmingTracker
             SilverCoinTexture?.Dispose();
             CopperCoinTexture?.Dispose();
             FallbackTexture?.Dispose();
+        }
+
+        public static int GetIconAssetId(RenderUrl icon)
+        {
+            return int.Parse(Path.GetFileNameWithoutExtension(icon.Url.AbsoluteUri));
         }
 
         public AsyncTexture2D GetTextureFromAssetCacheOrFallback(int assetId)
@@ -71,9 +85,15 @@ namespace FarmingTracker
         public Texture2D GoldCoinTexture { get; }
         public Texture2D SilverCoinTexture { get; }
         public Texture2D CopperCoinTexture { get; }
+        public AsyncTexture2D SmallGoldCoinTexture { get; } // because the big ones look ugly when scaled down
+        public AsyncTexture2D SmallSilverCoinTexture { get; }
+        public AsyncTexture2D SmallCopperCoinTexture { get; }
         public AsyncTexture2D SettingsTabIconTexture { get; }
+        public AsyncTexture2D DebugTabIconTexture { get; }
         public AsyncTexture2D WindowBackgroundTexture { get; }
         public AsyncTexture2D InventorySlotBackgroundTexture { get; }
+        public AsyncTexture2D MerchantTexture { get; }
+        public AsyncTexture2D TradingPostTexture { get; }
 
         public const int MISSING_ASSET_ID = 0;
     }

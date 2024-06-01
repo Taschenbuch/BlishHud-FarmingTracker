@@ -70,6 +70,12 @@ namespace FarmingTracker
                 () => "icon size",
                 () => "Change item/currency icon size.");
 
+            IsFakeDrfServerUsedSetting = settings.DefineSetting(
+                "is fake drf server used",
+                false,
+                () => "fake drf server",
+                () => "fake drf server");
+
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
@@ -109,6 +115,7 @@ namespace FarmingTracker
         public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
         public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; }
         public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
+        public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }

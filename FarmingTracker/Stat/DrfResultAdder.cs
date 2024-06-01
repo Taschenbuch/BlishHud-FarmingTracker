@@ -5,34 +5,31 @@ namespace FarmingTracker
 {
     public class DrfResultAdder
     {
-        public static void UpdateItemById(List<DrfMessage> drfMessages, Dictionary<int, Stat> oldItemById)
+        public static void UpdateItemById(List<DrfMessage> drfMessages, Dictionary<int, Stat> itemById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
-            UpdateStatById(itemIdAndCounts, oldItemById);
+            UpdateStatById(itemIdAndCounts, itemById);
         }
 
-        public static void UpdateCurrencyById(List<DrfMessage> drfMessages, Dictionary<int, Stat> oldCurrencyById)
+        public static void UpdateCurrencyById(List<DrfMessage> drfMessages, Dictionary<int, Stat> currencyById)
         {
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
-            UpdateStatById(currencyIdAndCounts, oldCurrencyById);
+            UpdateStatById(currencyIdAndCounts, currencyById);
         }
 
-        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> itemIdAndCounts, Dictionary<int, Stat> oldItemById)
+        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> statidAndCounts, Dictionary<int, Stat> statById)
         {
-            foreach (var itemIdAndCount in itemIdAndCounts)
+            foreach (var statIdAndCount in statidAndCounts)
             {
-                if (oldItemById.TryGetValue(itemIdAndCount.Key, out var oldItem))
-                    oldItem.Count += itemIdAndCount.Value;
+                if (statById.TryGetValue(statIdAndCount.Key, out var stat))
+                    stat.Count += statIdAndCount.Value;
                 else
-                    oldItemById[itemIdAndCount.Key] = new Stat
+                    statById[statIdAndCount.Key] = new Stat
                     {
-                        ApiId = itemIdAndCount.Key,
-                        Count = itemIdAndCount.Value,
+                        ApiId = statIdAndCount.Key,
+                        Count = statIdAndCount.Value,
                     };
             }
-
-            foreach (var itemWithZeroCount in oldItemById.Values.Where(o => o.Count == 0).ToList())
-                oldItemById.Remove(itemWithZeroCount.ApiId);
         }
     }
 }

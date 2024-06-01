@@ -73,10 +73,10 @@ namespace FarmingTracker
 
         private static bool IsShownByItemFlagFilter(Stat item, List<ItemFlag> flagFilter)
         {
-            if (!item.Details.Flags.Any())
+            if (!item.Details.ItemFlags.Any())
                 return true;
 
-            return item.Details.Flags.List.Any(f => flagFilter.Contains(f));
+            return item.Details.ItemFlags.List.Any(f => flagFilter.Contains(f));
         }
 
         private static bool IsShownByCurrencyFilter(Stat c, List<CurrencyFilter> currencyFilter)

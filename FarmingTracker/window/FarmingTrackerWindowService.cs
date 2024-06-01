@@ -15,15 +15,13 @@ namespace FarmingTracker
             var contentWidth = windowWidth - 80;
             var contentHeight = windowHeight - 20;
 
-            var textureService = services.TextureService;
-
             _farmingTrackerWindow = new TabbedWindow2(
                 services.TextureService.WindowBackgroundTexture,
                 new Rectangle(20, 26, windowWidth, windowHeight),
                 new Rectangle(80, 20, contentWidth, contentHeight))
             {
                 Title = "Farming Tracker",
-                Emblem = textureService.WindowEmblemTexture,
+                Emblem = services.TextureService.WindowEmblemTexture,
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: FarmingTrackerWindow",
                 Location = new Point(300, 300),
@@ -64,14 +62,23 @@ namespace FarmingTracker
                 return new SettingsTabView(services);
             }
 
+            IView DebugViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = DEBUG_TAB_TITLE;
+                return new DebugTabView(services);
+            }
+
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
             _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, SettingViewFunc, SETTINGS_TAB_TITLE);
 
             _farmingTrackerWindow.Tabs.Add(_summaryTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(textureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
+#if DEBUG
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, DebugViewFunc, DEBUG_TAB_TITLE));
+#endif
         }
 
         public void Dispose()
@@ -111,5 +118,6 @@ namespace FarmingTracker
         private const string FILTER_TAB_TITLE = "Filter";
         private const string SORT_TAB_TITLE = "Sort (items)";
         private const string SETTINGS_TAB_TITLE = "Settings";
+        private const string DEBUG_TAB_TITLE = "Debug";
     }
 }

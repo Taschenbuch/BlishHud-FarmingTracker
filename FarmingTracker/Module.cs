@@ -35,7 +35,9 @@ namespace FarmingTracker
             return new ModuleSettingsView(_farmingTrackerWindowService);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected override async Task LoadAsync()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
             _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);

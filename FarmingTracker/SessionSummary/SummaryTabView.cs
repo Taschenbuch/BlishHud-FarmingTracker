@@ -91,8 +91,8 @@ namespace FarmingTracker
         {
             try
             {
-                _services.Stats.ItemById.Clear();
-                _services.Stats.CurrencyById.Clear();
+                StatsService.ResetCounts(_services.Stats.ItemById);
+                StatsService.ResetCounts(_services.Stats.CurrencyById);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -202,8 +202,7 @@ namespace FarmingTracker
             DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Stats.CurrencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _services.Stats.ItemById);
 
-            await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
-
+            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Stats, _services.Gw2ApiManager);
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)

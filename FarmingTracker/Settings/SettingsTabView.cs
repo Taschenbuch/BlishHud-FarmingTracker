@@ -46,14 +46,14 @@ namespace FarmingTracker
             CreateDrfConnectionStatusLabel(font, rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
-            CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountTextColorSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
-            CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountTextColorSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
             CreateIconSizeDropdown(rootFlowPanel, _services);
-            CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
@@ -333,12 +333,6 @@ namespace FarmingTracker
             };
         }
 
-        private static ViewContainer CreateSetting(Container parent, SettingEntry settingEntry)
-        {
-            var viewContainer = new ViewContainer { Parent = parent };
-            viewContainer.Show(SettingView.FromType(settingEntry, parent.Width));
-            return viewContainer;
-        }
 
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;

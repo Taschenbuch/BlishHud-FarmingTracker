@@ -31,8 +31,8 @@ namespace FarmingTracker.DrfWebsocket
 
         public void CustomLoop(List<string> texts)
         {
-            foreach (var text in texts)
-                CustomJsonConverter.Custom(text);
+            //foreach (var text in texts)
+            //    CustomJsonConverter.Custom(text);
         }
     }
 }
