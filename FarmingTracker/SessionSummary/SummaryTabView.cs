@@ -202,8 +202,7 @@ namespace FarmingTracker
             DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Stats.CurrencyById);
             DrfResultAdder.UpdateItemById(drfMessages, _services.Stats.ItemById);
 
-            await _statDetailsSetter.SetDetailsFromApi(_services.Stats, _services.Gw2ApiManager);
-
+            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Stats, _services.Gw2ApiManager);
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)

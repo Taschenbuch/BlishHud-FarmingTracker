@@ -1,7 +1,9 @@
 ﻿using Blish_HUD.Content;
 using Blish_HUD.Modules.Managers;
+using Gw2Sharp.WebApi;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
 
 namespace FarmingTracker
 {
@@ -47,6 +49,11 @@ namespace FarmingTracker
             SilverCoinTexture?.Dispose();
             CopperCoinTexture?.Dispose();
             FallbackTexture?.Dispose();
+        }
+
+        public static int GetIconAssetId(RenderUrl icon)
+        {
+            return int.Parse(Path.GetFileNameWithoutExtension(icon.Url.AbsoluteUri));
         }
 
         public AsyncTexture2D GetTextureFromAssetCacheOrFallback(int assetId)
