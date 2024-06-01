@@ -32,7 +32,7 @@ namespace FarmingTracker
             return (items, currencies);
         }
 
-        internal static void ResetCountsToZero(Dictionary<int, Stat> statById)
+        internal static void ResetCounts(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
                 stat.Count = 0;

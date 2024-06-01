@@ -91,8 +91,8 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCountsToZero(_services.Stats.ItemById);
-                StatsService.ResetCountsToZero(_services.Stats.CurrencyById);
+                StatsService.ResetCounts(_services.Stats.ItemById);
+                StatsService.ResetCounts(_services.Stats.CurrencyById);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
