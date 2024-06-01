@@ -34,10 +34,13 @@ async function sendDrop(webSocket) {
 }
 
 const messages = [
+  // gw2sharp bug test (unknown + known item and currency)
+  '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":1,"70093":1},"curr":{"1":10000,"2":1,"80":1},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":-1,"70093":-1},"curr":{"1":-10000,"2":-1,"80":-1},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // all rarities name test
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"19620":1,"96144":1,"85016":1,"84731":1,"83008":1,"87557":1,"46740":2,"19925":-1},"curr":{"1":123456, "2":-3},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // tooltip test: different profits
-  '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":1,"70093":1,"20316":1,"9353":1,"19718":2,"2392":-1,"923":1,"142":2,"2388":2,"19703":1,"2384":1,"19620":1,"19529":2,"85016":1,"84731":2,"83008":-10,"46740":1},"curr":{"1":123456, "2":-3, "80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"78599":1,"70093":1,"20316":1,"9353":1,"19718":2,"2392":-1,"923":1,"142":2,"2388":2,"19703":1,"2384":1,"19620":1,"19529":2,"85016":1,"84731":2,"83008":-10,"46740":1},"curr":{"1":123456, "2":-3, "80":5},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // profit test: same item, different counts
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":1},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"84731":2},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
