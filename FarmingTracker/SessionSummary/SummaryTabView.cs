@@ -39,7 +39,7 @@ namespace FarmingTracker
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
 
-            if (_services.UpdateLoop.GetAndResetStatPanelsHaveToBeUpdated())
+            if (_services.UpdateLoop.HasToUpdateStatPanels())
             {
                 UiUpdater.UpdateStatPanels(_statsPanels, _services);
                 return; // that is enough work for a single update loop iteration.

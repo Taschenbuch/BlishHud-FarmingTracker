@@ -34,7 +34,7 @@
                 _statPanelsHaveToBeUpdated = true;
         }
 
-        public bool GetAndResetStatPanelsHaveToBeUpdated()
+        public bool HasToUpdateStatPanels()
         {
             lock (_updateLock)
             {
