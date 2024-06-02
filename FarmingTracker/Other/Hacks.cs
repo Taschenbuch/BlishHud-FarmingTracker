@@ -8,16 +8,23 @@ namespace FarmingTracker
     {
         public static void ClearAndAddChildrenWithoutUiFlickering(ControlCollection<Control> children, Container parent)
         {
-            var oldChildren = parent.Children;
+            try            
+            {
+                var oldChildren = parent.Children;
 
-            foreach (var item in children)
-                GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update
+                foreach (var item in children)
+                    GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update
 
-            GetPrivateField(parent, "_children").SetValue(parent, children);
-            parent.Invalidate();
+                GetPrivateField(parent, "_children").SetValue(parent, children);
+                parent.Invalidate();
 
-            foreach (var oldChild in oldChildren) 
-                oldChild.Dispose(); // called at the end because when called at the beginning it triggers an enumeration was modified exception.
+                foreach (var oldChild in oldChildren)
+                    oldChild.Dispose(); // called at the end and inside try-catch because when called at the beginning or after a failed try-catch it triggers an enumeration was modified exception.
+            }
+            catch (Exception e)
+            {
+                Module.Logger.Error(e, "Failed to add children to container with reflection");
+            }
         }
 
         private static FieldInfo GetPrivateField(object target, string fieldName)
