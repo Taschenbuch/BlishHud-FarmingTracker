@@ -1,8 +1,6 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
-using Blish_HUD.Settings.UI.Views;
-using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using System;
 using System.Threading.Tasks;
@@ -44,8 +42,9 @@ namespace FarmingTracker
 
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
             CreateDrfConnectionStatusLabel(font, rootFlowPanel);
-            await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
+            await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.AutomaticResetSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);

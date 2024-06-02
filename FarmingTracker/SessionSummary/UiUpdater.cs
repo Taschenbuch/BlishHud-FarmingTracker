@@ -8,7 +8,7 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Stats);
+            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Model);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
             (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);

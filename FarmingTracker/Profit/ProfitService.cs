@@ -19,9 +19,9 @@ namespace FarmingTracker
             SetTotalAndPerHourProfit(0, 0);
         }
 
-        public void UpdateProfit(Stats stats, TimeSpan elapsedFarmingTime)
+        public void UpdateProfit(Model model, TimeSpan elapsedFarmingTime)
         {
-            var totalProfitInCopper = CalculateTotalProfitInCopper(stats);
+            var totalProfitInCopper = CalculateTotalProfitInCopper(model);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
@@ -33,15 +33,15 @@ namespace FarmingTracker
             _totalProfitInCopper = totalProfitInCopper;
         }
 
-        private static long CalculateTotalProfitInCopper(Stats stats)
+        private static long CalculateTotalProfitInCopper(Model model)
         {
-            var coinsInCopper = stats.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-            var itemsSellProfitInCopper = stats.ItemById.Values.Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
+            var coinsInCopper = model.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
+            var itemsSellProfitInCopper = model.ItemById.Values.Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
             Module.Logger.Debug(
                 $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                $"maxProfitsPerItem {string.Join(" ", stats.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
+                $"maxProfitsPerItem {string.Join(" ", model.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
 
             return totalProfit;
         }

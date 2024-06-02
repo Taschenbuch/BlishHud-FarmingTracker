@@ -1,18 +1,19 @@
 ﻿using Blish_HUD.Modules.Managers;
 using System;
-using System.Diagnostics;
 
 namespace FarmingTracker
 {
     public class Services : IDisposable
     {
-        public Services(ContentsManager contentsManager, Gw2ApiManager gw2ApiManager, SettingService settingService)
+        public Services(ContentsManager contentsManager, DirectoriesManager directoriesManager, Gw2ApiManager gw2ApiManager, SettingService settingService)
         {
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
             Drf = new Drf(settingService);
             TextureService = new TextureService(contentsManager);
-            FarmingTimeStopwatch.Restart();
+            var modelFilePath = FileService.GetModelFilePath(directoriesManager);
+            FileLoadService = new FileLoadService(modelFilePath);
+            FileSaveService = new FileSaveService(modelFilePath);
         }
 
         public void Dispose()
@@ -26,9 +27,10 @@ namespace FarmingTracker
         public TextureService TextureService { get; }
         public Gw2ApiManager Gw2ApiManager { get; }
         public SettingService SettingService { get; }
+        public FileLoadService FileLoadService { get; }
+        public FileSaveService FileSaveService { get; }
         public Drf Drf { get; }
-        public Stats Stats { get; } = new Stats();
-        public Stopwatch FarmingTimeStopwatch { get; } = new Stopwatch();
+        public Model Model { set;  get; } = new Model();
         public string SearchTerm { get; set; } = string.Empty;
     }
 }

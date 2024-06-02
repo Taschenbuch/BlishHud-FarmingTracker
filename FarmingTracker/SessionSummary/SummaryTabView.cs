@@ -38,6 +38,7 @@ namespace FarmingTracker
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
+            _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (_services.UpdateLoop.HasToUpdateStatPanels())
             {
@@ -45,22 +46,43 @@ namespace FarmingTracker
                 return; // that is enough work for a single update loop iteration.
             }
 
+            if (HasToPerformAutomaticReset())
+                _hasToResetStats = true;
+
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _hintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
-                if (_isUpdateStatsRunning)
-                    return; // prevents farming time updates and prevents hintText from being overriden
-
-                _hasToResetStats = false;
-                ResetStats();
-                _services.UpdateLoop.TriggerUpdateStatPanels();
-                _elapsedFarmingTimeLabel.RestartTime();
-                _resetButton.Enabled = true;
-                return; // that is enough work for a single update loop iteration.
+                if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
+                {
+                    _hasToResetStats = false;
+                    ResetStats();
+                    _services.UpdateLoop.TriggerUpdateStatPanels();
+                    _elapsedFarmingTimeLabel.RestartTime();
+                    _resetButton.Enabled = true;
+                    _hasToSaveModelToFile = true;
+                }
+                return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
 
-            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
+            if (_hasToSaveModelToFile || _saveModelRunningTimeMs > SAVE_MODEL_INTERVAL_MS)
+            {
+                if(!_isTaskRunning)
+                {
+                    _saveModelRunningTimeMs = 0;
+                    _hasToSaveModelToFile = false;
+                    
+                    _isTaskRunning = true;
+                    Task.Run(async () =>
+                    {
+                        await _services.FileSaveService.SaveModelToFile(_services.Model);
+                        _isTaskRunning = false;
+                    });
+                }
+                // do not return here because saving the model should not disturb other parts of Update().
+            }
+
+            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -69,30 +91,42 @@ namespace FarmingTracker
                 _services.UpdateLoop.UseFarmingUpdateInterval();
 
                 ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
-                
+
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 ShowOrHideApiErrorHint(apiToken, _hintLabel, _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds);
                 if (!apiToken.CanAccessApi)
                     return; // dont continue to prevent api error hint being overriden by "update..." etc.
 
-                if (!_isUpdateStatsRunning)
+                if (!_isTaskRunning)
                 {
-                    _isUpdateStatsRunning = true;
+                    _isTaskRunning = true;
                     Task.Run(async () =>
                     {
                         await UpdateStats();
-                        _isUpdateStatsRunning = false;
+                        _isTaskRunning = false;
                     });
                 }
             }
+        }
+
+        private bool HasToPerformAutomaticReset()
+        {
+            var isModuleStart = _isModuleStartForReset;
+            _isModuleStartForReset = false;
+
+            return _services.SettingService.AutomaticResetSetting.Value switch
+            {
+                AutomaticReset.OnModuleStart => isModuleStart,
+                _ => false, // includes .Never
+            };
         }
 
         private void ResetStats()
         {
             try
             {
-                StatsService.ResetCounts(_services.Stats.ItemById);
-                StatsService.ResetCounts(_services.Stats.CurrencyById);
+                StatsService.ResetCounts(_services.Model.ItemById);
+                StatsService.ResetCounts(_services.Model.CurrencyById);
                 _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
@@ -109,13 +143,14 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-                if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull)
+                if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull && !_isModuleStartForUpdateStats)
                     return;
 
+                _isModuleStartForUpdateStats = false;
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
                 _services.UpdateLoop.TriggerUpdateStatPanels();
-                _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
+                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
@@ -199,10 +234,10 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Stats.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _services.Stats.ItemById);
-
-            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Stats, _services.Gw2ApiManager);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Model.CurrencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, _services.Model.ItemById);
+            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Model, _services.Gw2ApiManager);
+            _hasToSaveModelToFile = true;
         }
 
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
@@ -336,7 +371,7 @@ namespace FarmingTracker
             _services.UpdateLoop.TriggerUpdateStatPanels();
         }
 
-        private bool _isUpdateStatsRunning;
+        private bool _isTaskRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private ProfitService _profitService;
@@ -351,8 +386,13 @@ namespace FarmingTracker
         private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
+        private bool _isModuleStartForReset = true;
+        private bool _isModuleStartForUpdateStats = true;
+        private bool _hasToSaveModelToFile;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
+        private double _saveModelRunningTimeMs;
+        private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
     }
 }

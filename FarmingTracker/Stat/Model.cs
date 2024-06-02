@@ -2,8 +2,9 @@
 
 namespace FarmingTracker
 {
-    public class Stats
+    public class Model
     {
+        public FarmingDuration FarmingDuration { get; } = new FarmingDuration();
         public Dictionary<int, Stat> ItemById { get; } = new Dictionary<int, Stat>();
         public Dictionary<int, Stat> CurrencyById { get; } = new Dictionary<int, Stat>();
     }

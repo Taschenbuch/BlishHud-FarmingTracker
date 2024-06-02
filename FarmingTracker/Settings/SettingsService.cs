@@ -20,6 +20,12 @@ namespace FarmingTracker
                 "Open the drf.rs settings page. Click on 'Regenerate Token'.\n" +
                 "Copy the token. Paste the token with CTRL + V into this input.");
 
+            AutomaticResetSetting = settings.DefineSetting(
+                "automatic reset",
+                AutomaticReset.OnModuleStart,
+                () => "automatic reset",
+                () => "Change when all farmed items are reset. 'Never' means you have to use the 'Reset' button.");
+
             WindowVisibilityKeyBindingSetting = settings.DefineSetting(
                 "window visibility key binding",
                 new KeyBinding(ModifierKeys.Ctrl | ModifierKeys.Alt | ModifierKeys.Shift, Keys.F),
@@ -107,6 +113,7 @@ namespace FarmingTracker
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }
+        public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
         public SettingEntry<ColorType> CountTextColorSetting { get; }
