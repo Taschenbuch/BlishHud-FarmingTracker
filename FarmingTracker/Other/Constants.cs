@@ -15,6 +15,7 @@ namespace FarmingTracker
         public static Gw2SharpType.ItemRarity[] ALL_ITEM_RARITIES => (Gw2SharpType.ItemRarity[])Enum.GetValues(typeof(Gw2SharpType.ItemRarity));
         public static SellMethodFilter[] ALL_SELL_METHODS => (SellMethodFilter[])Enum.GetValues(typeof(SellMethodFilter));
         public static CountFilter[] ALL_COUNTS => (CountFilter[])Enum.GetValues(typeof(CountFilter));
+        public static KnownByApiFilter[] ALL_KNOWN_BY_API => (KnownByApiFilter[])Enum.GetValues(typeof(KnownByApiFilter));
         public static Gw2SharpType.ItemType[] ALL_ITEM_TYPES => (Gw2SharpType.ItemType[])Enum.GetValues(typeof(Gw2SharpType.ItemType));
         public static Gw2SharpType.ItemFlag[] ALL_ITEM_FLAGS => (Gw2SharpType.ItemFlag[])Enum.GetValues(typeof(Gw2SharpType.ItemFlag));
         public static CurrencyFilter[] ALL_CURRENCIES => (CurrencyFilter[])Enum.GetValues(typeof(CurrencyFilter));

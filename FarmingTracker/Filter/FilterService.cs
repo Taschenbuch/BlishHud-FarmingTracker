@@ -35,38 +35,46 @@ namespace FarmingTracker
 
         private static List<Stat> FilterCurrencies(List<Stat> currencies, Services services)
         {
+            var knownByApi = services.SettingService.KnownByApiFilterSetting.Value.ToList();
+            if (knownByApi.Any()) // prevents that all items are hidden, when no filter is set
+                currencies = currencies.Where(s => IsShownByKnownByApiFilter(s, knownByApi)).ToList();
+
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                currencies = currencies.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
+                currencies = currencies.Where(s => IsShownByCountSignFilter(s, countFilter)).ToList();
 
             var currencyFilter = services.SettingService.CurrencyFilterSetting.Value.ToList();
             if (currencyFilter.Any()) // prevents that all items are hidden, when no filter is set
-                currencies = currencies.Where(c => IsShownByCurrencyFilter(c, currencyFilter)).ToList();
+                currencies = currencies.Where(s => IsShownByCurrencyFilter(s, currencyFilter)).ToList();
 
             return currencies;
         }
 
         private static List<Stat> FilterItems(List<Stat> items, Services services)
         {
+            var knownByApi = services.SettingService.KnownByApiFilterSetting.Value.ToList();
+            if (knownByApi.Any()) // prevents that all items are hidden, when no filter is set
+                items = items.Where(s => IsShownByKnownByApiFilter(s, knownByApi)).ToList();
+
             var countFilter = services.SettingService.CountFilterSetting.Value.ToList();
             if (countFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(c => IsShownByCountSignFilter(c, countFilter)).ToList();
+                items = items.Where(s => IsShownByCountSignFilter(s, countFilter)).ToList();
 
             var sellMethodFilter = services.SettingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => IsShownBySellMethodFilter(i, sellMethodFilter)).ToList();
+                items = items.Where(s => IsShownBySellMethodFilter(s, sellMethodFilter)).ToList();
 
             var rarityFilter = services.SettingService.RarityStatsFilterSetting.Value.ToList();
             if (rarityFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => rarityFilter.Contains(i.Details.Rarity)).ToList();
+                items = items.Where(s => rarityFilter.Contains(s.Details.Rarity)).ToList();
 
             var typeFilter = services.SettingService.TypeStatsFilterSetting.Value.ToList();
             if (typeFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => typeFilter.Contains(i.Details.Type)).ToList();
+                items = items.Where(s => typeFilter.Contains(s.Details.Type)).ToList();
 
             var flagFilter = services.SettingService.FlagStatsFilterSetting.Value.ToList();
             if (flagFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(i => IsShownByItemFlagFilter(i, flagFilter)).ToList();
+                items = items.Where(s => IsShownByItemFlagFilter(s, flagFilter)).ToList();
 
             return items;
         }
@@ -86,6 +94,20 @@ namespace FarmingTracker
                 return true;
 
             if (currencyFilter.Contains((CurrencyFilter)c.ApiId))
+                return true;
+
+            return false;
+        }
+
+        private static bool IsShownByKnownByApiFilter(Stat stat, List<KnownByApiFilter> knownByApi)
+        {
+            if (stat.Details.IsCustomCoinStat)
+                return true;
+
+            if (knownByApi.Contains(KnownByApiFilter.KnownByApi) && stat.Details.State == ApiStatDetailsState.SetByApi)
+                return true;
+
+            if (knownByApi.Contains(KnownByApiFilter.UnknownByApi) && stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
                 return true;
 
             return false;

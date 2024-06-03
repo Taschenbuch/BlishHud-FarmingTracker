@@ -78,6 +78,7 @@ namespace FarmingTracker
             filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
             filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
             filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("GW2 API", Constants.ALL_KNOWN_BY_API, _services.SettingService.KnownByApiFilterSetting, _services, rootFlowPanel, "Coin will never be hidden. Some items like the lvl-80-boost or\ncertain reknown heart items are not known by the GW2 API."));
         }
 
         private static FlowPanel CreateFilterSettingPanel<T>(
@@ -111,7 +112,7 @@ namespace FarmingTracker
 
             var filterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), filterIconPanel);
 
-            if(!string.IsNullOrWhiteSpace(hintText))
+            if (!string.IsNullOrWhiteSpace(hintText))
                 new HintLabel(filterFlowPanel, hintText);
 
             var buttonFlowPanel = new FlowPanel

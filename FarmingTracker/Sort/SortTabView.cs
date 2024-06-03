@@ -25,7 +25,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new CollapsibleHelp( // todo text ändern
+            new CollapsibleHelp(
                 "- only items are sorted, not currencies.\n" +
                 "- multiple sorts can be combined. Example:\n" +
                 "'sort by' positive/negative count, 'then by' rarity, 'then by' name.\n" +
