@@ -24,7 +24,8 @@ namespace FarmingTracker
                 "automatic reset",
                 AutomaticReset.OnModuleStart,
                 () => "automatic reset",
-                () => "Change when all farmed items are reset. 'Never' means you have to use the 'Reset' button.");
+                () => "Change when all farmed items are reset. 'Never' means you have to use the 'Reset' button.\n" +
+                "Using something else than 'on module start' helps to not lose your farming data when gw2, blish or your pc crashes.");
 
             WindowVisibilityKeyBindingSetting = settings.DefineSetting(
                 "window visibility key binding",
