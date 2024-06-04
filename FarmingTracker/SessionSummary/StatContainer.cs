@@ -1,8 +1,8 @@
 ﻿using Blish_HUD.Content;
 using Blish_HUD.Controls;
-using Blish_HUD.Input;
 using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
+using System;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
@@ -68,6 +68,14 @@ namespace FarmingTracker
 
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value)
                 AddRarityBorder(stat.Details.Rarity, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, statTooltip);
+
+            _contextMenuStrip = new ContextMenuStrip();
+            Menu = _contextMenuStrip;
+
+            var wikiMenuItem = _contextMenuStrip.AddMenuItem("Open Wiki");
+            wikiMenuItem.Click += (s, e) => OpenWiki();
+            wikiMenuItem.BasicTooltipText = "Open its wiki page in your default browser.";
+        }
         }
 
         private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
@@ -90,24 +98,24 @@ namespace FarmingTracker
             new BorderContainer(new Point(borderLeftOrTopLocation, borderRightOrBottomLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
         }
 
-        protected override void OnRightMouseButtonPressed(MouseEventArgs e)
+        private void OpenWiki()
         {
-            if(_stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
+            if (_stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
                 WikiService.OpenWikiIdQueryInDefaultBrowser(_stat.ApiId);
 
-            if(_stat.Details.HasWikiSearchTerm)
+            if (_stat.Details.HasWikiSearchTerm)
                 WikiService.OpenWikiSearchInDefaultBrowser(_stat.Details.WikiSearchTerm);
-
-            base.OnRightMouseButtonPressed(e);
         }
 
         protected override void DisposeControl()
         {
+            _contextMenuStrip.Dispose();
             _statTooltip?.Dispose();
             base.DisposeControl();
         }
 
         private readonly Stat _stat;
+        private readonly ContextMenuStrip _contextMenuStrip;
         private StatTooltip _statTooltip;
     }
 }
