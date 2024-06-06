@@ -30,36 +30,45 @@
 
         public void TriggerUpdateStats()
         {
-            lock (_updateStatsLock)
-                _statsHaveToBeUpdated = true;
-
+            _statsHaveToBeUpdated = true;
             _runningTimeMs = _updateIntervalMs; // trigger instant update
         }
 
         public bool HasToUpdateStats()
         {
-            lock (_updateStatsLock)
-            {
-                var statsHaveToBeUpdated = _statsHaveToBeUpdated;
+            var statsHaveToBeUpdated = _statsHaveToBeUpdated;
+            if(statsHaveToBeUpdated)
                 _statsHaveToBeUpdated = false;
-                return statsHaveToBeUpdated;
-            }
+
+            return statsHaveToBeUpdated;
         }
 
         public void TriggerUpdateUi()
         {
-            lock(_updateUiLock)
-                _uiHasToBeUpdated = true;
+            _uiHasToBeUpdated = true;
         }
 
         public bool HasToUpdateUi()
         {
-            lock (_updateUiLock)
-            {
-                var uiHasToBeUpdated = _uiHasToBeUpdated;
+            var uiHasToBeUpdated = _uiHasToBeUpdated;
+            if(uiHasToBeUpdated) // verhindert, dass thread parallel es true setzt und es hier pauschal false gesetzt wird ohne das ein update ausgelöst wird
                 _uiHasToBeUpdated = false;
-                return uiHasToBeUpdated;
-            }
+
+            return uiHasToBeUpdated;
+        }
+
+        public void TriggerSaveModel()
+        {
+            _modelHasToBeSaved = true;
+        }
+
+        public bool HasToSaveModel()
+        {
+            var modelHasToBeSaved = _modelHasToBeSaved;
+            if(modelHasToBeSaved)
+                _modelHasToBeSaved = false;
+            
+            return modelHasToBeSaved;
         }
 
         public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 5_000;
@@ -69,7 +78,6 @@
         private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
         private bool _uiHasToBeUpdated;
         private bool _statsHaveToBeUpdated;
-        private static readonly object _updateUiLock = new object();
-        private static readonly object _updateStatsLock = new object();
+        private bool _modelHasToBeSaved;
     }
 }
