@@ -20,10 +20,10 @@ namespace FarmingTracker
             var itemControls = CreateStatControls(items.ToList(), services);
 
             if (currencyControls.IsEmpty())
-                currencyControls.Add(new HintLabel($"{PADDING}No currency changes detected!"));
+                currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));
 
             if (itemControls.IsEmpty())
-                itemControls.Add(new HintLabel($"{PADDING}No item changes detected!"));
+                itemControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No item changes detected!"));
 
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
@@ -38,7 +38,5 @@ namespace FarmingTracker
 
             return controls;
         }
-
-        private const string PADDING = "  ";
     }
 }

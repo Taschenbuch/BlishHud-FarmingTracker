@@ -332,6 +332,13 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
+            var itemsFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
             {
                 Title = "Currencies",
@@ -340,17 +347,6 @@ namespace FarmingTracker
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = currenciesFilterIconPanel
-            };
-
-            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, "Loading...");
-
-            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
-
-            var itemsFilterIconPanel = new Panel
-            {
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
             };
 
             _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
@@ -363,9 +359,11 @@ namespace FarmingTracker
                 Parent = itemsFilterIconPanel
             };
 
-            new HintLabel(_statsPanels.FarmedItemsFlowPanel, "Loading...");
-
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
+
+            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
 
             return rootFlowPanel;
         }
