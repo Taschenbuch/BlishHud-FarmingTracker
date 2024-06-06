@@ -342,6 +342,8 @@ namespace FarmingTracker
                 Parent = currenciesFilterIconPanel
             };
 
+            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, "Loading...");
+
             _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
 
             var itemsFilterIconPanel = new Panel
@@ -360,6 +362,8 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = itemsFilterIconPanel
             };
+
+            new HintLabel(_statsPanels.FarmedItemsFlowPanel, "Loading...");
 
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
