@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker

@@ -56,7 +56,8 @@ namespace FarmingTracker
             _farmingTrackerWindowService?.Dispose();
             _services?.Dispose();
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated; ;
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
+            _services.FileSaveService.SaveModelToFileSync(_services.Model);
         }
 
         private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
