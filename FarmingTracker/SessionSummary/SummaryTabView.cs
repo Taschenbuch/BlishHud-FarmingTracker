@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
@@ -16,7 +17,7 @@ namespace FarmingTracker
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, _services);
             _timeSinceModuleStartStopwatch.Restart();
-            services.UpdateLoop.TriggerUpdateStatPanels();
+            services.UpdateLoop.TriggerUpdateStats();
             services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
         }
 
@@ -40,8 +41,9 @@ namespace FarmingTracker
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
             _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (_services.UpdateLoop.HasToUpdateStatPanels())
+            if (_services.UpdateLoop.HasToUpdateUi())
             {
+                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
                 UiUpdater.UpdateStatPanels(_statsPanels, _services);
                 return; // that is enough work for a single update loop iteration.
             }
@@ -57,7 +59,7 @@ namespace FarmingTracker
                 {
                     _hasToResetStats = false;
                     ResetStats();
-                    _services.UpdateLoop.TriggerUpdateStatPanels();
+                    _services.UpdateLoop.TriggerUpdateUi();
                     _elapsedFarmingTimeLabel.RestartTime();
                     _resetButton.Enabled = true;
                     _hasToSaveModelToFile = true;
@@ -127,7 +129,6 @@ namespace FarmingTracker
             {
                 StatsService.ResetCounts(_services.Model.ItemById);
                 StatsService.ResetCounts(_services.Model.CurrencyById);
-                _profitService.ResetProfit();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = "";
             }
@@ -143,14 +144,13 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-                if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull && !_isModuleStartForUpdateStats)
+                var hasToUpdateStats = drfMessages.Any() || !_lastStatsUpdateSuccessfull || _services.UpdateLoop.HasToUpdateStats();
+                if (!hasToUpdateStats)
                     return;
 
-                _isModuleStartForUpdateStats = false;
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
                 await UpdateStatsInModel(drfMessages);
-                _services.UpdateLoop.TriggerUpdateStatPanels();
-                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
+                _services.UpdateLoop.TriggerUpdateUi();
                 _lastStatsUpdateSuccessfull = true;
                 _hintLabel.Text = "";
             }
@@ -370,7 +370,7 @@ namespace FarmingTracker
 
         private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
         {
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
         }
 
         private bool _isTaskRunning;
@@ -389,7 +389,6 @@ namespace FarmingTracker
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
         private bool _isModuleStartForReset = true;
-        private bool _isModuleStartForUpdateStats = true;
         private bool _hasToSaveModelToFile;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Services _services;

@@ -28,19 +28,37 @@
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public void TriggerUpdateStatPanels()
+        public void TriggerUpdateStats()
         {
-            lock(_updateLock)
-                _statPanelsHaveToBeUpdated = true;
+            lock (_updateStatsLock)
+                _statsHaveToBeUpdated = true;
+
+            _runningTimeMs = _updateIntervalMs; // trigger instant update
         }
 
-        public bool HasToUpdateStatPanels()
+        public bool HasToUpdateStats()
         {
-            lock (_updateLock)
+            lock (_updateStatsLock)
             {
-                var statPanelsHaveToBeUpdated = _statPanelsHaveToBeUpdated;
-                _statPanelsHaveToBeUpdated = false;
-                return statPanelsHaveToBeUpdated;
+                var statsHaveToBeUpdated = _statsHaveToBeUpdated;
+                _statsHaveToBeUpdated = false;
+                return statsHaveToBeUpdated;
+            }
+        }
+
+        public void TriggerUpdateUi()
+        {
+            lock(_updateUiLock)
+                _uiHasToBeUpdated = true;
+        }
+
+        public bool HasToUpdateUi()
+        {
+            lock (_updateUiLock)
+            {
+                var uiHasToBeUpdated = _uiHasToBeUpdated;
+                _uiHasToBeUpdated = false;
+                return uiHasToBeUpdated;
             }
         }
 
@@ -49,7 +67,9 @@
         private const int FARMING_UPDATE_INTERVAL_MS = 1_000; // todo rename
         private double _runningTimeMs;
         private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
-        private bool _statPanelsHaveToBeUpdated;
-        private static readonly object _updateLock = new object();
+        private bool _uiHasToBeUpdated;
+        private bool _statsHaveToBeUpdated;
+        private static readonly object _updateUiLock = new object();
+        private static readonly object _updateStatsLock = new object();
     }
 }

@@ -39,7 +39,7 @@ namespace FarmingTracker
                 clearSearchButton.Visible = hasSearchTerm;
                 
                 services.SearchTerm = searchTextBox.Text;
-                services.UpdateLoop.TriggerUpdateStatPanels();
+                services.UpdateLoop.TriggerUpdateUi();
             };
         }
     }

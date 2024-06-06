@@ -11,11 +11,6 @@ namespace FarmingTracker
             _totalProfitPanel = totalProfitPanel;
             _profitPerHourPanel = profitPerHourPanel;
             _stopwatch.Restart();
-            ResetProfit();
-        }
-
-        public void ResetProfit()
-        {
             SetTotalAndPerHourProfit(0, 0);
         }
 

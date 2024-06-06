@@ -64,7 +64,7 @@ namespace FarmingTracker
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
         {
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
         }
 
         private void CreateIconSizeDropdown(Container parent, Services services)
@@ -102,7 +102,7 @@ namespace FarmingTracker
                 iconSizeDropDown.Items.Add(dropDownValue);
 
             iconSizeDropDown.SelectedItem = services.SettingService.StatIconSizeSetting.Value.ToString();
-            iconSizeDropDown.ValueChanged += (s, o) => services.UpdateLoop.TriggerUpdateStatPanels();
+            iconSizeDropDown.ValueChanged += (s, o) => services.UpdateLoop.TriggerUpdateUi();
             iconSizeDropDown.ValueChanged += (s, o) =>
             {
                 services.SettingService.StatIconSizeSetting.Value = (StatIconSize)Enum.Parse(typeof(StatIconSize), iconSizeDropDown.SelectedItem);

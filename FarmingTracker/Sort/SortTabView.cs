@@ -78,7 +78,7 @@ namespace FarmingTracker
             var singleSortPanel = new SortPanel(allSortsFlowPanel, sortByWithDirection);
             sortPanels.Add(singleSortPanel);
             SetThenByOrSortByLabels(sortPanels);
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
 
             singleSortPanel.Dropdown.ValueChanged += (s, e) =>
             {
@@ -93,7 +93,7 @@ namespace FarmingTracker
                 sortByList.RemoveAt(sortPanelIndex);
                 sortByList.Insert(sortPanelIndex, singleSortPanel.GetSelectedSortBy());
                 _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
-                _services.UpdateLoop.TriggerUpdateStatPanels();
+                _services.UpdateLoop.TriggerUpdateUi();
             };
 
             singleSortPanel.RemoveSortButton.Click += (s, e) =>
@@ -112,7 +112,7 @@ namespace FarmingTracker
                 singleSortPanel.Parent = null;
                 sortPanels.Remove(singleSortPanel);
                 SetThenByOrSortByLabels(sortPanels);
-                _services.UpdateLoop.TriggerUpdateStatPanels();
+                _services.UpdateLoop.TriggerUpdateUi();
             };
         }
 

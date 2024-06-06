@@ -168,7 +168,7 @@ namespace FarmingTracker
 
                     UpdateOpacity(filterIcon, selectedFilterElements, allPossibleFilterElements);
                     filterSettingEntry.Value = selectedFilterElements;
-                    services.UpdateLoop.TriggerUpdateStatPanels();
+                    services.UpdateLoop.TriggerUpdateUi();
                 };
             }
 
