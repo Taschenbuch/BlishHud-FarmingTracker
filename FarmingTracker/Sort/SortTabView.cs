@@ -38,14 +38,14 @@ namespace FarmingTracker
                 "e.g. do not sort by API ID or NAME first. Every item has an unique API ID and an unique NAME. " +
                 "Because of that it will create groups where each group consists of only 1 item. " +
                 "Single item groups cannot be further sorted. Because of that every 'then by' sort after an API ID / NAME sort, will have no effect.",
-                450, 
+                Constants.PANEL_WIDTH, 
                 rootFlowPanel);
 
             var allSortsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 ControlPadding = new Vector2(0, 5),
-                Width = 450,
+                Width = Constants.PANEL_WIDTH,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel

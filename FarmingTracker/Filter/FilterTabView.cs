@@ -33,7 +33,7 @@ namespace FarmingTracker
                 "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items will be hidden by the filter.\n" +
                 "- filter icon on filter panel header: TRANSPARENT: filter wont hide stats. OPAQUE: filter will hide stats.\n" +
                 "- expand/collapse panels: for a better overview expand/collapse the filter panels by using the expand/collapse-all-buttons or by clicking on the filter panel headers.",
-                450, 
+                Constants.PANEL_WIDTH, 
                 rootFlowPanel);
 
             var buttonFlowPanel = new FlowPanel
