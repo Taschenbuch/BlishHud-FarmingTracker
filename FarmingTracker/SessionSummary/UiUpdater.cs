@@ -19,14 +19,14 @@ namespace FarmingTracker
             var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);
 
+            if (currencyControls.IsEmpty())
+                currencyControls.Add(new HintLabel($"{PADDING}No currency changes detected!"));
+
+            if (itemControls.IsEmpty())
+                itemControls.Add(new HintLabel($"{PADDING}No item changes detected!"));
+
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
-
-            if (statsPanels.FarmedItemsFlowPanel.IsEmpty())
-                new HintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
-
-            if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
-                new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
