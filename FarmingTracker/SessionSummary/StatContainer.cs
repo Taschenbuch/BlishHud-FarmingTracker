@@ -2,17 +2,14 @@
 using Blish_HUD.Controls;
 using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
-using System;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(Stat stat, Services services)
+        public StatContainer(Stat stat, PanelType panelType, Services services)
         {
-            _stat = stat;
-
             // icon
             var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
             var iconMargin = 1;
@@ -28,7 +25,7 @@ namespace FarmingTracker
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
             var statIconTexture = GetStatIconTexture(stat, services);
-            var statTooltip = new StatTooltip(stat, statIconTexture, services);
+            var statTooltip = new StatTooltip(stat, statIconTexture, panelType, services);
             _statTooltip = statTooltip;
 
             // inventory slot background
@@ -69,13 +66,11 @@ namespace FarmingTracker
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value)
                 AddRarityBorder(stat.Details.Rarity, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, statTooltip);
 
-            _contextMenuStrip = new ContextMenuStrip();
-            Menu = _contextMenuStrip;
-
-            var wikiMenuItem = _contextMenuStrip.AddMenuItem("Open Wiki");
-            wikiMenuItem.Click += (s, e) => OpenWiki();
-            wikiMenuItem.BasicTooltipText = "Open its wiki page in your default browser.";
-        }
+            if (panelType == PanelType.SessionSummary)
+            {
+                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, services);
+                Menu = _contextMenuStrip;
+            }
         }
 
         private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
@@ -98,24 +93,14 @@ namespace FarmingTracker
             new BorderContainer(new Point(borderLeftOrTopLocation, borderRightOrBottomLocation), new Point(borderLength, borderThickness), borderColor, tooltip, this);
         }
 
-        private void OpenWiki()
-        {
-            if (_stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
-                WikiService.OpenWikiIdQueryInDefaultBrowser(_stat.ApiId);
-
-            if (_stat.Details.HasWikiSearchTerm)
-                WikiService.OpenWikiSearchInDefaultBrowser(_stat.Details.WikiSearchTerm);
-        }
-
         protected override void DisposeControl()
         {
-            _contextMenuStrip.Dispose();
+            _contextMenuStrip?.Dispose();
             _statTooltip?.Dispose();
             base.DisposeControl();
         }
 
-        private readonly Stat _stat;
         private readonly ContextMenuStrip _contextMenuStrip;
-        private StatTooltip _statTooltip;
+        private readonly StatTooltip _statTooltip;
     }
 }

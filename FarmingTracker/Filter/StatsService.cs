@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FarmingTracker
@@ -36,6 +37,11 @@ namespace FarmingTracker
         {
             foreach (var stat in statById.Values)
                 stat.Count = 0;
+        }
+
+        public static List<Stat> RemoveIgnoredItems(List<Stat> items, List<int> ignoredItemApiIds)
+        {
+            return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
         }
     }
 }

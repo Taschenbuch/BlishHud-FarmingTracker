@@ -8,16 +8,16 @@ namespace FarmingTracker
         public static void UpdateItemById(List<DrfMessage> drfMessages, Dictionary<int, Stat> itemById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
-            UpdateStatById(itemIdAndCounts, itemById);
+            UpdateStatById(itemIdAndCounts, itemById, StatType.Item);
         }
 
         public static void UpdateCurrencyById(List<DrfMessage> drfMessages, Dictionary<int, Stat> currencyById)
         {
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
-            UpdateStatById(currencyIdAndCounts, currencyById);
+            UpdateStatById(currencyIdAndCounts, currencyById, StatType.Currency);
         }
 
-        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> statidAndCounts, Dictionary<int, Stat> statById)
+        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> statidAndCounts, Dictionary<int, Stat> statById, StatType statType)
         {
             foreach (var statIdAndCount in statidAndCounts)
             {
@@ -26,6 +26,7 @@ namespace FarmingTracker
                 else
                     statById[statIdAndCount.Key] = new Stat
                     {
+                        StatType = statType,
                         ApiId = statIdAndCount.Key,
                         Count = statIdAndCount.Value,
                     };

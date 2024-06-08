@@ -13,13 +13,26 @@ namespace FarmingTracker
             foreach (var fileItem in fileModel.FileItems)
                 model.ItemById[fileItem.ApiId] = new Stat
                 {
+                    StatType = StatType.Item,
                     ApiId = fileItem.ApiId,
                     Count = fileItem.Count,
                 };
 
+            model.IgnoredItemApiIds = fileModel.IgnoredItemApiIds;
+
+            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds) // add ignoredItems to items to get their api data on module startup
+                if (!model.ItemById.ContainsKey(ignoredItemApiId))
+                    model.ItemById[ignoredItemApiId] = new Stat
+                    {
+                        StatType = StatType.Item,
+                        ApiId = ignoredItemApiId,
+                        Count = 0,
+                    };
+
             foreach (var fileCurrency in fileModel.FileCurrencies)
                 model.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
+                    StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
                     Count = fileCurrency.Count,
                 };
@@ -34,7 +47,8 @@ namespace FarmingTracker
 
             var fileModel = new FileModel
             {
-                FarmingDuration = model.FarmingDuration.Elapsed
+                FarmingDuration = model.FarmingDuration.Elapsed,
+                IgnoredItemApiIds = model.IgnoredItemApiIds,
             };
 
             foreach (var item in items)

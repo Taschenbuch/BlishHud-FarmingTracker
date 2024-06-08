@@ -56,6 +56,12 @@ namespace FarmingTracker
                 return new SortTabView(services);
             }
 
+            IView IgnoredItemsViewFunc()
+            {
+                _farmingTrackerWindow.Subtitle = IGNORED_ITEMS_TAB_TITLE;
+                return new IgnoredItemsTabView(services);
+            }
+
             IView SettingViewFunc()
             {
                 _farmingTrackerWindow.Subtitle = SETTINGS_TAB_TITLE;
@@ -75,6 +81,7 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, IgnoredItemsViewFunc, IGNORED_ITEMS_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
 #if DEBUG
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, DebugViewFunc, DEBUG_TAB_TITLE));
@@ -113,10 +120,11 @@ namespace FarmingTracker
         private readonly Tab _settingsTab;
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
-        private const string SUMMARY_TAB_TITLE = "Farming Summary";
+        public const string SUMMARY_TAB_TITLE = "Farming Summary";
         private const string TIMELINE_TAB_TITLE = "Farming Timeline";
         private const string FILTER_TAB_TITLE = "Filter";
         private const string SORT_TAB_TITLE = "Sort (items)";
+        public const string IGNORED_ITEMS_TAB_TITLE = "Ignored Items";
         private const string SETTINGS_TAB_TITLE = "Settings";
         private const string DEBUG_TAB_TITLE = "Debug";
     }

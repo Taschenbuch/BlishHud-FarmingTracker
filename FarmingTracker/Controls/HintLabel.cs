@@ -4,6 +4,10 @@ namespace FarmingTracker
 {
     public class HintLabel : Label
     {
+        public HintLabel(string text) : this(null, text)
+        {
+        }
+
         public HintLabel(Container parent, string text) // parent first because text might be long and hides parent then.
         {
             Text = text;

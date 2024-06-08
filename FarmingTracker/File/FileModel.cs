@@ -8,5 +8,6 @@ namespace FarmingTracker
         public TimeSpan FarmingDuration { get; set; }
         public List<FileStat> FileItems { get; set; } = new List<FileStat>();
         public List<FileStat> FileCurrencies { get; set; } = new List<FileStat>();
+        public List<int> IgnoredItemApiIds { get; set; } = new List<int>();
     }
 }

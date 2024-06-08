@@ -9,7 +9,7 @@ namespace FarmingTracker
 {
     public class StatTooltip : DisposableTooltip
     {
-        public StatTooltip(Stat stat, AsyncTexture2D statIconTexture, Services services)
+        public StatTooltip(Stat stat, AsyncTexture2D statIconTexture, PanelType panelType, Services services)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -26,8 +26,15 @@ namespace FarmingTracker
                 case ApiStatDetailsState.SetByApi:
                     AddTitle(stat, statIconTexture, rootFlowPanel);
                     AddDescription(stat, font, rootFlowPanel);
-                    StatTooltipService.AddProfitTable(stat, font, services, rootFlowPanel);
-                    StatTooltipService.AddText("\nRight click to open its wiki page in your default browser.", font, rootFlowPanel);
+                    if(panelType == PanelType.SessionSummary)
+                    {
+                        StatTooltipService.AddProfitTable(stat, font, services, rootFlowPanel);
+                        StatTooltipService.AddText("\nRight click for more options.", font, rootFlowPanel);
+                    }
+                    else
+                    {
+                        StatTooltipService.AddText("\nLeft click to unignore this item.", font, rootFlowPanel);
+                    }
                     break;
                 case ApiStatDetailsState.GoldCoinCustomStat:
                 case ApiStatDetailsState.SilveCoinCustomStat:
@@ -39,9 +46,15 @@ namespace FarmingTracker
                     var errorMessage =
                         $"Unknown item/currency (ID: {stat.ApiId})\n" +
                         $"GW2 API has no information about it.\n" +
-                        $"This issue typically occurs for items related to renown hearts.\n" +
-                        $"Right click to search its ID in the wiki in your default browser.";
+                        $"This issue typically occurs for items related to renown hearts.";
+
                     StatTooltipService.AddText(errorMessage, font, rootFlowPanel);
+
+                    if (panelType == PanelType.SessionSummary)
+                        StatTooltipService.AddText("\nRight click to search its ID in the wiki in your default browser.", font, rootFlowPanel);
+                    else
+                        StatTooltipService.AddText("\nLeft click to unignore this item.", font, rootFlowPanel);
+                    
                     break;
                 }
                 case ApiStatDetailsState.MissingBecauseApiNotCalledYet:

@@ -10,6 +10,7 @@ namespace FarmingTracker
         {
             var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Model);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
+            items = StatsService.RemoveIgnoredItems(items, services.Model.IgnoredItemApiIds);
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
             (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
             (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
@@ -34,7 +35,7 @@ namespace FarmingTracker
             var controls = new ControlCollection<Control>();
 
             foreach (var stat in stats)
-                controls.Add(new StatContainer(stat, services));
+                controls.Add(new StatContainer(stat, PanelType.SessionSummary, services));
 
             return controls;
         }
