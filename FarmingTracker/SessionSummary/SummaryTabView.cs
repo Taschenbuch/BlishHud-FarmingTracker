@@ -176,7 +176,7 @@ namespace FarmingTracker
             FlowPanel farmingRootFlowPanel)
         {
             drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
-                ? Constants.FULL_HEIGHT_EMPTY_LABEL
+                ? Constants.ZERO_HEIGHT_EMPTY_LABEL
                 : DrfConnectionStatusService.GetSummaryTabDrfConnectionStatusText(drfConnectionStatus);
 
             if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)

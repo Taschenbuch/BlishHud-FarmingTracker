@@ -31,7 +31,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new CollapsibleHelp( // todo text ändern
+            new CollapsibleHelp(
                 $"- ignore item:\n" +
                 $"In the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
