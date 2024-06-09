@@ -1,9 +1,7 @@
 ﻿using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
-using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using static Blish_HUD.GameIntegration.AudioIntegration;
 
 namespace FarmingTracker
 {
@@ -38,9 +36,9 @@ namespace FarmingTracker
                 $"In the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
                 $"- unignore item:\n" +
-                $"left click on an item icon here to unignore it.\n" +
+                $"left click on an item here to unignore it.\n" +
                 $"\n" +
-                $"- Why?\n" +
+                $"- Why ignore?\n" +
                 $"An ignored item will appear here. It is hidden in the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab" +
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",
@@ -55,37 +53,44 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
-            _ignoredItemsFlowPanel = new FlowPanel
+            var ignoredItemsWrapperFlowPanel = new FlowPanel
             {
                 Title = IGNORED_ITEMS_PANEL_TITLE,
-                FlowDirection = ControlFlowDirection.LeftToRight,
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel
+            };
+
+            var hintLabel = new HintLabel(ignoredItemsWrapperFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
+
+            _ignoredItemsFlowPanel = new FlowPanel
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                Width = Constants.PANEL_WIDTH,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = ignoredItemsWrapperFlowPanel
             };
 
             var ignoredItems = _services.Model.IgnoredItemApiIds.Select(i => _services.Model.ItemById[i]).ToList();
             var noItemsAreIgnored = _services.Model.IgnoredItemApiIds.IsEmpty();
             if (noItemsAreIgnored)
             {
-                ShowHintIfNoItemsAreIgnored(_services, _ignoredItemsFlowPanel);
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _services);
                 return;
             }
 
             var ignoredItemsApiDataMissing = ignoredItems.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
             if (ignoredItemsApiDataMissing)
             {
-                new HintLabel(
-                    _ignoredItemsFlowPanel,
-                    $"{Constants.HINT_IN_PANEL_PADDING}This tab will not refresh automatically.\n" +
-                    $"{Constants.HINT_IN_PANEL_PADDING}Go to '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab and wait until it finished updating.\n" +
-                    $"{Constants.HINT_IN_PANEL_PADDING}Then come back here and your ignored items will be displayed.");
-
+                ShowLoadingHint(hintLabel);
                 return;
             }
 
+            hintLabel.Text = $"{Constants.HINT_IN_PANEL_PADDING}Left click an item to unignore it.";
+
             foreach (var ignoredItem in ignoredItems)
-                CreateIgnoredItem(ignoredItem, _services, _ignoredItemsFlowPanel);
+                ShowIgnoredItem(ignoredItem, _services, hintLabel, _ignoredItemsFlowPanel);
 
             unignoreAllButton.Enabled = true;
             unignoreAllButton.Click += (sender, args) =>
@@ -96,23 +101,23 @@ namespace FarmingTracker
                 _services.Model.IgnoredItemApiIds.Clear();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
-
-                ShowHintIfNoItemsAreIgnored(_services, _ignoredItemsFlowPanel);
+                
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _services);
             };
         }
 
-        private static void CreateIgnoredItem(Stat ignoredItem, Services services, FlowPanel ignoredItemsFlowPanel)
+        private static void ShowIgnoredItem(Stat ignoredItem, Services services, HintLabel hintLabel, Container parent)
         {
             var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, services)
             {
-                Parent = ignoredItemsFlowPanel
+                Parent = parent
             };
 
             statContainer.Click += (sender, args) =>
             {
                 UnignoreItem(ignoredItem, services);
                 statContainer.Dispose();
-                ShowHintIfNoItemsAreIgnored(services, ignoredItemsFlowPanel);
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, services);
             };
         }
 
@@ -123,16 +128,24 @@ namespace FarmingTracker
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void ShowHintIfNoItemsAreIgnored(Services services, Container parent)
+        private static void ShowNoItemsAreIgnoredHintIfNecessary(HintLabel hintLabel, Services services)
         {
             if (services.Model.IgnoredItemApiIds.Any())
                 return;
 
-            new HintLabel(
-                parent,
+            hintLabel.Text = 
                 $"{Constants.HINT_IN_PANEL_PADDING}No items are ignored.\n" +
                 $"{Constants.HINT_IN_PANEL_PADDING}You can ignore items by right clicking them\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}in the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab.");
+                $"{Constants.HINT_IN_PANEL_PADDING}in the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab.";
+        }
+
+        private static void ShowLoadingHint(HintLabel hintLabel)
+        {
+            hintLabel.Text =
+                $"{Constants.HINT_IN_PANEL_PADDING}This tab will not refresh automatically.\n" +
+                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab and " +
+                $"wait until the '{Constants.UPDATING_HINT_TEXT}' hint disappears.\n" +
+                $"{Constants.HINT_IN_PANEL_PADDING}Then come back here and your ignored items will be displayed.";
         }
 
         private readonly Services _services;
