@@ -45,13 +45,7 @@ namespace FarmingTracker
                 Constants.PANEL_WIDTH,
                 rootFlowPanel);
 
-            var unignoreAllButton = new StandardButton
-            {
-                Text = "Unignore all items",
-                Enabled = false,
-                Width = 150,
-                Parent = rootFlowPanel
-            };
+            var flowPanelWithButtonContainer = new AutoSizeContainer(rootFlowPanel);
 
             var ignoredItemsWrapperFlowPanel = new FlowPanel
             {
@@ -59,8 +53,20 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = flowPanelWithButtonContainer
             };
+
+            var unignoreAllButton = new StandardButton
+            {
+                Text = "Unignore all items",
+                Enabled = false,
+                Width = 150,
+                Left = 50,
+                Top = 5,
+                Parent = flowPanelWithButtonContainer
+            };
+
+            unignoreAllButton.Left = Constants.PANEL_WIDTH - unignoreAllButton.Width - 10;
 
             var hintLabel = new HintLabel(ignoredItemsWrapperFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
