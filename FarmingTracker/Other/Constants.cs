@@ -8,7 +8,7 @@ namespace FarmingTracker
         public const int PANEL_WIDTH = 450; // prevents overlap with window scrollbar
         public const string UPDATING_HINT_TEXT = "updating...";
         public const string RESETTING_HINT_TEXT = "resetting...";
-        public const string EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else
+        public const string FULL_HEIGHT_EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else
         public const string HINT_IN_PANEL_PADDING = "  ";
         public const int PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS = 5;
         // enum lists

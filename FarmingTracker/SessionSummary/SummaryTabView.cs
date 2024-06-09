@@ -176,7 +176,7 @@ namespace FarmingTracker
             FlowPanel farmingRootFlowPanel)
         {
             drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
-                ? Constants.EMPTY_LABEL
+                ? Constants.FULL_HEIGHT_EMPTY_LABEL
                 : DrfConnectionStatusService.GetSummaryTabDrfConnectionStatusText(drfConnectionStatus);
 
             if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)
@@ -252,7 +252,7 @@ namespace FarmingTracker
 
             _drfErrorLabel = new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size18],
                 TextColor = Color.Yellow,
                 StrokeText = true,

@@ -65,7 +65,7 @@ namespace FarmingTracker
             // empty top left cell
             new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Font = font,
                 AutoSizeWidth = true,
                 Height = ROW_HEIGHT,
@@ -165,7 +165,7 @@ namespace FarmingTracker
         {
             new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Parent = parent,
             };
         }
