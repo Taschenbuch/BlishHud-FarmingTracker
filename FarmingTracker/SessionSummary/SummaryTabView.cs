@@ -159,7 +159,7 @@ namespace FarmingTracker
                 Module.Logger.Warn(exception, exception.Message);
                 _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
-                _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _hintLabel.Text = $"{GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
@@ -393,5 +393,6 @@ namespace FarmingTracker
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;
         private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
+        public const string GW2_API_ERROR_HINT = "GW2 API error";
     }
 }
