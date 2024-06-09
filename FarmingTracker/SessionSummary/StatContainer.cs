@@ -1,6 +1,5 @@
 ﻿using Blish_HUD.Content;
 using Blish_HUD.Controls;
-using FarmingTracker.Controls;
 using Microsoft.Xna.Framework;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 

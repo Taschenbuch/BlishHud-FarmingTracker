@@ -1,6 +1,6 @@
 ﻿using Blish_HUD.Controls;
 
-namespace FarmingTracker.Controls
+namespace FarmingTracker
 {
     public class FixedWidthContainer : Container
     {

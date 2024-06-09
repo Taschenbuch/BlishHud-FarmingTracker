@@ -1,7 +1,7 @@
 ﻿using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
 
-namespace FarmingTracker.Controls
+namespace FarmingTracker
 {
     public class BorderContainer : Container
     {

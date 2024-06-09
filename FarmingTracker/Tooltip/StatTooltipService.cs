@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.BitmapFonts;
-using FarmingTracker.Controls;
 
 namespace FarmingTracker
 {
