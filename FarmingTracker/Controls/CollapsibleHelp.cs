@@ -84,11 +84,11 @@ namespace FarmingTracker
         private const string SHOW_HELP_BUTTON_TEXT = "Show Help";
         private const string HIDE_HELP_BUTTON_TEXT = "Hide Help";
         private bool _isHelpExpanded;
-        private Label _label;
+        private readonly Label _label;
         private int _expandedHeight;
-        private Panel _blackContainer;
+        private readonly Panel _blackContainer;
         private int _expandedWidth;
-        private int _collapsedHeight;
-        private int _collapsedWidth;
+        private readonly int _collapsedHeight;
+        private readonly int _collapsedWidth;
     }
 }
