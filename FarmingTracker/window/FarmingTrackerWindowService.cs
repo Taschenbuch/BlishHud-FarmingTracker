@@ -2,7 +2,6 @@
 using Blish_HUD;
 using Microsoft.Xna.Framework;
 using System;
-using Blish_HUD.Graphics.UI;
 
 namespace FarmingTracker
 {
@@ -30,64 +29,37 @@ namespace FarmingTracker
                 Parent = GameService.Graphics.SpriteScreen,
             };
 
+            _farmingTrackerWindow.Resized += (s, e) =>
+            {
+                ShowOrHideWindowSubtitle(e.CurrentSize.X);
+            };
+
+            _farmingTrackerWindow.TabChanged += (s, e) => 
+            {
+                ShowOrHideWindowSubtitle(_farmingTrackerWindow.Width);
+            };
+
             var summaryTabView = new SummaryTabView(this, services);
-
-            IView SummaryViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = SUMMARY_TAB_TITLE;
-                return summaryTabView;
-            }
-
             _summaryTabView = summaryTabView;
-
-            IView TimelineViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = TIMELINE_TAB_TITLE;
-                return new PlaceholderTabView(TIMELINE_TAB_TITLE);
-            }
-
-            IView FilterViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = FILTER_TAB_TITLE;
-                return new FilterTabView(services);
-            }
-
-            IView SortViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = SORT_TAB_TITLE;
-                return new SortTabView(services);
-            }
-
-            IView IgnoredItemsViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = IGNORED_ITEMS_TAB_TITLE;
-                return new IgnoredItemsTabView(services);
-            }
-
-            IView SettingViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = SETTINGS_TAB_TITLE;
-                return new SettingsTabView(services);
-            }
-
-            IView DebugViewFunc()
-            {
-                _farmingTrackerWindow.Subtitle = DEBUG_TAB_TITLE;
-                return new DebugTabView(services);
-            }
-
-            _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, SummaryViewFunc, SUMMARY_TAB_TITLE);
-            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, SettingViewFunc, SETTINGS_TAB_TITLE);
+            _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, SUMMARY_TAB_TITLE);
+            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), SETTINGS_TAB_TITLE);
 
             _farmingTrackerWindow.Tabs.Add(_summaryTab);
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, TimelineViewFunc, TIMELINE_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, FilterViewFunc, FILTER_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, SortViewFunc, SORT_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, IgnoredItemsViewFunc, IGNORED_ITEMS_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, () => new PlaceholderTabView(TIMELINE_TAB_TITLE), TIMELINE_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), FILTER_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), SORT_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(services), IGNORED_ITEMS_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
 #if DEBUG
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, DebugViewFunc, DEBUG_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(services), DEBUG_TAB_TITLE));
 #endif
+        }
+
+        private void ShowOrHideWindowSubtitle(int width)
+        {
+            _farmingTrackerWindow.Subtitle = width < 500
+                                ? ""
+                                : _farmingTrackerWindow.SelectedTab.Name;
         }
 
         public void Dispose()
@@ -119,9 +91,9 @@ namespace FarmingTracker
         }
 
         private readonly TabbedWindow2 _farmingTrackerWindow;
-        private readonly Tab _settingsTab;
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
+        private readonly Tab _settingsTab;
         public const string SUMMARY_TAB_TITLE = "Farming Summary";
         private const string TIMELINE_TAB_TITLE = "Farming Timeline";
         private const string FILTER_TAB_TITLE = "Filter";
