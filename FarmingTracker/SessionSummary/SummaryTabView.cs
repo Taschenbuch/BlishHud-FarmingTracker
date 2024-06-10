@@ -261,7 +261,7 @@ namespace FarmingTracker
 
             _drfErrorLabel = new Label
             {
-                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
+                Text = Constants.ZERO_HEIGHT_EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size18],
                 TextColor = Color.Yellow,
                 StrokeText = true,
