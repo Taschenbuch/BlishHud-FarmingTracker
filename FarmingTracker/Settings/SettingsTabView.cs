@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FarmingTracker
 {
@@ -226,7 +227,7 @@ namespace FarmingTracker
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
                 "2. Create a drf account on the website and link it with\nyour GW2 Account(s).");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, addDrfTokenFlowPanel);
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             var testDrfHeader = "Test DRF";
@@ -238,7 +239,7 @@ namespace FarmingTracker
                 "e.g. by opening an unidentified gear.\n" +
                 "The items should appear almost instantly in the web live tracker.");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, addDrfTokenFlowPanel);
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Does NOT work? :-( Try this:", font);
@@ -248,7 +249,7 @@ namespace FarmingTracker
                 "- If you installed drf.dll a while ago, check the drf website whether an\nupdated version of drf.dll is available.\n" +
                 "- DRF Discord can help:");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", addDrfTokenFlowPanel);
+            CreateButtonToOpenUrlInDefaultBrowser("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
@@ -260,7 +261,7 @@ namespace FarmingTracker
                 "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
                 "5. Done! Open the first tab again to see the tracked items/currencies :-)");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, addDrfTokenFlowPanel);
+            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "TROUBLESHOOTING", headerFont);
@@ -366,17 +367,18 @@ namespace FarmingTracker
                 _services.Drf.ReconnectDelaySeconds);
         }
 
-        private static void CreateButtonToOpenUrlInDefaultBrowser(string url, string buttonText, string buttonTooltip, Container parent)
+        private static void CreateButtonToOpenUrlInDefaultBrowser(string url, string buttonText, string buttonTooltip, Texture2D buttonIcon, Container parent)
         {
-            var patchNotesButton = new StandardButton
+            var button = new StandardButton
             {
                 Text = buttonText,
                 BasicTooltipText = buttonTooltip,
+                Icon = buttonIcon,
                 Width = 300,
                 Parent = parent
             };
 
-            patchNotesButton.Click += (s, e) =>
+            button.Click += (s, e) =>
             {
                 Process.Start(new ProcessStartInfo
                 {

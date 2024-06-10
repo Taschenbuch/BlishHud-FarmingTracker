@@ -22,6 +22,7 @@ namespace FarmingTracker
             GoldCoinTexture = contentsManager.GetTexture("coin-gold.png");
             SilverCoinTexture = contentsManager.GetTexture("coin-silver.png");
             CopperCoinTexture = contentsManager.GetTexture("coin-copper.png");
+            OpenLinkTexture = contentsManager.GetTexture("open-link.png");
             FallbackTexture = contentsManager.GetTexture("fallback_157084.png");
 
             // no dispose necessary:
@@ -49,6 +50,7 @@ namespace FarmingTracker
             GoldCoinTexture?.Dispose();
             SilverCoinTexture?.Dispose();
             CopperCoinTexture?.Dispose();
+            OpenLinkTexture?.Dispose();
             FallbackTexture?.Dispose();
         }
 
@@ -84,6 +86,7 @@ namespace FarmingTracker
         public Texture2D CornerIconTexture { get; }
         public Texture2D CornerIconHoverTexture { get; }
         public Texture2D FallbackTexture { get; }
+        public Texture2D OpenLinkTexture { get; }
         public Texture2D GoldCoinTexture { get; }
         public Texture2D SilverCoinTexture { get; }
         public Texture2D CopperCoinTexture { get; }
