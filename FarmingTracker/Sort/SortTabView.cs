@@ -25,7 +25,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new CollapsibleHelp(
+            var collapsibleHelp = new CollapsibleHelp(
                 "- only items are sorted, not currencies.\n" +
                 "- multiple sorts can be combined. Example:\n" +
                 "'sort by' positive/negative count, 'then by' rarity, 'then by' name.\n" +
@@ -38,8 +38,13 @@ namespace FarmingTracker
                 "e.g. do not sort by API ID or NAME first. Every item has an unique API ID and an unique NAME. " +
                 "Because of that it will create groups where each group consists of only 1 item. " +
                 "Single item groups cannot be further sorted. Because of that every 'then by' sort after an API ID / NAME sort, will have no effect.",
-                Constants.PANEL_WIDTH, 
+                buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
                 rootFlowPanel);
+
+            buildPanel.ContentResized += (s, e) =>
+            {
+                collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET);
+            };
 
             var allSortsFlowPanel = new FlowPanel
             {

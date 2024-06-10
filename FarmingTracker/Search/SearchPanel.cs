@@ -10,7 +10,7 @@ namespace FarmingTracker
             WidthSizingMode = SizingMode.AutoSize;
             Parent = parent;
 
-            var searchTextBox = new TextBox
+            _searchTextBox = new TextBox
             {
                 Text = services.SearchTerm,
                 PlaceholderText = "Search...",
@@ -20,27 +20,46 @@ namespace FarmingTracker
                 Parent = this,
             };
 
-            var clearSearchButton = new StandardButton()
+            _clearSearchButton = new StandardButton()
             {
                 Text = "x",
-                Top = searchTextBox.Top,
-                Left = searchTextBox.Right - 30,
+                Top = _searchTextBox.Top,
+                Left = _searchTextBox.Right - 30,
                 Width = 30,
                 BasicTooltipText = "Clear search input",
-                Visible = !string.IsNullOrWhiteSpace(searchTextBox.Text),
+                Visible = !string.IsNullOrWhiteSpace(_searchTextBox.Text),
                 Parent = this,
             };
 
-            clearSearchButton.Click += (s, o) => searchTextBox.Text = "";
+            _clearSearchButton.Click += (s, o) => _searchTextBox.Text = "";
 
-            searchTextBox.TextChanged += (s, o) =>
+            _searchTextBox.TextChanged += (s, o) =>
             {
-                var hasSearchTerm = !string.IsNullOrWhiteSpace(searchTextBox.Text);
-                clearSearchButton.Visible = hasSearchTerm;
+                var hasSearchTerm = !string.IsNullOrWhiteSpace(_searchTextBox.Text);
+                _clearSearchButton.Visible = hasSearchTerm;
                 
-                services.SearchTerm = searchTextBox.Text;
+                services.SearchTerm = _searchTextBox.Text;
                 services.UpdateLoop.TriggerUpdateUi();
             };
+
+            SetSize(parent.Width);
         }
+
+        public void UpdateSize(int width)
+        {
+            SetSize(width);
+        }
+
+        private void SetSize(int width)
+        {
+            _searchTextBox.Width = width > 300
+                ? 300
+                : width;
+
+            _clearSearchButton.Left = _searchTextBox.Right - 30;
+        }
+
+        private readonly TextBox _searchTextBox;
+        private readonly StandardButton _clearSearchButton;
     }
 }

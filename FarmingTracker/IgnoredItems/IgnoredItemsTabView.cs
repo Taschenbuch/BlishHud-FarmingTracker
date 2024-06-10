@@ -31,7 +31,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new CollapsibleHelp(
+            var collapsibleHelp = new CollapsibleHelp(
                 $"- ignore item:\n" +
                 $"In the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
@@ -42,8 +42,13 @@ namespace FarmingTracker
                 $"An ignored item will appear here. It is hidden in the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab" +
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",
-                Constants.PANEL_WIDTH,
+                buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
                 rootFlowPanel);
+
+            buildPanel.ContentResized += (s, e) =>
+            {
+                collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET);
+            };
 
             var flowPanelWithButtonContainer = new AutoSizeContainer(rootFlowPanel);
 
@@ -51,7 +56,7 @@ namespace FarmingTracker
             {
                 Title = IGNORED_ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
-                Width = Constants.PANEL_WIDTH,
+                Width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = flowPanelWithButtonContainer
             };
@@ -61,21 +66,25 @@ namespace FarmingTracker
                 Text = "Unignore all items",
                 Enabled = false,
                 Width = 150,
-                Left = 50,
                 Top = 5,
+                Right = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET,
                 Parent = flowPanelWithButtonContainer
             };
-
-            unignoreAllButton.Left = Constants.PANEL_WIDTH - unignoreAllButton.Width - 10;
 
             var hintLabel = new HintLabel(ignoredItemsWrapperFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
             _ignoredItemsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.LeftToRight,
-                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.Fill,
                 Parent = ignoredItemsWrapperFlowPanel
+            };
+
+            buildPanel.ContentResized += (s, e) =>
+            {
+                ignoredItemsWrapperFlowPanel.Width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
+                unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
             var ignoredItems = _services.Model.IgnoredItemApiIds.Select(i => _services.Model.ItemById[i]).ToList();

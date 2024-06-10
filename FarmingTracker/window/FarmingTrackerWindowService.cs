@@ -25,6 +25,8 @@ namespace FarmingTracker
                 SavesPosition = true,
                 Id = "Ecksofa.FarmingTracker: FarmingTrackerWindow",
                 Location = new Point(300, 300),
+                CanResize = true,
+                SavesSize = true,
                 Parent = GameService.Graphics.SpriteScreen,
             };
 

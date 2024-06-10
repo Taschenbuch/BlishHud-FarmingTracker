@@ -34,6 +34,15 @@ namespace FarmingTracker
         protected override void Build(Container buildPanel)
         {
             _rootFlowPanel.Parent = buildPanel;
+            buildPanel.ContentResized += (s,e) =>
+            {
+                var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
+                _statsPanels.FarmedCurrenciesFlowPanel.Width = width;
+                _statsPanels.FarmedItemsFlowPanel.Width = width;
+                _statsPanels.ItemsFilterIcon.SetLeft(width);
+                _statsPanels.CurrencyFilterIcon.SetLeft(width);
+                _searchPanel.UpdateSize(width);
+            };
         }
 
         public void Update(GameTime gameTime)
@@ -322,7 +331,7 @@ namespace FarmingTracker
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
-            new SearchPanel(_services, _farmingRootFlowPanel);
+            _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
 
             var currenciesFilterIconPanel = new Panel
             {
@@ -376,6 +385,7 @@ namespace FarmingTracker
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private ProfitService _profitService;
+        private SearchPanel _searchPanel;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
         private OpenSettingsButton _openSettingsButton;
