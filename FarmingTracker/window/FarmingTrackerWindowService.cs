@@ -94,10 +94,10 @@ namespace FarmingTracker
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
         private readonly Tab _settingsTab;
-        public const string SUMMARY_TAB_TITLE = "Farming Summary";
-        private const string TIMELINE_TAB_TITLE = "Farming Timeline";
+        public const string SUMMARY_TAB_TITLE = "Summary";
+        private const string TIMELINE_TAB_TITLE = "Timeline";
         private const string FILTER_TAB_TITLE = "Filter";
-        private const string SORT_TAB_TITLE = "Sort (items)";
+        private const string SORT_TAB_TITLE = "Sort Items";
         public const string IGNORED_ITEMS_TAB_TITLE = "Ignored Items";
         private const string SETTINGS_TAB_TITLE = "Settings";
         private const string DEBUG_TAB_TITLE = "Debug";
