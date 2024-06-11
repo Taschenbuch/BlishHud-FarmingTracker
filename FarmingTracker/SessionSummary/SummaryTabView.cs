@@ -138,7 +138,7 @@ namespace FarmingTracker
                 StatsService.ResetCounts(_services.Model.ItemById);
                 StatsService.ResetCounts(_services.Model.CurrencyById);
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
-                _hintLabel.Text = "";
+                _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Exception exception)
             {
@@ -161,7 +161,7 @@ namespace FarmingTracker
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
-                _hintLabel.Text = "";
+                _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Gw2ApiException exception)
             {
@@ -296,7 +296,6 @@ namespace FarmingTracker
                 Text = "Reset",
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
-                Left = 460,
                 Parent = buttonFlowPanel,
             };
 
@@ -306,8 +305,7 @@ namespace FarmingTracker
                 _hasToResetStats = true;
             };
 
-
-            new OpenUrlInBrowserButton( // below tabs, because otherwise it is behind the window
+            new OpenUrlInBrowserButton(
                 "https://drf.rs/dashboard/livetracker/summary",
                 "DRF",
                 "Open DRF live tracking website in your default web browser.\n" +
@@ -332,9 +330,10 @@ namespace FarmingTracker
 
             _hintLabel = new Label
             {
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size14],
+                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
                 AutoSizeHeight = true,
-                AutoSizeWidth = true,
                 Parent = _controlsFlowPanel
             };
 
