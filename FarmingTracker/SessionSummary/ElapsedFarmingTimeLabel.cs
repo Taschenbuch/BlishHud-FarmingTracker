@@ -55,7 +55,7 @@ namespace FarmingTracker
 
         private static string CreateFarmingTimeText(string timeString)
         {
-            return $"farming for {timeString}";
+            return $"Farming for {timeString}";
         }
 
         private TimeSpan _oldFarmingTime = TimeSpan.Zero;
