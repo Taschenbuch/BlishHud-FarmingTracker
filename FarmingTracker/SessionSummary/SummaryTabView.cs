@@ -283,19 +283,42 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
+            var buttonFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanScroll = true,
+                ControlPadding = new Vector2(5, 0),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
             _resetButton = new StandardButton()
             {
                 Text = "Reset",
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
                 Left = 460,
-                Parent = _farmingRootFlowPanel,
+                Parent = buttonFlowPanel,
             };
 
             _resetButton.Click += (s, e) =>
             {
                 _resetButton.Enabled = false;
                 _hasToResetStats = true;
+            };
+
+
+            new OpenUrlInBrowserButton( // below tabs, because otherwise it is behind the window
+                "https://drf.rs/dashboard/livetracker/summary",
+                "DRF",
+                "Open DRF live tracking website in your default web browser.\n" +
+                "The module and the DRF live tracking web page are both DRF clients. But they are independent of each other. " +
+                "They do not synchronize the data they display. So one client may show less or more data dependend on when the client session started.",
+                services.TextureService.OpenLinkTexture,
+                buttonFlowPanel)
+            {
+                Width = 60,
             };
 
             _controlsFlowPanel = new FlowPanel()
