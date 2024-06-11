@@ -278,7 +278,7 @@ namespace FarmingTracker
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
                 ControlPadding = new Vector2(0, 10),
-                WidthSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel
             };
@@ -300,9 +300,9 @@ namespace FarmingTracker
 
             _controlsFlowPanel = new FlowPanel()
             {
-                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                FlowDirection = ControlFlowDirection.LeftToRight,
                 ControlPadding = new Vector2(20, 0),
-                WidthSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
             };
