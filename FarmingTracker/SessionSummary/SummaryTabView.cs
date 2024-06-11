@@ -34,6 +34,9 @@ namespace FarmingTracker
         protected override void Build(Container buildPanel)
         {
             _rootFlowPanel.Parent = buildPanel;
+            var resetAndDrfButtonsOffset = 70;
+            _collapsibleHelp.UpdateSize(buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+
             buildPanel.ContentResized += (s,e) =>
             {
                 var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
@@ -42,6 +45,7 @@ namespace FarmingTracker
                 _statsPanels.ItemsFilterIcon.SetLeft(width);
                 _statsPanels.CurrencyFilterIcon.SetLeft(width);
                 _searchPanel.UpdateSize(width);
+                _collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
             };
         }
 
@@ -247,7 +251,6 @@ namespace FarmingTracker
             DrfResultAdder.UpdateItemById(drfMessages, _services.Model.ItemById);
             await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Model, _services.Gw2ApiManager);
         }
-
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
         {
             var rootFlowPanel = new FlowPanel()
@@ -284,11 +287,44 @@ namespace FarmingTracker
 
             var buttonFlowPanel = new FlowPanel()
             {
-                FlowDirection = ControlFlowDirection.LeftToRight,
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
                 ControlPadding = new Vector2(5, 0),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
+            };
+
+            _collapsibleHelp = new CollapsibleHelp(
+                "DRF setup instructions and DRF and module troubleshooting can be found in the settings tab.\n" +
+                $"\n" +
+                $"PROFIT:\n" +
+                "15% trading post fee is already deducted.\n" +
+                "Profit also includes changes in 'raw gold'. In other words coins spent or gained. " +
+                $"'raw gold' changes are also visible in the '{CURRENCIES_PANEL_TITLE}' panel.\n" +
+                "Lost items reduce the profit accordingly.\n" +
+                "Currencies are not included in the profit calculation (except 'raw gold').\n" +
+                "rough profit = raw gold + item count * tp sell price * 0.85 + ...for all items.\n" +
+                "When tp sell price does not exist, tp buy price will be used. " +
+                "Vendor price will be used when it is higher than tp sell/buy price * 0.85.\n" +
+                "Module and DRF live tracking website profit calculation may differ because different profit formulas are used.\n" +
+                $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.\n" +
+                $"The profit is only a rough estimate because the trading post buy/sell prices can change over time and " +
+                $"only the highest tp buy price and tp sell price for an item are considered. The tp buy/sell prices are a snapshot from " +
+                $"when the item was tracked for the first time during a blish sesssion.\n" +
+                $"\n" +
+                $"RESIZE:\n" +
+                $"You can resize the window by dragging the bottom right window corner. " +
+                $"Some UI elements might be cut off when the window becomes too small.", 
+                300 - Constants.SCROLLBAR_WIDTH_OFFSET, // set dummy width because no buildPanel exists yet.
+                buttonFlowPanel);
+
+            var subButtonFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                ControlPadding = new Vector2(5, 5),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = buttonFlowPanel
             };
 
             _resetButton = new StandardButton()
@@ -296,7 +332,7 @@ namespace FarmingTracker
                 Text = "Reset",
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
-                Parent = buttonFlowPanel,
+                Parent = subButtonFlowPanel,
             };
 
             _resetButton.Click += (s, e) =>
@@ -312,7 +348,7 @@ namespace FarmingTracker
                 "The module and the DRF live tracking web page are both DRF clients. But they are independent of each other. " +
                 "They do not synchronize the data they display. So one client may show less or more data dependend on when the client session started.",
                 services.TextureService.OpenLinkTexture,
-                buttonFlowPanel)
+                subButtonFlowPanel)
             {
                 Width = 60,
             };
@@ -337,15 +373,7 @@ namespace FarmingTracker
                 Parent = _controlsFlowPanel
             };
 
-            var profitTooltip =
-                "Rough profit when selling everything to vendor or on trading post (listing).\n" +
-                "15% trading post fee is already deducted.\n" +
-                "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
-                "'raw gold' changes are also visible in the currency panel below.\n" +
-                "Lost items reduce the profit accordingly.\n" +
-                "Module and DRF website profit calculation may differ because different algorithms are used.\n" +
-                $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
-
+            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
             var font = services.FontService.Fonts[FontSize.Size16];
             var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _services, _farmingRootFlowPanel);
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
@@ -369,7 +397,7 @@ namespace FarmingTracker
 
             _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
             {
-                Title = "Currencies",
+                Title = CURRENCIES_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
                 Width = Constants.PANEL_WIDTH,
@@ -422,7 +450,9 @@ namespace FarmingTracker
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;
+        private CollapsibleHelp _collapsibleHelp;
         private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
+        private const string CURRENCIES_PANEL_TITLE = "Currencies";
     }
 }

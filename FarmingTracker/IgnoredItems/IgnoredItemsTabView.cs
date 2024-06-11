@@ -32,13 +32,13 @@ namespace FarmingTracker
             };
 
             var collapsibleHelp = new CollapsibleHelp(
-                $"- ignore item:\n" +
+                $"IGNORE ITEM:\n" +
                 $"In the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
-                $"- unignore item:\n" +
+                $"UNIGNORE ITEM:\n" +
                 $"left click on an item here to unignore it.\n" +
                 $"\n" +
-                $"- Why ignore?\n" +
+                $"WHY IGNORE?\n" +
                 $"An ignored item will appear here. It is hidden in the '{FarmingTrackerWindowService.SUMMARY_TAB_TITLE}' tab" +
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",

@@ -31,7 +31,9 @@ namespace FarmingTracker
                 "- Unchecked = hidden by filter.\n" +
                 "- Items hidden by filters are still included in the profit calculation.\n" +
                 "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items will be hidden by the filter.\n" +
-                "- filter icon on filter panel header: TRANSPARENT: filter wont hide stats. OPAQUE: filter will hide stats.\n" +
+                "- filter icon on filter panel header:\n" +
+                "TRANSPARENT: filter wont hide stats.\n" +
+                "OPAQUE: filter will hide stats.\n" +
                 "- expand/collapse panels: for a better overview expand/collapse the filter panels by using the expand/collapse-all-buttons or by clicking on the filter panel headers.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
                 rootFlowPanel);
