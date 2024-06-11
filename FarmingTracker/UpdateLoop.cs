@@ -28,20 +28,47 @@
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public void TriggerUpdateStatPanels()
+        public void TriggerUpdateStats()
         {
-            lock(_updateLock)
-                _statPanelsHaveToBeUpdated = true;
+            _statsHaveToBeUpdated = true;
+            _runningTimeMs = _updateIntervalMs; // trigger instant update
         }
 
-        public bool GetAndResetStatPanelsHaveToBeUpdated()
+        public bool HasToUpdateStats()
         {
-            lock (_updateLock)
-            {
-                var statPanelsHaveToBeUpdated = _statPanelsHaveToBeUpdated;
-                _statPanelsHaveToBeUpdated = false;
-                return statPanelsHaveToBeUpdated;
-            }
+            var statsHaveToBeUpdated = _statsHaveToBeUpdated;
+            if(statsHaveToBeUpdated)
+                _statsHaveToBeUpdated = false;
+
+            return statsHaveToBeUpdated;
+        }
+
+        public void TriggerUpdateUi()
+        {
+            _uiHasToBeUpdated = true;
+        }
+
+        public bool HasToUpdateUi()
+        {
+            var uiHasToBeUpdated = _uiHasToBeUpdated;
+            if(uiHasToBeUpdated) // verhindert, dass thread parallel es true setzt und es hier pauschal false gesetzt wird ohne das ein update ausgelöst wird
+                _uiHasToBeUpdated = false;
+
+            return uiHasToBeUpdated;
+        }
+
+        public void TriggerSaveModel()
+        {
+            _modelHasToBeSaved = true;
+        }
+
+        public bool HasToSaveModel()
+        {
+            var modelHasToBeSaved = _modelHasToBeSaved;
+            if(modelHasToBeSaved)
+                _modelHasToBeSaved = false;
+            
+            return modelHasToBeSaved;
         }
 
         public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 5_000;
@@ -49,7 +76,8 @@
         private const int FARMING_UPDATE_INTERVAL_MS = 1_000; // todo rename
         private double _runningTimeMs;
         private double _updateIntervalMs; // default 0 to start immediately in first Module.Update() call
-        private bool _statPanelsHaveToBeUpdated;
-        private static readonly object _updateLock = new object();
+        private bool _uiHasToBeUpdated;
+        private bool _statsHaveToBeUpdated;
+        private bool _modelHasToBeSaved;
     }
 }

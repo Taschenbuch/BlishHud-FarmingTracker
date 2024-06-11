@@ -16,47 +16,63 @@ namespace FarmingTracker
                 Left = HELP_LABEL_BORDER_SIZE,
             };
 
-            var collapsedHeight = button.Height + 35;
-            var collapsedWidth = button.Width + 35;
+            _collapsedHeight = button.Height + 35;
+            _collapsedWidth = button.Width + 35;
 
             ShowBorder = true;
-            Height = collapsedHeight;
-            Width = collapsedWidth;
             Parent = parent;
 
-            var label = new Label
+            _label = new Label
             {
                 Text = helpText,
                 VerticalAlignment = VerticalAlignment.Top,
                 WrapText = true,
-                Width = expandedWidth - 20 - 2 * HELP_LABEL_BORDER_SIZE,
                 AutoSizeHeight = true,
-                Top = collapsedHeight - 20,
+                Top = _collapsedHeight - 20,
                 Left = HELP_LABEL_BORDER_SIZE,
             };
 
-            var expandedHeight = label.Height + collapsedHeight + HELP_LABEL_BORDER_SIZE;
-
-            var blackContainer = new Panel()
+            _blackContainer = new Panel()
             {
                 BackgroundColor = Color.Black * 0.5f,
-                Width = expandedWidth - 20,
-                Height = expandedHeight,
                 Top = 4,
                 Left = 4,
                 Parent = this
             };
 
-            button.Parent = blackContainer;
-            label.Parent = blackContainer;
+            button.Parent = _blackContainer;
+            _label.Parent = _blackContainer;
+
 
             button.Click += (s, e) =>
             {
                 _isHelpExpanded = !_isHelpExpanded;
                 button.Text = GetHelpButtonText();
-                Height = _isHelpExpanded ? expandedHeight : collapsedHeight;
-                Width = _isHelpExpanded ? expandedWidth : collapsedWidth;
+                UpdateSize(_expandedWidth); // must use field here to always use the updated expandedWidth value instead of fixed paramter expandedWidth value.
             };
+
+            UpdateSize(expandedWidth);
+        }
+
+        public void UpdateSize(int expandedWidth)
+        {
+            UpdateHeight();
+            UpdateWidth(expandedWidth);
+        }
+
+        private void UpdateHeight()
+        {
+            _expandedHeight = _label.Height + _collapsedHeight + HELP_LABEL_BORDER_SIZE;
+            Height = _isHelpExpanded ? _expandedHeight : _collapsedHeight;
+            _blackContainer.Height = _expandedHeight;
+        }
+
+        private void UpdateWidth(int expandedWith)
+        {
+            _expandedWidth = expandedWith;
+            _label.Width = expandedWith - 20 - 2 * HELP_LABEL_BORDER_SIZE;
+            _blackContainer.Width = expandedWith - 20;
+            Width = _isHelpExpanded ? _expandedWidth : _collapsedWidth;
         }
 
         private string GetHelpButtonText()
@@ -68,5 +84,11 @@ namespace FarmingTracker
         private const string SHOW_HELP_BUTTON_TEXT = "Show Help";
         private const string HIDE_HELP_BUTTON_TEXT = "Hide Help";
         private bool _isHelpExpanded;
+        private readonly Label _label;
+        private int _expandedHeight;
+        private readonly Panel _blackContainer;
+        private int _expandedWidth;
+        private readonly int _collapsedHeight;
+        private readonly int _collapsedWidth;
     }
 }

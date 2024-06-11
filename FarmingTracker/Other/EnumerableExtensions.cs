@@ -5,9 +5,9 @@ namespace FarmingTracker
 {
     public static class EnumerableExtensions
     {
-        public static bool IsEmpty<T>(this IEnumerable<T> enumberable)
+        public static bool IsEmpty<T>(this IEnumerable<T> enumerable)
         {
-            return !enumberable.Any();
+            return !enumerable.Any();
         }
     }
 }

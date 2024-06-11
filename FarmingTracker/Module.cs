@@ -27,7 +27,7 @@ namespace FarmingTracker
 
         protected override void DefineSettings(SettingCollection settings)
         {
-            _services = new Services(ContentsManager, Gw2ApiManager, new SettingService(settings));
+            _services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, new SettingService(settings));
         }
 
         public override IView GetSettingsView()
@@ -35,10 +35,9 @@ namespace FarmingTracker
             return new ModuleSettingsView(_farmingTrackerWindowService);
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected override async Task LoadAsync()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            _services.Model = await _services.FileLoadService.LoadModelFromFile();
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
             _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
 
@@ -57,7 +56,8 @@ namespace FarmingTracker
             _farmingTrackerWindowService?.Dispose();
             _services?.Dispose();
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated; ;
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
+            _services.FileSaveService.SaveModelToFileSync(_services.Model);
         }
 
         private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();

@@ -25,7 +25,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new CollapsibleHelp( // todo text ändern
+            var collapsibleHelp = new CollapsibleHelp(
                 "- only items are sorted, not currencies.\n" +
                 "- multiple sorts can be combined. Example:\n" +
                 "'sort by' positive/negative count, 'then by' rarity, 'then by' name.\n" +
@@ -38,14 +38,19 @@ namespace FarmingTracker
                 "e.g. do not sort by API ID or NAME first. Every item has an unique API ID and an unique NAME. " +
                 "Because of that it will create groups where each group consists of only 1 item. " +
                 "Single item groups cannot be further sorted. Because of that every 'then by' sort after an API ID / NAME sort, will have no effect.",
-                450, 
+                buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
                 rootFlowPanel);
+
+            buildPanel.ContentResized += (s, e) =>
+            {
+                collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET);
+            };
 
             var allSortsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 ControlPadding = new Vector2(0, 5),
-                Width = 450,
+                Width = Constants.PANEL_WIDTH,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel
@@ -78,7 +83,7 @@ namespace FarmingTracker
             var singleSortPanel = new SortPanel(allSortsFlowPanel, sortByWithDirection);
             sortPanels.Add(singleSortPanel);
             SetThenByOrSortByLabels(sortPanels);
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
 
             singleSortPanel.Dropdown.ValueChanged += (s, e) =>
             {
@@ -93,7 +98,7 @@ namespace FarmingTracker
                 sortByList.RemoveAt(sortPanelIndex);
                 sortByList.Insert(sortPanelIndex, singleSortPanel.GetSelectedSortBy());
                 _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
-                _services.UpdateLoop.TriggerUpdateStatPanels();
+                _services.UpdateLoop.TriggerUpdateUi();
             };
 
             singleSortPanel.RemoveSortButton.Click += (s, e) =>
@@ -112,7 +117,7 @@ namespace FarmingTracker
                 singleSortPanel.Parent = null;
                 sortPanels.Remove(singleSortPanel);
                 SetThenByOrSortByLabels(sortPanels);
-                _services.UpdateLoop.TriggerUpdateStatPanels();
+                _services.UpdateLoop.TriggerUpdateUi();
             };
         }
 

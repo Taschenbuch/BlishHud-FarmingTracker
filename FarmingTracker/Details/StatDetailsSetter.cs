@@ -7,14 +7,14 @@ namespace FarmingTracker
 {
     public class StatDetailsSetter
     {
-        public async Task SetDetailsAndProfitFromApi(Stats stats, Gw2ApiManager gw2ApiManager)
+        public async Task SetDetailsAndProfitFromApi(Model model, Gw2ApiManager gw2ApiManager)
         {
             if (HasToInitializeCache())
                 _currencyDetailsByIdCache = await CurrencyDetailsSetter.CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            CurrencyDetailsSetter.SetCurrencyDetailsFromCache(stats.CurrencyById, _currencyDetailsByIdCache);
-            await ItemDetailsSetter.SetItemDetailsFromApi(stats.ItemById, gw2ApiManager);
-            StatProfitSetter.SetProfits(stats.ItemById);
+            CurrencyDetailsSetter.SetCurrencyDetailsFromCache(model.CurrencyById, _currencyDetailsByIdCache);
+            await ItemDetailsSetter.SetItemDetailsFromApi(model.ItemById, gw2ApiManager);
+            StatProfitSetter.SetProfits(model.ItemById);
         }
 
         private bool HasToInitializeCache()

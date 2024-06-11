@@ -41,6 +41,7 @@ namespace FarmingTracker
         {
             return new Stat
             {
+                StatType = StatType.Currency,
                 ApiId = apiId,
                 Count = count,
                 Details =

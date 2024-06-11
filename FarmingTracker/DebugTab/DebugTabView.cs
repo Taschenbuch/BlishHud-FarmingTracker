@@ -37,17 +37,17 @@ namespace FarmingTracker
 
             dropToClipboardButton.Click += async (s, e) =>
             {
-                var drfMessage = ConvertToDrfMessage(_services.Stats);
+                var drfMessage = ConvertToDrfMessage(_services.Model);
                 var drfMessageAsString = JsonConvert.SerializeObject(drfMessage);
                 await ClipboardUtil.WindowsClipboardService.SetTextAsync($"'{drfMessageAsString}',"); // format for fake drf server message list
             };
         }
 
-        private static DrfMessage ConvertToDrfMessage(Stats stats)
+        private static DrfMessage ConvertToDrfMessage(Model model)
         {
             // this can crash when stats are updated in parallel
-            var items = stats.ItemById.Values.ToList();
-            var currencies = stats.CurrencyById.Values.ToList();
+            var items = model.ItemById.Values.ToList();
+            var currencies = model.CurrencyById.Values.ToList();
 
             var drfMessage = new DrfMessage();
             drfMessage.Kind = "data";

@@ -1,13 +1,12 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
-using Blish_HUD.Settings.UI.Views;
-using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FarmingTracker
 {
@@ -44,8 +43,9 @@ namespace FarmingTracker
 
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
             CreateDrfConnectionStatusLabel(font, rootFlowPanel);
-            await Task.Delay(1); // hack: this prevents that the collapsed flowpanel is permanently invisible after switching tabs back and forth
+            await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.AutomaticResetSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
@@ -65,7 +65,7 @@ namespace FarmingTracker
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
         {
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
         }
 
         private void CreateIconSizeDropdown(Container parent, Services services)
@@ -103,7 +103,7 @@ namespace FarmingTracker
                 iconSizeDropDown.Items.Add(dropDownValue);
 
             iconSizeDropDown.SelectedItem = services.SettingService.StatIconSizeSetting.Value.ToString();
-            iconSizeDropDown.ValueChanged += (s, o) => services.UpdateLoop.TriggerUpdateStatPanels();
+            iconSizeDropDown.ValueChanged += (s, o) => services.UpdateLoop.TriggerUpdateUi();
             iconSizeDropDown.ValueChanged += (s, o) =>
             {
                 services.SettingService.StatIconSizeSetting.Value = (StatIconSize)Enum.Parse(typeof(StatIconSize), iconSizeDropDown.SelectedItem);
@@ -208,6 +208,12 @@ namespace FarmingTracker
             };
 
             var buttonTooltip = "Open DRF website in your default web browser.";
+
+            var headerFont = _services.FontService.Fonts[ContentService.FontSize.Size20];
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, "DRF SETUP INSTRUCTIONS", headerFont);
+
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Prerequisite:", font);
             new HintLabel(
@@ -221,7 +227,7 @@ namespace FarmingTracker
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
                 "2. Create a drf account on the website and link it with\nyour GW2 Account(s).");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, addDrfTokenFlowPanel);
+            new OpenUrlInBrowserButton("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             var testDrfHeader = "Test DRF";
@@ -233,7 +239,7 @@ namespace FarmingTracker
                 "e.g. by opening an unidentified gear.\n" +
                 "The items should appear almost instantly in the web live tracker.");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, addDrfTokenFlowPanel);
+            new OpenUrlInBrowserButton("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Does NOT work? :-( Try this:", font);
@@ -243,7 +249,7 @@ namespace FarmingTracker
                 "- If you installed drf.dll a while ago, check the drf website whether an\nupdated version of drf.dll is available.\n" +
                 "- DRF Discord can help:");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", addDrfTokenFlowPanel);
+            new OpenUrlInBrowserButton("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
@@ -255,7 +261,10 @@ namespace FarmingTracker
                 "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
                 "5. Done! Open the first tab again to see the tracked items/currencies :-)");
 
-            CreateButtonToOpenUrlInDefaultBrowser("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, addDrfTokenFlowPanel);
+            new OpenUrlInBrowserButton("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, "TROUBLESHOOTING", headerFont);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' is 'Authentication failed':", font);
@@ -291,11 +300,56 @@ namespace FarmingTracker
                 $"- When the bug image is used for an item/currency:\n" +
                 $"hover with the mouse over the bug icon to read the tooltip.\n" +
                 $"In most cases the tooltip should mention that those are items missing\nin the GW2 API.\nE.g. lvl-80-boost item or some reknown heart items.\n" +
+                $"\n" +
                 $"- If the bug images appears somewhere else in the module's UI or the\nitem tooltip is not mentioning an missing item:\n" +
                 $"Reason 1: The item is new and BlishHUD's texture cache does not\nknow the icon yet.\n" +
                 $"OR\n" +
                 $"Reason 2: You ran BlishHUD as admin at one point and later stopped\nrunning BlishHUD as admin. This causes file permission issues for software\nlike BlishHUD that has to create cache or config data.\n" +
                 $"You can try to fix 'Reason 2' by closing BlishHUD and then deleting\nthe 'Blish HUD' folder at 'C:\\ProgramData\\Blish HUD'.");
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, $"Known DRF issues", font);
+            new HintLabel(
+                addDrfTokenFlowPanel,
+                $"These issues cannot be fixed or might be fixed in a future release.\n" +
+                $"\n" +
+                $"- Bank Slot Expansion Crash:\n" +
+                $"The DRF.dll will crash your game when you use a Bank Slot Expansion.\n" +
+                $"\n" +
+                $"- Equipment changes are tracked:\n" +
+                $"Only none-legendary equipment is affected. Equipping an item counts\n" +
+                $"as losing the item. Unequipping an item counts as gaining the item.\n" +
+                $"This applies to runes and regular gathing tools too.\n" +
+                $"It only somtimes applies to infinite gathering tools.\n" +
+                $"Swapping equipment templates is not tracked.\n" +
+                $"This issue only affects you when you swap equipment by\n" +
+                $"using your bank/inventory. As a workaround you can add\n" +
+                $"equipment items that you swap often to the ignored items.\n" +
+                $"\n" +
+                $"- Bouncy Chests:\n" +
+                $"If you have more than 4 bouncy chests and swap map,\n" +
+                $"the game will automatically consume all but 4 of them.\n" +
+                $"DRF is currently not noticing this change.\n" +
+                $"\n" +
+                $"- whole wallet is tracked\n" +
+                $"Sometimes the whole wallet is accidentely interpreted as a drop.\n" +
+                $"You should not notice this bug, because the module will ignore\n" +
+                $"drops that include more than 10 currencies at once.\n" +
+                $"But you might be affected by this on accounts that\n" +
+                $"have less than 10 currencies");
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, $"Known MODULE issues", font);
+            new HintLabel(
+                addDrfTokenFlowPanel,
+                $"- The '{SummaryTabView.GW2_API_ERROR_HINT}' hint constantly appears\n" +
+                $"Reason 1: GW2 API is down or instable.\n" +
+                $"The GW2 API can be very instable in the evening.\n" +
+                $"This results in frequent GW2 API timeouts.\n" +
+                $"Reason 2: A bug in the GW2 API libary used by this module.\n" +
+                $"This can only be fixed by restarting Blish HUD.");
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel); // otherwise there is no padding at the bottom
         }
 
         private static void AddVerticalSpacing(Services services, FlowPanel addDrfTokenFlowPanel)
@@ -312,27 +366,6 @@ namespace FarmingTracker
                 _services.Drf.ReconnectTriesCounter,
                 _services.Drf.ReconnectDelaySeconds);
         }
-
-        private static void CreateButtonToOpenUrlInDefaultBrowser(string url, string buttonText, string buttonTooltip, Container parent)
-        {
-            var patchNotesButton = new StandardButton
-            {
-                Text = buttonText,
-                BasicTooltipText = buttonTooltip,
-                Width = 300,
-                Parent = parent
-            };
-
-            patchNotesButton.Click += (s, e) =>
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                });
-            };
-        }
-
 
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;

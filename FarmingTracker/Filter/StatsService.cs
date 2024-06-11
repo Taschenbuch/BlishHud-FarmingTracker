@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FarmingTracker
 {
     public class StatsService
     {
-        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(Stats stats)
+        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(Model model)
         {
-            var items = stats.ItemById.Values.ToList();
-            var currencies = stats.CurrencyById.Values.ToList();
+            var items = model.ItemById.Values.ToList();
+            var currencies = model.CurrencyById.Values.ToList();
 
             return (items, currencies);
         }
@@ -32,10 +33,15 @@ namespace FarmingTracker
             return (items, currencies);
         }
 
-        internal static void ResetCounts(Dictionary<int, Stat> statById)
+        public static void ResetCounts(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
                 stat.Count = 0;
+        }
+
+        public static List<Stat> RemoveIgnoredItems(List<Stat> items, List<int> ignoredItemApiIds)
+        {
+            return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
         }
     }
 }

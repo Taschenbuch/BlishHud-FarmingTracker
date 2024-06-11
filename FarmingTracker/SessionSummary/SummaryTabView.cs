@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using static Blish_HUD.ContentService;
 
@@ -16,7 +17,7 @@ namespace FarmingTracker
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindowService, _services);
             _timeSinceModuleStartStopwatch.Restart();
-            services.UpdateLoop.TriggerUpdateStatPanels();
+            services.UpdateLoop.TriggerUpdateStats();
             services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
         }
 
@@ -33,34 +34,69 @@ namespace FarmingTracker
         protected override void Build(Container buildPanel)
         {
             _rootFlowPanel.Parent = buildPanel;
+            var resetAndDrfButtonsOffset = 70;
+            _collapsibleHelp.UpdateSize(buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+
+            buildPanel.ContentResized += (s,e) =>
+            {
+                var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
+                _statsPanels.FarmedCurrenciesFlowPanel.Width = width;
+                _statsPanels.FarmedItemsFlowPanel.Width = width;
+                _statsPanels.ItemsFilterIcon.SetLeft(width);
+                _statsPanels.CurrencyFilterIcon.SetLeft(width);
+                _searchPanel.UpdateSize(width);
+                _collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+            };
         }
 
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
+            _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (_services.UpdateLoop.GetAndResetStatPanelsHaveToBeUpdated())
+            if (_services.UpdateLoop.HasToUpdateUi())
             {
+                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
                 UiUpdater.UpdateStatPanels(_statsPanels, _services);
                 return; // that is enough work for a single update loop iteration.
             }
+
+            if (HasToPerformAutomaticReset())
+                _hasToResetStats = true;
 
             if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _hintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
-                if (_isUpdateStatsRunning)
-                    return; // prevents farming time updates and prevents hintText from being overriden
-
-                _hasToResetStats = false;
-                ResetStats();
-                _services.UpdateLoop.TriggerUpdateStatPanels();
-                _elapsedFarmingTimeLabel.RestartTime();
-                _resetButton.Enabled = true;
-                return; // that is enough work for a single update loop iteration.
+                if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
+                {
+                    _hasToResetStats = false;
+                    ResetStats();
+                    _services.UpdateLoop.TriggerUpdateUi();
+                    _services.UpdateLoop.TriggerSaveModel();
+                    _elapsedFarmingTimeLabel.RestartTime();
+                    _resetButton.Enabled = true;
+                }
+                return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
 
-            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingTimeStopwatch.Elapsed);
+            if(!_isTaskRunning)
+            {
+                // save in certain intervals because farming duration has to be saved too.
+                if (_services.UpdateLoop.HasToSaveModel() || _saveModelRunningTimeMs > SAVE_MODEL_INTERVAL_MS)
+                {
+                    _saveModelRunningTimeMs = 0;
+                    _isTaskRunning = true;
+                    Task.Run(async () =>
+                    {
+                        await _services.FileSaveService.SaveModelToFile(_services.Model);
+                        _isTaskRunning = false;
+                    });
+                    // do not return here because saving the model should not disturb other parts of Update().
+                }
+            }
+            
+            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -69,33 +105,44 @@ namespace FarmingTracker
                 _services.UpdateLoop.UseFarmingUpdateInterval();
 
                 ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _drfErrorLabel, _openSettingsButton, _farmingRootFlowPanel);
-                
+
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
                 ShowOrHideApiErrorHint(apiToken, _hintLabel, _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds);
                 if (!apiToken.CanAccessApi)
                     return; // dont continue to prevent api error hint being overriden by "update..." etc.
 
-                if (!_isUpdateStatsRunning)
+                if (!_isTaskRunning)
                 {
-                    _isUpdateStatsRunning = true;
+                    _isTaskRunning = true;
                     Task.Run(async () =>
                     {
                         await UpdateStats();
-                        _isUpdateStatsRunning = false;
+                        _isTaskRunning = false;
                     });
                 }
             }
+        }
+
+        private bool HasToPerformAutomaticReset()
+        {
+            var isModuleStart = _isModuleStartForReset;
+            _isModuleStartForReset = false;
+
+            return _services.SettingService.AutomaticResetSetting.Value switch
+            {
+                AutomaticReset.OnModuleStart => isModuleStart,
+                _ => false, // includes .Never
+            };
         }
 
         private void ResetStats()
         {
             try
             {
-                StatsService.ResetCounts(_services.Stats.ItemById);
-                StatsService.ResetCounts(_services.Stats.CurrencyById);
-                _profitService.ResetProfit();
+                StatsService.ResetCounts(_services.Model.ItemById);
+                StatsService.ResetCounts(_services.Model.CurrencyById);
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
-                _hintLabel.Text = "";
+                _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Exception exception)
             {
@@ -109,22 +156,23 @@ namespace FarmingTracker
             try
             {
                 var drfMessages = _services.Drf.GetDrfMessages();
-                if (drfMessages.IsEmpty() && _lastStatsUpdateSuccessfull)
+                var hasToUpdateStats = drfMessages.Any() || !_lastStatsUpdateSuccessfull || _services.UpdateLoop.HasToUpdateStats();
+                if (!hasToUpdateStats)
                     return;
 
-                _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)"; // todo loading spinner? vorsicht: dann müssen gw2 api error hints anders gelöscht werden
+                _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages);
-                _services.UpdateLoop.TriggerUpdateStatPanels();
-                _profitService.UpdateProfit(_services.Stats, _services.FarmingTimeStopwatch.Elapsed);
+                _services.UpdateLoop.TriggerUpdateUi();
+                _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
-                _hintLabel.Text = "";
+                _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message);
                 _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
-                _hintLabel.Text = $"GW2 API error. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _hintLabel.Text = $"{GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
@@ -141,7 +189,7 @@ namespace FarmingTracker
             FlowPanel farmingRootFlowPanel)
         {
             drfErrorLabel.Text = drfConnectionStatus == DrfConnectionStatus.Connected
-                ? Constants.EMPTY_LABEL
+                ? Constants.ZERO_HEIGHT_EMPTY_LABEL
                 : DrfConnectionStatusService.GetSummaryTabDrfConnectionStatusText(drfConnectionStatus);
 
             if (drfConnectionStatus == DrfConnectionStatus.AuthenticationFailed)
@@ -199,12 +247,10 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Stats.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _services.Stats.ItemById);
-
-            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Stats, _services.Gw2ApiManager);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Model.CurrencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, _services.Model.ItemById);
+            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Model, _services.Gw2ApiManager);
         }
-
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
         {
             var rootFlowPanel = new FlowPanel()
@@ -218,7 +264,7 @@ namespace FarmingTracker
 
             _drfErrorLabel = new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.ZERO_HEIGHT_EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size18],
                 TextColor = Color.Yellow,
                 StrokeText = true,
@@ -233,11 +279,52 @@ namespace FarmingTracker
             _farmingRootFlowPanel = new FlowPanel()
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
-                CanScroll = true,
-                ControlPadding = new Vector2(0, 10),
-                WidthSizingMode = SizingMode.AutoSize,
+                ControlPadding = new Vector2(0, 5),
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel
+            };
+
+            var buttonFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                ControlPadding = new Vector2(5, 0),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
+            _collapsibleHelp = new CollapsibleHelp(
+                "DRF setup instructions and DRF and module troubleshooting can be found in the settings tab.\n" +
+                $"\n" +
+                $"PROFIT:\n" +
+                "15% trading post fee is already deducted.\n" +
+                "Profit also includes changes in 'raw gold'. In other words coins spent or gained. " +
+                $"'raw gold' changes are also visible in the '{CURRENCIES_PANEL_TITLE}' panel.\n" +
+                "Lost items reduce the profit accordingly.\n" +
+                "Currencies are not included in the profit calculation (except 'raw gold').\n" +
+                "rough profit = raw gold + item count * tp sell price * 0.85 + ...for all items.\n" +
+                "When tp sell price does not exist, tp buy price will be used. " +
+                "Vendor price will be used when it is higher than tp sell/buy price * 0.85.\n" +
+                "Module and DRF live tracking website profit calculation may differ because different profit formulas are used.\n" +
+                $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.\n" +
+                $"The profit is only a rough estimate because the trading post buy/sell prices can change over time and " +
+                $"only the highest tp buy price and tp sell price for an item are considered. The tp buy/sell prices are a snapshot from " +
+                $"when the item was tracked for the first time during a blish sesssion.\n" +
+                $"\n" +
+                $"RESIZE:\n" +
+                $"You can resize the window by dragging the bottom right window corner. " +
+                $"Some UI elements might be cut off when the window becomes too small.", 
+                300 - Constants.SCROLLBAR_WIDTH_OFFSET, // set dummy width because no buildPanel exists yet.
+                buttonFlowPanel);
+
+            var subButtonFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                ControlPadding = new Vector2(5, 5),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = buttonFlowPanel
             };
 
             _resetButton = new StandardButton()
@@ -245,8 +332,7 @@ namespace FarmingTracker
                 Text = "Reset",
                 BasicTooltipText = "Start new farming session by resetting tracked items and currencies.",
                 Width = 90,
-                Left = 460,
-                Parent = _farmingRootFlowPanel,
+                Parent = subButtonFlowPanel,
             };
 
             _resetButton.Click += (s, e) =>
@@ -255,11 +341,23 @@ namespace FarmingTracker
                 _hasToResetStats = true;
             };
 
+            new OpenUrlInBrowserButton(
+                "https://drf.rs/dashboard/livetracker/summary",
+                "DRF",
+                "Open DRF live tracking website in your default web browser.\n" +
+                "The module and the DRF live tracking web page are both DRF clients. But they are independent of each other. " +
+                "They do not synchronize the data they display. So one client may show less or more data dependend on when the client session started.",
+                services.TextureService.OpenLinkTexture,
+                subButtonFlowPanel)
+            {
+                Width = 60,
+            };
+
             _controlsFlowPanel = new FlowPanel()
             {
-                FlowDirection = ControlFlowDirection.SingleLeftToRight,
+                FlowDirection = ControlFlowDirection.LeftToRight,
                 ControlPadding = new Vector2(20, 0),
-                WidthSizingMode = SizingMode.AutoSize,
+                WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
             };
@@ -268,27 +366,20 @@ namespace FarmingTracker
 
             _hintLabel = new Label
             {
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Font = services.FontService.Fonts[FontSize.Size14],
+                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
                 AutoSizeHeight = true,
-                AutoSizeWidth = true,
                 Parent = _controlsFlowPanel
             };
 
-            var profitTooltip =
-                "Rough profit when selling everything to vendor or on trading post (listing).\n" +
-                "15% trading post fee is already deducted.\n" +
-                "Profit also includes changes in 'raw gold'. In other words coins spent or gained.\n" +
-                "'raw gold' changes are also visible in the currency panel below.\n" +
-                "Lost items reduce the profit accordingly.\n" +
-                "Module and DRF website profit calculation may differ because different algorithms are used.\n" +
-                $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.";
-
+            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
             var font = services.FontService.Fonts[FontSize.Size16];
             var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _services, _farmingRootFlowPanel);
             var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
             _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
 
-            new SearchPanel(_services, _farmingRootFlowPanel);
+            _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
 
             var currenciesFilterIconPanel = new Panel
             {
@@ -297,23 +388,21 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
-            _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
-            {
-                Title = "Currencies",
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = currenciesFilterIconPanel
-            };
-
-            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
-
             var itemsFilterIconPanel = new Panel
             {
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = _farmingRootFlowPanel
+            };
+
+            _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
+            {
+                Title = CURRENCIES_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                Width = Constants.PANEL_WIDTH,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = currenciesFilterIconPanel
             };
 
             _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
@@ -326,20 +415,25 @@ namespace FarmingTracker
                 Parent = itemsFilterIconPanel
             };
 
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
+
+            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
 
             return rootFlowPanel;
         }
 
         private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
         {
-            _services.UpdateLoop.TriggerUpdateStatPanels();
+            _services.UpdateLoop.TriggerUpdateUi();
         }
 
-        private bool _isUpdateStatsRunning;
+        private bool _isTaskRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private ProfitService _profitService;
+        private SearchPanel _searchPanel;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
         private OpenSettingsButton _openSettingsButton;
@@ -351,8 +445,14 @@ namespace FarmingTracker
         private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
+        private bool _isModuleStartForReset = true;
         private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
+        private double _saveModelRunningTimeMs;
+        private CollapsibleHelp _collapsibleHelp;
+        private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
+        public const string GW2_API_ERROR_HINT = "GW2 API error";
+        private const string CURRENCIES_PANEL_TITLE = "Currencies";
     }
 }

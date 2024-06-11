@@ -7,7 +7,7 @@ namespace FarmingTracker
     {
         public CoinSignLabel(string tooltip, BitmapFont font, Container parent)
         {
-            Text = Constants.EMPTY_LABEL;
+            Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             Font = font;
             BasicTooltipText = tooltip;
             AutoSizeHeight = true;
@@ -19,7 +19,7 @@ namespace FarmingTracker
         {
             Text = sign == -1
                 ? "-" 
-                : Constants.EMPTY_LABEL;
+                : Constants.FULL_HEIGHT_EMPTY_LABEL;
         }
     }
 }

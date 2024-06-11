@@ -19,7 +19,7 @@ namespace FarmingTracker
 
         public void UpdateTimeEverySecond()
         {
-            var farmingTime = _services.FarmingTimeStopwatch.Elapsed;
+            var farmingTime = _services.Model.FarmingDuration.Elapsed;
             var oneSecondHasPassed = farmingTime >= _oldFarmingTime + TimeSpan.FromSeconds(1);
             if (oneSecondHasPassed)
             {
@@ -31,7 +31,7 @@ namespace FarmingTracker
 
         public void RestartTime()
         {
-            _services.FarmingTimeStopwatch.Restart();
+            _services.Model.FarmingDuration.Restart();
             _oldFarmingTime = TimeSpan.Zero;
             UpdateLabelText(TimeSpan.Zero);
         }
@@ -55,7 +55,7 @@ namespace FarmingTracker
 
         private static string CreateFarmingTimeText(string timeString)
         {
-            return $"farming for {timeString}";
+            return $"Farming for {timeString}";
         }
 
         private TimeSpan _oldFarmingTime = TimeSpan.Zero;

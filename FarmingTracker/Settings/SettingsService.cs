@@ -20,6 +20,13 @@ namespace FarmingTracker
                 "Open the drf.rs settings page. Click on 'Regenerate Token'.\n" +
                 "Copy the token. Paste the token with CTRL + V into this input.");
 
+            AutomaticResetSetting = settings.DefineSetting(
+                "automatic reset",
+                AutomaticReset.OnModuleStart,
+                () => "automatic reset",
+                () => "Change when all farmed items are reset. 'Never' means you have to use the 'Reset' button.\n" +
+                "Using something else than 'on module start' helps to not lose your farming data when gw2, blish or your pc crashes.");
+
             WindowVisibilityKeyBindingSetting = settings.DefineSetting(
                 "window visibility key binding",
                 new KeyBinding(ModifierKeys.Ctrl | ModifierKeys.Alt | ModifierKeys.Shift, Keys.F),
@@ -79,24 +86,31 @@ namespace FarmingTracker
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
+            RemoveUnknownEnumValues(SortByWithDirectionListSetting);
             // filter
             CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
-            SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
-            RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
-            TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
-            FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
-            CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
-
-            // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
-            RemoveUnknownEnumValues(SortByWithDirectionListSetting);
             RemoveUnknownEnumValues(CountFilterSetting);
+            
+            SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
             RemoveUnknownEnumValues(SellMethodFilterSetting);
+            
+            RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
             RemoveUnknownEnumValues(RarityStatsFilterSetting);
+            
+            TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
             RemoveUnknownEnumValues(TypeStatsFilterSetting);
+            
+            FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
             RemoveUnknownEnumValues(FlagStatsFilterSetting);
+            
+            CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
             RemoveUnknownEnumValues(CurrencyFilterSetting);
+            
+            KnownByApiFilterSetting = internalSettings.DefineSetting("known by api filter", new List<KnownByApiFilter>(Constants.ALL_KNOWN_BY_API));
+            RemoveUnknownEnumValues(KnownByApiFilterSetting);
         }
 
+        // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
         private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> ListSetting) where T : System.Enum
         {
             var elements = new List<T>(ListSetting.Value); // otherwise foreach wont work
@@ -107,6 +121,7 @@ namespace FarmingTracker
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }
+        public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
         public SettingEntry<ColorType> CountTextColorSetting { get; }
@@ -123,5 +138,6 @@ namespace FarmingTracker
         public SettingEntry<List<ItemType>> TypeStatsFilterSetting { get; }
         public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; }
         public SettingEntry<List<CurrencyFilter>> CurrencyFilterSetting { get; }
+        public SettingEntry<List<KnownByApiFilter>> KnownByApiFilterSetting { get; }
     }
 }

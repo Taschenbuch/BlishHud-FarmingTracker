@@ -2,11 +2,12 @@
 
 namespace FarmingTracker
 {
-    public class FixedWidthContainer : Container
+    public class AutoSizeContainer : Container
     {
-        public FixedWidthContainer(Container parent)
+        public AutoSizeContainer(Container parent)
         {
             HeightSizingMode = SizingMode.AutoSize;
+            WidthSizingMode = SizingMode.AutoSize;
             Parent = parent;
         }
     }

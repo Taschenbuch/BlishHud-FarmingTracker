@@ -8,8 +8,9 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
         {
-            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Stats);
+            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Model);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
+            items = StatsService.RemoveIgnoredItems(items, services.Model.IgnoredItemApiIds);
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
             (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
             (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
@@ -19,14 +20,14 @@ namespace FarmingTracker
             var currencyControls = CreateStatControls(currencies.ToList(), services);
             var itemControls = CreateStatControls(items.ToList(), services);
 
+            if (currencyControls.IsEmpty())
+                currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));
+
+            if (itemControls.IsEmpty())
+                itemControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No item changes detected!"));
+
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.FarmedItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.FarmedCurrenciesFlowPanel);
-
-            if (statsPanels.FarmedItemsFlowPanel.IsEmpty())
-                new HintLabel(statsPanels.FarmedItemsFlowPanel, $"{PADDING}No item changes detected!");
-
-            if (statsPanels.FarmedCurrenciesFlowPanel.IsEmpty())
-                new HintLabel(statsPanels.FarmedCurrenciesFlowPanel, $"{PADDING}No currency changes detected!");
         }
 
         private static ControlCollection<Control> CreateStatControls(List<Stat> stats, Services services)
@@ -34,11 +35,9 @@ namespace FarmingTracker
             var controls = new ControlCollection<Control>();
 
             foreach (var stat in stats)
-                controls.Add(new StatContainer(stat, services));
+                controls.Add(new StatContainer(stat, PanelType.SessionSummary, services));
 
             return controls;
         }
-
-        private const string PADDING = "  ";
     }
 }

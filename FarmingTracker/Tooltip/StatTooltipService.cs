@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.BitmapFonts;
-using FarmingTracker.Controls;
 
 namespace FarmingTracker
 {
@@ -65,7 +64,7 @@ namespace FarmingTracker
             // empty top left cell
             new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Font = font,
                 AutoSizeWidth = true,
                 Height = ROW_HEIGHT,
@@ -165,7 +164,7 @@ namespace FarmingTracker
         {
             new Label
             {
-                Text = Constants.EMPTY_LABEL,
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 Parent = parent,
             };
         }

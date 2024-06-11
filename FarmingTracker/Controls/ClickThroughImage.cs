@@ -22,5 +22,10 @@ namespace FarmingTracker
         {
             Opacity = isTransparent ? 0.1f : 0.8f;
         }
+
+        public void SetLeft(int width)
+        {
+            Left = width - 70;
+        }
     }
 }
