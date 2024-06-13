@@ -33,7 +33,7 @@ namespace FarmingTracker
             var coinsInCopper = model.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
             
             var itemsSellProfitInCopper = model.ItemById.Values
-                .Where(s => !model.IgnoredItemApiIds.Contains(s.ApiId))
+                .Where(s => !model.IgnoredItemApiIds.ContainsSafe(s.ApiId))
                 .Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
 
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;

@@ -87,8 +87,8 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredItems = _services.Model.IgnoredItemApiIds.Select(i => _services.Model.ItemById[i]).ToList();
-            var noItemsAreIgnored = _services.Model.IgnoredItemApiIds.IsEmpty();
+            var ignoredItems = _services.Model.IgnoredItemApiIds.ToListSafe().Select(i => _services.Model.ItemById[i]).ToList();
+            var noItemsAreIgnored = ignoredItems.IsEmpty();
             if (noItemsAreIgnored)
             {
                 ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _services);
@@ -113,7 +113,7 @@ namespace FarmingTracker
                 foreach (var statContainer in _ignoredItemsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
                 
-                _services.Model.IgnoredItemApiIds.Clear();
+                _services.Model.IgnoredItemApiIds.ClearSafe();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 
@@ -138,14 +138,14 @@ namespace FarmingTracker
 
         private static void UnignoreItem(Stat item, Services services)
         {
-            services.Model.IgnoredItemApiIds.Remove(item.ApiId);
+            services.Model.IgnoredItemApiIds.RemoveSafe(item.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
         private static void ShowNoItemsAreIgnoredHintIfNecessary(HintLabel hintLabel, Services services)
         {
-            if (services.Model.IgnoredItemApiIds.Any())
+            if (services.Model.IgnoredItemApiIds.AnySafe())
                 return;
 
             hintLabel.Text = 

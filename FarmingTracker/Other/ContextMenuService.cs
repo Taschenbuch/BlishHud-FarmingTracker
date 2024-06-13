@@ -27,13 +27,13 @@ namespace FarmingTracker
 
         private static void IgnoreItem(Stat stat, Services services)
         {
-            if (services.Model.IgnoredItemApiIds.Any(id => id == stat.ApiId))
+            if (services.Model.IgnoredItemApiIds.AnySafe(id => id == stat.ApiId))
             {
                 Module.Logger.Error("Item is already ignored. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            services.Model.IgnoredItemApiIds.Add(stat.ApiId);
+            services.Model.IgnoredItemApiIds.AddSafe(stat.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
