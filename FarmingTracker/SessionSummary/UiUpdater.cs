@@ -17,8 +17,8 @@ namespace FarmingTracker
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services);
             (items, currencies) = SortService.SortStats(items, currencies, services);
 
-            var currencyControls = CreateStatControls(currencies.ToList(), services);
-            var itemControls = CreateStatControls(items.ToList(), services);
+            var currencyControls = CreateStatControls(currencies, services);
+            var itemControls = CreateStatControls(items, services);
 
             if (currencyControls.IsEmpty())
                 currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));

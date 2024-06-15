@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace FarmingTracker
 {
@@ -36,7 +37,7 @@ namespace FarmingTracker
             return currencyDetailsById;
         }
 
-        public static void SetCurrencyDetailsFromCache(Dictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
+        public static void SetCurrencyDetailsFromCache(ConcurrentDictionary<int, Stat> currencyById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
             var currenciesWithoutDetails = currencyById.Values.Where(c => c.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (!currenciesWithoutDetails.Any())

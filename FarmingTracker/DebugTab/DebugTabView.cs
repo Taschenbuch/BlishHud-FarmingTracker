@@ -45,7 +45,6 @@ namespace FarmingTracker
 
         private static DrfMessage ConvertToDrfMessage(Model model)
         {
-            // this can crash when stats are updated in parallel
             var items = model.ItemById.Values.ToList();
             var currencies = model.CurrencyById.Values.ToList();
 

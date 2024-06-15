@@ -11,31 +11,44 @@ namespace FarmingTracker
             model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
 
             foreach (var fileItem in fileModel.FileItems)
-                model.ItemById[fileItem.ApiId] = new Stat
+            {
+                var item = new Stat
                 {
                     StatType = StatType.Item,
                     ApiId = fileItem.ApiId,
                     Count = fileItem.Count,
                 };
 
+                model.ItemById.AddOrUpdate(fileItem.ApiId, item, (key, oldValue) => item);
+            }
+            
+
             model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
 
-            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds) // add ignoredItems to items to get their api data on module startup
-                if (!model.ItemById.ContainsKey(ignoredItemApiId))
-                    model.ItemById[ignoredItemApiId] = new Stat
-                    {
-                        StatType = StatType.Item,
-                        ApiId = ignoredItemApiId,
-                        Count = 0,
-                    };
+            // add ignoredItems to items to get their api data on module startup
+            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
+            {
+                var ignoredItem = new Stat
+                {
+                    StatType = StatType.Item,
+                    ApiId = ignoredItemApiId,
+                    Count = 0,
+                };
+
+                model.ItemById.TryAdd(ignoredItemApiId, ignoredItem);
+            }
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
-                model.CurrencyById[fileCurrency.ApiId] = new Stat
+            {
+                var currency = new Stat
                 {
                     StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
                     Count = fileCurrency.Count,
                 };
+
+                model.CurrencyById.AddOrUpdate(fileCurrency.ApiId, currency, (key, oldValue) => currency);
+            }
 
             return model;
         }
@@ -48,8 +61,8 @@ namespace FarmingTracker
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
             };
 
-            var items = model.ItemById.Values.ToList().Where(s => s.Count != 0);
-            var currencies = model.CurrencyById.Values.ToList().Where(s => s.Count != 0);
+            var items = model.ItemById.Values.Where(s => s.Count != 0);
+            var currencies = model.CurrencyById.Values.Where(s => s.Count != 0);
 
             foreach (var item in items)
             {

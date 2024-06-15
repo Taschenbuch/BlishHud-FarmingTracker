@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,7 +33,7 @@ namespace FarmingTracker
             return (items, currencies);
         }
 
-        public static void ResetCounts(Dictionary<int, Stat> statById)
+        public static void ResetCounts(ConcurrentDictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
                 stat.Count = 0;
