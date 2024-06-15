@@ -10,7 +10,7 @@ namespace FarmingTracker
         {
             var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Model);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
-            items = StatsService.RemoveIgnoredItems(items, services.Model.IgnoredItemApiIds);
+            items = StatsService.RemoveIgnoredItems(items, services.Model.IgnoredItemApiIds.ToListSafe());
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
             (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
             (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);

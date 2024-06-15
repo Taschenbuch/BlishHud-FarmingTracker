@@ -18,7 +18,7 @@ namespace FarmingTracker
                     Count = fileItem.Count,
                 };
 
-            model.IgnoredItemApiIds = fileModel.IgnoredItemApiIds;
+            model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
 
             foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds) // add ignoredItems to items to get their api data on module startup
                 if (!model.ItemById.ContainsKey(ignoredItemApiId))
@@ -48,7 +48,7 @@ namespace FarmingTracker
             var fileModel = new FileModel
             {
                 FarmingDuration = model.FarmingDuration.Elapsed,
-                IgnoredItemApiIds = model.IgnoredItemApiIds,
+                IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
             };
 
             foreach (var item in items)
