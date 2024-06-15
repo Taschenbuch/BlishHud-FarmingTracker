@@ -42,14 +42,14 @@ namespace FarmingTracker
 
         public static FileModel CreateFileModel(Model model)
         {
-            var items = model.ItemById.Values.ToList().Where(s => s.Count != 0);
-            var currencies = model.CurrencyById.Values.ToList().Where(s => s.Count != 0);
-
             var fileModel = new FileModel
             {
                 FarmingDuration = model.FarmingDuration.Elapsed,
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
             };
+
+            var items = model.ItemById.Values.ToList().Where(s => s.Count != 0);
+            var currencies = model.CurrencyById.Values.ToList().Where(s => s.Count != 0);
 
             foreach (var item in items)
             {
