@@ -161,7 +161,7 @@ namespace FarmingTracker
                     return;
 
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
-                await UpdateStatsInModel(drfMessages);
+                await UpdateStatsInModel(drfMessages, _services);
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -245,12 +245,13 @@ namespace FarmingTracker
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
 
-        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
+        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Model.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _services.Model.ItemById);
-            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Model, _services.Gw2ApiManager);
+            DrfResultAdder.UpdateCurrencyById(drfMessages, services.Model.CurrencyById);
+            DrfResultAdder.UpdateItemById(drfMessages, services.Model.ItemById);
+            await _statsSetter.SetDetailsAndProfitFromApi(services.Model.ItemById, services.Model.CurrencyById, services.Gw2ApiManager);
         }
+
         private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
         {
             var rootFlowPanel = new FlowPanel()
@@ -446,7 +447,7 @@ namespace FarmingTracker
         private bool _lastStatsUpdateSuccessfull = true;
         private bool _hasToResetStats;
         private bool _isModuleStartForReset = true;
-        private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
+        private readonly StatsSetter _statsSetter = new StatsSetter();
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;
