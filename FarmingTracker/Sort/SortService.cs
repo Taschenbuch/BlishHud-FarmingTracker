@@ -5,10 +5,10 @@ namespace FarmingTracker
 {
     public class SortService
     {
-        public static (List<Stat> items, List<Stat> currencies) SortStats(List<Stat> items, List<Stat> currencies, Services services)
+        public static (List<Stat> items, List<Stat> currencies) SortStats(List<Stat> items, List<Stat> currencies, SettingService settingService)
         {
             currencies = SortCurrencies(currencies);
-            items = SortItems(items, services);
+            items = SortItems(items, settingService);
 
             return (items, currencies);
         }
@@ -21,9 +21,9 @@ namespace FarmingTracker
                 .ToList();
         }
 
-        private static List<Stat> SortItems(List<Stat> items, Services services)
+        private static List<Stat> SortItems(List<Stat> items, SettingService settingService)
         {
-            var sortByWithDirectionList = services.SettingService.SortByWithDirectionListSetting.Value.ToList();
+            var sortByWithDirectionList = settingService.SortByWithDirectionListSetting.Value.ToList();
             if (!sortByWithDirectionList.Any())
                 return items;
 
