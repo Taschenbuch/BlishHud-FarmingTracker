@@ -1,5 +1,4 @@
 ﻿using Blish_HUD.Modules.Managers;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,8 +8,8 @@ namespace FarmingTracker
     public class StatsSetter
     {
         public async Task SetDetailsAndProfitFromApi(
-            ConcurrentDictionary<int, Stat> itemById, 
-            ConcurrentDictionary<int, Stat> currencyById, 
+            Dictionary<int, Stat> itemById, 
+            Dictionary<int, Stat> currencyById, 
             Gw2ApiManager gw2ApiManager)
         {
             if (HasToInitializeCache())

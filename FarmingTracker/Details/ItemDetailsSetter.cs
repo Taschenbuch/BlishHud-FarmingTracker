@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using System.Collections.Concurrent;
 
 namespace FarmingTracker
 {
     public class ItemDetailsSetter
     {
-        public static async Task SetItemDetailsFromApi(ConcurrentDictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
+        public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
         {
             var itemIdsWithoutDetails = itemById.Values
                 .Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)

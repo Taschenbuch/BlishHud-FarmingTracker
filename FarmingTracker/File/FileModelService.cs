@@ -7,48 +7,35 @@ namespace FarmingTracker
         public static Model CreateModel(FileModel fileModel)
         {
             var model = new Model();
-
             model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
 
-            foreach (var fileItem in fileModel.FileItems)
-            {
-                var item = new Stat
-                {
-                    StatType = StatType.Item,
-                    ApiId = fileItem.ApiId,
-                    Count = fileItem.Count,
-                };
-
-                model.ItemById.AddOrUpdate(fileItem.ApiId, item, (key, oldValue) => item);
-            }
-            
-
-            model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
-
-            // add ignoredItems to items to get their api data on module startup
-            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-            {
-                var ignoredItem = new Stat
-                {
-                    StatType = StatType.Item,
-                    ApiId = ignoredItemApiId,
-                    Count = 0,
-                };
-
-                model.ItemById.TryAdd(ignoredItemApiId, ignoredItem);
-            }
-
             foreach (var fileCurrency in fileModel.FileCurrencies)
-            {
-                var currency = new Stat
+                model.CurrencyByIdA[fileCurrency.ApiId] = new Stat
                 {
                     StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
                     Count = fileCurrency.Count,
                 };
 
-                model.CurrencyById.AddOrUpdate(fileCurrency.ApiId, currency, (key, oldValue) => currency);
-            }
+            foreach (var fileItem in fileModel.FileItems)
+                model.ItemByIdA[fileItem.ApiId] = new Stat
+                {
+                    StatType = StatType.Item,
+                    ApiId = fileItem.ApiId,
+                    Count = fileItem.Count,
+                };
+            
+            model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
+
+            // add ignoredItems to items to get their api data on module startup
+            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
+                if (!model.ItemByIdA.ContainsKey(ignoredItemApiId))
+                    model.ItemByIdA[ignoredItemApiId] = new Stat
+                    {
+                        StatType = StatType.Item,
+                        ApiId = ignoredItemApiId,
+                        Count = 0,
+                    };
 
             return model;
         }

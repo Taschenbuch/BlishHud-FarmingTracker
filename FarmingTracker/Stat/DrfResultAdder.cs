@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace FarmingTracker
@@ -8,8 +7,8 @@ namespace FarmingTracker
     {
         public static void UpdateCountsOrAddNewStats(
             List<DrfMessage> drfMessages, 
-            ConcurrentDictionary<int, Stat> itemById, 
-            ConcurrentDictionary<int, Stat> currencyById)
+            Dictionary<int, Stat> itemById, 
+            Dictionary<int, Stat> currencyById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
             InternalUpdateCountsOrAddNewStats(itemIdAndCounts, itemById, StatType.Item);
@@ -20,7 +19,7 @@ namespace FarmingTracker
 
         private static void InternalUpdateCountsOrAddNewStats(
             IEnumerable<KeyValuePair<int, long>> statIdAndCounts, 
-            ConcurrentDictionary<int, Stat> statById, 
+            Dictionary<int, Stat> statById, 
             StatType statType)
         {
             foreach (var statIdAndCount in statIdAndCounts)
