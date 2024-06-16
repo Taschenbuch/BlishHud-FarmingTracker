@@ -6,7 +6,7 @@ using System.Linq;
 namespace FarmingTracker
 {
     /// <summary>
-    /// Because SynchronizedCollection is not thread safe for foreach and ToList() and ConcurrentBag and ConcurrentDictionary is harder to use
+    /// Because SynchronizedCollection is not thread safe for foreach and ToList() and ConcurrentBag and ConcurrentDictionary is harder to use as List replacement
     /// </summary>
     public class SafeList<T> : IEnumerable<T>
     {

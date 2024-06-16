@@ -27,7 +27,7 @@ namespace FarmingTracker
 
         protected override void DefineSettings(SettingCollection settings)
         {
-            _services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, new SettingService(settings));
+            _settingService = new SettingService(settings);
         }
 
         public override IView GetSettingsView()
@@ -37,11 +37,11 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            _services.Model = await _services.FileLoadService.LoadModelFromFile();
+            _services = await Services.CreateServices(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService);
             _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
             _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
 
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated; ;
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
         }
 
@@ -65,6 +65,7 @@ namespace FarmingTracker
 
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindowService _farmingTrackerWindowService;
+        private SettingService _settingService;
         private Services _services;
     }
 }

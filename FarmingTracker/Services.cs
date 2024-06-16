@@ -1,19 +1,48 @@
 ﻿using Blish_HUD.Modules.Managers;
 using System;
+using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
     public class Services : IDisposable
     {
-        public Services(ContentsManager contentsManager, DirectoriesManager directoriesManager, Gw2ApiManager gw2ApiManager, SettingService settingService)
+        public Services(
+            Model model, 
+            Gw2ApiManager gw2ApiManager, 
+            SettingService settingService,
+            Drf drf, 
+            TextureService textureService, 
+            FileSaveService fileSaveService, 
+            FileLoadService fileLoadService)
         {
+            Model = model;
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
-            Drf = new Drf(settingService);
-            TextureService = new TextureService(contentsManager);
+            Drf = drf;
+            TextureService = textureService;
+            FileSaveService = fileSaveService;
+            FileLoadService = fileLoadService;
+        }
+
+        public static async Task<Services> CreateServices(
+            ContentsManager contentsManager, 
+            DirectoriesManager directoriesManager, 
+            Gw2ApiManager gw2ApiManager, 
+            SettingService settingService)
+        {
             var modelFilePath = FileService.GetModelFilePath(directoriesManager);
-            FileLoadService = new FileLoadService(modelFilePath);
-            FileSaveService = new FileSaveService(modelFilePath);
+            var fileLoadService = new FileLoadService(modelFilePath);
+            var model = await fileLoadService.LoadModelFromFile();
+            var drf = new Drf(settingService);
+
+            return new Services(
+                model, 
+                gw2ApiManager,
+                settingService,
+                drf,
+                new TextureService(contentsManager),
+                new FileSaveService(modelFilePath),
+                fileLoadService);
         }
 
         public void Dispose()
@@ -30,7 +59,7 @@ namespace FarmingTracker
         public FileLoadService FileLoadService { get; }
         public FileSaveService FileSaveService { get; }
         public Drf Drf { get; }
-        public Model Model { set;  get; } = new Model();
+        public Model Model { get; }
         public string SearchTerm { get; set; } = string.Empty;
     }
 }
