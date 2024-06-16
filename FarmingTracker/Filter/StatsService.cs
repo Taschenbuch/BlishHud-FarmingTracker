@@ -5,10 +5,10 @@ namespace FarmingTracker
 {
     public class StatsService
     {
-        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(Model model)
+        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(StatsSnapshot snapshot)
         {
-            var items = model.ItemById.Values.ToList();
-            var currencies = model.CurrencyById.Values.ToList();
+            var items = snapshot.ItemById.Values.ToList();
+            var currencies = snapshot.CurrencyById.Values.ToList();
 
             return (items, currencies);
         }

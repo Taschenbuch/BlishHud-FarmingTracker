@@ -14,9 +14,9 @@ namespace FarmingTracker
             SetTotalAndPerHourProfit(0, 0);
         }
 
-        public void UpdateProfit(Model model, TimeSpan elapsedFarmingTime)
+        public void UpdateProfit(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
-            var totalProfitInCopper = CalculateTotalProfitInCopper(model);
+            var totalProfitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
@@ -28,12 +28,12 @@ namespace FarmingTracker
             _totalProfitInCopper = totalProfitInCopper;
         }
 
-        private static long CalculateTotalProfitInCopper(Model model)
+        private static long CalculateTotalProfitInCopper(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds)
         {
-            var coinsInCopper = model.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
+            var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
             
-            var ignoredItemApiIdsCopy = model.IgnoredItemApiIds.ToListSafe();
-            var itemsSellProfitInCopper = model.ItemById.Values
+            var ignoredItemApiIdsCopy = ignoredItemApiIds.ToListSafe();
+            var itemsSellProfitInCopper = snapshot.ItemById.Values
                 .Where(s => !ignoredItemApiIdsCopy.Contains(s.ApiId))
                 .Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
 
@@ -41,7 +41,7 @@ namespace FarmingTracker
 
             Module.Logger.Debug(
                 $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                $"maxProfitsPerItem {string.Join(" ", model.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
+                $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
 
             return totalProfit;
         }

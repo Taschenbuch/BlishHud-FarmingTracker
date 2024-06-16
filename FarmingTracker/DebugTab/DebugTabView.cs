@@ -45,8 +45,9 @@ namespace FarmingTracker
 
         private static DrfMessage ConvertToDrfMessage(Model model)
         {
-            var items = model.ItemById.Values.ToList();
-            var currencies = model.CurrencyById.Values.ToList();
+            var snapshot = model.StatsSnapshot;
+            var items = snapshot.ItemById.Values.ToList();
+            var currencies = snapshot.CurrencyById.Values.ToList();
 
             var drfMessage = new DrfMessage();
             drfMessage.Kind = "data";

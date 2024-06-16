@@ -10,7 +10,7 @@ namespace FarmingTracker
             model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
-                model.CurrencyByIdA[fileCurrency.ApiId] = new Stat
+                model.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
                     StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
@@ -18,7 +18,7 @@ namespace FarmingTracker
                 };
 
             foreach (var fileItem in fileModel.FileItems)
-                model.ItemByIdA[fileItem.ApiId] = new Stat
+                model.ItemById[fileItem.ApiId] = new Stat
                 {
                     StatType = StatType.Item,
                     ApiId = fileItem.ApiId,
@@ -29,13 +29,15 @@ namespace FarmingTracker
 
             // add ignoredItems to items to get their api data on module startup
             foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                if (!model.ItemByIdA.ContainsKey(ignoredItemApiId))
-                    model.ItemByIdA[ignoredItemApiId] = new Stat
+                if (!model.ItemById.ContainsKey(ignoredItemApiId))
+                    model.ItemById[ignoredItemApiId] = new Stat
                     {
                         StatType = StatType.Item,
                         ApiId = ignoredItemApiId,
                         Count = 0,
                     };
+
+            model.UpdateStatsSnapshot();
 
             return model;
         }
@@ -48,8 +50,9 @@ namespace FarmingTracker
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
             };
 
-            var items = model.ItemById.Values.Where(s => s.Count != 0);
-            var currencies = model.CurrencyById.Values.Where(s => s.Count != 0);
+            var snapshot = model.StatsSnapshot;
+            var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
+            var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 
             foreach (var item in items)
             {

@@ -56,26 +56,35 @@ namespace FarmingTracker
 
             if (_services.UpdateLoop.HasToUpdateUi())
             {
-                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
-                UiUpdater.UpdateStatPanels(_statsPanels, _services);
+                var snapshot = _services.Model.StatsSnapshot;
+                var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
+                var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
+
+                _profitService.UpdateProfit(snapshot, _services.Model.IgnoredItemApiIds, _services.Model.FarmingDuration.Elapsed);
+                UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _services);
                 return; // that is enough work for a single update loop iteration.
             }
 
             if (HasToPerformAutomaticReset())
-                _hasToResetStats = true;
+                _resetState = ResetState.ResetRequired;
 
-            if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
+            if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _hintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
                 if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
                 {
-                    _hasToResetStats = false;
-                    ResetStats();
-                    _services.UpdateLoop.TriggerUpdateUi();
-                    _services.UpdateLoop.TriggerSaveModel();
-                    _elapsedFarmingTimeLabel.RestartTime();
-                    _resetButton.Enabled = true;
+                    _resetState = ResetState.Resetting;
+                    Task.Run(() =>
+                    {
+                        ResetStats();
+                        _elapsedFarmingTimeLabel.RestartTime();
+                        _services.UpdateLoop.TriggerUpdateUi();
+                        _services.UpdateLoop.TriggerSaveModel();
+                        _resetButton.Enabled = true;
+                        _resetState = ResetState.NoResetRequired; // may override state change from automatic reset. But that is okay, because it just resetted anyway.
+                        _isTaskRunning = false;
+                    });
                 }
                 return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
@@ -141,6 +150,7 @@ namespace FarmingTracker
             {
                 StatsService.ResetCounts(_services.Model.ItemById);
                 StatsService.ResetCounts(_services.Model.CurrencyById);
+                _services.Model.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -162,6 +172,7 @@ namespace FarmingTracker
 
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages, _services);
+                _services.Model.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -338,7 +349,7 @@ namespace FarmingTracker
             _resetButton.Click += (s, e) =>
             {
                 _resetButton.Enabled = false;
-                _hasToResetStats = true;
+                _resetState = ResetState.ResetRequired;
             };
 
             new OpenUrlInBrowserButton(
@@ -444,7 +455,7 @@ namespace FarmingTracker
         private string _oldApiTokenErrorTooltip = string.Empty;
         private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
-        private bool _hasToResetStats;
+        private ResetState _resetState = ResetState.NoResetRequired;
         private bool _isModuleStartForReset = true;
         private readonly StatsSetter _statsSetter = new StatsSetter();
         private readonly Services _services;

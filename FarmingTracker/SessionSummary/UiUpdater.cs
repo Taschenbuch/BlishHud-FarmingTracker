@@ -1,14 +1,13 @@
 ﻿using Blish_HUD.Controls;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FarmingTracker
 {
     public class UiUpdater
     {
-        public static void UpdateStatPanels(StatsPanels statsPanels, Services services)
+        public static void UpdateStatPanels(StatsPanels statsPanels, StatsSnapshot snapshot, Services services)
         {
-            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(services.Model);
+            var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(snapshot);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
             items = StatsService.RemoveIgnoredItems(items, services.Model.IgnoredItemApiIds.ToListSafe());
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
