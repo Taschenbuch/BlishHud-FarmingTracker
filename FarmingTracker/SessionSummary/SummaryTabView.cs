@@ -247,8 +247,7 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, services.Model.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, services.Model.ItemById);
+            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, services.Model.ItemById, services.Model.CurrencyById);
             await _statsSetter.SetDetailsAndProfitFromApi(services.Model.ItemById, services.Model.CurrencyById, services.Gw2ApiManager);
         }
 

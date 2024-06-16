@@ -6,21 +6,24 @@ namespace FarmingTracker
 {
     public class DrfResultAdder
     {
-        public static void UpdateItemById(List<DrfMessage> drfMessages, ConcurrentDictionary<int, Stat> itemById)
+        public static void UpdateCountsOrAddNewStats(
+            List<DrfMessage> drfMessages, 
+            ConcurrentDictionary<int, Stat> itemById, 
+            ConcurrentDictionary<int, Stat> currencyById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
-            UpdateStatById(itemIdAndCounts, itemById, StatType.Item);
-        }
+            InternalUpdateCountsOrAddNewStats(itemIdAndCounts, itemById, StatType.Item);
 
-        public static void UpdateCurrencyById(List<DrfMessage> drfMessages, ConcurrentDictionary<int, Stat> currencyById)
-        {
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
-            UpdateStatById(currencyIdAndCounts, currencyById, StatType.Currency);
+            InternalUpdateCountsOrAddNewStats(currencyIdAndCounts, currencyById, StatType.Currency);
         }
 
-        private static void UpdateStatById(IEnumerable<KeyValuePair<int, long>> statidAndCounts, ConcurrentDictionary<int, Stat> statById, StatType statType)
+        private static void InternalUpdateCountsOrAddNewStats(
+            IEnumerable<KeyValuePair<int, long>> statIdAndCounts, 
+            ConcurrentDictionary<int, Stat> statById, 
+            StatType statType)
         {
-            foreach (var statIdAndCount in statidAndCounts)
+            foreach (var statIdAndCount in statIdAndCounts)
             {
                 if (statById.TryGetValue(statIdAndCount.Key, out var stat))
                     stat.Count += statIdAndCount.Value;
