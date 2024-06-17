@@ -36,19 +36,25 @@ namespace FarmingTracker
         {
             _rootFlowPanel.Parent = buildPanel;
             var resetAndDrfButtonsOffset = 70;
-            _collapsibleHelp.UpdateSize(buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+            var width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
+            ResizeToViewWidth(resetAndDrfButtonsOffset, width);
 
             buildPanel.ContentResized += (s,e) =>
             {
                 var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
-                _statsPanels.CurrenciesFlowPanel.Width = width;
-                _statsPanels.ItemsFlowPanel.Width = width;
-                _statsPanels.FavoriteItemsFlowPanel.Width = width;
-                _statsPanels.ItemsFilterIcon.SetLeft(width);
-                _statsPanels.CurrencyFilterIcon.SetLeft(width);
-                _searchPanel.UpdateSize(width);
-                _collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+                ResizeToViewWidth(resetAndDrfButtonsOffset, width);
             };
+        }
+
+        private void ResizeToViewWidth(int resetAndDrfButtonsOffset, int width)
+        {
+            _statsPanels.CurrenciesFlowPanel.Width = width;
+            _statsPanels.ItemsFlowPanel.Width = width;
+            _statsPanels.FavoriteItemsFlowPanel.Width = width;
+            _statsPanels.ItemsFilterIcon.SetLeft(width);
+            _statsPanels.CurrencyFilterIcon.SetLeft(width);
+            _searchPanel.UpdateSize(width);
+            _collapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
         }
 
         public void Update(GameTime gameTime)
@@ -321,7 +327,6 @@ namespace FarmingTracker
                 Title = CURRENCIES_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = currenciesFilterIconPanel
             };
@@ -331,7 +336,6 @@ namespace FarmingTracker
                 Title = FAVORITE_ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = parent
             };
@@ -348,7 +352,6 @@ namespace FarmingTracker
                 Title = ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = itemsFilterIconPanel
             };
