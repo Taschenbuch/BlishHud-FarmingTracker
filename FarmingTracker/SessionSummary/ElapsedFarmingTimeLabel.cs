@@ -6,10 +6,9 @@ namespace FarmingTracker
 {
     public class ElapsedFarmingTimeLabel : Label
     {
-        public ElapsedFarmingTimeLabel(Services services, Container parent)
+        public ElapsedFarmingTimeLabel(Model model, Services services, Container parent)
         {
-            _services = services;
-
+            _model = model;
             Text = CreateFarmingTimeText("-:--:--");
             Font = services.FontService.Fonts[FontSize.Size14];
             AutoSizeHeight = true;
@@ -19,7 +18,7 @@ namespace FarmingTracker
 
         public void UpdateTimeEverySecond()
         {
-            var farmingTime = _services.Model.FarmingDuration.Elapsed;
+            var farmingTime = _model.FarmingDuration.Elapsed;
             var oneSecondHasPassed = farmingTime >= _oldFarmingTime + TimeSpan.FromSeconds(1);
             if (oneSecondHasPassed)
             {
@@ -31,7 +30,7 @@ namespace FarmingTracker
 
         public void RestartTime()
         {
-            _services.Model.FarmingDuration.Restart();
+            _model.FarmingDuration.Restart();
             _oldFarmingTime = TimeSpan.Zero;
             UpdateLabelText(TimeSpan.Zero);
         }
@@ -59,6 +58,6 @@ namespace FarmingTracker
         }
 
         private TimeSpan _oldFarmingTime = TimeSpan.Zero;
-        private readonly Services _services;
+        private readonly Model _model;
     }
 }

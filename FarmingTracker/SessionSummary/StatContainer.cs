@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(Stat stat, PanelType panelType, Services services)
+        public StatContainer(Stat stat, PanelType panelType, SafeList<int> ignoredItemApiIds, SafeList<int> favoriteItemApiIds, Services services)
         {
             // icon
             var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
@@ -67,7 +67,7 @@ namespace FarmingTracker
 
             if (panelType != PanelType.IgnoredItems)
             {
-                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, panelType, services);
+                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, services);
                 Menu = _contextMenuStrip;
             }
         }

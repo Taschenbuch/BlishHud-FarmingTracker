@@ -37,9 +37,13 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            _services = await Services.CreateServices(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService);
-            _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
-            _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
+            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService);
+            var model = await services.FileLoadService.LoadModelFromFile();
+            _model = model;
+            _services = services;
+
+            _farmingTrackerWindowService = new FarmingTrackerWindowService(model, services);
+            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
 
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
@@ -57,7 +61,9 @@ namespace FarmingTracker
             _services?.Dispose();
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
-            _services.FileSaveService.SaveModelToFileSync(_services.Model);
+            
+            if(_model != null)
+                _services.FileSaveService.SaveModelToFileSync(_model);
         }
 
         private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
@@ -67,5 +73,6 @@ namespace FarmingTracker
         private FarmingTrackerWindowService _farmingTrackerWindowService;
         private SettingService _settingService;
         private Services _services;
+        private Model _model;
     }
 }

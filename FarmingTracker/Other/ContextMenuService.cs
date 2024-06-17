@@ -4,7 +4,12 @@ namespace FarmingTracker
 {
     public class ContextMenuService
     {
-        public static ContextMenuStrip CreateContextMenu(Stat stat, PanelType panelType, Services services)
+        public static ContextMenuStrip CreateContextMenu(
+            Stat stat, 
+            PanelType panelType, 
+            SafeList<int> ignoredItemApiIds, 
+            SafeList<int> favoriteItemApiIds, 
+            Services services)
         {
             var contextMenuStrip = new ContextMenuStrip();
 
@@ -15,13 +20,13 @@ namespace FarmingTracker
             if (panelType == PanelType.SummaryRegularItems)
             {
                 var ignoreMenuItem = contextMenuStrip.AddMenuItem("Ignore item");
-                ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, services);
+                ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
                 ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
                     $"They can be managed in the '{FarmingTrackerWindowService.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
 
                 var addFavoriteMenuItem = contextMenuStrip.AddMenuItem("Add to favorites");
-                addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, services);
+                addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
                 addFavoriteMenuItem.BasicTooltipText = 
                     $"Move item from '{SummaryTabView.ITEMS_PANEL_TITLE}' to '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE} panel." +
                     $"Favorite items are not affected by filter or sort.";
@@ -30,7 +35,7 @@ namespace FarmingTracker
             if (panelType == PanelType.SummaryFavoriteItems)
             {
                 var removeFavoriteMenuItem = contextMenuStrip.AddMenuItem("Remove from favorites");
-                removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, services);
+                removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, favoriteItemApiIds, services);
                 removeFavoriteMenuItem.BasicTooltipText =
                     $"Move item from '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE}' to '{SummaryTabView.ITEMS_PANEL_TITLE} panel.";
             }
@@ -38,41 +43,41 @@ namespace FarmingTracker
             return contextMenuStrip;
         }
 
-        private static void RemoveFromFavoriteItems(Stat stat, Services services)
+        private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
         {
-            if (!services.Model.FavoriteItemApiIds.AnySafe(id => id == stat.ApiId))
+            if (!favoriteItemApiIds.AnySafe(id => id == stat.ApiId))
             {
                 Module.Logger.Error("Item is not a favorite item. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            services.Model.FavoriteItemApiIds.RemoveSafe(stat.ApiId);
+            favoriteItemApiIds.RemoveSafe(stat.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void AddToFavoriteItems(Stat stat, Services services)
+        private static void AddToFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
         {
-            if (services.Model.FavoriteItemApiIds.AnySafe(id => id == stat.ApiId))
+            if (favoriteItemApiIds.AnySafe(id => id == stat.ApiId))
             {
                 Module.Logger.Error("Item is already a favorite item. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            services.Model.FavoriteItemApiIds.AddSafe(stat.ApiId);
+            favoriteItemApiIds.AddSafe(stat.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void IgnoreItem(Stat stat, Services services)
+        private static void IgnoreItem(Stat stat, SafeList<int> ignoredItemApiIds, Services services)
         {
-            if (services.Model.IgnoredItemApiIds.AnySafe(id => id == stat.ApiId))
+            if (ignoredItemApiIds.AnySafe(id => id == stat.ApiId))
             {
                 Module.Logger.Error("Item is already ignored. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            services.Model.IgnoredItemApiIds.AddSafe(stat.ApiId);
+            ignoredItemApiIds.AddSafe(stat.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }

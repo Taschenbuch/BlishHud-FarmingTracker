@@ -12,10 +12,11 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Services services) 
+        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Model model, Services services) 
         {
+            _model = model;
             _services = services;
-            _rootFlowPanel = CreateUi(farmingTrackerWindowService, _services);
+            _rootFlowPanel = CreateUi(farmingTrackerWindowService);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStats();
             services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
@@ -57,12 +58,12 @@ namespace FarmingTracker
 
             if (_services.UpdateLoop.HasToUpdateUi())
             {
-                var snapshot = _services.Model.StatsSnapshot;
+                var snapshot = _model.StatsSnapshot;
                 var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                 var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 
-                _profitPanels.UpdateProfit(snapshot, _services.Model.IgnoredItemApiIds, _services.Model.FarmingDuration.Elapsed);
-                UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _services);
+                _profitPanels.UpdateProfit(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
+                UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
                 return; // that is enough work for a single update loop iteration.
             }
 
@@ -99,14 +100,14 @@ namespace FarmingTracker
                     _isTaskRunning = true;
                     Task.Run(async () =>
                     {
-                        await _services.FileSaveService.SaveModelToFile(_services.Model);
+                        await _services.FileSaveService.SaveModelToFile(_model);
                         _isTaskRunning = false;
                     });
                     // do not return here because saving the model should not disturb other parts of Update().
                 }
             }
             
-            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
+            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_model.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -149,9 +150,9 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCounts(_services.Model.ItemById);
-                StatsService.ResetCounts(_services.Model.CurrencyById);
-                _services.Model.UpdateStatsSnapshot();
+                StatsService.ResetCounts(_model.ItemById);
+                StatsService.ResetCounts(_model.CurrencyById);
+                _model.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -173,7 +174,7 @@ namespace FarmingTracker
 
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages, _services);
-                _services.Model.UpdateStatsSnapshot();
+                _model.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -259,11 +260,11 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, services.Model.ItemById, services.Model.CurrencyById);
-            await _statsSetter.SetDetailsAndProfitFromApi(services.Model.ItemById, services.Model.CurrencyById, services.Gw2ApiManager);
+            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.ItemById, _model.CurrencyById);
+            await _statsSetter.SetDetailsAndProfitFromApi(_model.ItemById, _model.CurrencyById, services.Gw2ApiManager);
         }
 
-        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
+        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -277,7 +278,7 @@ namespace FarmingTracker
             _drfErrorLabel = new Label
             {
                 Text = Constants.ZERO_HEIGHT_EMPTY_LABEL,
-                Font = services.FontService.Fonts[FontSize.Size18],
+                Font = _services.FontService.Fonts[FontSize.Size18],
                 TextColor = Color.Yellow,
                 StrokeText = true,
                 AutoSizeHeight = true,
@@ -297,16 +298,16 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
-            CreateHelpResetDrfButtons(services);
-            CreateTimeAndHintLabels(services);
+            CreateHelpResetDrfButtons();
+            CreateTimeAndHintLabels();
             _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
-            CreateStatsPanels(services, _farmingRootFlowPanel);
+            CreateStatsPanels(_farmingRootFlowPanel);
 
             return rootFlowPanel;
         }
 
-        private void CreateStatsPanels(Services services, Container parent)
+        private void CreateStatsPanels(Container parent)
         {
             var currenciesFilterIconPanel = new Panel
             {
@@ -352,15 +353,15 @@ namespace FarmingTracker
                 Parent = itemsFilterIconPanel
             };
 
-            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
-            _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(_services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
+            _statsPanels.ItemsFilterIcon = new ClickThroughImage(_services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
             new HintLabel(_statsPanels.CurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
             new HintLabel(_statsPanels.FavoriteItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
             new HintLabel(_statsPanels.ItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
         }
 
-        private void CreateTimeAndHintLabels(Services services)
+        private void CreateTimeAndHintLabels()
         {
             _timeAndHintFlowPanel = new FlowPanel()
             {
@@ -371,19 +372,19 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _timeAndHintFlowPanel);
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(_model, _services, _timeAndHintFlowPanel);
 
             _hintLabel = new Label
             {
                 Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
-                Font = services.FontService.Fonts[FontSize.Size14],
+                Font = _services.FontService.Fonts[FontSize.Size14],
                 Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
                 AutoSizeHeight = true,
                 Parent = _timeAndHintFlowPanel
             };
         }
 
-        private void CreateHelpResetDrfButtons(Services services)
+        private void CreateHelpResetDrfButtons()
         {
             var buttonFlowPanel = new FlowPanel()
             {
@@ -447,7 +448,7 @@ namespace FarmingTracker
                 "Open DRF live tracking website in your default web browser.\n" +
                 "The module and the DRF live tracking web page are both DRF clients. But they are independent of each other. " +
                 "They do not synchronize the data they display. So one client may show less or more data dependend on when the client session started.",
-                services.TextureService.OpenLinkTexture,
+                _services.TextureService.OpenLinkTexture,
                 subButtonFlowPanel)
             {
                 Width = 60,
@@ -477,6 +478,7 @@ namespace FarmingTracker
         private ResetState _resetState = ResetState.NoResetRequired;
         private bool _isModuleStartForReset = true;
         private readonly StatsSetter _statsSetter = new StatsSetter();
+        private readonly Model _model;
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;

@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class FarmingTrackerWindowService : IDisposable
     {
-        public FarmingTrackerWindowService(Services services)
+        public FarmingTrackerWindowService(Model model, Services services)
         {
             var windowWidth = 570;
             var windowHeight = 650;
@@ -39,7 +39,7 @@ namespace FarmingTracker
                 ShowOrHideWindowSubtitle(_farmingTrackerWindow.Width);
             };
 
-            var summaryTabView = new SummaryTabView(this, services);
+            var summaryTabView = new SummaryTabView(this, model, services);
             _summaryTabView = summaryTabView;
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, SUMMARY_TAB_TITLE);
             _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), SETTINGS_TAB_TITLE);
@@ -48,10 +48,10 @@ namespace FarmingTracker
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, () => new PlaceholderTabView(TIMELINE_TAB_TITLE), TIMELINE_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), FILTER_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), SORT_TAB_TITLE));
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(services), IGNORED_ITEMS_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), IGNORED_ITEMS_TAB_TITLE));
             _farmingTrackerWindow.Tabs.Add(_settingsTab);
 #if DEBUG
-            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(services), DEBUG_TAB_TITLE));
+            _farmingTrackerWindow.Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(model, services), DEBUG_TAB_TITLE));
 #endif
         }
 

@@ -9,8 +9,9 @@ namespace FarmingTracker
 {
     public class DebugTabView : View
     {
-        public DebugTabView(Services services)
+        public DebugTabView(Model model, Services services)
         {
+            _model = model;
             _services = services;
         }
         
@@ -37,7 +38,7 @@ namespace FarmingTracker
 
             dropToClipboardButton.Click += async (s, e) =>
             {
-                var drfMessage = ConvertToDrfMessage(_services.Model);
+                var drfMessage = ConvertToDrfMessage(_model);
                 var drfMessageAsString = JsonConvert.SerializeObject(drfMessage);
                 await ClipboardUtil.WindowsClipboardService.SetTextAsync($"'{drfMessageAsString}',"); // format for fake drf server message list
             };
@@ -62,6 +63,7 @@ namespace FarmingTracker
             return drfMessage;
         }
 
+        private readonly Model _model;
         private readonly Services _services;
     }
 }
