@@ -5,7 +5,6 @@ namespace FarmingTracker
     // can be currency or item
     public class Stat
     {
-        public StatType StatType { get; set; } = StatType.Item;
         public int ApiId { get; set; }
         public long Count { get; set; }
         public long CountSign => Math.Sign(Count);

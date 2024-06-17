@@ -7,6 +7,7 @@ namespace FarmingTracker
     {
         public FarmingDuration FarmingDuration { get; } = new FarmingDuration();
         public SafeList<int> IgnoredItemApiIds { get; set; } = new SafeList<int>();
+        public SafeList<int> FavoriteItemApiIds { get; set; } = new SafeList<int>();
         public Dictionary<int, Stat> CurrencyById { get; } = new Dictionary<int, Stat>(); 
         public Dictionary<int, Stat> ItemById { get; } = new Dictionary<int, Stat>();
         public StatsSnapshot StatsSnapshot { get; set; } = new StatsSnapshot();

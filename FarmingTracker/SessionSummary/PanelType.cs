@@ -2,7 +2,9 @@
 {
     public enum PanelType
     {
-        SessionSummary,
+        SummaryCurrencies,
+        SummaryRegularItems,
+        SummaryFavoriteItems,
         IgnoredItems,
     }
 }

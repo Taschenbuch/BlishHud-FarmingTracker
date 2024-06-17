@@ -42,6 +42,7 @@ namespace FarmingTracker
                 var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
                 _statsPanels.CurrenciesFlowPanel.Width = width;
                 _statsPanels.ItemsFlowPanel.Width = width;
+                _statsPanels.FavoriteItemsFlowPanel.Width = width;
                 _statsPanels.ItemsFilterIcon.SetLeft(width);
                 _statsPanels.CurrencyFilterIcon.SetLeft(width);
                 _searchPanel.UpdateSize(width);
@@ -300,25 +301,18 @@ namespace FarmingTracker
             CreateTimeAndHintLabels(services);
             _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
-            CreateStatsPanels(services);
+            CreateStatsPanels(services, _farmingRootFlowPanel);
 
             return rootFlowPanel;
         }
 
-        private void CreateStatsPanels(Services services)
+        private void CreateStatsPanels(Services services, Container parent)
         {
             var currenciesFilterIconPanel = new Panel
             {
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
-            };
-
-            var itemsFilterIconPanel = new Panel
-            {
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
+                Parent = parent
             };
 
             _statsPanels.CurrenciesFlowPanel = new FlowPanel()
@@ -331,9 +325,26 @@ namespace FarmingTracker
                 Parent = currenciesFilterIconPanel
             };
 
+            _statsPanels.FavoriteItemsFlowPanel = new FlowPanel()
+            {
+                Title = FAVORITE_ITEMS_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                Width = Constants.PANEL_WIDTH,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            var itemsFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
             _statsPanels.ItemsFlowPanel = new FlowPanel()
             {
-                Title = "Items",
+                Title = ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 CanCollapse = true,
                 Width = Constants.PANEL_WIDTH,
@@ -345,6 +356,7 @@ namespace FarmingTracker
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
             new HintLabel(_statsPanels.CurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.FavoriteItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
             new HintLabel(_statsPanels.ItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
         }
 
@@ -471,6 +483,8 @@ namespace FarmingTracker
         private CollapsibleHelp _collapsibleHelp;
         private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
+        public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
+        public const string ITEMS_PANEL_TITLE = "Items";
         private const string CURRENCIES_PANEL_TITLE = "Currencies";
     }
 }

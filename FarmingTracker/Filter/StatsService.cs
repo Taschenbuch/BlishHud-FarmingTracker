@@ -42,5 +42,16 @@ namespace FarmingTracker
         {
             return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
         }
+
+        public static (List<Stat> favoriteItems, List<Stat> regularItems) SplitIntoFavoriteAndRegularItems(List<Stat> items, List<int> favoriteItemApiIds)
+        {
+            if (favoriteItemApiIds.IsEmpty())
+                return (new List<Stat>(), items);  
+
+            var favoriteItems = items.Where(i => favoriteItemApiIds.Contains(i.ApiId)).ToList();
+            var regularItems = items.Where(i => !favoriteItemApiIds.Contains(i.ApiId)).ToList();
+            
+            return (favoriteItems, regularItems);
+        }
     }
 }

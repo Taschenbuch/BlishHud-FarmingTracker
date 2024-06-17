@@ -65,9 +65,9 @@ namespace FarmingTracker
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value)
                 AddRarityBorder(stat.Details.Rarity, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, statTooltip);
 
-            if (panelType == PanelType.SessionSummary)
+            if (panelType != PanelType.IgnoredItems)
             {
-                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, services);
+                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, panelType, services);
                 Menu = _contextMenuStrip;
             }
         }

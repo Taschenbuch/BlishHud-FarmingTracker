@@ -8,11 +8,11 @@ namespace FarmingTracker
         {
             var model = new Model();
             model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
+            model.FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds);
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
                 model.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
-                    StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
                     Count = fileCurrency.Count,
                 };
@@ -20,7 +20,6 @@ namespace FarmingTracker
             foreach (var fileItem in fileModel.FileItems)
                 model.ItemById[fileItem.ApiId] = new Stat
                 {
-                    StatType = StatType.Item,
                     ApiId = fileItem.ApiId,
                     Count = fileItem.Count,
                 };
@@ -32,7 +31,6 @@ namespace FarmingTracker
                 if (!model.ItemById.ContainsKey(ignoredItemApiId))
                     model.ItemById[ignoredItemApiId] = new Stat
                     {
-                        StatType = StatType.Item,
                         ApiId = ignoredItemApiId,
                         Count = 0,
                     };
@@ -48,6 +46,7 @@ namespace FarmingTracker
             {
                 FarmingDuration = model.FarmingDuration.Elapsed,
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
+                FavoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(),
             };
 
             var snapshot = model.StatsSnapshot;
