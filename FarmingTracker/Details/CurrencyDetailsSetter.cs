@@ -42,7 +42,8 @@ namespace FarmingTracker
             if (!currenciesWithoutDetails.Any())
                 return;
 
-            Module.Logger.Debug("currencies no details " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId)));
+            if (Module.DebugEnabled)
+                Module.Logger.Debug("currencies no details " + string.Join(" ", currenciesWithoutDetails.Select(c => c.ApiId)));
 
             var missingInApiCurrencyIds = new List<int>();
 
@@ -63,7 +64,7 @@ namespace FarmingTracker
                 }
             }
 
-            if (missingInApiCurrencyIds.Any())
+            if (missingInApiCurrencyIds.Any() && Module.DebugEnabled)
                 Module.Logger.Debug("currencies api miss   " + string.Join(" ", missingInApiCurrencyIds));
         }
     }

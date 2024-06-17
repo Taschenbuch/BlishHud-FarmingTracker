@@ -1,4 +1,5 @@
-﻿using Blish_HUD.Controls;
+﻿using Blish_HUD;
+using Blish_HUD.Controls;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -43,9 +44,10 @@ namespace FarmingTracker
 
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
-            Module.Logger.Debug(
-                $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
+            if(Module.DebugEnabled)
+                Module.Logger.Debug(
+                    $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
+                    $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
 
             return totalProfit;
         }
