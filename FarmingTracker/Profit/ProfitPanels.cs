@@ -1,15 +1,19 @@
-﻿using System;
+﻿using Blish_HUD.Controls;
+using System;
 using System.Diagnostics;
 using System.Linq;
+using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class ProfitService
+    public class ProfitPanels
     {
-        public ProfitService(ProfitPanel totalProfitPanel, ProfitPanel profitPerHourPanel)
+        public ProfitPanels(TextureService textureService, FontService fontService, Container parent)
         {
-            _totalProfitPanel = totalProfitPanel;
-            _profitPerHourPanel = profitPerHourPanel;
+            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
+            var font = fontService.Fonts[FontSize.Size16];
+            _totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, textureService, parent);
+            _profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, textureService, parent);
             _stopwatch.Restart();
             SetTotalAndPerHourProfit(0, 0);
         }

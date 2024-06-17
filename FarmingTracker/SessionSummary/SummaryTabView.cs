@@ -60,7 +60,7 @@ namespace FarmingTracker
                 var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                 var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 
-                _profitService.UpdateProfit(snapshot, _services.Model.IgnoredItemApiIds, _services.Model.FarmingDuration.Elapsed);
+                _profitPanels.UpdateProfit(snapshot, _services.Model.IgnoredItemApiIds, _services.Model.FarmingDuration.Elapsed);
                 UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _services);
                 return; // that is enough work for a single update loop iteration.
             }
@@ -105,7 +105,7 @@ namespace FarmingTracker
                 }
             }
             
-            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
+            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -295,34 +295,10 @@ namespace FarmingTracker
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel
             };
+
             CreateHelpResetDrfButtons(services);
-
-            _controlsFlowPanel = new FlowPanel()
-            {
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                ControlPadding = new Vector2(20, 0),
-                WidthSizingMode = SizingMode.Fill,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
-            };
-
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
-
-            _hintLabel = new Label
-            {
-                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
-                Font = services.FontService.Fonts[FontSize.Size14],
-                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
-                AutoSizeHeight = true,
-                Parent = _controlsFlowPanel
-            };
-
-            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
-            var font = services.FontService.Fonts[FontSize.Size16];
-            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _services, _farmingRootFlowPanel);
-            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
-            _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
-
+            CreateTimeAndHintLabels(services);
+            _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
 
             var currenciesFilterIconPanel = new Panel
@@ -366,6 +342,29 @@ namespace FarmingTracker
             new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
 
             return rootFlowPanel;
+        }
+
+        private void CreateTimeAndHintLabels(Services services)
+        {
+            _timeAndHintFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                ControlPadding = new Vector2(20, 0),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _timeAndHintFlowPanel);
+
+            _hintLabel = new Label
+            {
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
+                Font = services.FontService.Fonts[FontSize.Size14],
+                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
+                AutoSizeHeight = true,
+                Parent = _timeAndHintFlowPanel
+            };
         }
 
         private void CreateHelpResetDrfButtons(Services services)
@@ -447,14 +446,14 @@ namespace FarmingTracker
         private bool _isTaskRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
-        private ProfitService _profitService;
+        private ProfitPanels _profitPanels;
         private SearchPanel _searchPanel;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
         private OpenSettingsButton _openSettingsButton;
         private FlowPanel _farmingRootFlowPanel;
         private StandardButton _resetButton;
-        private FlowPanel _controlsFlowPanel;
+        private FlowPanel _timeAndHintFlowPanel;
         private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
         private string _oldApiTokenErrorTooltip = string.Empty;
         private bool _apiErrorHintVisible;

@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class ProfitPanel : FlowPanel
     {
-        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, Services services, Container parent, int height = 0)
+        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             BasicTooltipText = tooltip;
@@ -31,9 +31,9 @@ namespace FarmingTracker
                 Parent = this,
             };
 
-            _goldPanel = new CoinPanel(services.TextureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, _coinsFlowPanel);
-            _silverPanel = new CoinPanel(services.TextureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, _coinsFlowPanel);
-            _copperPanel = new CoinPanel(services.TextureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, _coinsFlowPanel);
+            _goldPanel = new CoinPanel(textureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, _coinsFlowPanel);
+            _silverPanel = new CoinPanel(textureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, _coinsFlowPanel);
+            _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, _coinsFlowPanel);
 
             var hasSuffixText = !string.IsNullOrWhiteSpace(suffixText);
             if(hasSuffixText)
