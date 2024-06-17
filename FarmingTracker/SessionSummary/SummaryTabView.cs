@@ -300,7 +300,13 @@ namespace FarmingTracker
             CreateTimeAndHintLabels(services);
             _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
+            CreateStatsPanels(services);
 
+            return rootFlowPanel;
+        }
+
+        private void CreateStatsPanels(Services services)
+        {
             var currenciesFilterIconPanel = new Panel
             {
                 WidthSizingMode = SizingMode.AutoSize,
@@ -340,8 +346,6 @@ namespace FarmingTracker
 
             new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
             new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
-
-            return rootFlowPanel;
         }
 
         private void CreateTimeAndHintLabels(Services services)
