@@ -40,8 +40,8 @@ namespace FarmingTracker
             buildPanel.ContentResized += (s,e) =>
             {
                 var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
-                _statsPanels.FarmedCurrenciesFlowPanel.Width = width;
-                _statsPanels.FarmedItemsFlowPanel.Width = width;
+                _statsPanels.CurrenciesFlowPanel.Width = width;
+                _statsPanels.ItemsFlowPanel.Width = width;
                 _statsPanels.ItemsFilterIcon.SetLeft(width);
                 _statsPanels.CurrencyFilterIcon.SetLeft(width);
                 _searchPanel.UpdateSize(width);
@@ -321,7 +321,7 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
-            _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
+            _statsPanels.CurrenciesFlowPanel = new FlowPanel()
             {
                 Title = CURRENCIES_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
@@ -331,7 +331,7 @@ namespace FarmingTracker
                 Parent = currenciesFilterIconPanel
             };
 
-            _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
+            _statsPanels.ItemsFlowPanel = new FlowPanel()
             {
                 Title = "Items",
                 FlowDirection = ControlFlowDirection.LeftToRight,
@@ -344,8 +344,8 @@ namespace FarmingTracker
             _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
             _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
 
-            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
-            new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.CurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.ItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
         }
 
         private void CreateTimeAndHintLabels(Services services)
