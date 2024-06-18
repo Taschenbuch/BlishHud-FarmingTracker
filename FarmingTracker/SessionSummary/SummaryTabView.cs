@@ -82,6 +82,7 @@ namespace FarmingTracker
 
                 if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
                 {
+                    _isTaskRunning = true;
                     _resetState = ResetState.Resetting;
                     Task.Run(() =>
                     {
