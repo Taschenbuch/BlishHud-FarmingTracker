@@ -53,11 +53,17 @@ namespace FarmingTracker
             
             CountBackgroundOpacitySetting.SetRange(0, 255);
 
-            CountTextColorSetting = settings.DefineSetting(
-               "count text color",
+            PositiveCountTextColorSetting = settings.DefineSetting(
+               "positive count text color",
                ColorType.White,
-               () => "count text color",
-               () => "Change item/currency count text color.");
+               () => "positive count text color",
+               () => "Change item/currency count text color for positive counts (>0).");
+
+            NegativeCountTextColorSetting = settings.DefineSetting(
+               "negative count text color",
+               ColorType.White,
+               () => "negative count text color",
+               () => "Change item/currency count text color for negative counts (<0).");
 
             CountFontSizeSetting = settings.DefineSetting(
                "count font size",
@@ -132,7 +138,8 @@ namespace FarmingTracker
         public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
-        public SettingEntry<ColorType> CountTextColorSetting { get; }
+        public SettingEntry<ColorType> PositiveCountTextColorSetting { get; }
+        public SettingEntry<ColorType> NegativeCountTextColorSetting { get; }
         public SettingEntry<ColorType> CountBackgroundColorSetting { get; }
         public SettingEntry<int> CountBackgroundOpacitySetting { get; }
         public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }

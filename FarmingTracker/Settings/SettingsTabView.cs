@@ -20,7 +20,8 @@ namespace FarmingTracker
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged -= OnSettingChanged;
-            _services.SettingService.CountTextColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.PositiveCountTextColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.NegativeCountTextColorSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged -= OnSettingChanged;
@@ -49,7 +50,8 @@ namespace FarmingTracker
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountTextColorSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
             CreateIconSizeDropdown(rootFlowPanel, _services);
@@ -58,7 +60,8 @@ namespace FarmingTracker
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
-            _services.SettingService.CountTextColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.PositiveCountTextColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.NegativeCountTextColorSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
