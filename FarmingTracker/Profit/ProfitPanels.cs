@@ -1,5 +1,4 @@
-﻿using Blish_HUD;
-using Blish_HUD.Controls;
+﻿using Blish_HUD.Controls;
 using System;
 using System.Diagnostics;
 using System.Linq;

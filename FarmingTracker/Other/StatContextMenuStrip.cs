@@ -26,7 +26,7 @@ namespace FarmingTracker
                 _addFavoriteMenuItem = AddMenuItem("Add to favorites");
                 _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
                 _addFavoriteMenuItem.BasicTooltipText = 
-                    $"Move item from '{SummaryTabView.ITEMS_PANEL_TITLE}' to '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE} panel." +
+                    $"Move item from '{SummaryTabView.ITEMS_PANEL_TITLE}' to '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE} panel. " +
                     $"Favorite items are not affected by filter or sort.";
             }
 
