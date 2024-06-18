@@ -77,6 +77,14 @@ namespace FarmingTracker
                 () => "icon size",
                 () => "Change item/currency icon size.");
 
+            LostStatIconOpacitySetting = settings.DefineSetting(
+                "lost stat icon opacity",
+                77,
+                () => "lost stat icon opacity",
+                () => "Change item/currency icon opacity / transparency for negative counts.");
+
+            LostStatIconOpacitySetting.SetRange(0, 255);
+
             IsFakeDrfServerUsedSetting = settings.DefineSetting(
                 "is fake drf server used",
                 false,
@@ -130,6 +138,7 @@ namespace FarmingTracker
         public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
         public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; }
         public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
+        public SettingEntry<int> LostStatIconOpacitySetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }

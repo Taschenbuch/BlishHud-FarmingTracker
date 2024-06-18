@@ -41,7 +41,7 @@ namespace FarmingTracker
             new Image(statIconTexture)
             {
                 Tooltip = statTooltip,
-                Opacity = stat.Count > 0 ? 1f : 0.3f,
+                Opacity = stat.Count > 0 ? 1f : (services.SettingService.LostStatIconOpacitySetting.Value / 255f),
                 Size = new Point(iconSize),
                 Location = new Point(backgroundMargin + iconMargin),
                 Parent = this
