@@ -21,7 +21,7 @@ namespace FarmingTracker
 
             _signLabel = new CoinSignLabel(tooltip, font, this);
 
-            _coinsFlowPanel = new FlowPanel // this does not include the suffix Text Label
+            var coinsFlowPanel = new FlowPanel // this does not include the suffix Text Label
             {
                 FlowDirection = ControlFlowDirection.SingleLeftToRight,
                 ControlPadding = new Vector2(5, 0),
@@ -31,9 +31,9 @@ namespace FarmingTracker
                 Parent = this,
             };
 
-            _goldPanel = new CoinPanel(textureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, _coinsFlowPanel);
-            _silverPanel = new CoinPanel(textureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, _coinsFlowPanel);
-            _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, _coinsFlowPanel);
+            _goldPanel = new CoinPanel(textureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, coinsFlowPanel);
+            _silverPanel = new CoinPanel(textureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, coinsFlowPanel);
+            _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, coinsFlowPanel);
 
             var hasSuffixText = !string.IsNullOrWhiteSpace(suffixText);
             if(hasSuffixText)
@@ -69,7 +69,6 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        private readonly FlowPanel _coinsFlowPanel;
         private readonly CoinSignLabel _signLabel;
         private readonly CoinPanel _goldPanel;
         private readonly CoinPanel _silverPanel;
