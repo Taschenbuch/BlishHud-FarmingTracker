@@ -70,7 +70,7 @@ namespace FarmingTracker
                     var snapshot = _model.StatsSnapshot;
                     var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                     var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-                    _profitPanels.UpdateProfit(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
+                    _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
                     _isUiUpdateTaskRunning = false;
                 });
