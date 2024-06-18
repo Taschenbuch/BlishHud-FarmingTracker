@@ -61,16 +61,19 @@ namespace FarmingTracker
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
             _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
-
-            if (_services.UpdateLoop.HasToUpdateUi())
+            
+            if (!_isUiUpdateTaskRunning && _services.UpdateLoop.HasToUpdateUi()) // short circuit method call to prevent resetting its bool
             {
-                var snapshot = _model.StatsSnapshot;
-                var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
-                var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-
-                _profitPanels.UpdateProfit(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
-                UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
-                return; // that is enough work for a single update loop iteration.
+                _isUiUpdateTaskRunning = true;
+                Task.Run(() =>
+                {
+                    var snapshot = _model.StatsSnapshot;
+                    var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
+                    var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
+                    _profitPanels.UpdateProfit(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
+                    UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
+                    _isUiUpdateTaskRunning = false;
+                });
             }
 
             if (HasToPerformAutomaticReset())
@@ -465,6 +468,7 @@ namespace FarmingTracker
         }
 
         private bool _isTaskRunning;
+        private bool _isUiUpdateTaskRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private ProfitPanels _profitPanels;
