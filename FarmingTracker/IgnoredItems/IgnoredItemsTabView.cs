@@ -7,8 +7,9 @@ namespace FarmingTracker
 {
     public class IgnoredItemsTabView : View
     {
-        public IgnoredItemsTabView(Services services)
+        public IgnoredItemsTabView(Model model, Services services)
         {
+            _model = model;
             _services = services;
         }
 
@@ -87,11 +88,11 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredItems = _services.Model.IgnoredItemApiIds.Select(i => _services.Model.ItemById[i]).ToList();
-            var noItemsAreIgnored = _services.Model.IgnoredItemApiIds.IsEmpty();
+            var ignoredItems = _model.IgnoredItemApiIds.ToListSafe().Select(i => _model.StatsSnapshot.ItemById[i]).ToList();
+            var noItemsAreIgnored = ignoredItems.IsEmpty();
             if (noItemsAreIgnored)
             {
-                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _services);
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _model);
                 return;
             }
 
@@ -105,7 +106,7 @@ namespace FarmingTracker
             hintLabel.Text = $"{Constants.HINT_IN_PANEL_PADDING}Left click an item to unignore it.";
 
             foreach (var ignoredItem in ignoredItems)
-                ShowIgnoredItem(ignoredItem, _services, hintLabel, _ignoredItemsFlowPanel);
+                ShowIgnoredItem(ignoredItem, _model, _services, hintLabel, _ignoredItemsFlowPanel);
 
             unignoreAllButton.Enabled = true;
             unignoreAllButton.Click += (sender, args) =>
@@ -113,39 +114,39 @@ namespace FarmingTracker
                 foreach (var statContainer in _ignoredItemsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
                 
-                _services.Model.IgnoredItemApiIds.Clear();
+                _model.IgnoredItemApiIds.ClearSafe();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 
-                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _services);
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, _model);
             };
         }
 
-        private static void ShowIgnoredItem(Stat ignoredItem, Services services, HintLabel hintLabel, Container parent)
+        private static void ShowIgnoredItem(Stat ignoredItem, Model model, Services services, HintLabel hintLabel, Container parent)
         {
-            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, services)
+            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services)
             {
                 Parent = parent
             };
 
             statContainer.Click += (sender, args) =>
             {
-                UnignoreItem(ignoredItem, services);
+                UnignoreItem(ignoredItem, model, services);
                 statContainer.Dispose();
-                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, services);
+                ShowNoItemsAreIgnoredHintIfNecessary(hintLabel, model);
             };
         }
 
-        private static void UnignoreItem(Stat item, Services services)
+        private static void UnignoreItem(Stat item, Model model, Services services)
         {
-            services.Model.IgnoredItemApiIds.Remove(item.ApiId);
+            model.IgnoredItemApiIds.RemoveSafe(item.ApiId);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void ShowNoItemsAreIgnoredHintIfNecessary(HintLabel hintLabel, Services services)
+        private static void ShowNoItemsAreIgnoredHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            if (services.Model.IgnoredItemApiIds.Any())
+            if (model.IgnoredItemApiIds.AnySafe())
                 return;
 
             hintLabel.Text = 
@@ -163,6 +164,7 @@ namespace FarmingTracker
                 $"{Constants.HINT_IN_PANEL_PADDING}Then come back here and your ignored items will be displayed.";
         }
 
+        private readonly Model _model;
         private readonly Services _services;
         private FlowPanel _ignoredItemsFlowPanel;
         private const string IGNORED_ITEMS_PANEL_TITLE = "Ignored Items";

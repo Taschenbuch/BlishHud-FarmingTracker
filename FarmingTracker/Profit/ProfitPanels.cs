@@ -1,22 +1,27 @@
-﻿using System;
+﻿using Blish_HUD;
+using Blish_HUD.Controls;
+using System;
 using System.Diagnostics;
 using System.Linq;
+using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class ProfitService
+    public class ProfitPanels
     {
-        public ProfitService(ProfitPanel totalProfitPanel, ProfitPanel profitPerHourPanel)
+        public ProfitPanels(TextureService textureService, FontService fontService, Container parent)
         {
-            _totalProfitPanel = totalProfitPanel;
-            _profitPerHourPanel = profitPerHourPanel;
+            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
+            var font = fontService.Fonts[FontSize.Size16];
+            _totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, textureService, parent);
+            _profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, textureService, parent);
             _stopwatch.Restart();
             SetTotalAndPerHourProfit(0, 0);
         }
 
-        public void UpdateProfit(Model model, TimeSpan elapsedFarmingTime)
+        public void UpdateProfit(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
-            var totalProfitInCopper = CalculateTotalProfitInCopper(model);
+            var totalProfitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
@@ -28,19 +33,21 @@ namespace FarmingTracker
             _totalProfitInCopper = totalProfitInCopper;
         }
 
-        private static long CalculateTotalProfitInCopper(Model model)
+        private static long CalculateTotalProfitInCopper(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds)
         {
-            var coinsInCopper = model.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
+            var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
             
-            var itemsSellProfitInCopper = model.ItemById.Values
-                .Where(s => !model.IgnoredItemApiIds.Contains(s.ApiId))
+            var ignoredItemApiIdsCopy = ignoredItemApiIds.ToListSafe();
+            var itemsSellProfitInCopper = snapshot.ItemById.Values
+                .Where(s => !ignoredItemApiIdsCopy.Contains(s.ApiId))
                 .Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
 
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
-            Module.Logger.Debug(
-                $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                $"maxProfitsPerItem {string.Join(" ", model.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
+            if(Module.DebugEnabled)
+                Module.Logger.Debug(
+                    $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
+                    $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
 
             return totalProfit;
         }

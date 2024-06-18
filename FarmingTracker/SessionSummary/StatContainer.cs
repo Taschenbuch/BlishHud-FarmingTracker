@@ -1,4 +1,5 @@
-﻿using Blish_HUD.Content;
+﻿using Blish_HUD;
+using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
@@ -7,7 +8,7 @@ namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(Stat stat, PanelType panelType, Services services)
+        public StatContainer(Stat stat, PanelType panelType, SafeList<int> ignoredItemApiIds, SafeList<int> favoriteItemApiIds, Services services)
         {
             // icon
             var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
@@ -65,11 +66,13 @@ namespace FarmingTracker
             if (services.SettingService.RarityIconBorderIsVisibleSetting.Value)
                 AddRarityBorder(stat.Details.Rarity, rarityBorderLeftOrTopLocation, rarityBorderRightOrBottomLocation, rarityBorderThickness, rarityBorderLength, statTooltip);
 
-            if (panelType == PanelType.SessionSummary)
-            {
-                _contextMenuStrip = ContextMenuService.CreateContextMenu(stat, services);
-                Menu = _contextMenuStrip;
-            }
+            if (panelType != PanelType.IgnoredItems)
+                RightMouseButtonPressed += (s, e) =>
+                {
+                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, services);
+                    contextMenuStrip.Hidden += (s, e) => contextMenuStrip.Dispose();
+                    contextMenuStrip.Show(GameService.Input.Mouse.Position);
+                };
         }
 
         private static AsyncTexture2D GetStatIconTexture(Stat stat, Services services)
@@ -94,12 +97,10 @@ namespace FarmingTracker
 
         protected override void DisposeControl()
         {
-            _contextMenuStrip?.Dispose();
             _statTooltip?.Dispose();
             base.DisposeControl();
         }
 
-        private readonly ContextMenuStrip _contextMenuStrip;
         private readonly StatTooltip _statTooltip;
     }
 }

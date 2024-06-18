@@ -14,6 +14,12 @@ namespace FarmingTracker
     public class Module : Blish_HUD.Modules.Module
     {
         public static readonly Logger Logger = Logger.GetLogger<Module>();
+        public static bool DebugEnabled => _isDebugConfiguration || GameService.Debug.EnableDebugLogging.Value;
+#if DEBUG
+        private static bool _isDebugConfiguration = true;
+#else 
+        private static bool _isDebugConfiguration = false;
+#endif
 
         internal SettingsManager SettingsManager => ModuleParameters.SettingsManager;
         internal ContentsManager ContentsManager => ModuleParameters.ContentsManager;
@@ -27,7 +33,7 @@ namespace FarmingTracker
 
         protected override void DefineSettings(SettingCollection settings)
         {
-            _services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, new SettingService(settings));
+            _settingService = new SettingService(settings);
         }
 
         public override IView GetSettingsView()
@@ -37,11 +43,15 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            _services.Model = await _services.FileLoadService.LoadModelFromFile();
-            _farmingTrackerWindowService = new FarmingTrackerWindowService(_services);
-            _trackerCornerIcon = new TrackerCornerIcon(_services, CornerIconClickEventHandler);
+            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService);
+            var model = await services.FileLoadService.LoadModelFromFile();
+            _model = model;
+            _services = services;
 
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated; ;
+            _farmingTrackerWindowService = new FarmingTrackerWindowService(model, services);
+            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
+
+            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
         }
 
@@ -57,7 +67,9 @@ namespace FarmingTracker
             _services?.Dispose();
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
-            _services.FileSaveService.SaveModelToFileSync(_services.Model);
+            
+            if(_model != null)
+                _services.FileSaveService.SaveModelToFileSync(_model);
         }
 
         private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
@@ -65,6 +77,8 @@ namespace FarmingTracker
 
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindowService _farmingTrackerWindowService;
+        private SettingService _settingService;
         private Services _services;
+        private Model _model;
     }
 }

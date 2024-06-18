@@ -4,9 +4,7 @@ using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
 using System;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace FarmingTracker
 {

@@ -7,49 +7,51 @@ namespace FarmingTracker
         public static Model CreateModel(FileModel fileModel)
         {
             var model = new Model();
-
             model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
-
-            foreach (var fileItem in fileModel.FileItems)
-                model.ItemById[fileItem.ApiId] = new Stat
-                {
-                    StatType = StatType.Item,
-                    ApiId = fileItem.ApiId,
-                    Count = fileItem.Count,
-                };
-
-            model.IgnoredItemApiIds = fileModel.IgnoredItemApiIds;
-
-            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds) // add ignoredItems to items to get their api data on module startup
-                if (!model.ItemById.ContainsKey(ignoredItemApiId))
-                    model.ItemById[ignoredItemApiId] = new Stat
-                    {
-                        StatType = StatType.Item,
-                        ApiId = ignoredItemApiId,
-                        Count = 0,
-                    };
+            model.FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds);
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
                 model.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
-                    StatType = StatType.Currency,
                     ApiId = fileCurrency.ApiId,
                     Count = fileCurrency.Count,
                 };
+
+            foreach (var fileItem in fileModel.FileItems)
+                model.ItemById[fileItem.ApiId] = new Stat
+                {
+                    ApiId = fileItem.ApiId,
+                    Count = fileItem.Count,
+                };
+            
+            model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
+
+            // add ignoredItems to items to get their api data on module startup
+            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
+                if (!model.ItemById.ContainsKey(ignoredItemApiId))
+                    model.ItemById[ignoredItemApiId] = new Stat
+                    {
+                        ApiId = ignoredItemApiId,
+                        Count = 0,
+                    };
+
+            model.UpdateStatsSnapshot();
 
             return model;
         }
 
         public static FileModel CreateFileModel(Model model)
         {
-            var items = model.ItemById.Values.ToList().Where(s => s.Count != 0);
-            var currencies = model.CurrencyById.Values.ToList().Where(s => s.Count != 0);
-
             var fileModel = new FileModel
             {
                 FarmingDuration = model.FarmingDuration.Elapsed,
-                IgnoredItemApiIds = model.IgnoredItemApiIds,
+                IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
+                FavoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(),
             };
+
+            var snapshot = model.StatsSnapshot;
+            var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
+            var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 
             foreach (var item in items)
             {

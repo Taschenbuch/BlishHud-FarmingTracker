@@ -26,7 +26,7 @@ namespace FarmingTracker
                 case ApiStatDetailsState.SetByApi:
                     AddTitle(stat, statIconTexture, rootFlowPanel);
                     AddDescription(stat, font, rootFlowPanel);
-                    if(panelType == PanelType.SessionSummary)
+                    if(panelType != PanelType.IgnoredItems)
                     {
                         StatTooltipService.AddProfitTable(stat, font, services, rootFlowPanel);
                         StatTooltipService.AddText("\nRight click for more options.", font, rootFlowPanel);
@@ -50,7 +50,7 @@ namespace FarmingTracker
 
                     StatTooltipService.AddText(errorMessage, font, rootFlowPanel);
 
-                    if (panelType == PanelType.SessionSummary)
+                    if (panelType == PanelType.SummaryRegularItems)
                         StatTooltipService.AddText("\nRight click to search its ID in the wiki in your default browser.", font, rootFlowPanel);
                     else
                         StatTooltipService.AddText("\nLeft click to unignore this item.", font, rootFlowPanel);

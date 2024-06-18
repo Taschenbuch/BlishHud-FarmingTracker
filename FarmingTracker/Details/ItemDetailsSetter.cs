@@ -19,7 +19,9 @@ namespace FarmingTracker
             if (!itemIdsWithoutDetails.Any())
                 return;
 
-            Module.Logger.Debug("items      no details " + string.Join(" ", itemIdsWithoutDetails));
+            if(Module.DebugEnabled)
+                Module.Logger.Debug("items      no details " + string.Join(" ", itemIdsWithoutDetails));
+
             var apiItemsTask = gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemIdsWithoutDetails);
             var apiPricesTask = gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemIdsWithoutDetails);
 
@@ -60,7 +62,7 @@ namespace FarmingTracker
                 item.Details.BuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
             }
 
-            if (apiItems.Any())
+            if (apiItems.Any() && Module.DebugEnabled)
                 Module.Logger.Debug("items      from api   " + string.Join(" ", apiItems.Select(c => c.Id)));
 
             foreach (var apiItem in apiItems)
@@ -80,7 +82,8 @@ namespace FarmingTracker
             var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
-                Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
+                if(Module.DebugEnabled)
+                    Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
 
                 foreach (var itemNotFoundByApi in itemsUnknownByApi)
                     itemNotFoundByApi.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;

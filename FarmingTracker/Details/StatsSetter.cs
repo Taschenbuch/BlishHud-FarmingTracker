@@ -5,16 +5,19 @@ using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
-    public class StatDetailsSetter
+    public class StatsSetter
     {
-        public async Task SetDetailsAndProfitFromApi(Model model, Gw2ApiManager gw2ApiManager)
+        public async Task SetDetailsAndProfitFromApi(
+            Dictionary<int, Stat> itemById, 
+            Dictionary<int, Stat> currencyById, 
+            Gw2ApiManager gw2ApiManager)
         {
             if (HasToInitializeCache())
                 _currencyDetailsByIdCache = await CurrencyDetailsSetter.CreateCacheWithAllApiCurrencies(gw2ApiManager);
 
-            CurrencyDetailsSetter.SetCurrencyDetailsFromCache(model.CurrencyById, _currencyDetailsByIdCache);
-            await ItemDetailsSetter.SetItemDetailsFromApi(model.ItemById, gw2ApiManager);
-            StatProfitSetter.SetProfits(model.ItemById);
+            CurrencyDetailsSetter.SetCurrencyDetailsFromCache(currencyById, _currencyDetailsByIdCache);
+            await ItemDetailsSetter.SetItemDetailsFromApi(itemById, gw2ApiManager);
+            StatProfitSetter.SetProfits(itemById);
         }
 
         private bool HasToInitializeCache()

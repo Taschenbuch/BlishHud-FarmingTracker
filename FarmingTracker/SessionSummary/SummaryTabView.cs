@@ -12,10 +12,11 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Services services) 
+        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Model model, Services services) 
         {
+            _model = model;
             _services = services;
-            _rootFlowPanel = CreateUi(farmingTrackerWindowService, _services);
+            _rootFlowPanel = CreateUi(farmingTrackerWindowService);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStats();
             services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
@@ -35,18 +36,25 @@ namespace FarmingTracker
         {
             _rootFlowPanel.Parent = buildPanel;
             var resetAndDrfButtonsOffset = 70;
-            _collapsibleHelp.UpdateSize(buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+            var width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
+            ResizeToViewWidth(resetAndDrfButtonsOffset, width);
 
             buildPanel.ContentResized += (s,e) =>
             {
                 var width = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
-                _statsPanels.FarmedCurrenciesFlowPanel.Width = width;
-                _statsPanels.FarmedItemsFlowPanel.Width = width;
-                _statsPanels.ItemsFilterIcon.SetLeft(width);
-                _statsPanels.CurrencyFilterIcon.SetLeft(width);
-                _searchPanel.UpdateSize(width);
-                _collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET - resetAndDrfButtonsOffset);
+                ResizeToViewWidth(resetAndDrfButtonsOffset, width);
             };
+        }
+
+        private void ResizeToViewWidth(int resetAndDrfButtonsOffset, int width)
+        {
+            _statsPanels.CurrenciesFlowPanel.Width = width;
+            _statsPanels.ItemsFlowPanel.Width = width;
+            _statsPanels.FavoriteItemsFlowPanel.Width = width;
+            _statsPanels.ItemsFilterIcon.SetLeft(width);
+            _statsPanels.CurrencyFilterIcon.SetLeft(width);
+            _searchPanel.UpdateSize(width);
+            _collapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
         }
 
         public void Update(GameTime gameTime)
@@ -56,26 +64,35 @@ namespace FarmingTracker
 
             if (_services.UpdateLoop.HasToUpdateUi())
             {
-                _profitService.UpdateProfit(_services.Model, _services.Model.FarmingDuration.Elapsed);
-                UiUpdater.UpdateStatPanels(_statsPanels, _services);
+                var snapshot = _model.StatsSnapshot;
+                var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
+                var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
+
+                _profitPanels.UpdateProfit(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
+                UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
                 return; // that is enough work for a single update loop iteration.
             }
 
             if (HasToPerformAutomaticReset())
-                _hasToResetStats = true;
+                _resetState = ResetState.ResetRequired;
 
-            if (_hasToResetStats) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
+            if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _hintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
                 if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
                 {
-                    _hasToResetStats = false;
-                    ResetStats();
-                    _services.UpdateLoop.TriggerUpdateUi();
-                    _services.UpdateLoop.TriggerSaveModel();
-                    _elapsedFarmingTimeLabel.RestartTime();
-                    _resetButton.Enabled = true;
+                    _resetState = ResetState.Resetting;
+                    Task.Run(() =>
+                    {
+                        ResetStats();
+                        _elapsedFarmingTimeLabel.RestartTime();
+                        _services.UpdateLoop.TriggerUpdateUi();
+                        _services.UpdateLoop.TriggerSaveModel();
+                        _resetButton.Enabled = true;
+                        _resetState = ResetState.NoResetRequired; // may override state change from automatic reset. But that is okay, because it just resetted anyway.
+                        _isTaskRunning = false;
+                    });
                 }
                 return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
@@ -89,14 +106,14 @@ namespace FarmingTracker
                     _isTaskRunning = true;
                     Task.Run(async () =>
                     {
-                        await _services.FileSaveService.SaveModelToFile(_services.Model);
+                        await _services.FileSaveService.SaveModelToFile(_model);
                         _isTaskRunning = false;
                     });
                     // do not return here because saving the model should not disturb other parts of Update().
                 }
             }
             
-            _profitService.UpdateProfitPerHourEveryFiveSeconds(_services.Model.FarmingDuration.Elapsed);
+            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_model.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -139,8 +156,9 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCounts(_services.Model.ItemById);
-                StatsService.ResetCounts(_services.Model.CurrencyById);
+                StatsService.ResetCounts(_model.ItemById);
+                StatsService.ResetCounts(_model.CurrencyById);
+                _model.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _hintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -161,7 +179,8 @@ namespace FarmingTracker
                     return;
 
                 _hintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
-                await UpdateStatsInModel(drfMessages);
+                await UpdateStatsInModel(drfMessages, _services);
+                _model.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -245,13 +264,13 @@ namespace FarmingTracker
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
         }
 
-        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages)
+        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCurrencyById(drfMessages, _services.Model.CurrencyById);
-            DrfResultAdder.UpdateItemById(drfMessages, _services.Model.ItemById);
-            await _statDetailsSetter.SetDetailsAndProfitFromApi(_services.Model, _services.Gw2ApiManager);
+            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.ItemById, _model.CurrencyById);
+            await _statsSetter.SetDetailsAndProfitFromApi(_model.ItemById, _model.CurrencyById, services.Gw2ApiManager);
         }
-        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService, Services services)
+
+        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -265,7 +284,7 @@ namespace FarmingTracker
             _drfErrorLabel = new Label
             {
                 Text = Constants.ZERO_HEIGHT_EMPTY_LABEL,
-                Font = services.FontService.Fonts[FontSize.Size18],
+                Font = _services.FontService.Fonts[FontSize.Size18],
                 TextColor = Color.Yellow,
                 StrokeText = true,
                 AutoSizeHeight = true,
@@ -285,6 +304,91 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
+            CreateHelpResetDrfButtons();
+            CreateTimeAndHintLabels();
+            _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
+            _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
+            CreateStatsPanels(_farmingRootFlowPanel);
+
+            return rootFlowPanel;
+        }
+
+        private void CreateStatsPanels(Container parent)
+        {
+            var currenciesFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            _statsPanels.CurrenciesFlowPanel = new FlowPanel()
+            {
+                Title = CURRENCIES_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = currenciesFilterIconPanel
+            };
+
+            _statsPanels.FavoriteItemsFlowPanel = new FlowPanel()
+            {
+                Title = FAVORITE_ITEMS_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            var itemsFilterIconPanel = new Panel
+            {
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            _statsPanels.ItemsFlowPanel = new FlowPanel()
+            {
+                Title = ITEMS_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                CanCollapse = true,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = itemsFilterIconPanel
+            };
+
+            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(_services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
+            _statsPanels.ItemsFilterIcon = new ClickThroughImage(_services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
+
+            new HintLabel(_statsPanels.CurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.FavoriteItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(_statsPanels.ItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+        }
+
+        private void CreateTimeAndHintLabels()
+        {
+            _timeAndHintFlowPanel = new FlowPanel()
+            {
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                ControlPadding = new Vector2(20, 0),
+                WidthSizingMode = SizingMode.Fill,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = _farmingRootFlowPanel
+            };
+
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(_model, _services, _timeAndHintFlowPanel);
+
+            _hintLabel = new Label
+            {
+                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
+                Font = _services.FontService.Fonts[FontSize.Size14],
+                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
+                AutoSizeHeight = true,
+                Parent = _timeAndHintFlowPanel
+            };
+        }
+
+        private void CreateHelpResetDrfButtons()
+        {
             var buttonFlowPanel = new FlowPanel()
             {
                 FlowDirection = ControlFlowDirection.SingleLeftToRight,
@@ -314,7 +418,7 @@ namespace FarmingTracker
                 $"\n" +
                 $"RESIZE:\n" +
                 $"You can resize the window by dragging the bottom right window corner. " +
-                $"Some UI elements might be cut off when the window becomes too small.", 
+                $"Some UI elements might be cut off when the window becomes too small.",
                 300 - Constants.SCROLLBAR_WIDTH_OFFSET, // set dummy width because no buildPanel exists yet.
                 buttonFlowPanel);
 
@@ -338,7 +442,7 @@ namespace FarmingTracker
             _resetButton.Click += (s, e) =>
             {
                 _resetButton.Enabled = false;
-                _hasToResetStats = true;
+                _resetState = ResetState.ResetRequired;
             };
 
             new OpenUrlInBrowserButton(
@@ -347,81 +451,11 @@ namespace FarmingTracker
                 "Open DRF live tracking website in your default web browser.\n" +
                 "The module and the DRF live tracking web page are both DRF clients. But they are independent of each other. " +
                 "They do not synchronize the data they display. So one client may show less or more data dependend on when the client session started.",
-                services.TextureService.OpenLinkTexture,
+                _services.TextureService.OpenLinkTexture,
                 subButtonFlowPanel)
             {
                 Width = 60,
             };
-
-            _controlsFlowPanel = new FlowPanel()
-            {
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                ControlPadding = new Vector2(20, 0),
-                WidthSizingMode = SizingMode.Fill,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
-            };
-
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(services, _controlsFlowPanel);
-
-            _hintLabel = new Label
-            {
-                Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
-                Font = services.FontService.Fonts[FontSize.Size14],
-                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
-                AutoSizeHeight = true,
-                Parent = _controlsFlowPanel
-            };
-
-            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
-            var font = services.FontService.Fonts[FontSize.Size16];
-            var totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, _services, _farmingRootFlowPanel);
-            var profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, _services, _farmingRootFlowPanel);
-            _profitService = new ProfitService(totalProfitPanel, profitPerHourPanel);
-
-            _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
-
-            var currenciesFilterIconPanel = new Panel
-            {
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
-            };
-
-            var itemsFilterIconPanel = new Panel
-            {
-                WidthSizingMode = SizingMode.AutoSize,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = _farmingRootFlowPanel
-            };
-
-            _statsPanels.FarmedCurrenciesFlowPanel = new FlowPanel()
-            {
-                Title = CURRENCIES_PANEL_TITLE,
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = currenciesFilterIconPanel
-            };
-
-            _statsPanels.FarmedItemsFlowPanel = new FlowPanel()
-            {
-                Title = "Items",
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                CanCollapse = true,
-                Width = Constants.PANEL_WIDTH,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = itemsFilterIconPanel
-            };
-
-            _statsPanels.CurrencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
-            _statsPanels.ItemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
-
-            new HintLabel(_statsPanels.FarmedCurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
-            new HintLabel(_statsPanels.FarmedItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
-
-            return rootFlowPanel;
         }
 
         private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
@@ -432,27 +466,30 @@ namespace FarmingTracker
         private bool _isTaskRunning;
         private Label _hintLabel;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
-        private ProfitService _profitService;
+        private ProfitPanels _profitPanels;
         private SearchPanel _searchPanel;
         private readonly FlowPanel _rootFlowPanel;
         private Label _drfErrorLabel;
         private OpenSettingsButton _openSettingsButton;
         private FlowPanel _farmingRootFlowPanel;
         private StandardButton _resetButton;
-        private FlowPanel _controlsFlowPanel;
+        private FlowPanel _timeAndHintFlowPanel;
         private ElapsedFarmingTimeLabel _elapsedFarmingTimeLabel;
         private string _oldApiTokenErrorTooltip = string.Empty;
         private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
-        private bool _hasToResetStats;
+        private ResetState _resetState = ResetState.NoResetRequired;
         private bool _isModuleStartForReset = true;
-        private readonly StatDetailsSetter _statDetailsSetter = new StatDetailsSetter();
+        private readonly StatsSetter _statsSetter = new StatsSetter();
+        private readonly Model _model;
         private readonly Services _services;
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;
         private CollapsibleHelp _collapsibleHelp;
         private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
+        public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
+        public const string ITEMS_PANEL_TITLE = "Items";
         private const string CURRENCIES_PANEL_TITLE = "Currencies";
     }
 }

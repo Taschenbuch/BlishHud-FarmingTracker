@@ -30,29 +30,23 @@ namespace FarmingTracker
         private static FieldInfo GetPrivateField(object target, string fieldName)
         {
             if (target == null)
-            {
                 throw new ArgumentNullException(nameof(target), "The assignment target cannot be null.");
-            }
 
             if (string.IsNullOrEmpty(fieldName))
-            {
                 throw new ArgumentException("The field name cannot be null or empty.", nameof(fieldName));
-            }
 
-            var t = target.GetType();
+            var type = target.GetType();
 
-            const BindingFlags BF = BindingFlags.Instance |
-                                    BindingFlags.NonPublic |
-                                    BindingFlags.DeclaredOnly;
+            FieldInfo fieldInfo;
 
-            FieldInfo fi;
-
-            while ((fi = t.GetField(fieldName, BF)) == null && (t = t.BaseType) != null)
+            while ((fieldInfo = type.GetField(fieldName, BINDING_FLAGS)) == null && (type = type.BaseType) != null)
             {
                 /* NOOP */
             }
 
-            return fi;
+            return fieldInfo;
         }
+
+        private const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
     }
 }

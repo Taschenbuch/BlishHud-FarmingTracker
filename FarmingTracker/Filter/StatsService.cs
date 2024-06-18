@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace FarmingTracker
 {
     public class StatsService
     {
-        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(Model model)
+        public static (List<Stat> items, List<Stat> currencies) ShallowCopyStatsToPreventModification(StatsSnapshot snapshot)
         {
-            var items = model.ItemById.Values.ToList();
-            var currencies = model.CurrencyById.Values.ToList();
+            var items = snapshot.ItemById.Values.ToList();
+            var currencies = snapshot.CurrencyById.Values.ToList();
 
             return (items, currencies);
         }
@@ -42,6 +41,17 @@ namespace FarmingTracker
         public static List<Stat> RemoveIgnoredItems(List<Stat> items, List<int> ignoredItemApiIds)
         {
             return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
+        }
+
+        public static (List<Stat> favoriteItems, List<Stat> regularItems) SplitIntoFavoriteAndRegularItems(List<Stat> items, List<int> favoriteItemApiIds)
+        {
+            if (favoriteItemApiIds.IsEmpty())
+                return (new List<Stat>(), items);  
+
+            var favoriteItems = items.Where(i => favoriteItemApiIds.Contains(i.ApiId)).ToList();
+            var regularItems = items.Where(i => !favoriteItemApiIds.Contains(i.ApiId)).ToList();
+            
+            return (favoriteItems, regularItems);
         }
     }
 }
