@@ -19,12 +19,10 @@ namespace FarmingTracker
             _rootFlowPanel = CreateUi(farmingTrackerWindowService);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStats();
-            services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnRarityIconBorderVisibleSettingChanged;
         }
 
         public void Dispose()
         {
-            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnRarityIconBorderVisibleSettingChanged;
         }
 
         protected override void Unload()
@@ -460,11 +458,6 @@ namespace FarmingTracker
             {
                 Width = 60,
             };
-        }
-
-        private void OnRarityIconBorderVisibleSettingChanged(object sender, Blish_HUD.ValueChangedEventArgs<bool> e)
-        {
-            _services.UpdateLoop.TriggerUpdateUi();
         }
 
         private bool _isTaskRunning;

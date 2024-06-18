@@ -25,6 +25,7 @@ namespace FarmingTracker
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.LostStatIconOpacitySetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
 
@@ -62,6 +63,7 @@ namespace FarmingTracker
             _services.SettingService.StatIconSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.LostStatIconOpacitySetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnSettingChanged;
         }
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
