@@ -26,6 +26,7 @@ namespace FarmingTracker
                 Location = new Point(300, 300),
                 CanResize = true,
                 SavesSize = true,
+                Width = 630, // default width on first startup. Will be ignored on consecutive module startups after resizing the window.
                 Parent = GameService.Graphics.SpriteScreen,
             };
 

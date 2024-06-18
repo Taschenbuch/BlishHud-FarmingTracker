@@ -36,19 +36,19 @@ namespace FarmingTracker
             RarityIconBorderIsVisibleSetting = settings.DefineSetting(
                 "rarity icon border is visible",
                 true,
-                () => "rarity colored icon border",
+                () => "rarity colored border",
                 () => "Show a border in rarity color around item icons.");
 
             CountBackgroundColorSetting = settings.DefineSetting(
                 "count background color",
                 ColorType.Black,
-                () => "count background color",
+                () => "background color",
                 () => "Change item/currency count background color. It is not visible when count background opacity slider is set to full transparency.");
 
             CountBackgroundOpacitySetting = settings.DefineSetting(
                 "count background opacity",
                 0,
-                () => "count background opacity",
+                () => "background opacity",
                 () => "Change item/currency count background opacity / transparency.");
             
             CountBackgroundOpacitySetting.SetRange(0, 255);
@@ -56,37 +56,37 @@ namespace FarmingTracker
             PositiveCountTextColorSetting = settings.DefineSetting(
                "positive count text color",
                ColorType.White,
-               () => "positive count text color",
+               () => "positive text color",
                () => "Change item/currency count text color for positive counts (>0).");
 
             NegativeCountTextColorSetting = settings.DefineSetting(
                "negative count text color",
                ColorType.White,
-               () => "negative count text color",
+               () => "negative text color",
                () => "Change item/currency count text color for negative counts (<0).");
 
             CountFontSizeSetting = settings.DefineSetting(
                "count font size",
                ContentService.FontSize.Size20,
-               () => "count text size",
+               () => "text size",
                () => "Change item/currency count font size.");
 
             CountHoritzontalAlignmentSetting = settings.DefineSetting(
                "count horizontal alignment",
                HorizontalAlignment.Right,
-               () => "count horizontal alignment",
+               () => "horizontal alignment",
                () => "Change item/currency count horizontal alignment. Dont use 'center'. It can cut off at both ends.");
 
             StatIconSizeSetting = settings.DefineSetting(
                 "stat icon size",
                 StatIconSize.M,
-                () => "icon size",
+                () => "size",
                 () => "Change item/currency icon size.");
 
             NegativeCountIconOpacitySetting = settings.DefineSetting(
                 "negative count icon opacity",
                 77,
-                () => "negative count icon opacity",
+                () => "negative count opacity",
                 () => "Change item/currency icon opacity / transparency for negative counts.");
 
             NegativeCountIconOpacitySetting.SetRange(0, 255);

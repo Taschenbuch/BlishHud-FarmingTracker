@@ -36,7 +36,7 @@ namespace FarmingTracker
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                ControlPadding = new Vector2(0, 10),
+                ControlPadding = new Vector2(0, 20),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
@@ -46,17 +46,21 @@ namespace FarmingTracker
             CreateDrfConnectionStatusLabel(font, rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.AutomaticResetSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
-            CreateIconSizeDropdown(rootFlowPanel, _services);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+
+            var miscSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Misc");
+            SettingControls.CreateSetting(miscSettingsFlowPanel, _services.SettingService.AutomaticResetSetting);
+            SettingControls.CreateSetting(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            var countSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Count");
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
+            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            var iconSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Icon");
+            CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
+            SettingControls.CreateSetting(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
+            SettingControls.CreateSetting(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
@@ -161,7 +165,7 @@ namespace FarmingTracker
                 Collapsed = true,
                 OuterControlPadding = new Vector2(5, 5),
                 ControlPadding = new Vector2(0, 10),
-                Width = Constants.PANEL_WIDTH,
+                Width = Constants.SETTINGS_PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel,
             };
