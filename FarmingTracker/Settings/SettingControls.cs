@@ -24,7 +24,7 @@ namespace FarmingTracker
                 OuterControlPadding = new Vector2(5, 5),
                 ControlPadding = new Vector2(0, 10),
                 ShowBorder = true,
-                Width = Constants.SETTINGS_PANEL_WIDTH,
+                Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = rootFlowPanel,
             };
