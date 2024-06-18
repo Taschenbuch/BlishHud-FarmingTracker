@@ -2,45 +2,50 @@
 
 namespace FarmingTracker
 {
-    public class ContextMenuService
+    public class StatContextMenuStrip : ContextMenuStrip
     {
-        public static ContextMenuStrip CreateContextMenu(
+        public StatContextMenuStrip(
             Stat stat, 
             PanelType panelType, 
             SafeList<int> ignoredItemApiIds, 
             SafeList<int> favoriteItemApiIds, 
             Services services)
         {
-            var contextMenuStrip = new ContextMenuStrip();
-
-            var wikiMenuItem = contextMenuStrip.AddMenuItem("Open wiki");
-            wikiMenuItem.Click += (s, e) => OpenWiki(stat);
-            wikiMenuItem.BasicTooltipText = "Open its wiki page in your default browser.";
+            _wikiMenuItem = AddMenuItem("Open wiki");
+            _wikiMenuItem.Click += (s, e) => OpenWiki(stat);
+            _wikiMenuItem.BasicTooltipText = "Open its wiki page in your default browser.";
 
             if (panelType == PanelType.SummaryRegularItems)
             {
-                var ignoreMenuItem = contextMenuStrip.AddMenuItem("Ignore item");
-                ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
-                ignoreMenuItem.BasicTooltipText =
+                _ignoreMenuItem = AddMenuItem("Ignore item");
+                _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
+                _ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
                     $"They can be managed in the '{FarmingTrackerWindowService.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
 
-                var addFavoriteMenuItem = contextMenuStrip.AddMenuItem("Add to favorites");
-                addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
-                addFavoriteMenuItem.BasicTooltipText = 
+                _addFavoriteMenuItem = AddMenuItem("Add to favorites");
+                _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
+                _addFavoriteMenuItem.BasicTooltipText = 
                     $"Move item from '{SummaryTabView.ITEMS_PANEL_TITLE}' to '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE} panel." +
                     $"Favorite items are not affected by filter or sort.";
             }
 
             if (panelType == PanelType.SummaryFavoriteItems)
             {
-                var removeFavoriteMenuItem = contextMenuStrip.AddMenuItem("Remove from favorites");
-                removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, favoriteItemApiIds, services);
-                removeFavoriteMenuItem.BasicTooltipText =
+                _removeFavoriteMenuItem = AddMenuItem("Remove from favorites");
+                _removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, favoriteItemApiIds, services);
+                _removeFavoriteMenuItem.BasicTooltipText =
                     $"Move item from '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE}' to '{SummaryTabView.ITEMS_PANEL_TITLE} panel.";
             }
+        }
 
-            return contextMenuStrip;
+        protected override void DisposeControl()
+        {
+            _removeFavoriteMenuItem?.Dispose();
+            _addFavoriteMenuItem?.Dispose();
+            _ignoreMenuItem?.Dispose();
+            _wikiMenuItem?.Dispose();
+            base.DisposeControl();
         }
 
         private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
@@ -90,5 +95,10 @@ namespace FarmingTracker
             if (stat.Details.HasWikiSearchTerm)
                 WikiService.OpenWikiSearchInDefaultBrowser(stat.Details.WikiSearchTerm);
         }
+
+        private readonly ContextMenuStripItem _wikiMenuItem;
+        private readonly ContextMenuStripItem _ignoreMenuItem;
+        private readonly ContextMenuStripItem _addFavoriteMenuItem;
+        private readonly ContextMenuStripItem _removeFavoriteMenuItem;
     }
 }
