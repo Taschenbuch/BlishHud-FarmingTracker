@@ -25,7 +25,7 @@ namespace FarmingTracker
             _services.SettingService.CountFontSizeSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged -= OnSettingChanged;
-            _services.SettingService.LostStatIconOpacitySetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.NegativeCountIconOpacitySetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
@@ -55,7 +55,7 @@ namespace FarmingTracker
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
             CreateIconSizeDropdown(rootFlowPanel, _services);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.LostStatIconOpacitySetting);
+            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
             SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
@@ -65,7 +65,7 @@ namespace FarmingTracker
             _services.SettingService.CountFontSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
-            _services.SettingService.LostStatIconOpacitySetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.NegativeCountIconOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnSettingChanged;
         }
 
