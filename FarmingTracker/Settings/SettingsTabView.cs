@@ -47,20 +47,20 @@ namespace FarmingTracker
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
 
-            var miscSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Misc");
-            SettingControls.CreateSetting(miscSettingsFlowPanel, _services.SettingService.AutomaticResetSetting);
-            SettingControls.CreateSetting(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            var countSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Count");
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
-            SettingControls.CreateSetting(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
-            var iconSettingsFlowPanel = SettingControls.CreateSettingsFlowPanel(rootFlowPanel, "Icon");
+            var miscSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Misc");
+            new SettingControl(miscSettingsFlowPanel, _services.SettingService.AutomaticResetSetting);
+            new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            var countSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Count");
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            var iconSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Icon");
             CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
-            SettingControls.CreateSetting(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
-            SettingControls.CreateSetting(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+            new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
+            new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
