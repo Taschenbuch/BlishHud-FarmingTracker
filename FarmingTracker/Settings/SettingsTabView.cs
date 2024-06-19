@@ -154,11 +154,13 @@ namespace FarmingTracker
             OnDrfConnectionStatusChanged();
         }
 
-        private void CreateSetupDrfTokenPanel(BitmapFont font, FlowPanel rootFlowPanel)
+        private void CreateSetupDrfTokenPanel(BitmapFont font, Container parent)
         {
+            var setupDrfWrapperContainer = new AutoSizeContainer(parent);
+
             var addDrfTokenFlowPanel = new FlowPanel
             {
-                Title = "Setup DRF (click)",
+                Title = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 BackgroundColor = Color.Black * 0.5f,
                 CanCollapse = true,
@@ -167,7 +169,20 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(0, 10),
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel,
+                Parent = setupDrfWrapperContainer,
+            };
+
+            // yellow panel title label
+            new ClickThroughLabel()
+            {
+                Text = "Setup DRF (click)",
+                TextColor = Color.Yellow,
+                Font = _services.FontService.Fonts[ContentService.FontSize.Size20],
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Top = 6,
+                Left = 10,
+                Parent = setupDrfWrapperContainer,
             };
 
             var drfTokenInputPanel = new Panel

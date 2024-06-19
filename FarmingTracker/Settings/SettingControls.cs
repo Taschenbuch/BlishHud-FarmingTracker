@@ -14,7 +14,7 @@ namespace FarmingTracker
             return viewContainer;
         }
 
-        public static FlowPanel CreateSettingsFlowPanel(FlowPanel rootFlowPanel, string title)
+        public static FlowPanel CreateSettingsFlowPanel(Container parent, string title)
         {
             return new FlowPanel
             {
@@ -26,7 +26,7 @@ namespace FarmingTracker
                 ShowBorder = true,
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel,
+                Parent = parent,
             };
         }
     }
