@@ -27,7 +27,7 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.IsFakeDrfServerUsedSetting);
+            new SettingControl(rootFlowPanel, _services.SettingService.IsFakeDrfServerUsedSetting);
 
             var dropToClipboardButton = new StandardButton
             {

@@ -1,5 +1,4 @@
-﻿using Blish_HUD;
-using Blish_HUD.Controls;
+﻿using Blish_HUD.Controls;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace FarmingTracker
             SetTotalAndPerHourProfit(0, 0);
         }
 
-        public void UpdateProfit(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
+        public void UpdateProfitLabels(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
             var totalProfitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);

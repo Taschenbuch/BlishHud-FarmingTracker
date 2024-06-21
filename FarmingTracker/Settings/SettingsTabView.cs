@@ -20,10 +20,13 @@ namespace FarmingTracker
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged -= OnSettingChanged;
-            _services.SettingService.CountTextColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.PositiveCountTextColorSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.NegativeCountTextColorSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.NegativeCountIconOpacitySetting.SettingChanged -= OnSettingChanged;
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged -= OnSettingChanged;
             _drfConnectionStatusValueLabel = null;
         }
 
@@ -33,7 +36,7 @@ namespace FarmingTracker
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
-                ControlPadding = new Vector2(0, 10),
+                ControlPadding = new Vector2(0, 20),
                 WidthSizingMode = SizingMode.Fill,
                 HeightSizingMode = SizingMode.Fill,
                 Parent = buildPanel
@@ -43,22 +46,31 @@ namespace FarmingTracker
             CreateDrfConnectionStatusLabel(font, rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.AutomaticResetSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountBackgroundColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountTextColorSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountFontSizeSetting);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
-            CreateIconSizeDropdown(rootFlowPanel, _services);
-            SettingControls.CreateSetting(rootFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+
+            var miscSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Misc");
+            new SettingControl(miscSettingsFlowPanel, _services.SettingService.AutomaticResetSetting);
+            new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            var countSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Count");
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
+            new SettingControl(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            var iconSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Icon");
+            CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
+            new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
+            new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
-            _services.SettingService.CountTextColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.PositiveCountTextColorSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.NegativeCountTextColorSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountFontSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.StatIconSizeSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.NegativeCountIconOpacitySetting.SettingChanged += OnSettingChanged;
+            _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnSettingChanged;
         }
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
@@ -142,11 +154,13 @@ namespace FarmingTracker
             OnDrfConnectionStatusChanged();
         }
 
-        private void CreateSetupDrfTokenPanel(BitmapFont font, FlowPanel rootFlowPanel)
+        private void CreateSetupDrfTokenPanel(BitmapFont font, Container parent)
         {
+            var setupDrfWrapperContainer = new AutoSizeContainer(parent);
+
             var addDrfTokenFlowPanel = new FlowPanel
             {
-                Title = "Setup DRF (click)",
+                Title = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 BackgroundColor = Color.Black * 0.5f,
                 CanCollapse = true,
@@ -155,7 +169,20 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(0, 10),
                 Width = Constants.PANEL_WIDTH,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel,
+                Parent = setupDrfWrapperContainer,
+            };
+
+            // yellow panel title label
+            new ClickThroughLabel()
+            {
+                Text = "Setup DRF (click)",
+                TextColor = Color.Yellow,
+                Font = _services.FontService.Fonts[ContentService.FontSize.Size20],
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Top = 6,
+                Left = 10,
+                Parent = setupDrfWrapperContainer,
             };
 
             var drfTokenInputPanel = new Panel

@@ -20,7 +20,7 @@ namespace FarmingTracker
         public DrfConnectionStatus DrfConnectionStatus { get; private set; } = DrfConnectionStatus.Disconnected;
         public int ReconnectDelaySeconds { get; private set; }
         public int ReconnectTriesCounter => _reconnectTriesCounter;
-
+        public bool WindowsVersionIsTooLowToSupportWebSockets => _drfWebSocketClient.WindowsVersionIsTooLowToSupportWebSockets;
         public event EventHandler DrfConnectionStatusChanged;
 
         public void SetDrfConnectionStatus(DrfConnectionStatus status)

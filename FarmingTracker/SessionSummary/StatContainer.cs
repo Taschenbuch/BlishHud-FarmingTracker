@@ -41,7 +41,7 @@ namespace FarmingTracker
             new Image(statIconTexture)
             {
                 Tooltip = statTooltip,
-                Opacity = stat.Count > 0 ? 1f : 0.3f,
+                Opacity = stat.Count > 0 ? 1f : (services.SettingService.NegativeCountIconOpacitySetting.Value / 255f),
                 Size = new Point(iconSize),
                 Location = new Point(backgroundMargin + iconMargin),
                 Parent = this
@@ -53,7 +53,9 @@ namespace FarmingTracker
                 Text = stat.Count.ToString(),
                 Tooltip = statTooltip,
                 Font = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value],
-                TextColor = services.SettingService.CountTextColorSetting.Value.GetColor(),
+                TextColor = stat.Count >= 0
+                    ? services.SettingService.PositiveCountTextColorSetting.Value.GetColor()
+                    : services.SettingService.NegativeCountTextColorSetting.Value.GetColor(),
                 HorizontalAlignment = services.SettingService.CountHoritzontalAlignmentSetting.Value,
                 BackgroundColor = services.SettingService.CountBackgroundColorSetting.Value.GetColor() * (services.SettingService.CountBackgroundOpacitySetting.Value / 255f),
                 StrokeText = true,

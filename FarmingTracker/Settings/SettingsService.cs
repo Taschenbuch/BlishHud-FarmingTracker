@@ -36,46 +36,60 @@ namespace FarmingTracker
             RarityIconBorderIsVisibleSetting = settings.DefineSetting(
                 "rarity icon border is visible",
                 true,
-                () => "rarity colored icon border",
+                () => "rarity colored border",
                 () => "Show a border in rarity color around item icons.");
 
             CountBackgroundColorSetting = settings.DefineSetting(
                 "count background color",
                 ColorType.Black,
-                () => "count background color",
+                () => "background color",
                 () => "Change item/currency count background color. It is not visible when count background opacity slider is set to full transparency.");
 
             CountBackgroundOpacitySetting = settings.DefineSetting(
                 "count background opacity",
                 0,
-                () => "count background opacity",
+                () => "background opacity",
                 () => "Change item/currency count background opacity / transparency.");
             
             CountBackgroundOpacitySetting.SetRange(0, 255);
 
-            CountTextColorSetting = settings.DefineSetting(
-               "count text color",
+            PositiveCountTextColorSetting = settings.DefineSetting(
+               "positive count text color",
                ColorType.White,
-               () => "count text color",
-               () => "Change item/currency count text color.");
+               () => "positive text color",
+               () => "Change item/currency count text color for positive counts (>0).");
+
+            NegativeCountTextColorSetting = settings.DefineSetting(
+               "negative count text color",
+               ColorType.White,
+               () => "negative text color",
+               () => "Change item/currency count text color for negative counts (<0).");
 
             CountFontSizeSetting = settings.DefineSetting(
                "count font size",
                ContentService.FontSize.Size20,
-               () => "count text size",
+               () => "text size",
                () => "Change item/currency count font size.");
 
             CountHoritzontalAlignmentSetting = settings.DefineSetting(
                "count horizontal alignment",
                HorizontalAlignment.Right,
-               () => "count horizontal alignment",
+               () => "horizontal alignment",
                () => "Change item/currency count horizontal alignment. Dont use 'center'. It can cut off at both ends.");
 
             StatIconSizeSetting = settings.DefineSetting(
                 "stat icon size",
                 StatIconSize.M,
-                () => "icon size",
+                () => "size",
                 () => "Change item/currency icon size.");
+
+            NegativeCountIconOpacitySetting = settings.DefineSetting(
+                "negative count icon opacity",
+                77,
+                () => "negative count opacity",
+                () => "Change item/currency icon opacity / transparency for negative counts.");
+
+            NegativeCountIconOpacitySetting.SetRange(0, 255);
 
             IsFakeDrfServerUsedSetting = settings.DefineSetting(
                 "is fake drf server used",
@@ -124,12 +138,14 @@ namespace FarmingTracker
         public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
-        public SettingEntry<ColorType> CountTextColorSetting { get; }
+        public SettingEntry<ColorType> PositiveCountTextColorSetting { get; }
+        public SettingEntry<ColorType> NegativeCountTextColorSetting { get; }
         public SettingEntry<ColorType> CountBackgroundColorSetting { get; }
         public SettingEntry<int> CountBackgroundOpacitySetting { get; }
         public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
         public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; }
         public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
+        public SettingEntry<int> NegativeCountIconOpacitySetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }

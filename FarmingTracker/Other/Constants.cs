@@ -5,7 +5,7 @@ namespace FarmingTracker
 {
     public class Constants
     {
-        public const int PANEL_WIDTH = 450; // prevents overlap with window scrollbar
+        public const int PANEL_WIDTH = 500; // prevents overlap with window scrollbar
         public const int SCROLLBAR_WIDTH_OFFSET = 30;
         public const string UPDATING_HINT_TEXT = "Updating...";
         public const string RESETTING_HINT_TEXT = "Resetting...";
