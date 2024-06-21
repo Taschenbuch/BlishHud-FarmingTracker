@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FarmingTracker", "FarmingTracker.csproj", "{71347BB8-D1B0-450D-84B2-48F7D5A35993}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmingTracker.DrfWebsocket", "..\FarmingTracker.DrfWebsocket\FarmingTracker.DrfWebsocket.csproj", "{F6BD19FB-9A3C-492D-AFBD-C55C01BCC10D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FarmingTracker.DrfWebsocketTest", "..\FarmingTracker.DrfWebsocketTest\FarmingTracker.DrfWebsocketTest.csproj", "{F6BD19FB-9A3C-492D-AFBD-C55C01BCC10D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

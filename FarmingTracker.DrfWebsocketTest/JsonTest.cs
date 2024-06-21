@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FarmingTracker.DrfWebsocket
+namespace FarmingTracker.DrfWebSocketTest
 {
     [MemoryDiagnoser]
     public class JsonTest
