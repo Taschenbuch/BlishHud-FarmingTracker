@@ -4,6 +4,7 @@ using Blish_HUD.Input;
 using Blish_HUD.Settings;
 using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace FarmingTracker
@@ -26,6 +27,14 @@ namespace FarmingTracker
                 () => "automatic reset",
                 () => "Change when all farmed items are reset. 'Never' means you have to use the 'Reset' button.\n" +
                 "Using something else than 'on module start' helps to not lose your farming data when gw2, blish or your pc crashes.");
+
+            MinutesUntilResetAfterModuleShutdownSetting = settings.DefineSetting(
+                "number of minutes until automatic reset after module shutdown",
+                30,
+                () => "minutes until automatic reset after module shutdown",
+                () => "Change number of minutes the module will wait after module shutdown before doing an automatic reset. " +
+                "This setting can be usefull to not lose tracking progress due to PC / gw2 / blish crashes, " +
+                $"but still have automatic resets similar to 'On module start' option. Or if you prefer to play in short sessions spread throughout the day");
 
             WindowVisibilityKeyBindingSetting = settings.DefineSetting(
                 "window visibility key binding",
@@ -98,13 +107,15 @@ namespace FarmingTracker
                 () => "fake drf server");
 
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
+            
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
             RemoveUnknownEnumValues(SortByWithDirectionListSetting);
             // filter
             CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
             RemoveUnknownEnumValues(CountFilterSetting);
-            
+
             SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
             RemoveUnknownEnumValues(SellMethodFilterSetting);
             
@@ -136,6 +147,7 @@ namespace FarmingTracker
 
         public SettingEntry<string> DrfTokenSetting { get; }
         public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
+        public SettingEntry<int> MinutesUntilResetAfterModuleShutdownSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
         public SettingEntry<ColorType> PositiveCountTextColorSetting { get; }
@@ -147,6 +159,7 @@ namespace FarmingTracker
         public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
         public SettingEntry<int> NegativeCountIconOpacitySetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
+        public SettingEntry<DateTime> NextResetDateTimeUtcSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }

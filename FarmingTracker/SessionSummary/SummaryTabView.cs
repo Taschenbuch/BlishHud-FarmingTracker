@@ -17,12 +17,16 @@ namespace FarmingTracker
             _model = model;
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindow);
+            var automaticResetService = new AutomaticResetService(services);
+            _automaticResetService = automaticResetService;
+
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStats();
         }
 
         public void Dispose()
         {
+            _automaticResetService?.Dispose();
         }
 
         protected override void Unload()
@@ -55,11 +59,13 @@ namespace FarmingTracker
             _collapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
         }
 
+
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
             _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
-            
+            _automaticResetCheckRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+
             if (!_isUiUpdateTaskRunning && _services.UpdateLoop.HasToUpdateUi()) // short circuit method call to prevent resetting its bool
             {
                 _isUiUpdateTaskRunning = true;
@@ -74,8 +80,15 @@ namespace FarmingTracker
                 });
             }
 
-            if (HasToPerformAutomaticReset())
-                _resetState = ResetState.ResetRequired;
+            if(_automaticResetCheckRunningTimeMs > AUTOMATIC_RESET_CHECK_INTERVAL_MS)
+            {
+                _automaticResetCheckRunningTimeMs = 0;
+
+                if (_automaticResetService.HasToResetAutomatically())
+                    _resetState = ResetState.ResetRequired;
+
+                _automaticResetService.UpdateNextResetDateTimeForMinutesUntilResetAfterModuleShutdown();
+            }
 
             if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
@@ -88,6 +101,7 @@ namespace FarmingTracker
                     Task.Run(() =>
                     {
                         ResetStats();
+                        _automaticResetService.UpdateNextResetDateTime(); // on manual resets this will effectively not change the next automatic reset dateTime.
                         _elapsedFarmingTimeLabel.RestartTime();
                         _services.UpdateLoop.TriggerUpdateUi();
                         _services.UpdateLoop.TriggerSaveModel();
@@ -140,18 +154,6 @@ namespace FarmingTracker
                     });
                 }
             }
-        }
-
-        private bool HasToPerformAutomaticReset()
-        {
-            var isModuleStart = _isModuleStartForReset;
-            _isModuleStartForReset = false;
-
-            return _services.SettingService.AutomaticResetSetting.Value switch
-            {
-                AutomaticReset.OnModuleStart => isModuleStart,
-                _ => false, // includes .Never
-            };
         }
 
         private void ResetStats()
@@ -477,14 +479,16 @@ namespace FarmingTracker
         private bool _apiErrorHintVisible;
         private bool _lastStatsUpdateSuccessfull = true;
         private ResetState _resetState = ResetState.NoResetRequired;
-        private bool _isModuleStartForReset = true;
         private readonly StatsSetter _statsSetter = new StatsSetter();
         private readonly Model _model;
         private readonly Services _services;
+        private readonly AutomaticResetService _automaticResetService;
         private readonly StatsPanels _statsPanels = new StatsPanels();
         private double _saveModelRunningTimeMs;
         private CollapsibleHelp _collapsibleHelp;
+        private double _automaticResetCheckRunningTimeMs = AUTOMATIC_RESET_CHECK_INTERVAL_MS; // to enforce check right on module start
         private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
+        private const double AUTOMATIC_RESET_CHECK_INTERVAL_MS = 60_000;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
         public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
         public const string ITEMS_PANEL_TITLE = "Items";

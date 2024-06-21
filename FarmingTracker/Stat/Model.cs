@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace FarmingTracker
@@ -11,7 +12,7 @@ namespace FarmingTracker
         public Dictionary<int, Stat> CurrencyById { get; } = new Dictionary<int, Stat>(); 
         public Dictionary<int, Stat> ItemById { get; } = new Dictionary<int, Stat>();
         public StatsSnapshot StatsSnapshot { get; set; } = new StatsSnapshot();
-
+        
         public void UpdateStatsSnapshot()
         {
             var newSnapshot = new StatsSnapshot
