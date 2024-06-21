@@ -6,9 +6,10 @@ namespace FarmingTracker
     {
         public static Model CreateModel(FileModel fileModel)
         {
-            var model = new Model();
-            model.FarmingDuration.Elapsed = fileModel.FarmingDuration;
-            model.FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds);
+            var model = new Model
+            {
+                FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds)
+            };
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
                 model.CurrencyById[fileCurrency.ApiId] = new Stat
@@ -44,7 +45,6 @@ namespace FarmingTracker
         {
             var fileModel = new FileModel
             {
-                FarmingDuration = model.FarmingDuration.Elapsed,
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
                 FavoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(),
             };

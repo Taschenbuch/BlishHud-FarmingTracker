@@ -5,8 +5,10 @@ namespace FarmingTracker
 {
     public class FarmingDuration
     {
-        public FarmingDuration()
+        public FarmingDuration(SettingService settingService)
         {
+            _settingService = settingService;
+            Elapsed = settingService.FarmingDurationTimeSpanSetting.Value;
             _stopwatch.Restart();
         }
 
@@ -20,8 +22,15 @@ namespace FarmingTracker
         {
             _stopwatch.Restart();
             _value = TimeSpan.Zero;
+            _settingService.FarmingDurationTimeSpanSetting.Value = TimeSpan.Zero;
         }
 
+        public void SaveFarmingTime()
+        {
+            _settingService.FarmingDurationTimeSpanSetting.Value = Elapsed;
+        }
+
+        private readonly SettingService _settingService;
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private TimeSpan _value;
     }

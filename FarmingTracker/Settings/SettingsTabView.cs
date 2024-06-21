@@ -17,6 +17,7 @@ namespace FarmingTracker
 
         protected override void Unload()
         {
+            _automaticResetSettingsPanel?.Dispose();
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged -= OnSettingChanged;
@@ -48,8 +49,8 @@ namespace FarmingTracker
             CreateSetupDrfTokenPanel(font, rootFlowPanel);
 
             var miscSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Misc");
-            new SettingControl(miscSettingsFlowPanel, _services.SettingService.AutomaticResetSetting);
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
+            _automaticResetSettingsPanel = new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
             var countSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Count");
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
@@ -394,6 +395,7 @@ namespace FarmingTracker
 
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;
+        private AutomaticResetSettingsPanel _automaticResetSettingsPanel;
         private const string DRF_CONNECTION_LABEL_TEXT = "DRF Connection";
     }
 }
