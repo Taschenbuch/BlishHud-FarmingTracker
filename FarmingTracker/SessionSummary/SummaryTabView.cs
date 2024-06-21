@@ -12,11 +12,11 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindowService farmingTrackerWindowService, Model model, Services services) 
+        public SummaryTabView(FarmingTrackerWindow farmingTrackerWindow, Model model, Services services) 
         {
             _model = model;
             _services = services;
-            _rootFlowPanel = CreateUi(farmingTrackerWindowService);
+            _rootFlowPanel = CreateUi(farmingTrackerWindow);
             _timeSinceModuleStartStopwatch.Restart();
             services.UpdateLoop.TriggerUpdateStats();
         }
@@ -272,7 +272,7 @@ namespace FarmingTracker
             await _statsSetter.SetDetailsAndProfitFromApi(_model.ItemById, _model.CurrencyById, services.Gw2ApiManager);
         }
 
-        private FlowPanel CreateUi(FarmingTrackerWindowService farmingTrackerWindowService)
+        private FlowPanel CreateUi(FarmingTrackerWindow farmingTrackerWindow)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -294,7 +294,7 @@ namespace FarmingTracker
                 Parent = rootFlowPanel
             };
 
-            _openSettingsButton = new OpenSettingsButton("Open settings tab to setup DRF", farmingTrackerWindowService, rootFlowPanel);
+            _openSettingsButton = new OpenSettingsButton("Open settings tab to setup DRF", farmingTrackerWindow, rootFlowPanel);
             _openSettingsButton.Hide();
 
             _farmingRootFlowPanel = new FlowPanel()

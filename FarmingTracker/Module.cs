@@ -40,7 +40,7 @@ namespace FarmingTracker
         {
             return _moduleLoadError.HasModuleLoadFailed
                 ? _moduleLoadError.CreateErrorSettingsView()
-                : new ModuleSettingsView(_farmingTrackerWindowService);
+                : new ModuleSettingsView(_farmingTrackerWindow);
         }
 
         protected override async Task LoadAsync()
@@ -59,7 +59,7 @@ namespace FarmingTracker
                 return;
             }
 
-            _farmingTrackerWindowService = new FarmingTrackerWindowService(model, services);
+            _farmingTrackerWindow = new FarmingTrackerWindow(570, 650, model, services);
             _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
 
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
@@ -71,14 +71,14 @@ namespace FarmingTracker
             if(_moduleLoadError.HasModuleLoadFailed)
                 return;
 
-            _farmingTrackerWindowService.Update(gameTime);
+            _farmingTrackerWindow.Update2(gameTime);
         }
 
         protected override void Unload()
         {
             _moduleLoadError?.Dispose();
             _trackerCornerIcon?.Dispose();
-            _farmingTrackerWindowService?.Dispose();
+            _farmingTrackerWindow?.Dispose();
             _services?.Dispose();
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
@@ -87,12 +87,12 @@ namespace FarmingTracker
                 _services.FileSaveService.SaveModelToFileSync(_model);
         }
 
-        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
-        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
 
         private readonly ModuleLoadError _moduleLoadError = new ModuleLoadError();
         private TrackerCornerIcon _trackerCornerIcon;
-        private FarmingTrackerWindowService _farmingTrackerWindowService;
+        private FarmingTrackerWindow _farmingTrackerWindow;
         private SettingService _settingService;
         private Services _services;
         private Model _model;

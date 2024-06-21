@@ -21,7 +21,7 @@ namespace FarmingTracker
                 _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
                 _ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
-                    $"They can be managed in the '{FarmingTrackerWindowService.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
+                    $"They can be managed in the '{FarmingTrackerWindow.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
 
                 _addFavoriteMenuItem = AddMenuItem("Add to favorites");
                 _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
