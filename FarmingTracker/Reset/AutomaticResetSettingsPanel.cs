@@ -40,7 +40,7 @@ namespace FarmingTracker
             {
                 BasicTooltipText = settingService.AutomaticResetSetting.GetDescriptionFunc(),
                 Location = new Point(automaticResetLabel.Right + 5, 0),
-                Width = 450,
+                Width = 370,
                 Parent = automaticResetPanel,
             };
 
@@ -122,7 +122,7 @@ namespace FarmingTracker
                 [AutomaticReset.OnWeeklyNaWvwReset] = $"On weekly NA WvW reset ({GetNextWeeklyResetInLocalTime(AutomaticReset.OnWeeklyNaWvwReset)})",
                 [AutomaticReset.OnWeeklyEuWvwReset] = $"On weekly EU WvW reset ({GetNextWeeklyResetInLocalTime(AutomaticReset.OnWeeklyEuWvwReset)})",
                 [AutomaticReset.OnWeeklyMapBonusRewardsReset] = $"On weekly map bonus rewards reset ({GetNextWeeklyResetInLocalTime(AutomaticReset.OnWeeklyMapBonusRewardsReset)})",
-                [AutomaticReset.MinutesAfterModuleShutdown] = $"Minutes after module shutdown (change amount of minutes below) "
+                [AutomaticReset.MinutesAfterModuleShutdown] = $"Minutes after module shutdown (change minutes below)"
             };
         }
 
