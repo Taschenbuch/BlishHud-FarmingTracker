@@ -19,6 +19,7 @@ namespace FarmingTracker
             FileLoadService = new FileLoadService(modelFilePath);
             FileSaveService = new FileSaveService(modelFilePath);
             Drf = new Drf(settingService);
+            FarmingDuration = new FarmingDuration(settingService);
         }
 
         public void Dispose()
@@ -33,6 +34,7 @@ namespace FarmingTracker
         public FileLoadService FileLoadService { get; }
         public FileSaveService FileSaveService { get; }
         public Drf Drf { get; }
+        public FarmingDuration FarmingDuration { get; }
         public UpdateLoop UpdateLoop { get; } = new UpdateLoop();
         public FontService FontService { get; } = new FontService();
         public string SearchTerm { get; set; } = string.Empty;

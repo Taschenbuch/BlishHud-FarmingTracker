@@ -63,7 +63,7 @@ namespace FarmingTracker
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
-            _saveModelRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _saveFarmingDurationRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
             _automaticResetCheckRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (!_isUiUpdateTaskRunning && _services.UpdateLoop.HasToUpdateUi()) // short circuit method call to prevent resetting its bool
@@ -74,20 +74,26 @@ namespace FarmingTracker
                     var snapshot = _model.StatsSnapshot;
                     var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                     var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-                    _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _model.FarmingDuration.Elapsed);
+                    _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
                     _isUiUpdateTaskRunning = false;
                 });
             }
 
-            if(_automaticResetCheckRunningTimeMs > AUTOMATIC_RESET_CHECK_INTERVAL_MS)
+            if(_saveFarmingDurationRunningTimeMs > SAVE_FARMING_DURATION_INTERVAL_MS)
+            {
+                _saveFarmingDurationRunningTimeMs = 0;
+                _services.FarmingDuration.SaveFarmingTime();
+            }
+
+            if (_automaticResetCheckRunningTimeMs > AUTOMATIC_RESET_CHECK_INTERVAL_MS)
             {
                 _automaticResetCheckRunningTimeMs = 0;
 
                 if (_automaticResetService.HasToResetAutomatically())
                     _resetState = ResetState.ResetRequired;
 
-                _automaticResetService.UpdateNextResetDateTimeForMinutesUntilResetAfterModuleShutdown();
+                _automaticResetService.UpdateNextResetDateTimeForMinutesUntilResetAfterModuleShutdown(); // must be called AFTER automatic reset check! Not before!
             }
 
             if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
@@ -115,11 +121,10 @@ namespace FarmingTracker
 
             if(!_isTaskRunning)
             {
-                // save in certain intervals because farming duration has to be saved too.
-                if (_services.UpdateLoop.HasToSaveModel() || _saveModelRunningTimeMs > SAVE_MODEL_INTERVAL_MS)
+                if (_services.UpdateLoop.HasToSaveModel())
                 {
-                    _saveModelRunningTimeMs = 0;
                     _isTaskRunning = true;
+
                     Task.Run(async () =>
                     {
                         await _services.FileSaveService.SaveModelToFile(_model);
@@ -129,7 +134,7 @@ namespace FarmingTracker
                 }
             }
             
-            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_model.FarmingDuration.Elapsed);
+            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -379,7 +384,7 @@ namespace FarmingTracker
                 Parent = _farmingRootFlowPanel
             };
 
-            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(_model, _services, _timeAndHintFlowPanel);
+            _elapsedFarmingTimeLabel = new ElapsedFarmingTimeLabel(_services, _timeAndHintFlowPanel);
 
             _hintLabel = new Label
             {
@@ -484,10 +489,10 @@ namespace FarmingTracker
         private readonly Services _services;
         private readonly AutomaticResetService _automaticResetService;
         private readonly StatsPanels _statsPanels = new StatsPanels();
-        private double _saveModelRunningTimeMs;
+        private double _saveFarmingDurationRunningTimeMs;
         private CollapsibleHelp _collapsibleHelp;
         private double _automaticResetCheckRunningTimeMs = AUTOMATIC_RESET_CHECK_INTERVAL_MS; // to enforce check right on module start
-        private readonly double SAVE_MODEL_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
+        private readonly double SAVE_FARMING_DURATION_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
         private const double AUTOMATIC_RESET_CHECK_INTERVAL_MS = 60_000;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
         public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";

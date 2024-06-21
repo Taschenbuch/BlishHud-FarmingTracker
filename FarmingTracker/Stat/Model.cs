@@ -1,12 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 
 namespace FarmingTracker
 {
     public class Model
     {
-        public FarmingDuration FarmingDuration { get; } = new FarmingDuration();
         public SafeList<int> IgnoredItemApiIds { get; set; } = new SafeList<int>();
         public SafeList<int> FavoriteItemApiIds { get; set; } = new SafeList<int>();
         public Dictionary<int, Stat> CurrencyById { get; } = new Dictionary<int, Stat>(); 

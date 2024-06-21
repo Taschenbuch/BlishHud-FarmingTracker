@@ -108,6 +108,7 @@ namespace FarmingTracker
 
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
+            FarmingDurationTimeSpanSetting = internalSettings.DefineSetting("farming duration time span", TimeSpan.Zero);
             
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
@@ -160,6 +161,7 @@ namespace FarmingTracker
         public SettingEntry<int> NegativeCountIconOpacitySetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
         public SettingEntry<DateTime> NextResetDateTimeUtcSetting { get; }
+        public SettingEntry<TimeSpan> FarmingDurationTimeSpanSetting { get; }
         public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
         public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
         public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
