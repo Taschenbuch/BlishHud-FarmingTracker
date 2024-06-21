@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -19,8 +18,26 @@ namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
     {
+        public DrfWebSocketClient()
+        {
+            try
+            {
+                _clientWebSocket = new ClientWebSocket();
+            }
+            catch (PlatformNotSupportedException e)
+            {
+                WindowsVersionIsTooLowToSupportWebSockets = true;
+                
+                Module.Logger.Warn(
+                    $"Failed to initialize the DRF WebSocket client. This is typically caused by not using at least Windows 8. " +
+                    $"WebSockets are not supported in older Windows versions. The module will not work. " +
+                    $"PlatformNotSupportedException message: {e.Message}");
+            }
+        }
+
         /// <summary> To change websocket server url for debugging </summary>
         public string WebSocketUrl { get; set; } = "wss://drf.rs/ws";
+        public bool WindowsVersionIsTooLowToSupportWebSockets { get; set; }
         public event EventHandler Connecting;
         public event EventHandler ConnectedAndAuthenticationRequestSent;
         /// <summary> 
@@ -55,6 +72,9 @@ namespace FarmingTracker
         // that after module.unload() and this Dispose() this class still received messages or didnt stop doing reconnect tries
         public void Dispose()
         {
+            if(WindowsVersionIsTooLowToSupportWebSockets) 
+                return;
+
             lock (_disposeLock)
             {
                 // remove eventHandlers to reduce risk of triggering unwanted reconnects. Should not be necessary but better safe than sorry.
@@ -83,6 +103,9 @@ namespace FarmingTracker
         // -> user clicked "use" -> Verbindung wird gestartet
         public async Task Connect(string drfToken)
         {
+            if (WindowsVersionIsTooLowToSupportWebSockets)
+                return;
+
             // only allow latest Connect() call to wait at semaphore. Latest has the most up to date drfToken. No need to run older Connect()s
             var letOnlyLatestWaitCts = new CancellationTokenSource();
 
@@ -353,7 +376,7 @@ namespace FarmingTracker
         private static readonly object _letOnlyLatestWaitLock = new object();
         private static readonly object _disposeLock = new object();
         private List<DrfMessage> _drfMessages = new List<DrfMessage>();
-        private ClientWebSocket _clientWebSocket = new ClientWebSocket();
+        private ClientWebSocket _clientWebSocket; // first time set by ctor to check if at least windows 8 
         private const char FIRST_LETTER_OF_KIND_SESSION_UPDATE = 's';
         private const string CLOSED_BY_CLIENT_DESCRIPTION = "closed by blish farming tracker module";
         private const string CLOSED_BY_SERVER_BECAUSE_AUTHENTICATION_FAILED_DESCRIPTION = "no valid session provided";

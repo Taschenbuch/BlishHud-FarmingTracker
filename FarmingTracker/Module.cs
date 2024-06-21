@@ -16,7 +16,7 @@ namespace FarmingTracker
         public static readonly Logger Logger = Logger.GetLogger<Module>();
         public static bool DebugEnabled => _isDebugConfiguration || GameService.Debug.EnableDebugLogging.Value;
 #if DEBUG
-        private static bool _isDebugConfiguration = true;
+        private static readonly bool _isDebugConfiguration = true;
 #else 
         private static bool _isDebugConfiguration = false;
 #endif
@@ -38,7 +38,9 @@ namespace FarmingTracker
 
         public override IView GetSettingsView()
         {
-            return new ModuleSettingsView(_farmingTrackerWindowService);
+            return _moduleLoadError.HasModuleLoadFailed
+                ? _moduleLoadError.CreateErrorSettingsView()
+                : new ModuleSettingsView(_farmingTrackerWindowService);
         }
 
         protected override async Task LoadAsync()
@@ -47,6 +49,15 @@ namespace FarmingTracker
             var model = await services.FileLoadService.LoadModelFromFile();
             _model = model;
             _services = services;
+
+            if(_services.Drf.WindowsVersionIsTooLowToSupportWebSockets)
+            {
+                _moduleLoadError.InitializeErrorSettingsViewAndShowErrorWindow(
+                    $"{Name}: Module does not work :-(",
+                    "Your Windows version is too old. This module requires at least Windows 8\nbecause DRF relies on the WebSocket technology.");
+
+                return;
+            }
 
             _farmingTrackerWindowService = new FarmingTrackerWindowService(model, services);
             _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
@@ -57,11 +68,15 @@ namespace FarmingTracker
 
         protected override void Update(GameTime gameTime)
         {
+            if(_moduleLoadError.HasModuleLoadFailed)
+                return;
+
             _farmingTrackerWindowService.Update(gameTime);
         }
 
         protected override void Unload()
         {
+            _moduleLoadError?.Dispose();
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindowService?.Dispose();
             _services?.Dispose();
@@ -75,6 +90,7 @@ namespace FarmingTracker
         private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
         private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindowService.ToggleWindowAndSelectSummaryTab();
 
+        private readonly ModuleLoadError _moduleLoadError = new ModuleLoadError();
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindowService _farmingTrackerWindowService;
         private SettingService _settingService;
