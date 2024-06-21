@@ -115,7 +115,7 @@ namespace FarmingTracker
         {
             return new Dictionary<AutomaticReset, string>
             {
-                [AutomaticReset.Never] = "Never (right click menu icon for manual reset)",
+                [AutomaticReset.Never] = "Never (click reset button for manual reset)",
                 [AutomaticReset.OnModuleStart] = "On module start",
                 [AutomaticReset.OnDailyReset] = $"On daily reset ({GetNextDailyResetLocalTime()})",
                 [AutomaticReset.OnWeeklyReset] = $"On weekly reset ({GetNextWeeklyResetInLocalTime(AutomaticReset.OnWeeklyReset)})",
