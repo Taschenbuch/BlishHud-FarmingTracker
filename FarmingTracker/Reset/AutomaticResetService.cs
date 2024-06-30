@@ -22,7 +22,7 @@ namespace FarmingTracker
             var isModuleStart = _isModuleStart;
             _isModuleStart = false;
 
-            var isPastResetDate = _settingsService.NextResetDateTimeUtcSetting.Value < DateTime.UtcNow;
+            var isPastResetDate = _settingsService.NextResetDateTimeUtcSetting.Value < DateTimeService.UtcNow;
             var hasToReset = _settingsService.AutomaticResetSetting.Value switch
             {
                 AutomaticReset.Never => false,
@@ -49,7 +49,7 @@ namespace FarmingTracker
         public void UpdateNextResetDateTime()
         {
             _settingsService.NextResetDateTimeUtcSetting.Value = NextAutomaticResetCalculator.GetNextResetDateTimeUtc(
-                DateTime.UtcNow,
+                DateTimeService.UtcNow,
                 _settingsService.AutomaticResetSetting.Value,
                 _settingsService.MinutesUntilResetAfterModuleShutdownSetting.Value);
         }        

@@ -1,7 +1,6 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -44,7 +43,7 @@ namespace FarmingTracker
                 Parent = automaticResetPanel,
             };
 
-            var dropDownTextDict = GetDropDownTextsForAutomaticSessionResetSetting();
+            var dropDownTextDict = GetDropDownTextsForAutomaticResetSetting();
 
             foreach (var dropDownText in dropDownTextDict.Values)
                 automaticResetDropDown.Items.Add(dropDownText);
@@ -111,7 +110,7 @@ namespace FarmingTracker
                 ? 1f 
                 : 0f;
         }
-        private static Dictionary<AutomaticReset, string> GetDropDownTextsForAutomaticSessionResetSetting()
+        private static Dictionary<AutomaticReset, string> GetDropDownTextsForAutomaticResetSetting()
         {
             return new Dictionary<AutomaticReset, string>
             {
@@ -126,16 +125,16 @@ namespace FarmingTracker
             };
         }
 
-        private static string GetNextWeeklyResetInLocalTime(AutomaticReset automaticSessionReset)
+        private static string GetNextWeeklyResetInLocalTime(AutomaticReset automaticReset)
         {
-            return NextAutomaticResetCalculator.GetNextResetDateTimeUtc(DateTime.UtcNow, automaticSessionReset, DOES_NOT_MATTER)
+            return NextAutomaticResetCalculator.GetNextResetDateTimeUtc(DateTimeService.UtcNow, automaticReset, DOES_NOT_MATTER)
                 .ToLocalTime()
                 .ToString("dddd HH:mm");
         }
 
         private static string GetNextDailyResetLocalTime()
         {
-            return NextAutomaticResetCalculator.GetNextResetDateTimeUtc(DateTime.UtcNow, AutomaticReset.OnDailyReset, DOES_NOT_MATTER)
+            return NextAutomaticResetCalculator.GetNextResetDateTimeUtc(DateTimeService.UtcNow, AutomaticReset.OnDailyReset, DOES_NOT_MATTER)
                 .ToLocalTime()
                 .ToString("HH:mm");
         }

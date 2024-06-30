@@ -9,12 +9,14 @@ namespace FarmingTracker
             ContentsManager contentsManager,
             DirectoriesManager directoriesManager,
             Gw2ApiManager gw2ApiManager, 
-            SettingService settingService)
+            SettingService settingService,
+            DateTimeService dateTimeService)
         {
             var modelFilePath = FileService.GetModelFilePath(directoriesManager);
 
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
+            DateTimeService = dateTimeService;
             TextureService = new TextureService(contentsManager);
             FileLoadService = new FileLoadService(modelFilePath);
             FileSaveService = new FileSaveService(modelFilePath);
@@ -26,6 +28,7 @@ namespace FarmingTracker
         {
             Drf?.Dispose();
             TextureService?.Dispose();
+            DateTimeService?.Dispose();
         }
 
         public Gw2ApiManager Gw2ApiManager { get; }
@@ -37,6 +40,7 @@ namespace FarmingTracker
         public FarmingDuration FarmingDuration { get; }
         public UpdateLoop UpdateLoop { get; } = new UpdateLoop();
         public FontService FontService { get; } = new FontService();
+        public DateTimeService DateTimeService { get; }
         public string SearchTerm { get; set; } = string.Empty;
     }
 }
