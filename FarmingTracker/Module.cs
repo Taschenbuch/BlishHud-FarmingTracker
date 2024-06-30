@@ -34,6 +34,7 @@ namespace FarmingTracker
         protected override void DefineSettings(SettingCollection settings)
         {
             _settingService = new SettingService(settings);
+            _dateTimeService = new DateTimeService(settings); // defines settings. Must be called here.
         }
 
         public override IView GetSettingsView()
@@ -45,7 +46,7 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
-            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService);
+            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
             var model = await services.FileLoadService.LoadModelFromFile();
             _model = model;
             _services = services;
@@ -96,6 +97,7 @@ namespace FarmingTracker
         private TrackerCornerIcon _trackerCornerIcon;
         private FarmingTrackerWindow _farmingTrackerWindow;
         private SettingService _settingService;
+        private DateTimeService _dateTimeService;
         private Services _services;
         private Model _model;
     }

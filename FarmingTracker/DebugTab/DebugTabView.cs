@@ -27,13 +27,38 @@ namespace FarmingTracker
                 Parent = buildPanel
             };
 
-            new SettingControl(rootFlowPanel, _services.SettingService.IsFakeDrfServerUsedSetting);
+            new HintLabel(
+                rootFlowPanel,
+                "If you can see this tab, you are running a debug instead of a release version of this module.\n" +
+                "Do not change any settings here. They will not speed up or improve anything.\n" +
+                "They will rather break the module.\n" +
+                "This tab just helps the developer to test the module. :-)");
+
+            CreateDrfDebugPanel(rootFlowPanel);
+            _services.DateTimeService.CreateDateTimeDebugPanel(rootFlowPanel);
+        }
+
+        private void CreateDrfDebugPanel(Container parent)
+        {
+            var debugDrfFlowPanel = new FlowPanel
+            {
+                Title = "DRF Debug",
+                FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                OuterControlPadding = new Vector2(5, 5),
+                ShowBorder = true,
+                BackgroundColor = Color.Black * 0.3f,
+                WidthSizingMode = SizingMode.AutoSize,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
+            new SettingControl(debugDrfFlowPanel, _services.SettingService.IsFakeDrfServerUsedSetting);
 
             var dropToClipboardButton = new StandardButton
             {
                 Text = "Copy stats to clipboard as DRF drop",
                 Width = 300,
-                Parent = rootFlowPanel
+                Parent = debugDrfFlowPanel
             };
 
             dropToClipboardButton.Click += async (s, e) =>
