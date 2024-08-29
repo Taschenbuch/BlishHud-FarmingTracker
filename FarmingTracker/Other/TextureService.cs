@@ -45,6 +45,7 @@ namespace FarmingTracker
             FilterTabIconTexture?.Dispose();
             SortTabIconTexture?.Dispose();
             TimelineTabIconTexture?.Dispose();
+            IgnoredItemsTabIconTexture?.Dispose();
             CornerIconTexture?.Dispose();
             CornerIconHoverTexture?.Dispose();
             GoldCoinTexture?.Dispose();
