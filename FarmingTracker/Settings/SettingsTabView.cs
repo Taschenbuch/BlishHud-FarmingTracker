@@ -147,7 +147,7 @@ namespace FarmingTracker
                 StrokeText = true,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
-                Location = new Point(drfConnectionStatusTitleLabel.Right + 20, 10),
+                Location = new Point(drfConnectionStatusTitleLabel.Right + 5, 10),
                 Parent = drfConnectionStatusPanel,
             };
 
@@ -256,7 +256,7 @@ namespace FarmingTracker
             new OpenUrlInBrowserButton("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
-            var testDrfHeader = "Test DRF";
+            var testDrfHeader = "Test DRF DLL and DRF account";
             new HeaderLabel(addDrfTokenFlowPanel, $"{testDrfHeader}:", font);
             new HintLabel(
                 addDrfTokenFlowPanel,
@@ -273,7 +273,7 @@ namespace FarmingTracker
                 addDrfTokenFlowPanel,
                 "- After a GW2 patch, you will have to wait until a fixed arcdps version\nis released if you use arcdps to load the drf.dll.\n" +
                 "- If you installed drf.dll a while ago, check the drf website whether an\nupdated version of drf.dll is available.\n" +
-                "- DRF Discord can help:");
+                "- If none of this applies, the DRF Discord can help:");
 
             new OpenUrlInBrowserButton("https://discord.gg/VSgehyHkrD", "Open DRF Discord", "Open DRF discord in your default web browser.", _services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
@@ -293,7 +293,7 @@ namespace FarmingTracker
             new HeaderLabel(addDrfTokenFlowPanel, "TROUBLESHOOTING", headerFont);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
-            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' is 'Authentication failed':", font);
+            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' shows 'Authentication failed':", font);
             new HintLabel(
                 addDrfTokenFlowPanel,
                 "- Make sure you copied the DRF token into the module with the\ncopy button and CTRL+V as explained above.\n" +
@@ -303,13 +303,16 @@ namespace FarmingTracker
                 "You must add the new token to the module.");
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
-            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' is 'Connected' but does not track changes", font);
+            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' shows '{DrfConnectionStatusService.DRF_CONNECTED_TEXT}' but does not track changes", font);
             new HintLabel(
                 addDrfTokenFlowPanel, 
-                $"- Currencies and items changes will be shown after the '{Constants.UPDATING_HINT_TEXT}'\nor '{Constants.RESETTING_HINT_TEXT}' hint disappears.\n" +
-                $"While those hints are shown the module normally waits for the\nGW2 API.\n" +
-                $"If the GW2 API is slow or has a timeout, this can unfortunately\ntake a while.\n" +
-                $"- If this is not the case follow the steps from '{testDrfHeader}'");
+                $"- Currencies and items changes will be shown after the '{Constants.UPDATING_HINT_TEXT}'\nor '{Constants.RESETTING_HINT_TEXT}' hint disappears. " +
+                $"While those hints are shown the module\nnormally waits for the GW2 API." +
+                $"If the GW2 API is slow or has\na timeout, this can unfortunately take a while.\n" +
+                $"- The DRF DLL sends data to the DRF Server. Then the DRF Server\nsends data to this module.\n" +
+                $"If '{DRF_CONNECTION_LABEL_TEXT}' shows '{DrfConnectionStatusService.DRF_CONNECTED_TEXT}',\n" +
+                $"this only means that the module is connected to the DRF Server\nand the DRF account is probably set up correctly.\n" +
+                $"But it does not mean that the DRF DLL is set up correctly.\nFollow the steps from '{testDrfHeader}' to test that.");
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, $"Why is the GW2 API needed?", font);
@@ -396,6 +399,6 @@ namespace FarmingTracker
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;
         private AutomaticResetSettingsPanel _automaticResetSettingsPanel;
-        private const string DRF_CONNECTION_LABEL_TEXT = "DRF Connection";
+        private const string DRF_CONNECTION_LABEL_TEXT = "DRF Server Connection";
     }
 }
