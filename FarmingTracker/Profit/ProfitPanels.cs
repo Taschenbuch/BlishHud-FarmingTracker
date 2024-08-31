@@ -1,4 +1,6 @@
-﻿using Blish_HUD.Controls;
+﻿using Blish_HUD;
+using Blish_HUD.Controls;
+using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -6,16 +8,39 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class ProfitPanels
+    public class ProfitPanels : FlowPanel
     {
-        public ProfitPanels(TextureService textureService, FontService fontService, Container parent)
+        public ProfitPanels(Services services, Container parent)
         {
+            _settingService = services.SettingService;
+
+            FlowDirection = ControlFlowDirection.SingleTopToBottom;
+            WidthSizingMode = SizingMode.AutoSize;
+            HeightSizingMode = SizingMode.AutoSize;
+            Parent = parent;
+
             var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
-            var font = fontService.Fonts[FontSize.Size16];
-            _totalProfitPanel = new ProfitPanel("Profit", profitTooltip, font, textureService, parent);
-            _profitPerHourPanel = new ProfitPanel("Profit per hour", profitTooltip, font, textureService, parent);
+            var font = services.FontService.Fonts[FontSize.Size16];
+
+            _totalProfitPanel = new ProfitPanel(profitTooltip, font, services.TextureService, this);
+            _profitPerHourPanel = new ProfitPanel(profitTooltip, font, services.TextureService, this);
+
+            _totalProfitLabel = CreateProfitLabel(profitTooltip, font, _totalProfitPanel);
+            _profitPerHourLabel = CreateProfitLabel(profitTooltip, font, _profitPerHourPanel);
+
             _stopwatch.Restart();
             SetTotalAndPerHourProfit(0, 0);
+
+            services.SettingService.ProfitPerHourLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
+            services.SettingService.TotalProfitLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
+            OnProfitLabelTextSettingChanged();
+        }
+
+        protected override void DisposeControl()
+        {
+            _settingService.ProfitPerHourLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
+            _settingService.TotalProfitLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
+            base.DisposeControl();
         }
 
         public void UpdateProfitLabels(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
@@ -23,6 +48,18 @@ namespace FarmingTracker
             var totalProfitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
+        }
+
+        public void UpdateProfitPerHourEveryFiveSeconds(TimeSpan elapsedFarmingTime)
+        {
+            var time = _stopwatch.Elapsed;
+            var fiveSecondsHavePassed = time >= _oldTime + TimeSpan.FromSeconds(Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS);
+            if (fiveSecondsHavePassed)
+            {
+                var profitPerHourInCopper = CalculateProfitPerHourInCopper(_totalProfitInCopper, elapsedFarmingTime);
+                _profitPerHourPanel.SetProfit(profitPerHourInCopper);
+                _oldTime = time;
+            }
         }
 
         private void SetTotalAndPerHourProfit(long totalProfitInCopper, long profitPerHourInCopper)
@@ -71,22 +108,30 @@ namespace FarmingTracker
             return (long)profitPerHourInCopper;
         }
 
-
-        public void UpdateProfitPerHourEveryFiveSeconds(TimeSpan elapsedFarmingTime)
+        private Label CreateProfitLabel(string profitTooltip, BitmapFont font, ProfitPanel parent)
         {
-            var time = _stopwatch.Elapsed;
-            var fiveSecondsHavePassed = time >= _oldTime + TimeSpan.FromSeconds(Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS);
-            if (fiveSecondsHavePassed)
+            return new Label
             {
-                var profitPerHourInCopper = CalculateProfitPerHourInCopper(_totalProfitInCopper, elapsedFarmingTime);
-                _profitPerHourPanel.SetProfit(profitPerHourInCopper);
-                _oldTime = time;
-            }
+                Font = font,
+                BasicTooltipText = profitTooltip,
+                AutoSizeHeight = true,
+                AutoSizeWidth = true,
+                Parent = parent,
+            };
+        }
+
+        private void OnProfitLabelTextSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
+        {
+            _totalProfitLabel.Text = $" {_settingService.TotalProfitLabelTextSetting.Value}"; // blank as padding because sign label should get no control padding from flowPanel.
+            _profitPerHourLabel.Text = $" {_settingService.ProfitPerHourLabelTextSetting.Value}";
         }
 
         private readonly ProfitPanel _totalProfitPanel;
         private readonly ProfitPanel _profitPerHourPanel;
+        private readonly Label _totalProfitLabel;
+        private readonly Label _profitPerHourLabel;
         private readonly Stopwatch _stopwatch = new Stopwatch();  // do not use elapsedFarmingTime, because it can be resetted and maybe other stuff in the future.
+        private readonly SettingService _settingService;
         private TimeSpan _oldTime = TimeSpan.Zero;
         private long _totalProfitInCopper;
     }

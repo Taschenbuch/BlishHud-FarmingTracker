@@ -59,7 +59,7 @@ namespace FarmingTracker
                 0,
                 () => "background opacity",
                 () => "Change item/currency count background opacity / transparency.");
-            
+
             CountBackgroundOpacitySetting.SetRange(0, 255);
 
             PositiveCountTextColorSetting = settings.DefineSetting(
@@ -109,7 +109,9 @@ namespace FarmingTracker
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
             NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
             FarmingDurationTimeSpanSetting = internalSettings.DefineSetting("farming duration time span", TimeSpan.Zero);
-            
+
+            DefineProfitWindowSettings(settings, internalSettings);
+
             // sort
             SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
             RemoveUnknownEnumValues(SortByWithDirectionListSetting);
@@ -119,21 +121,75 @@ namespace FarmingTracker
 
             SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
             RemoveUnknownEnumValues(SellMethodFilterSetting);
-            
+
             RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
             RemoveUnknownEnumValues(RarityStatsFilterSetting);
-            
+
             TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
             RemoveUnknownEnumValues(TypeStatsFilterSetting);
-            
+
             FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
             RemoveUnknownEnumValues(FlagStatsFilterSetting);
-            
+
             CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
             RemoveUnknownEnumValues(CurrencyFilterSetting);
-            
+
             KnownByApiFilterSetting = internalSettings.DefineSetting("known by api filter", new List<KnownByApiFilter>(Constants.ALL_KNOWN_BY_API));
             RemoveUnknownEnumValues(KnownByApiFilterSetting);
+        }
+
+        private void DefineProfitWindowSettings(SettingCollection settings, SettingCollection internalSettings)
+        {
+            IsProfitWindowVisibleSetting = settings.DefineSetting(
+                "profit window is visible",
+                true,
+                () => "show",
+                () => "Show profit window.");
+
+            DragProfitWindowWithMouseIsEnabledSetting = settings.DefineSetting(
+                "dragging profit window is allowed",
+                true,
+                () => DRAG_WITH_MOUSE_LABEL_TEXT,
+                () => "Allow dragging the window by moving the mouse when left mouse button is pressed inside window");
+
+            WindowAnchorSetting = settings.DefineSetting(
+               "window anchor",
+               WindowAnchor.TopLeft,
+               () => "window anchor",
+               () => "When the window content grows/shrinks the window anchor is the part of the window that will not move, while the rest of the window will. " +
+               "For example for 'Top..,' the window top will stay in position while the window bottom expands. " +
+               "And for 'Bottom..,' the window bottom will stay in position while the window top expands.");
+
+            ProfitWindowCanBeClickedThroughSetting = settings.DefineSetting(
+                "profit window is not capturing mouse clicks",
+                false,
+                () => $"mouse clickthrough (disabled when '{DRAG_WITH_MOUSE_LABEL_TEXT}' is checked)",
+                () => "This allows clicking with the mouse through the window to interact with Guild Wars 2 behind the window.");
+
+            ProfitWindowBackgroundOpacitySetting = settings.DefineSetting(
+                "profit window background opacity",
+                125,
+                () => "background opacity",
+                () => "Change background opacity / transparency.");
+            ProfitWindowBackgroundOpacitySetting.SetRange(0, 255);
+
+            ProfitPerHourLabelTextSetting = settings.DefineSetting(
+               "profit per hour label text",
+               "Profit per hour",
+               () => "profit per hour label",
+               () => "Change the label for profit per hour. This will affect profit display in profit window and summary tab. " +
+                     "You have to click somewhere outside of this text input to see your change. " +
+                     "This will not affect the value itself.");
+
+            TotalProfitLabelTextSetting = settings.DefineSetting(
+              "total profit label text",
+              "Profit",
+              () => "total profit label",
+              () => "Change the label for total profit. This will affect profit display in profit window and summary tab. " +
+                    "You have to click somewhere outside of this text input to see your change. " +
+                    "This will not affect the value itself.");
+
+            ProfitWindowRelativeWindowAnchorLocationSetting = internalSettings.DefineSetting("profit window relative location", new FloatPoint(0.2f, 0.2f));
         }
 
         // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
@@ -170,5 +226,16 @@ namespace FarmingTracker
         public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; }
         public SettingEntry<List<CurrencyFilter>> CurrencyFilterSetting { get; }
         public SettingEntry<List<KnownByApiFilter>> KnownByApiFilterSetting { get; }
+        // profit window settings
+        public SettingEntry<bool> IsProfitWindowVisibleSetting { get; private set; }
+        public SettingEntry<bool> DragProfitWindowWithMouseIsEnabledSetting { get; private set; }
+        public SettingEntry<WindowAnchor> WindowAnchorSetting { get; private set; }
+        public SettingEntry<bool> ProfitWindowCanBeClickedThroughSetting { get; private set; }
+        public SettingEntry<int> ProfitWindowBackgroundOpacitySetting { get; private set; }
+        public SettingEntry<string> ProfitPerHourLabelTextSetting { get; private set; }
+        public SettingEntry<string> TotalProfitLabelTextSetting { get; private set; }
+        public SettingEntry<FloatPoint> ProfitWindowRelativeWindowAnchorLocationSetting { get; private set; }
+
+        private const string DRAG_WITH_MOUSE_LABEL_TEXT = "drag with mouse";
     }
 }

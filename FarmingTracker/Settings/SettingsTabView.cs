@@ -51,6 +51,7 @@ namespace FarmingTracker
             var miscSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Misc");
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             _automaticResetSettingsPanel = new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
+            
             var countSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Count");
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
@@ -58,10 +59,26 @@ namespace FarmingTracker
             new SettingControl(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
+            
             var iconSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Icon");
             CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
+
+            var profitSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit");
+            new SettingControl(profitSettingsFlowPanel, _services.SettingService.TotalProfitLabelTextSetting);
+            new SettingControl(profitSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
+
+            var profitWindowSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit window");
+            new FixedWidthHintLabel(
+                profitWindowSettingsFlowPanel,
+                LABEL_WIDTH, // -20 as a buffer because wrapping sometimes cut off text.
+                "A small window which shows the profit. Is is permanently visible even when the main farming tracker window is not visible.");
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.IsProfitWindowVisibleSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.DragProfitWindowWithMouseIsEnabledSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowCanBeClickedThroughSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.WindowAnchorSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowBackgroundOpacitySetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;

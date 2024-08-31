@@ -11,7 +11,7 @@ namespace FarmingTracker
             FlowDirection = ControlFlowDirection.SingleTopToBottom;
             BackgroundColor = Color.Black * 0.5f;
             OuterControlPadding = new Vector2(5, 5);
-            ControlPadding = new Vector2(0, 10);
+            ControlPadding = new Vector2(0, 0);
             ShowBorder = true; // helps with padding at the bottom, even though black backround hides it.
             Width = Constants.PANEL_WIDTH;
             HeightSizingMode = SizingMode.AutoSize;
