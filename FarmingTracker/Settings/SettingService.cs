@@ -42,17 +42,86 @@ namespace FarmingTracker
                 () => "show/hide window",
                 () => "Double-click to change the key binding. Will show or hide the farming tracker window.");
 
+            IsFakeDrfServerUsedSetting = settings.DefineSetting(
+                "is fake drf server used",
+                false,
+                () => "fake drf server",
+                () => "fake drf server");
+
+            var internalSettings = DefineHiddenSettings(settings);
+            DefineCountSettings(settings);
+            DefineIconSettings(settings);
+            DefineProfitSettings(settings);
+            DefineProfitWindowSettings(settings, internalSettings);
+            DefineSortAndFilterSettings(internalSettings);
+        }
+
+        private void DefineSortAndFilterSettings(SettingCollection internalSettings)
+        {
+            // sort
+            SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
+            RemoveUnknownEnumValues(SortByWithDirectionListSetting);
+            // filter
+            CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
+            RemoveUnknownEnumValues(CountFilterSetting);
+
+            SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
+            RemoveUnknownEnumValues(SellMethodFilterSetting);
+
+            RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
+            RemoveUnknownEnumValues(RarityStatsFilterSetting);
+
+            TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
+            RemoveUnknownEnumValues(TypeStatsFilterSetting);
+
+            FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
+            RemoveUnknownEnumValues(FlagStatsFilterSetting);
+
+            CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
+            RemoveUnknownEnumValues(CurrencyFilterSetting);
+
+            KnownByApiFilterSetting = internalSettings.DefineSetting("known by api filter", new List<KnownByApiFilter>(Constants.ALL_KNOWN_BY_API));
+            RemoveUnknownEnumValues(KnownByApiFilterSetting);
+        }
+
+        private SettingCollection DefineHiddenSettings(SettingCollection settings)
+        {
+            var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
+            FarmingDurationTimeSpanSetting = internalSettings.DefineSetting("farming duration time span", TimeSpan.Zero);
+            return internalSettings;
+        }
+
+        private void DefineIconSettings(SettingCollection settings)
+        {
             RarityIconBorderIsVisibleSetting = settings.DefineSetting(
                 "rarity icon border is visible",
                 true,
                 () => "rarity colored border",
                 () => "Show a border in rarity color around item icons.");
 
+            StatIconSizeSetting = settings.DefineSetting(
+                "stat icon size",
+                StatIconSize.M,
+                () => "size",
+                () => "Change item/currency icon size.");
+
+            NegativeCountIconOpacitySetting = settings.DefineSetting(
+                "negative count icon opacity",
+                77,
+                () => "negative count opacity",
+                () => "Change item/currency icon opacity / transparency for negative counts.");
+
+            NegativeCountIconOpacitySetting.SetRange(0, 255);
+        }
+
+        private void DefineCountSettings(SettingCollection settings)
+        {
             CountBackgroundColorSetting = settings.DefineSetting(
-                "count background color",
-                ColorType.Black,
-                () => "background color",
-                () => "Change item/currency count background color. It is not visible when count background opacity slider is set to full transparency.");
+                            "count background color",
+                            ColorType.Black,
+                            () => "background color",
+                            () => "Change item/currency count background color. It is not visible when count background opacity slider is set to full transparency.");
 
             CountBackgroundOpacitySetting = settings.DefineSetting(
                 "count background opacity",
@@ -85,57 +154,6 @@ namespace FarmingTracker
                HorizontalAlignment.Right,
                () => "horizontal alignment",
                () => "Change item/currency count horizontal alignment. Dont use 'center'. It can cut off at both ends.");
-
-            StatIconSizeSetting = settings.DefineSetting(
-                "stat icon size",
-                StatIconSize.M,
-                () => "size",
-                () => "Change item/currency icon size.");
-
-            NegativeCountIconOpacitySetting = settings.DefineSetting(
-                "negative count icon opacity",
-                77,
-                () => "negative count opacity",
-                () => "Change item/currency icon opacity / transparency for negative counts.");
-
-            NegativeCountIconOpacitySetting.SetRange(0, 255);
-
-            IsFakeDrfServerUsedSetting = settings.DefineSetting(
-                "is fake drf server used",
-                false,
-                () => "fake drf server",
-                () => "fake drf server");
-
-            var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
-            NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
-            FarmingDurationTimeSpanSetting = internalSettings.DefineSetting("farming duration time span", TimeSpan.Zero);
-
-            DefineProfitWindowSettings(settings, internalSettings);
-
-            // sort
-            SortByWithDirectionListSetting = internalSettings.DefineSetting("sort by list", new List<SortByWithDirection>(new[] { SortByWithDirection.PositiveAndNegativeCount_Descending, SortByWithDirection.ApiId_Ascending }));
-            RemoveUnknownEnumValues(SortByWithDirectionListSetting);
-            // filter
-            CountFilterSetting = internalSettings.DefineSetting("count stat filter", new List<CountFilter>(Constants.ALL_COUNTS));
-            RemoveUnknownEnumValues(CountFilterSetting);
-
-            SellMethodFilterSetting = internalSettings.DefineSetting("sellable item filter", new List<SellMethodFilter>(Constants.ALL_SELL_METHODS));
-            RemoveUnknownEnumValues(SellMethodFilterSetting);
-
-            RarityStatsFilterSetting = internalSettings.DefineSetting("rarity item filter", new List<ItemRarity>(Constants.ALL_ITEM_RARITIES));
-            RemoveUnknownEnumValues(RarityStatsFilterSetting);
-
-            TypeStatsFilterSetting = internalSettings.DefineSetting("type item filter", new List<ItemType>(Constants.ALL_ITEM_TYPES));
-            RemoveUnknownEnumValues(TypeStatsFilterSetting);
-
-            FlagStatsFilterSetting = internalSettings.DefineSetting("flag item filter", new List<ItemFlag>(Constants.ALL_ITEM_FLAGS));
-            RemoveUnknownEnumValues(FlagStatsFilterSetting);
-
-            CurrencyFilterSetting = internalSettings.DefineSetting("currency filter", new List<CurrencyFilter>(Constants.ALL_CURRENCIES));
-            RemoveUnknownEnumValues(CurrencyFilterSetting);
-
-            KnownByApiFilterSetting = internalSettings.DefineSetting("known by api filter", new List<KnownByApiFilter>(Constants.ALL_KNOWN_BY_API));
-            RemoveUnknownEnumValues(KnownByApiFilterSetting);
         }
 
         private void DefineProfitWindowSettings(SettingCollection settings, SettingCollection internalSettings)
@@ -173,13 +191,18 @@ namespace FarmingTracker
                 () => "Change background opacity / transparency.");
             ProfitWindowBackgroundOpacitySetting.SetRange(0, 255);
 
+            ProfitWindowRelativeWindowAnchorLocationSetting = internalSettings.DefineSetting("profit window relative location", new FloatPoint(0.2f, 0.2f));
+        }
+
+        private void DefineProfitSettings(SettingCollection settings)
+        {
             ProfitPerHourLabelTextSetting = settings.DefineSetting(
-               "profit per hour label text",
-               "Profit per hour",
-               () => "profit per hour label",
-               () => "Change the label for profit per hour. This will affect profit display in profit window and summary tab. " +
-                     "You have to click somewhere outside of this text input to see your change. " +
-                     "This will not affect the value itself.");
+                           "profit per hour label text",
+                           "Profit per hour",
+                           () => "profit per hour label",
+                           () => "Change the label for profit per hour. This will affect profit display in profit window and summary tab. " +
+                                 "You have to click somewhere outside of this text input to see your change. " +
+                                 "This will not affect the value itself.");
 
             TotalProfitLabelTextSetting = settings.DefineSetting(
               "total profit label text",
@@ -188,8 +211,6 @@ namespace FarmingTracker
               () => "Change the label for total profit. This will affect profit display in profit window and summary tab. " +
                     "You have to click somewhere outside of this text input to see your change. " +
                     "This will not affect the value itself.");
-
-            ProfitWindowRelativeWindowAnchorLocationSetting = internalSettings.DefineSetting("profit window relative location", new FloatPoint(0.2f, 0.2f));
         }
 
         // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
@@ -206,26 +227,35 @@ namespace FarmingTracker
         public SettingEntry<AutomaticReset> AutomaticResetSetting { get; }
         public SettingEntry<int> MinutesUntilResetAfterModuleShutdownSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
-        public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; }
-        public SettingEntry<ColorType> PositiveCountTextColorSetting { get; }
-        public SettingEntry<ColorType> NegativeCountTextColorSetting { get; }
-        public SettingEntry<ColorType> CountBackgroundColorSetting { get; }
-        public SettingEntry<int> CountBackgroundOpacitySetting { get; }
-        public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; }
-        public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; }
-        public SettingEntry<StatIconSize> StatIconSizeSetting { get; }
-        public SettingEntry<int> NegativeCountIconOpacitySetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
-        public SettingEntry<DateTime> NextResetDateTimeUtcSetting { get; }
-        public SettingEntry<TimeSpan> FarmingDurationTimeSpanSetting { get; }
-        public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; }
-        public SettingEntry<List<CountFilter>> CountFilterSetting { get; }
-        public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; }
-        public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; }
-        public SettingEntry<List<ItemType>> TypeStatsFilterSetting { get; }
-        public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; }
-        public SettingEntry<List<CurrencyFilter>> CurrencyFilterSetting { get; }
-        public SettingEntry<List<KnownByApiFilter>> KnownByApiFilterSetting { get; }
+        
+        // hidden settings
+        public SettingEntry<DateTime> NextResetDateTimeUtcSetting { get; private set; }
+        public SettingEntry<TimeSpan> FarmingDurationTimeSpanSetting { get; private set; }
+
+        // sort and filter settings
+        public SettingEntry<List<SortByWithDirection>> SortByWithDirectionListSetting { get; private set; }
+        public SettingEntry<List<CountFilter>> CountFilterSetting { get; private set; }
+        public SettingEntry<List<SellMethodFilter>> SellMethodFilterSetting { get; private set; }
+        public SettingEntry<List<ItemRarity>> RarityStatsFilterSetting { get; private set; }
+        public SettingEntry<List<ItemType>> TypeStatsFilterSetting { get; private set; }
+        public SettingEntry<List<ItemFlag>> FlagStatsFilterSetting { get; private set; }
+        public SettingEntry<List<CurrencyFilter>> CurrencyFilterSetting { get; private set; }
+        public SettingEntry<List<KnownByApiFilter>> KnownByApiFilterSetting { get; private set; }
+
+        // icon settings
+        public SettingEntry<bool> RarityIconBorderIsVisibleSetting { get; private set; }
+        public SettingEntry<int> NegativeCountIconOpacitySetting { get; private set; }
+        public SettingEntry<StatIconSize> StatIconSizeSetting { get; private set; }
+
+        // count settings
+        public SettingEntry<int> CountBackgroundOpacitySetting { get; private set; }
+        public SettingEntry<ColorType> CountBackgroundColorSetting { get; private set; }
+        public SettingEntry<ColorType> PositiveCountTextColorSetting { get; private set; }
+        public SettingEntry<ColorType> NegativeCountTextColorSetting { get; private set; }
+        public SettingEntry<ContentService.FontSize> CountFontSizeSetting { get; private set; }
+        public SettingEntry<HorizontalAlignment> CountHoritzontalAlignmentSetting { get; private set; }
+        
         // profit window settings
         public SettingEntry<bool> IsProfitWindowVisibleSetting { get; private set; }
         public SettingEntry<bool> DragProfitWindowWithMouseIsEnabledSetting { get; private set; }
