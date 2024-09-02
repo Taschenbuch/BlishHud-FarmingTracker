@@ -73,7 +73,7 @@ namespace FarmingTracker
             new FixedWidthHintLabel(
                 profitWindowSettingsFlowPanel,
                 LABEL_WIDTH, // -20 as a buffer because wrapping sometimes cut off text.
-                "A small window which shows the profit. Is is permanently visible even when the main farming tracker window is not visible.");
+                "A small window which shows the profit. It is permanently visible even when the main farming tracker window is not visible.");
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.IsProfitWindowVisibleSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.DragProfitWindowWithMouseIsEnabledSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowCanBeClickedThroughSetting);
