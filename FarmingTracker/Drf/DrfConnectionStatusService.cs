@@ -36,7 +36,7 @@ namespace FarmingTracker
                 case DrfConnectionStatus.TryReconnect:
                     return $"Connect failed {reconnectTriesCounter} time(s). Next reconnect try in {reconnectDelaySeconds} seconds.";
                 case DrfConnectionStatus.Connected:
-                    return $"Connected{SMILEY_VERTICAL_SPACE}:-)";
+                    return $"{DRF_CONNECTED_TEXT}{SMILEY_VERTICAL_SPACE}:-)";
                 case DrfConnectionStatus.AuthenticationFailed:
                     return $"Authentication failed. Add a valid DRF Token!{SMILEY_VERTICAL_SPACE}:-(";
                 case DrfConnectionStatus.ModuleError:
@@ -60,6 +60,7 @@ namespace FarmingTracker
             };
         }
 
+        public const string DRF_CONNECTED_TEXT = "Connected";
         private const string SMILEY_VERTICAL_SPACE = "  ";
         private static readonly Color RED = new Color(255, 120, 120);
     }

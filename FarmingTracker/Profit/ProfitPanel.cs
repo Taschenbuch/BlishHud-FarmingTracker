@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class ProfitPanel : FlowPanel
     {
-        public ProfitPanel(string suffixText, string tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
+        public ProfitPanel(string tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             BasicTooltipText = tooltip;
@@ -34,18 +34,6 @@ namespace FarmingTracker
             _goldPanel = new CoinPanel(textureService.SmallGoldCoinTexture, Color.Gold, tooltip, font, false, coinsFlowPanel);
             _silverPanel = new CoinPanel(textureService.SmallSilverCoinTexture, Color.LightGray, tooltip, font, true, coinsFlowPanel);
             _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, coinsFlowPanel);
-
-            var hasSuffixText = !string.IsNullOrWhiteSpace(suffixText);
-            if(hasSuffixText)
-                new Label
-                {
-                    Text = $" {suffixText}", // add padding here instead of using flowPanel.Controlpadidng because sign label must not have padding.
-                    Font = font,
-                    BasicTooltipText = tooltip,
-                    AutoSizeHeight = true,
-                    AutoSizeWidth = true,
-                    Parent = this,
-                };
         }
 
         public void SetProfit(long profitInCopper)

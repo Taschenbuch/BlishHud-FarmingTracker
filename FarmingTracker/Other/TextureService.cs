@@ -11,6 +11,7 @@ namespace FarmingTracker
     {
         public TextureService(ContentsManager contentsManager)
         {
+            // dispose necessary:
             WindowEmblemTexture = contentsManager.GetTexture("window-emblem.png");
             FilterTabIconTexture = contentsManager.GetTexture("filter-tab-icon.png");
             SortTabIconTexture = contentsManager.GetTexture("sort-tab-icon.png");
@@ -25,8 +26,7 @@ namespace FarmingTracker
             OpenLinkTexture = contentsManager.GetTexture("open-link.png");
             FallbackTexture = contentsManager.GetTexture("fallback_157084.png");
 
-            // no dispose necessary:
-
+            // NO dispose allowed:
             SmallGoldCoinTexture = GetTextureFromAssetCacheOrFallback(156904);
             SmallSilverCoinTexture = GetTextureFromAssetCacheOrFallback(156907);
             SmallCopperCoinTexture = GetTextureFromAssetCacheOrFallback(156902);
@@ -41,10 +41,11 @@ namespace FarmingTracker
         public void Dispose()
         {
             WindowEmblemTexture?.Dispose();
-            SummaryTabIconTexture?.Dispose();
             FilterTabIconTexture?.Dispose();
             SortTabIconTexture?.Dispose();
             TimelineTabIconTexture?.Dispose();
+            SummaryTabIconTexture?.Dispose();
+            IgnoredItemsTabIconTexture?.Dispose();
             CornerIconTexture?.Dispose();
             CornerIconHoverTexture?.Dispose();
             GoldCoinTexture?.Dispose();

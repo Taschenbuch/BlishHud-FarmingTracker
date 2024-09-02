@@ -12,8 +12,9 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindow farmingTrackerWindow, Model model, Services services) 
+        public SummaryTabView(FarmingTrackerWindow farmingTrackerWindow, ProfitWindow profitWindow, Model model, Services services) 
         {
+            _profitWindow = profitWindow;
             _model = model;
             _services = services;
             _rootFlowPanel = CreateUi(farmingTrackerWindow);
@@ -75,7 +76,9 @@ namespace FarmingTracker
                     var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                     var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
                     _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _profitWindow.ProfitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
+
                     _isUiUpdateTaskRunning = false;
                 });
             }
@@ -135,6 +138,7 @@ namespace FarmingTracker
             }
             
             _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
+            _profitWindow.ProfitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
@@ -315,7 +319,7 @@ namespace FarmingTracker
 
             CreateHelpResetDrfButtons();
             CreateTimeAndHintLabels();
-            _profitPanels = new ProfitPanels(_services.TextureService, _services.FontService, _farmingRootFlowPanel);
+            _profitPanels = new ProfitPanels(_services, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
             CreateStatsPanels(_farmingRootFlowPanel);
 
@@ -465,6 +469,17 @@ namespace FarmingTracker
             {
                 Width = 60,
             };
+
+            var csvExportButton = new StandardButton()
+            {
+                Text = "Export CSV",
+                BasicTooltipText = "Export tracked items and currencies to 'Documents\\Guild Wars 2\\addons\\blishhud\\farming-tracker\\<date-time>.csv'.\n" +
+                "This feature can be used to import the tracked items/currencies in Microsoft Excel for example.",
+                Width = 90,
+                Parent = subButtonFlowPanel,
+            };
+
+            csvExportButton.Click += (s, e) => _services.CsvFileExporter.ExportSummaryAsCsvFile(_model);
         }
 
         private bool _isTaskRunning;
@@ -485,6 +500,7 @@ namespace FarmingTracker
         private bool _lastStatsUpdateSuccessfull = true;
         private ResetState _resetState = ResetState.NoResetRequired;
         private readonly StatsSetter _statsSetter = new StatsSetter();
+        private readonly ProfitWindow _profitWindow;
         private readonly Model _model;
         private readonly Services _services;
         private readonly AutomaticResetService _automaticResetService;

@@ -38,20 +38,19 @@ namespace FarmingTracker
                 Module.Logger.Error(e, "Error: Failed to saving model to file. :(");
             }
         }
-
-        private static string SerializeModelToJson(Model model)
-        {
-            var fileModel = FileModelService.CreateFileModel(model);
-            return JsonConvert.SerializeObject(fileModel);
-        }
-
-        private static async Task WriteFileAsync(string filePath, string fileContent)
+        public static async Task WriteFileAsync(string filePath, string fileContent)
         {
             var folderPath = Path.GetDirectoryName(filePath);
             Directory.CreateDirectory(folderPath);
             using var streamWriter = new StreamWriter(filePath);
             await streamWriter.WriteAsync(fileContent);
             await streamWriter.FlushAsync();
+        }
+
+        private static string SerializeModelToJson(Model model)
+        {
+            var fileModel = FileModelService.CreateFileModel(model);
+            return JsonConvert.SerializeObject(fileModel);
         }
 
         private readonly string _modelFilePath;

@@ -31,7 +31,8 @@ namespace FarmingTracker
                 ShowOrHideWindowSubtitle(Width);
             };
 
-            var summaryTabView = new SummaryTabView(this, model, services);
+            _profitWindow = new ProfitWindow(services);
+            var summaryTabView = new SummaryTabView(this, _profitWindow, model, services);
             _summaryTabView = summaryTabView;
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, SUMMARY_TAB_TITLE);
             _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), SETTINGS_TAB_TITLE);
@@ -50,6 +51,7 @@ namespace FarmingTracker
         protected override void DisposeControl()
         {
             _summaryTabView?.Dispose();
+            _profitWindow?.Dispose();
             base.DisposeControl();
         }
 
@@ -85,6 +87,7 @@ namespace FarmingTracker
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
         private readonly Tab _settingsTab;
+        private ProfitWindow _profitWindow;
         public const string SUMMARY_TAB_TITLE = "Summary";
         private const string TIMELINE_TAB_TITLE = "Timeline";
         private const string FILTER_TAB_TITLE = "Filter";
