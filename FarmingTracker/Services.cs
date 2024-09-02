@@ -12,12 +12,14 @@ namespace FarmingTracker
             SettingService settingService,
             DateTimeService dateTimeService)
         {
-            var modelFilePath = FileService.GetModelFilePath(directoriesManager);
+            var moduleFolderPath = FileService.GetModuleFolderPath(directoriesManager);
+            var modelFilePath = FileService.GetModelFilePath(moduleFolderPath);
 
             Gw2ApiManager = gw2ApiManager;
             SettingService = settingService;
             DateTimeService = dateTimeService;
             TextureService = new TextureService(contentsManager);
+            CsvFileExporter = new CsvFileExporter(moduleFolderPath);
             FileLoadService = new FileLoadService(modelFilePath);
             FileSaveService = new FileSaveService(modelFilePath);
             Drf = new Drf(settingService);
@@ -34,6 +36,7 @@ namespace FarmingTracker
         public Gw2ApiManager Gw2ApiManager { get; }
         public SettingService SettingService { get; }
         public TextureService TextureService { get; }
+        public CsvFileExporter CsvFileExporter { get; }
         public FileLoadService FileLoadService { get; }
         public FileSaveService FileSaveService { get; }
         public Drf Drf { get; }

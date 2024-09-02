@@ -5,11 +5,15 @@ namespace FarmingTracker
 {
     public class FileService
     {
-        public static string GetModelFilePath(DirectoriesManager directoriesManager)
+        public static string GetModelFilePath(string moduleFolderPath)
+        {
+            return Path.Combine(moduleFolderPath, "model.json");
+        }
+
+        public static string GetModuleFolderPath(DirectoriesManager directoriesManager)
         {
             var moduleFolderName = directoriesManager.RegisteredDirectories[0];
-            var moduleFolderPath = directoriesManager.GetFullDirectoryPath(moduleFolderName);
-            return Path.Combine(moduleFolderPath, "model.json");
+            return directoriesManager.GetFullDirectoryPath(moduleFolderName);
         }
     }
 }

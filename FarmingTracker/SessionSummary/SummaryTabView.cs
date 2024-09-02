@@ -469,6 +469,17 @@ namespace FarmingTracker
             {
                 Width = 60,
             };
+
+            var csvExportButton = new StandardButton()
+            {
+                Text = "Export CSV",
+                BasicTooltipText = "Export tracked items and currencies to 'Documents\\Guild Wars 2\\addons\\blishhud\\farming-tracker\\<date-time>.csv'.\n" +
+                "This feature can be used to import the tracked items/currencies in Microsoft Excel for example.",
+                Width = 90,
+                Parent = subButtonFlowPanel,
+            };
+
+            csvExportButton.Click += (s, e) => _services.CsvFileExporter.ExportSummaryAsCsvFile(_model);
         }
 
         private bool _isTaskRunning;
