@@ -319,7 +319,7 @@ namespace FarmingTracker
 
             CreateHelpResetDrfButtons();
             CreateTimeAndHintLabels();
-            _profitPanels = new ProfitPanels(_services, _farmingRootFlowPanel);
+            _profitPanels = new ProfitPanels(_services, false, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
             CreateStatsPanels(_farmingRootFlowPanel);
 

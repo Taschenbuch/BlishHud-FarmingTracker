@@ -13,7 +13,7 @@ namespace FarmingTracker
             WidthSizingMode = SizingMode.AutoSize;
             Parent = GameService.Graphics.SpriteScreen;
 
-            ProfitPanels = new ProfitPanels(services, this);
+            ProfitPanels = new ProfitPanels(services, true, this);
             
             OnProfitWindowBackgroundOpacitySettingChanged();
             OnIsProfitWindowVisibleSettingChanged();

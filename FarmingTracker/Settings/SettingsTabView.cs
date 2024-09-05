@@ -65,10 +65,6 @@ namespace FarmingTracker
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
-            var profitSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit");
-            new SettingControl(profitSettingsFlowPanel, _services.SettingService.TotalProfitLabelTextSetting);
-            new SettingControl(profitSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
-
             var profitWindowSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit window");
             new FixedWidthHintLabel(
                 profitWindowSettingsFlowPanel,
@@ -79,6 +75,8 @@ namespace FarmingTracker
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowCanBeClickedThroughSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.WindowAnchorSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowBackgroundOpacitySetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.TotalProfitLabelTextSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;

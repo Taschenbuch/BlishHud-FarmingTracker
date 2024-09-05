@@ -10,9 +10,10 @@ namespace FarmingTracker
 {
     public class ProfitPanels : FlowPanel
     {
-        public ProfitPanels(Services services, Container parent)
+        public ProfitPanels(Services services, bool labelTextCanBeChanged, Container parent)
         {
             _settingService = services.SettingService;
+            _labelTextCanBeChanged = labelTextCanBeChanged;
 
             FlowDirection = ControlFlowDirection.SingleTopToBottom;
             WidthSizingMode = SizingMode.AutoSize;
@@ -122,8 +123,16 @@ namespace FarmingTracker
 
         private void OnProfitLabelTextSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
         {
-            _totalProfitLabel.Text = $" {_settingService.TotalProfitLabelTextSetting.Value}"; // blank as padding because sign label should get no control padding from flowPanel.
-            _profitPerHourLabel.Text = $" {_settingService.ProfitPerHourLabelTextSetting.Value}";
+            if(_labelTextCanBeChanged)
+            {
+                _totalProfitLabel.Text = $" {_settingService.TotalProfitLabelTextSetting.Value}"; // blank as padding because sign label should get no control padding from flowPanel.
+                _profitPerHourLabel.Text = $" {_settingService.ProfitPerHourLabelTextSetting.Value}";
+            }
+            else
+            {
+                _totalProfitLabel.Text = $" Profit"; // blank as padding because sign label should get no control padding from flowPanel.
+                _profitPerHourLabel.Text = $" Profit per hour";
+            }
         }
 
         private readonly ProfitPanel _totalProfitPanel;
@@ -132,6 +141,7 @@ namespace FarmingTracker
         private readonly Label _profitPerHourLabel;
         private readonly Stopwatch _stopwatch = new Stopwatch();  // do not use elapsedFarmingTime, because it can be resetted and maybe other stuff in the future.
         private readonly SettingService _settingService;
+        private readonly bool _labelTextCanBeChanged;
         private TimeSpan _oldTime = TimeSpan.Zero;
         private long _totalProfitInCopper;
     }

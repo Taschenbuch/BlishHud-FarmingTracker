@@ -197,17 +197,17 @@ namespace FarmingTracker
         private void DefineProfitSettings(SettingCollection settings)
         {
             ProfitPerHourLabelTextSetting = settings.DefineSetting(
-                           "profit per hour label text",
-                           "Profit per hour",
-                           () => "profit per hour label",
-                           () => "Change the label for profit per hour. This will affect profit display in profit window and summary tab. " +
-                                 "You have to click somewhere outside of this text input to see your change. " +
-                                 "This will not affect the value itself.");
+                "profit per hour label text",
+                "Profit per hour",
+                () => "profit per hour label",
+                () => "Change the label for profit per hour. This will affect profit display in profit window and summary tab. " +
+                        "You have to click somewhere outside of this text input to see your change. " +
+                        "This will not affect the value itself.");
 
             TotalProfitLabelTextSetting = settings.DefineSetting(
               "total profit label text",
               "Profit",
-              () => "total profit label",
+              () => "profit label",
               () => "Change the label for total profit. This will affect profit display in profit window and summary tab. " +
                     "You have to click somewhere outside of this text input to see your change. " +
                     "This will not affect the value itself.");
