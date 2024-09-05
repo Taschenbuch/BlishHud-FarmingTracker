@@ -75,7 +75,7 @@ namespace FarmingTracker
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowCanBeClickedThroughSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.WindowAnchorSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowBackgroundOpacitySetting);
-            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.TotalProfitLabelTextSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitLabelTextSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;

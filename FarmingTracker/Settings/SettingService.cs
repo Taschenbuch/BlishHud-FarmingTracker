@@ -111,7 +111,6 @@ namespace FarmingTracker
                 77,
                 () => "negative count opacity",
                 () => "Change item/currency icon opacity / transparency for negative counts.");
-
             NegativeCountIconOpacitySetting.SetRange(0, 255);
         }
 
@@ -128,7 +127,6 @@ namespace FarmingTracker
                 0,
                 () => "background opacity",
                 () => "Change item/currency count background opacity / transparency.");
-
             CountBackgroundOpacitySetting.SetRange(0, 255);
 
             PositiveCountTextColorSetting = settings.DefineSetting(
@@ -204,7 +202,7 @@ namespace FarmingTracker
                         "You have to click somewhere outside of this text input to see your change. " +
                         "This will not affect the value itself.");
 
-            TotalProfitLabelTextSetting = settings.DefineSetting(
+            ProfitLabelTextSetting = settings.DefineSetting(
               "total profit label text",
               "Profit",
               () => "profit label",
@@ -263,7 +261,7 @@ namespace FarmingTracker
         public SettingEntry<bool> ProfitWindowCanBeClickedThroughSetting { get; private set; }
         public SettingEntry<int> ProfitWindowBackgroundOpacitySetting { get; private set; }
         public SettingEntry<string> ProfitPerHourLabelTextSetting { get; private set; }
-        public SettingEntry<string> TotalProfitLabelTextSetting { get; private set; }
+        public SettingEntry<string> ProfitLabelTextSetting { get; private set; }
         public SettingEntry<FloatPoint> ProfitWindowRelativeWindowAnchorLocationSetting { get; private set; }
 
         private const string DRAG_WITH_MOUSE_LABEL_TEXT = "drag with mouse";
