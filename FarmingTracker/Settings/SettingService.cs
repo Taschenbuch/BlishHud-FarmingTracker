@@ -180,7 +180,7 @@ namespace FarmingTracker
 
             ProfitWindowCanBeClickedThroughSetting = settings.DefineSetting(
                 "profit window is not capturing mouse clicks",
-                false,
+                true,
                 () => $"mouse clickthrough (disabled when '{DRAG_WITH_MOUSE_LABEL_TEXT}' is checked)",
                 () => "This allows clicking with the mouse through the window to interact with Guild Wars 2 behind the window.");
 
