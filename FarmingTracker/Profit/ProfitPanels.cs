@@ -34,13 +34,16 @@ namespace FarmingTracker
 
             services.SettingService.ProfitPerHourLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
             services.SettingService.ProfitLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
+            services.SettingService.ProfitWindowDisplayModeSetting.SettingChanged += OnProfitWindowDisplayModeSettingChanged;
             OnProfitLabelTextSettingChanged();
+            OnProfitWindowDisplayModeSettingChanged();
         }
 
         protected override void DisposeControl()
         {
             _settingService.ProfitPerHourLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
             _settingService.ProfitLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
+            _settingService.ProfitWindowDisplayModeSetting.SettingChanged -= OnProfitWindowDisplayModeSettingChanged;
             base.DisposeControl();
         }
 
@@ -133,6 +136,26 @@ namespace FarmingTracker
                 // do not modify profit labels in 6farming tracker main window.
                 _profitLabel.Text = $" Profit"; // blank as padding because sign label should get no control padding from flowPanel.
                 _profitPerHourLabel.Text = $" Profit per hour";
+            }
+        }
+
+        private void OnProfitWindowDisplayModeSettingChanged(object sender = null, ValueChangedEventArgs<ProfitWindowDisplayMode> e = null)
+        {
+            _profitPanel.Parent = null;
+            _profitPerHourPanel.Parent = null;
+
+            switch (_settingService.ProfitWindowDisplayModeSetting.Value)
+            {
+                case ProfitWindowDisplayMode.ProfitAndProfitPerHour:
+                    _profitPanel.Parent = this;
+                    _profitPerHourPanel.Parent = this;
+                    break;
+                case ProfitWindowDisplayMode.Profit:
+                    _profitPanel.Parent = this;
+                    break;
+                case ProfitWindowDisplayMode.ProfitPerHour:
+                    _profitPerHourPanel.Parent = this;
+                    break;
             }
         }
 

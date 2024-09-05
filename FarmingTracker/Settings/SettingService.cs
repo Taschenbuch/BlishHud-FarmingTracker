@@ -189,6 +189,12 @@ namespace FarmingTracker
                 () => "Change background opacity / transparency.");
             ProfitWindowBackgroundOpacitySetting.SetRange(0, 255);
 
+            ProfitWindowDisplayModeSetting = settings.DefineSetting(
+                "profit window display mode",
+                ProfitWindowDisplayMode.ProfitAndProfitPerHour,
+                () => "display mode",
+                () => "Change what should be displayed inside the profit window.");
+
             ProfitWindowRelativeWindowAnchorLocationSetting = internalSettings.DefineSetting("profit window relative location", new FloatPoint(0.2f, 0.2f));
         }
 
@@ -262,6 +268,7 @@ namespace FarmingTracker
         public SettingEntry<int> ProfitWindowBackgroundOpacitySetting { get; private set; }
         public SettingEntry<string> ProfitPerHourLabelTextSetting { get; private set; }
         public SettingEntry<string> ProfitLabelTextSetting { get; private set; }
+        public SettingEntry<ProfitWindowDisplayMode> ProfitWindowDisplayModeSetting { get; private set; }
         public SettingEntry<FloatPoint> ProfitWindowRelativeWindowAnchorLocationSetting { get; private set; }
 
         private const string DRAG_WITH_MOUSE_LABEL_TEXT = "drag with mouse";
