@@ -4,9 +4,9 @@ using MonoGame.Extended.BitmapFonts;
 
 namespace FarmingTracker
 {
-    public class ProfitPanel : FlowPanel
+    public class CoinsPanel : FlowPanel
     {
-        public ProfitPanel(ProfitTooltip tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
+        public CoinsPanel(ProfitTooltip tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             Tooltip = tooltip;

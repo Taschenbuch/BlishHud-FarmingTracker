@@ -112,21 +112,21 @@ namespace FarmingTracker
                 Parent = columnFlowPanel,
             };
 
-            var profitPanels = new List<ProfitPanel>();
+            var profitPanels = new List<CoinsPanel>();
             var containers = new List<FixedWidthContainer>();
 
             if (stat.Profits.CanBeSoldOnTp)
             {
                 // TP Sell profit
                 var tpSellProfitContainer = new FixedWidthContainer(columnFlowPanel);
-                var tpSellProfitPanel = new ProfitPanel(null, font, services.TextureService, tpSellProfitContainer, ROW_HEIGHT);
+                var tpSellProfitPanel = new CoinsPanel(null, font, services.TextureService, tpSellProfitContainer, ROW_HEIGHT);
                 tpSellProfitPanel.SetProfit(stat.CountSign * profit.TpSellProfitInCopper);
                 profitPanels.Add(tpSellProfitPanel);
                 containers.Add(tpSellProfitContainer);
 
                 // TP Buy profit
                 var tpBuyProfitContainer = new FixedWidthContainer(columnFlowPanel);
-                var tpBuyProfitPanel = new ProfitPanel(null, font, services.TextureService, tpBuyProfitContainer, ROW_HEIGHT);
+                var tpBuyProfitPanel = new CoinsPanel(null, font, services.TextureService, tpBuyProfitContainer, ROW_HEIGHT);
                 tpBuyProfitPanel.SetProfit(stat.CountSign * profit.TpBuyProfitInCopper);
                 profitPanels.Add(tpBuyProfitPanel);
                 containers.Add(tpBuyProfitContainer);
@@ -136,7 +136,7 @@ namespace FarmingTracker
             {
                 // Vendor profit
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
-                var vendorProfitPanel = new ProfitPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
+                var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
                 vendorProfitPanel.SetProfit(stat.CountSign * profit.VendorProfitInCopper);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);

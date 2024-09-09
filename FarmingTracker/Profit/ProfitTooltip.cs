@@ -29,7 +29,7 @@ namespace FarmingTracker
                 Parent = rootFlowPanel,
             };
 
-            ProfitPerHourPanel = new ProfitPanel(null, font, services.TextureService, rootFlowPanel);
+            ProfitPerHourPanel = new CoinsPanel(null, font, services.TextureService, rootFlowPanel);
 
             new Label
             {
@@ -41,6 +41,6 @@ namespace FarmingTracker
             };
         }
 
-        public ProfitPanel ProfitPerHourPanel { get; }
+        public CoinsPanel ProfitPerHourPanel { get; }
     }
 }

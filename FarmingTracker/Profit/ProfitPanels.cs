@@ -24,8 +24,8 @@ namespace FarmingTracker
 
             var font = services.FontService.Fonts[FontSize.Size16];
             
-            _profitPanel = new ProfitPanel(_profitTooltip, font, services.TextureService, this);
-            _profitPerHourPanel = new ProfitPanel(_profitTooltip, font, services.TextureService, this);
+            _profitPanel = new CoinsPanel(_profitTooltip, font, services.TextureService, this);
+            _profitPerHourPanel = new CoinsPanel(_profitTooltip, font, services.TextureService, this);
 
             _profitLabel = CreateProfitLabel(_profitTooltip, font, _profitPanel);
             _profitPerHourLabel = CreateProfitLabel(_profitTooltip, font, _profitPerHourPanel);
@@ -116,7 +116,7 @@ namespace FarmingTracker
             return (long)profitPerHourInCopper;
         }
 
-        private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, ProfitPanel parent)
+        private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, CoinsPanel parent)
         {
             return new Label
             {
@@ -164,8 +164,8 @@ namespace FarmingTracker
         }
 
         private readonly ProfitTooltip _profitTooltip;
-        private readonly ProfitPanel _profitPanel;
-        private readonly ProfitPanel _profitPerHourPanel;
+        private readonly CoinsPanel _profitPanel;
+        private readonly CoinsPanel _profitPerHourPanel;
         private readonly Label _profitLabel;
         private readonly Label _profitPerHourLabel;
         private readonly Stopwatch _stopwatch = new Stopwatch();  // do not use elapsedFarmingTime, because it can be resetted and maybe other stuff in the future.
