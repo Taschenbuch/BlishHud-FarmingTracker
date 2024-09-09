@@ -47,7 +47,7 @@ namespace FarmingTracker
         protected override async Task LoadAsync()
         {
             var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
-            var model = await services.FileLoadService.LoadModelFromFile();
+            var model = await services.FileLoader.LoadModelFromFile();
             _model = model;
             _services = services;
 
@@ -86,7 +86,7 @@ namespace FarmingTracker
             if(_model != null)
             {
                 _services.FarmingDuration.SaveFarmingTime();
-                _services.FileSaveService.SaveModelToFileSync(_model);
+                _services.FileSaver.SaveModelToFileSync(_model);
             }
         }
 

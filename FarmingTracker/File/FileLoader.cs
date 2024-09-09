@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
-    public class FileLoadService
+    public class FileLoader
     {
-        public FileLoadService(string modelFilePath)
+        public FileLoader(string modelFilePath)
         {
             _modelFilePath = modelFilePath;
         }

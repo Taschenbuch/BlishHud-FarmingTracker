@@ -130,7 +130,7 @@ namespace FarmingTracker
 
                     Task.Run(async () =>
                     {
-                        await _services.FileSaveService.SaveModelToFile(_model);
+                        await _services.FileSaver.SaveModelToFile(_model);
                         _isTaskRunning = false;
                     });
                     // do not return here because saving the model should not disturb other parts of Update().
