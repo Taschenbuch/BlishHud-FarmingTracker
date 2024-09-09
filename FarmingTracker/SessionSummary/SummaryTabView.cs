@@ -75,8 +75,8 @@ namespace FarmingTracker
                     var snapshot = _model.StatsSnapshot;
                     var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
                     var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-                    _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
-                    _profitWindow.ProfitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _profitPanels.UpdateProfitDisplay(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _profitWindow.ProfitPanels.UpdateProfitDisplay(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
@@ -137,8 +137,8 @@ namespace FarmingTracker
                 }
             }
             
-            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
-            _profitWindow.ProfitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
+            _profitPanels.UpdateProfitPerHourDisplayEveryFiveSeconds(_services.FarmingDuration.Elapsed);
+            _profitWindow.ProfitPanels.UpdateProfitPerHourDisplayEveryFiveSeconds(_services.FarmingDuration.Elapsed);
             _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?

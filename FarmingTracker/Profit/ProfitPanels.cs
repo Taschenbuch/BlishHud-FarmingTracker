@@ -49,14 +49,14 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        public void UpdateProfitLabels(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
+        public void UpdateProfitDisplay(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
             var totalProfitInCopper = ProfitCalculator.CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
 
-        public void UpdateProfitPerHourEveryFiveSeconds(TimeSpan elapsedFarmingTime)
+        public void UpdateProfitPerHourDisplayEveryFiveSeconds(TimeSpan elapsedFarmingTime)
         {
             var time = _stopwatch.Elapsed;
             var fiveSecondsHavePassed = time >= _oldTime + TimeSpan.FromSeconds(Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS);
