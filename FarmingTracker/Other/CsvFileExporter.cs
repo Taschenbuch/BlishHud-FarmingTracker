@@ -40,7 +40,7 @@ namespace FarmingTracker
             for (int i = 0; i < linesCount; i++)
             {
                 csvFileText += i < items.Count
-                    ? $"{items[i].ApiId},{items[i].Details.Name},{items[i].Count},"
+                    ? $"{items[i].ApiId},{EscapeCsvField(items[i].Details.Name)},{items[i].Count},"
                     : ",,,";
 
                 csvFileText += i < currencies.Count
@@ -51,5 +51,16 @@ namespace FarmingTracker
             return csvFileText;
         }
 
+        // add quote before every quote.
+        // then wrap everything in quotes. This handles comma (,) inside the field, too.
+        // e.g.:
+        // BEFORE: Story Unlock: "The Dragon's Reach, Part 2"
+        // AFTER: "Story Unlock: ""The Dragon's Reach, Part 2"""
+        // Excel seem to have no issues with special characters like slashes and stuff.
+        private static string EscapeCsvField(string field)
+        {
+            var csvEscapedField = field.Replace("\"", "\"\""); 
+            return $"\"{csvEscapedField}\""; 
+        }
     }
 }

@@ -35,6 +35,9 @@ async function sendDrop(webSocket) {
 
 const messages = [
   // CSV TEST (use online csv validator check if file content is valid csv)
+  // items with comma (,) or double quotes ("") in name:
+  // Sun, Moon, and Stars; Mask of 1,000 Faces; "Acquired" Shoes; Mini "Knuckles"; Story Unlock: "The Dragon's Reach, Part 2"
+  // '{"kind":"data","payload":{"character":"3","drop":{"items":{"70671":1,"50210":1,"3973":1,"77345":1,"66870":1},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
   // NO DROP
   // only items
   // '{"kind":"data","payload":{"character":"3","drop":{"items":{"19620":1},"curr":{},"mf":0,"timestamp":"2022-12-09T05:17:36.745Z"}}}',
