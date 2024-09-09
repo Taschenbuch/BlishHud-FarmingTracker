@@ -73,10 +73,9 @@ namespace FarmingTracker
                 Task.Run(() =>
                 {
                     var snapshot = _model.StatsSnapshot;
-                    var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
-                    var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-                    _profitPanels.UpdateProfitDisplay(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
-                    _profitWindow.ProfitPanels.UpdateProfitDisplay(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _profitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                    _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
@@ -136,10 +135,15 @@ namespace FarmingTracker
                     // do not return here because saving the model should not disturb other parts of Update().
                 }
             }
-            
-            _profitPanels.UpdateProfitPerHourDisplayEveryFiveSeconds(_services.FarmingDuration.Elapsed);
-            _profitWindow.ProfitPanels.UpdateProfitPerHourDisplayEveryFiveSeconds(_services.FarmingDuration.Elapsed);
-            _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
+
+            if (_profitPerHourUpdateInterval.HasEnded())
+            {
+                _services.ProfitCalculator.CalculateProfitPerHour(_services.FarmingDuration.Elapsed);
+                _profitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+            }
+
+            _elapsedFarmingTimeLabel.UpdateTimeEverySecond(); // not sure if this can use Interval class, too. But it must not update when farming time is not running (happens when resetting?)
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
             {
@@ -514,5 +518,6 @@ namespace FarmingTracker
         public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
         public const string ITEMS_PANEL_TITLE = "Items";
         private const string CURRENCIES_PANEL_TITLE = "Currencies";
+        private readonly Interval _profitPerHourUpdateInterval = new Interval(TimeSpan.FromMilliseconds(5000));
     }
 }

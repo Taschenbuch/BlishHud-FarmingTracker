@@ -39,6 +39,7 @@ namespace FarmingTracker
         public CsvFileExporter CsvFileExporter { get; }
         public FileLoader FileLoader { get; }
         public FileSaver FileSaver { get; }
+        public ProfitCalculator ProfitCalculator { get; } = new ProfitCalculator();
         public Drf Drf { get; }
         public FarmingDuration FarmingDuration { get; }
         public UpdateLoop UpdateLoop { get; } = new UpdateLoop();

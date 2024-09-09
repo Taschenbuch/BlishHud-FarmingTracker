@@ -5,6 +5,21 @@ namespace FarmingTracker
 {
     public class ProfitCalculator
     {
+        public long ProfitInCopper { get; private set; }
+        public long ProfitPerHourInCopper { get; private set; }
+
+        public void CalculateProfitPerHour(TimeSpan elapsedFarmingTime)
+        {
+            ProfitPerHourInCopper = CalculateProfitPerHourInCopper(ProfitInCopper, elapsedFarmingTime);
+        }
+
+        public void CalculateProfits(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
+        {
+            var profitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
+            ProfitPerHourInCopper = CalculateProfitPerHourInCopper(profitInCopper, elapsedFarmingTime);
+            ProfitInCopper = profitInCopper;
+        }
+
         public static long CalculateTotalProfitInCopper(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds)
         {
             var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;

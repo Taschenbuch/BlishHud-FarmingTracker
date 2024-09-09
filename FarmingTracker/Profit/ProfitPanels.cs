@@ -1,8 +1,6 @@
 ﻿using Blish_HUD;
 using Blish_HUD.Controls;
 using MonoGame.Extended.BitmapFonts;
-using System;
-using System.Diagnostics;
 using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
@@ -29,8 +27,7 @@ namespace FarmingTracker
             _profitLabel = CreateProfitLabel(_profitTooltip, font, _profitPanel);
             _profitPerHourLabel = CreateProfitLabel(_profitTooltip, font, _profitPerHourPanel);
 
-            _stopwatch.Restart();
-            SetProfitAndProfitPerHour(0, 0);
+            ShowProfits(0, 0);
 
             services.SettingService.ProfitPerHourLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
             services.SettingService.ProfitLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
@@ -48,31 +45,11 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        public void UpdateProfitDisplay(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
-        {
-            var totalProfitInCopper = ProfitCalculator.CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
-            var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
-            SetProfitAndProfitPerHour(totalProfitInCopper, profitPerHourInCopper);
-        }
-
-        public void UpdateProfitPerHourDisplayEveryFiveSeconds(TimeSpan elapsedFarmingTime)
-        {
-            var time = _stopwatch.Elapsed;
-            var fiveSecondsHavePassed = time >= _oldTime + TimeSpan.FromSeconds(Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS);
-            if (fiveSecondsHavePassed)
-            {
-                var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(_profitInCopper, elapsedFarmingTime);
-                SetProfitAndProfitPerHour(_profitInCopper, profitPerHourInCopper);
-                _oldTime = time;
-            }
-        }
-
-        private void SetProfitAndProfitPerHour(long profitInCopper, long profitPerHourInCopper)
+        public void ShowProfits(long profitInCopper, long profitPerHourInCopper)
         {
             _profitPanel.SetCoins(profitInCopper);
             _profitPerHourPanel.SetCoins(profitPerHourInCopper);
             _profitTooltip.ProfitPerHourPanel.SetCoins(profitPerHourInCopper);
-            _profitInCopper = profitInCopper;
         }
 
         private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, CoinsPanel parent)
@@ -127,10 +104,7 @@ namespace FarmingTracker
         private readonly CoinsPanel _profitPerHourPanel;
         private readonly Label _profitLabel;
         private readonly Label _profitPerHourLabel;
-        private readonly Stopwatch _stopwatch = new Stopwatch();  // do not use elapsedFarmingTime, because it can be resetted and maybe other stuff in the future.
         private readonly SettingService _settingService;
         private readonly bool _isProfitWindow;
-        private TimeSpan _oldTime = TimeSpan.Zero;
-        private long _profitInCopper;
     }
 }
