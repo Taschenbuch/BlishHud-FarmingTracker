@@ -5,11 +5,15 @@ namespace FarmingTracker
 {
     public class Interval
     {
-        public Interval(TimeSpan intervalTimeSpan)
+        public Interval(TimeSpan intervalTimeSpan, bool firstIntervalEnded = false)
         {
             // do not store times as timespans. timespan has good readability as parameter, but bad performance for comparison and other operations.
-            _intervalInMilliseconds = intervalTimeSpan.TotalMilliseconds; 
-            UpdateIntervalEnd();
+            _intervalInMilliseconds = intervalTimeSpan.TotalMilliseconds;
+
+            if (firstIntervalEnded)
+                _intervalEndInMilliseconds = 0; // this will trigger that HasEnded() returns true;
+            else
+                UpdateIntervalEnd();
         }
 
         public bool HasEnded()

@@ -64,8 +64,6 @@ namespace FarmingTracker
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
-            _saveFarmingDurationRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
-            _automaticResetCheckRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (!_isUiUpdateTaskRunning && _services.UpdateLoop.HasToUpdateUi()) // short circuit method call to prevent resetting its bool
             {
@@ -82,16 +80,11 @@ namespace FarmingTracker
                 });
             }
 
-            if(_saveFarmingDurationRunningTimeMs > SAVE_FARMING_DURATION_INTERVAL_MS)
-            {
-                _saveFarmingDurationRunningTimeMs = 0;
+            if(_saveFarmingDurationInterval.HasEnded())
                 _services.FarmingDuration.SaveFarmingTime();
-            }
 
-            if (_automaticResetCheckRunningTimeMs > AUTOMATIC_RESET_CHECK_INTERVAL_MS)
+            if (_automaticResetCheckInterval.HasEnded())
             {
-                _automaticResetCheckRunningTimeMs = 0;
-
                 if (_automaticResetService.HasToResetAutomatically())
                     _resetState = ResetState.ResetRequired;
 
@@ -509,15 +502,13 @@ namespace FarmingTracker
         private readonly Services _services;
         private readonly AutomaticResetService _automaticResetService;
         private readonly StatsPanels _statsPanels = new StatsPanels();
-        private double _saveFarmingDurationRunningTimeMs;
         private CollapsibleHelp _collapsibleHelp;
-        private double _automaticResetCheckRunningTimeMs = AUTOMATIC_RESET_CHECK_INTERVAL_MS; // to enforce check right on module start
-        private readonly double SAVE_FARMING_DURATION_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
-        private const double AUTOMATIC_RESET_CHECK_INTERVAL_MS = 60_000;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
         public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
         public const string ITEMS_PANEL_TITLE = "Items";
         private const string CURRENCIES_PANEL_TITLE = "Currencies";
         private readonly Interval _profitPerHourUpdateInterval = new Interval(TimeSpan.FromMilliseconds(5000));
+        private readonly Interval _saveFarmingDurationInterval = new Interval(TimeSpan.FromMinutes(1));
+        private readonly Interval _automaticResetCheckInterval = new Interval(TimeSpan.FromMinutes(1), true); // end first interval to enforce check right on module start.
     }
 }
