@@ -8,8 +8,10 @@ namespace FarmingTracker
     {
         public CsvFileExporter(string moduleFolderPath)
         {
-            _moduleFolderPath = moduleFolderPath;
+            ModuleFolderPath = moduleFolderPath;
         }
+
+        public string ModuleFolderPath { get; }
 
         public async void ExportSummaryAsCsvFile(Model model)
         {
@@ -17,7 +19,7 @@ namespace FarmingTracker
             {
                 var csvFileText = CreateCsvFileText(model);
                 var csvFileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss_fff}.csv";
-                var csvFilePath = Path.Combine(_moduleFolderPath, csvFileName);
+                var csvFilePath = Path.Combine(ModuleFolderPath, csvFileName);
                 await FileSaveService.WriteFileAsync(csvFilePath, csvFileText);
             }
             catch (Exception exception)
@@ -49,6 +51,5 @@ namespace FarmingTracker
             return csvFileText;
         }
 
-        private readonly string _moduleFolderPath = "";
     }
 }
