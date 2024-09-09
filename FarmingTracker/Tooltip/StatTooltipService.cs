@@ -120,14 +120,14 @@ namespace FarmingTracker
                 // TP Sell profit
                 var tpSellProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpSellProfitPanel = new CoinsPanel(null, font, services.TextureService, tpSellProfitContainer, ROW_HEIGHT);
-                tpSellProfitPanel.SetProfit(stat.CountSign * profit.TpSellProfitInCopper);
+                tpSellProfitPanel.SetCoins(stat.CountSign * profit.TpSellProfitInCopper);
                 profitPanels.Add(tpSellProfitPanel);
                 containers.Add(tpSellProfitContainer);
 
                 // TP Buy profit
                 var tpBuyProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpBuyProfitPanel = new CoinsPanel(null, font, services.TextureService, tpBuyProfitContainer, ROW_HEIGHT);
-                tpBuyProfitPanel.SetProfit(stat.CountSign * profit.TpBuyProfitInCopper);
+                tpBuyProfitPanel.SetCoins(stat.CountSign * profit.TpBuyProfitInCopper);
                 profitPanels.Add(tpBuyProfitPanel);
                 containers.Add(tpBuyProfitContainer);
             }
@@ -137,7 +137,7 @@ namespace FarmingTracker
                 // Vendor profit
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
-                vendorProfitPanel.SetProfit(stat.CountSign * profit.VendorProfitInCopper);
+                vendorProfitPanel.SetCoins(stat.CountSign * profit.VendorProfitInCopper);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);
             }
