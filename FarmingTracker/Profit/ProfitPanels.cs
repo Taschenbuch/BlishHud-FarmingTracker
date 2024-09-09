@@ -3,7 +3,6 @@ using Blish_HUD.Controls;
 using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
