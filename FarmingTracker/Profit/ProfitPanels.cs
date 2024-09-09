@@ -62,8 +62,7 @@ namespace FarmingTracker
             if (fiveSecondsHavePassed)
             {
                 var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(_profitInCopper, elapsedFarmingTime);
-                _profitPerHourPanel.SetCoins(profitPerHourInCopper);
-                _profitTooltip.ProfitPerHourPanel.SetCoins(profitPerHourInCopper);
+                SetProfitAndProfitPerHour(_profitInCopper, profitPerHourInCopper);
                 _oldTime = time;
             }
         }
