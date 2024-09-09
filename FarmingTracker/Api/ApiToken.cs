@@ -46,8 +46,8 @@ namespace FarmingTracker
             {
                 ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2 => 
                     "Log into character!",
-                ApiTokenState.ApiTokenMissing => 
-                    $"Add GW2 API key!",
+                ApiTokenState.ApiTokenMissing =>
+                    ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT,
                 ApiTokenState.RequiredPermissionsMissing => 
                     "Missing GW2 API key permissions!",
                 _ => 
@@ -88,5 +88,7 @@ namespace FarmingTracker
             TokenPermission.Builds,
             TokenPermission.Tradingpost,
         }.AsReadOnly();
+
+        public const string ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT = "Add GW2 API key!";
     }
 }

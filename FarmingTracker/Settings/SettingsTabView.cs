@@ -65,20 +65,19 @@ namespace FarmingTracker
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
-            var profitSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit");
-            new SettingControl(profitSettingsFlowPanel, _services.SettingService.TotalProfitLabelTextSetting);
-            new SettingControl(profitSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
-
             var profitWindowSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit window");
             new FixedWidthHintLabel(
                 profitWindowSettingsFlowPanel,
                 LABEL_WIDTH, // -20 as a buffer because wrapping sometimes cut off text.
-                "A small window which shows the profit. Is is permanently visible even when the main farming tracker window is not visible.");
+                "A small window which shows the profit. It is permanently visible even when the main farming tracker window is not visible.");
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.IsProfitWindowVisibleSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.DragProfitWindowWithMouseIsEnabledSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowCanBeClickedThroughSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.WindowAnchorSetting);
             new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowBackgroundOpacitySetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitWindowDisplayModeSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitLabelTextSetting);
+            new SettingControl(profitWindowSettingsFlowPanel, _services.SettingService.ProfitPerHourLabelTextSetting);
 
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged += OnSettingChanged;
@@ -311,7 +310,18 @@ namespace FarmingTracker
             new HeaderLabel(addDrfTokenFlowPanel, "TROUBLESHOOTING", headerFont);
 
             AddVerticalSpacing(_services, addDrfTokenFlowPanel);
-            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' shows 'Authentication failed':", font);
+            new HeaderLabel(addDrfTokenFlowPanel, $"Module shows '{ApiToken.ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT}' but BlishHUD already has API key", font);
+            new FixedWidthHintLabel(
+                addDrfTokenFlowPanel,
+                LABEL_WIDTH,
+                "Sometimes BlishHUD fails to give a module access to the GW2 API key. " +
+                "That can be caused by a GW2 API timeout when BlishHUD is starting or for other unknown reasons. " +
+                "Possible workarounds:\n" +
+                "- Restart BlishHUD.\n" +
+                "- disable the module, wait a few seconds, then enable the module again.");
+
+            AddVerticalSpacing(_services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, $"'{DRF_CONNECTION_LABEL_TEXT}' shows 'Authentication failed'", font);
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 LABEL_WIDTH,

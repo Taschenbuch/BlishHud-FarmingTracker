@@ -20,8 +20,8 @@ namespace FarmingTracker
             DateTimeService = dateTimeService;
             TextureService = new TextureService(contentsManager);
             CsvFileExporter = new CsvFileExporter(moduleFolderPath);
-            FileLoadService = new FileLoadService(modelFilePath);
-            FileSaveService = new FileSaveService(modelFilePath);
+            FileLoader = new FileLoader(modelFilePath);
+            FileSaver = new FileSaver(modelFilePath);
             Drf = new Drf(settingService);
             FarmingDuration = new FarmingDuration(settingService);
         }
@@ -37,8 +37,9 @@ namespace FarmingTracker
         public SettingService SettingService { get; }
         public TextureService TextureService { get; }
         public CsvFileExporter CsvFileExporter { get; }
-        public FileLoadService FileLoadService { get; }
-        public FileSaveService FileSaveService { get; }
+        public FileLoader FileLoader { get; }
+        public FileSaver FileSaver { get; }
+        public ProfitCalculator ProfitCalculator { get; } = new ProfitCalculator();
         public Drf Drf { get; }
         public FarmingDuration FarmingDuration { get; }
         public UpdateLoop UpdateLoop { get; } = new UpdateLoop();

@@ -64,8 +64,6 @@ namespace FarmingTracker
         public void Update(GameTime gameTime)
         {
             _services.UpdateLoop.AddToRunningTime(gameTime.ElapsedGameTime.TotalMilliseconds);
-            _saveFarmingDurationRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
-            _automaticResetCheckRunningTimeMs += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (!_isUiUpdateTaskRunning && _services.UpdateLoop.HasToUpdateUi()) // short circuit method call to prevent resetting its bool
             {
@@ -73,26 +71,20 @@ namespace FarmingTracker
                 Task.Run(() =>
                 {
                     var snapshot = _model.StatsSnapshot;
-                    var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
-                    var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
-                    _profitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
-                    _profitWindow.ProfitPanels.UpdateProfitLabels(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _profitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                    _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     UiUpdater.UpdateStatPanels(_statsPanels, snapshot, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
                 });
             }
 
-            if(_saveFarmingDurationRunningTimeMs > SAVE_FARMING_DURATION_INTERVAL_MS)
-            {
-                _saveFarmingDurationRunningTimeMs = 0;
+            if(_saveFarmingDurationInterval.HasEnded())
                 _services.FarmingDuration.SaveFarmingTime();
-            }
 
-            if (_automaticResetCheckRunningTimeMs > AUTOMATIC_RESET_CHECK_INTERVAL_MS)
+            if (_automaticResetCheckInterval.HasEnded())
             {
-                _automaticResetCheckRunningTimeMs = 0;
-
                 if (_automaticResetService.HasToResetAutomatically())
                     _resetState = ResetState.ResetRequired;
 
@@ -130,16 +122,21 @@ namespace FarmingTracker
 
                     Task.Run(async () =>
                     {
-                        await _services.FileSaveService.SaveModelToFile(_model);
+                        await _services.FileSaver.SaveModelToFile(_model);
                         _isTaskRunning = false;
                     });
                     // do not return here because saving the model should not disturb other parts of Update().
                 }
             }
-            
-            _profitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
-            _profitWindow.ProfitPanels.UpdateProfitPerHourEveryFiveSeconds(_services.FarmingDuration.Elapsed);
-            _elapsedFarmingTimeLabel.UpdateTimeEverySecond();
+
+            if (_profitPerHourUpdateInterval.HasEnded())
+            {
+                _services.ProfitCalculator.CalculateProfitPerHour(_services.FarmingDuration.Elapsed);
+                _profitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+            }
+
+            _elapsedFarmingTimeLabel.UpdateTimeEverySecond(); // not sure if this can use Interval class, too. But it must not update when farming time is not running (happens when resetting?)
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
             {
@@ -319,7 +316,7 @@ namespace FarmingTracker
 
             CreateHelpResetDrfButtons();
             CreateTimeAndHintLabels();
-            _profitPanels = new ProfitPanels(_services, _farmingRootFlowPanel);
+            _profitPanels = new ProfitPanels(_services, false, _farmingRootFlowPanel);
             _searchPanel = new SearchPanel(_services, _farmingRootFlowPanel);
             CreateStatsPanels(_farmingRootFlowPanel);
 
@@ -473,7 +470,7 @@ namespace FarmingTracker
             var csvExportButton = new StandardButton()
             {
                 Text = "Export CSV",
-                BasicTooltipText = "Export tracked items and currencies to 'Documents\\Guild Wars 2\\addons\\blishhud\\farming-tracker\\<date-time>.csv'.\n" +
+                BasicTooltipText = $"Export tracked items and currencies to '{_services.CsvFileExporter.ModuleFolderPath}\\<date-time>.csv'.\n" +
                 "This feature can be used to import the tracked items/currencies in Microsoft Excel for example.",
                 Width = 90,
                 Parent = subButtonFlowPanel,
@@ -505,14 +502,13 @@ namespace FarmingTracker
         private readonly Services _services;
         private readonly AutomaticResetService _automaticResetService;
         private readonly StatsPanels _statsPanels = new StatsPanels();
-        private double _saveFarmingDurationRunningTimeMs;
         private CollapsibleHelp _collapsibleHelp;
-        private double _automaticResetCheckRunningTimeMs = AUTOMATIC_RESET_CHECK_INTERVAL_MS; // to enforce check right on module start
-        private readonly double SAVE_FARMING_DURATION_INTERVAL_MS = TimeSpan.FromMinutes(1).TotalMilliseconds;
-        private const double AUTOMATIC_RESET_CHECK_INTERVAL_MS = 60_000;
         public const string GW2_API_ERROR_HINT = "GW2 API error";
         public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
         public const string ITEMS_PANEL_TITLE = "Items";
         private const string CURRENCIES_PANEL_TITLE = "Currencies";
+        private readonly Interval _profitPerHourUpdateInterval = new Interval(TimeSpan.FromMilliseconds(5000));
+        private readonly Interval _saveFarmingDurationInterval = new Interval(TimeSpan.FromMinutes(1));
+        private readonly Interval _automaticResetCheckInterval = new Interval(TimeSpan.FromMinutes(1), true); // end first interval to enforce check right on module start.
     }
 }

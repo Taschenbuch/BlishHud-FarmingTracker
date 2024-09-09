@@ -4,12 +4,12 @@ using MonoGame.Extended.BitmapFonts;
 
 namespace FarmingTracker
 {
-    public class ProfitPanel : FlowPanel
+    public class CoinsPanel : FlowPanel
     {
-        public ProfitPanel(string tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
+        public CoinsPanel(Tooltip tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
-            BasicTooltipText = tooltip;
+            Tooltip = tooltip;
             WidthSizingMode = SizingMode.AutoSize;
 
             if(height > 0)
@@ -25,7 +25,7 @@ namespace FarmingTracker
             {
                 FlowDirection = ControlFlowDirection.SingleLeftToRight,
                 ControlPadding = new Vector2(5, 0),
-                BasicTooltipText = tooltip,
+                Tooltip = tooltip,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = this,
@@ -36,9 +36,9 @@ namespace FarmingTracker
             _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, coinsFlowPanel);
         }
 
-        public void SetProfit(long profitInCopper)
+        public void SetCoins(long coinsInCopper)
         {
-            var coin = new Coin(profitInCopper);
+            var coin = new Coin(coinsInCopper);
 
             _signLabel.SetSign(coin.Sign); // always show sign label to prevent moving it to the end accidently
             // order of setting gold, silver, copper is important because parent is flowpanel!

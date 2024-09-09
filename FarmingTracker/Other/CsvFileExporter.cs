@@ -8,8 +8,10 @@ namespace FarmingTracker
     {
         public CsvFileExporter(string moduleFolderPath)
         {
-            _moduleFolderPath = moduleFolderPath;
+            ModuleFolderPath = moduleFolderPath;
         }
+
+        public string ModuleFolderPath { get; }
 
         public async void ExportSummaryAsCsvFile(Model model)
         {
@@ -17,8 +19,8 @@ namespace FarmingTracker
             {
                 var csvFileText = CreateCsvFileText(model);
                 var csvFileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss_fff}.csv";
-                var csvFilePath = Path.Combine(_moduleFolderPath, csvFileName);
-                await FileSaveService.WriteFileAsync(csvFilePath, csvFileText);
+                var csvFilePath = Path.Combine(ModuleFolderPath, csvFileName);
+                await FileSaver.WriteFileAsync(csvFilePath, csvFileText);
             }
             catch (Exception exception)
             {
@@ -38,7 +40,7 @@ namespace FarmingTracker
             for (int i = 0; i < linesCount; i++)
             {
                 csvFileText += i < items.Count
-                    ? $"{items[i].ApiId},{items[i].Details.Name},{items[i].Count},"
+                    ? $"{items[i].ApiId},{EscapeCsvField(items[i].Details.Name)},{items[i].Count},"
                     : ",,,";
 
                 csvFileText += i < currencies.Count
@@ -49,6 +51,16 @@ namespace FarmingTracker
             return csvFileText;
         }
 
-        private readonly string _moduleFolderPath = "";
+        // add quote before every quote.
+        // then wrap everything in quotes. This handles comma (,) inside the field, too.
+        // e.g.:
+        // BEFORE: Story Unlock: "The Dragon's Reach, Part 2"
+        // AFTER: "Story Unlock: ""The Dragon's Reach, Part 2"""
+        // Excel seem to have no issues with special characters like slashes and stuff.
+        private static string EscapeCsvField(string field)
+        {
+            var csvEscapedField = field.Replace("\"", "\"\""); 
+            return $"\"{csvEscapedField}\""; 
+        }
     }
 }
