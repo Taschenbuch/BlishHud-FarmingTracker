@@ -14,20 +14,21 @@ namespace FarmingTracker
         {
             _settingService = services.SettingService;
             _isProfitWindow = isProfitWindow;
+            _profitTooltip = new ProfitTooltip(services);
 
+            Tooltip = _profitTooltip;
             FlowDirection = ControlFlowDirection.SingleTopToBottom;
             WidthSizingMode = SizingMode.AutoSize;
             HeightSizingMode = SizingMode.AutoSize;
             Parent = parent;
 
-            var profitTooltip = "Rough profit when selling everything to vendor and on trading post. Click help button for more info.";
             var font = services.FontService.Fonts[FontSize.Size16];
+            
+            _profitPanel = new ProfitPanel(_profitTooltip, font, services.TextureService, this);
+            _profitPerHourPanel = new ProfitPanel(_profitTooltip, font, services.TextureService, this);
 
-            _profitPanel = new ProfitPanel(profitTooltip, font, services.TextureService, this);
-            _profitPerHourPanel = new ProfitPanel(profitTooltip, font, services.TextureService, this);
-
-            _profitLabel = CreateProfitLabel(profitTooltip, font, _profitPanel);
-            _profitPerHourLabel = CreateProfitLabel(profitTooltip, font, _profitPerHourPanel);
+            _profitLabel = CreateProfitLabel(_profitTooltip, font, _profitPanel);
+            _profitPerHourLabel = CreateProfitLabel(_profitTooltip, font, _profitPerHourPanel);
 
             _stopwatch.Restart();
             SetTotalAndPerHourProfit(0, 0);
@@ -44,6 +45,7 @@ namespace FarmingTracker
             _settingService.ProfitPerHourLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
             _settingService.ProfitLabelTextSetting.SettingChanged -= OnProfitLabelTextSettingChanged;
             _settingService.ProfitWindowDisplayModeSetting.SettingChanged -= OnProfitWindowDisplayModeSettingChanged;
+            _profitTooltip?.Dispose();
             base.DisposeControl();
         }
 
@@ -62,6 +64,7 @@ namespace FarmingTracker
             {
                 var profitPerHourInCopper = CalculateProfitPerHourInCopper(_profitInCopper, elapsedFarmingTime);
                 _profitPerHourPanel.SetProfit(profitPerHourInCopper);
+                _profitTooltip.ProfitPerHourPanel.SetProfit(profitPerHourInCopper);
                 _oldTime = time;
             }
         }
@@ -70,6 +73,7 @@ namespace FarmingTracker
         {
             _profitPanel.SetProfit(profitInCopper);
             _profitPerHourPanel.SetProfit(profitPerHourInCopper);
+            _profitTooltip.ProfitPerHourPanel.SetProfit(profitPerHourInCopper);
             _profitInCopper = profitInCopper;
         }
 
@@ -112,12 +116,12 @@ namespace FarmingTracker
             return (long)profitPerHourInCopper;
         }
 
-        private Label CreateProfitLabel(string profitTooltip, BitmapFont font, ProfitPanel parent)
+        private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, ProfitPanel parent)
         {
             return new Label
             {
                 Font = font,
-                BasicTooltipText = profitTooltip,
+                Tooltip = profitTooltip,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Parent = parent,
@@ -159,6 +163,7 @@ namespace FarmingTracker
             }
         }
 
+        private readonly ProfitTooltip _profitTooltip;
         private readonly ProfitPanel _profitPanel;
         private readonly ProfitPanel _profitPerHourPanel;
         private readonly Label _profitLabel;
