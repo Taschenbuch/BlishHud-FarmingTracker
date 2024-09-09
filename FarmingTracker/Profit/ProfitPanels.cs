@@ -30,7 +30,7 @@ namespace FarmingTracker
             _profitPerHourLabel = CreateProfitLabel(_profitTooltip, font, _profitPerHourPanel);
 
             _stopwatch.Restart();
-            SetTotalAndPerHourProfit(0, 0);
+            SetProfitAndProfitPerHour(0, 0);
 
             services.SettingService.ProfitPerHourLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
             services.SettingService.ProfitLabelTextSetting.SettingChanged += OnProfitLabelTextSettingChanged;
@@ -52,7 +52,7 @@ namespace FarmingTracker
         {
             var totalProfitInCopper = ProfitCalculator.CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
             var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
-            SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
+            SetProfitAndProfitPerHour(totalProfitInCopper, profitPerHourInCopper);
         }
 
         public void UpdateProfitPerHourDisplayEveryFiveSeconds(TimeSpan elapsedFarmingTime)
@@ -68,7 +68,7 @@ namespace FarmingTracker
             }
         }
 
-        private void SetTotalAndPerHourProfit(long profitInCopper, long profitPerHourInCopper)
+        private void SetProfitAndProfitPerHour(long profitInCopper, long profitPerHourInCopper)
         {
             _profitPanel.SetProfit(profitInCopper);
             _profitPerHourPanel.SetProfit(profitPerHourInCopper);
