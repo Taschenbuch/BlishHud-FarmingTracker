@@ -51,8 +51,8 @@ namespace FarmingTracker
 
         public void UpdateProfitLabels(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
-            var totalProfitInCopper = CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
-            var profitPerHourInCopper = CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
+            var totalProfitInCopper = ProfitCalculator.CalculateTotalProfitInCopper(snapshot, ignoredItemApiIds);
+            var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(totalProfitInCopper, elapsedFarmingTime);
             SetTotalAndPerHourProfit(totalProfitInCopper, profitPerHourInCopper);
         }
 
@@ -62,7 +62,7 @@ namespace FarmingTracker
             var fiveSecondsHavePassed = time >= _oldTime + TimeSpan.FromSeconds(Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS);
             if (fiveSecondsHavePassed)
             {
-                var profitPerHourInCopper = CalculateProfitPerHourInCopper(_profitInCopper, elapsedFarmingTime);
+                var profitPerHourInCopper = ProfitCalculator.CalculateProfitPerHourInCopper(_profitInCopper, elapsedFarmingTime);
                 _profitPerHourPanel.SetProfit(profitPerHourInCopper);
                 _profitTooltip.ProfitPerHourPanel.SetProfit(profitPerHourInCopper);
                 _oldTime = time;
@@ -75,45 +75,6 @@ namespace FarmingTracker
             _profitPerHourPanel.SetProfit(profitPerHourInCopper);
             _profitTooltip.ProfitPerHourPanel.SetProfit(profitPerHourInCopper);
             _profitInCopper = profitInCopper;
-        }
-
-        private static long CalculateTotalProfitInCopper(StatsSnapshot snapshot, SafeList<int> ignoredItemApiIds)
-        {
-            var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-            
-            var ignoredItemApiIdsCopy = ignoredItemApiIds.ToListSafe();
-            var itemsSellProfitInCopper = snapshot.ItemById.Values
-                .Where(s => !ignoredItemApiIdsCopy.Contains(s.ApiId))
-                .Sum(s => s.CountSign * s.Profits.All.MaxProfitInCopper);
-
-            var totalProfit = coinsInCopper + itemsSellProfitInCopper;
-
-            if(Module.DebugEnabled)
-                Module.Logger.Debug(
-                    $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
-                    $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
-
-            return totalProfit;
-        }
-
-        private static long CalculateProfitPerHourInCopper(long totalProfitInCopper, TimeSpan elapsedFarmingTime)
-        {
-            if (totalProfitInCopper == 0)
-                return 0;
-
-            var sessionJustStarted = elapsedFarmingTime.TotalSeconds < 1;
-            if (sessionJustStarted) // otherwise value per hour would be inflated
-                return 0;
-
-            var profitPerHourInCopper = totalProfitInCopper / elapsedFarmingTime.TotalHours;
-
-            if (profitPerHourInCopper > long.MaxValue)
-                return long.MaxValue;
-
-            if (profitPerHourInCopper <= long.MinValue)
-                return long.MinValue + 1; // hack: +1 to prevent that Math.Abs() crashes, because (-1 * long.MinValue) is bigger than long.MaxValue.
-
-            return (long)profitPerHourInCopper;
         }
 
         private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, CoinsPanel parent)
