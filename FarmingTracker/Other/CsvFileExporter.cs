@@ -30,12 +30,12 @@ namespace FarmingTracker
 
         private static string CreateCsvFileText(Model model)
         {
-            var csvFileText = "item_id,item_name,item_amount,currency_id,currency_amount\n";
-
             var snapShot = model.StatsSnapshot;
             var items = snapShot.ItemById.Values.Where(s => s.Count != 0).ToList();
             var currencies = snapShot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
             var linesCount = Math.Max(items.Count, currencies.Count);
+
+            var csvFileText = "item_id,item_name,item_amount,currency_id,currency_amount\n";
 
             for (int i = 0; i < linesCount; i++)
             {
