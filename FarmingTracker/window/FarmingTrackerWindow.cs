@@ -87,7 +87,7 @@ namespace FarmingTracker
         private readonly SummaryTabView _summaryTabView;
         private readonly Tab _summaryTab;
         private readonly Tab _settingsTab;
-        private ProfitWindow _profitWindow;
+        private readonly ProfitWindow _profitWindow;
         public const string SUMMARY_TAB_TITLE = "Summary";
         private const string TIMELINE_TAB_TITLE = "Timeline";
         private const string FILTER_TAB_TITLE = "Filter";

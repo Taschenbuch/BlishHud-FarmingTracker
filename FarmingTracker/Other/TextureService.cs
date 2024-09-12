@@ -25,13 +25,13 @@ namespace FarmingTracker
             CopperCoinTexture = contentsManager.GetTexture("coin-copper.png");
             OpenLinkTexture = contentsManager.GetTexture("open-link.png");
             FallbackTexture = contentsManager.GetTexture("fallback_157084.png");
+            DebugTabIconTexture = contentsManager.GetTexture("debug-tab-icon.png");
 
             // NO dispose allowed:
             SmallGoldCoinTexture = GetTextureFromAssetCacheOrFallback(156904);
             SmallSilverCoinTexture = GetTextureFromAssetCacheOrFallback(156907);
             SmallCopperCoinTexture = GetTextureFromAssetCacheOrFallback(156902);
             SettingsTabIconTexture = GetTextureFromAssetCacheOrFallback(156737);
-            DebugTabIconTexture = GetTextureFromAssetCacheOrFallback(440025);
             WindowBackgroundTexture = GetTextureFromAssetCacheOrFallback(155997);
             InventorySlotBackgroundTexture = GetTextureFromAssetCacheOrFallback(1318622);
             MerchantTexture = GetTextureFromAssetCacheOrFallback(156761);
@@ -53,6 +53,7 @@ namespace FarmingTracker
             CopperCoinTexture?.Dispose();
             OpenLinkTexture?.Dispose();
             FallbackTexture?.Dispose();
+            DebugTabIconTexture?.Dispose();
         }
 
         public static int GetIconAssetId(RenderUrl icon)
