@@ -6,7 +6,9 @@ namespace FarmingTracker
     public class Constants
     {
         public const int PANEL_WIDTH = 500; // prevents overlap with window scrollbar
+        public const int LABEL_WIDTH = PANEL_WIDTH - 20;
         public const int SCROLLBAR_WIDTH_OFFSET = 30;
+        public const string DRF_CONNECTION_LABEL_TEXT = "DRF Server Connection";
         public const string UPDATING_HINT_TEXT = "Updating...";
         public const string RESETTING_HINT_TEXT = "Resetting...";
         public const string FULL_HEIGHT_EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else
