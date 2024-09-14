@@ -41,6 +41,7 @@ namespace FarmingTracker
             Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, () => new PlaceholderTabView(TIMELINE_TAB_TITLE), TIMELINE_TAB_TITLE));
             Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), FILTER_TAB_TITLE));
             Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), SORT_TAB_TITLE));
+            Tabs.Add(new Tab(services.TextureService.CustomStatProfitTabIconTexture, () => new PlaceholderTabView(CUSTOM_STAT_PROFIT_TAB_TITLE), CUSTOM_STAT_PROFIT_TAB_TITLE));
             Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), IGNORED_ITEMS_TAB_TITLE));
             Tabs.Add(_settingsTab);
 
@@ -93,6 +94,7 @@ namespace FarmingTracker
         private const string FILTER_TAB_TITLE = "Filter";
         private const string SORT_TAB_TITLE = "Sort Items";
         public const string IGNORED_ITEMS_TAB_TITLE = "Ignored Items";
+        private const string CUSTOM_STAT_PROFIT_TAB_TITLE = "Custom Item/Currency Profit";
         private const string SETTINGS_TAB_TITLE = "Settings";
         private const string DEBUG_TAB_TITLE = "Debug";
     }

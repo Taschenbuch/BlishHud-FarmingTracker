@@ -17,6 +17,7 @@ namespace FarmingTracker
             SortTabIconTexture = contentsManager.GetTexture("sort-tab-icon.png");
             TimelineTabIconTexture = contentsManager.GetTexture("timeline-tab-icon.png");
             SummaryTabIconTexture = contentsManager.GetTexture("summary-tab-icon.png");
+            CustomStatProfitTabIconTexture = contentsManager.GetTexture("custom-stat-profit-tab-icon.png");
             IgnoredItemsTabIconTexture = contentsManager.GetTexture("ignored-items-tab-icon.png");
             CornerIconTexture = contentsManager.GetTexture("corner-icon.png");
             CornerIconHoverTexture = contentsManager.GetTexture("corner-icon-hover.png");
@@ -45,6 +46,7 @@ namespace FarmingTracker
             SortTabIconTexture?.Dispose();
             TimelineTabIconTexture?.Dispose();
             SummaryTabIconTexture?.Dispose();
+            CustomStatProfitTabIconTexture?.Dispose();
             IgnoredItemsTabIconTexture?.Dispose();
             CornerIconTexture?.Dispose();
             CornerIconHoverTexture?.Dispose();
@@ -84,6 +86,7 @@ namespace FarmingTracker
         public Texture2D SortTabIconTexture { get; }
         public Texture2D TimelineTabIconTexture { get; }
         public Texture2D SummaryTabIconTexture { get; }
+        public Texture2D CustomStatProfitTabIconTexture { get; }
         public Texture2D IgnoredItemsTabIconTexture { get; }
         public Texture2D CornerIconTexture { get; }
         public Texture2D CornerIconHoverTexture { get; }
