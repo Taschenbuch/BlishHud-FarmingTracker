@@ -15,14 +15,14 @@ namespace FarmingTracker
 
         protected override void Unload()
         {
-            _ignoredItemsFlowPanel?.Dispose();
-            _ignoredItemsFlowPanel = null;
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
             base.Unload();
         }
 
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -44,14 +44,14 @@ namespace FarmingTracker
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
-                rootFlowPanel);
+                _rootFlowPanel);
 
             buildPanel.ContentResized += (s, e) =>
             {
                 collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET);
             };
 
-            var flowPanelWithButtonContainer = new AutoSizeContainer(rootFlowPanel);
+            var flowPanelWithButtonContainer = new AutoSizeContainer(_rootFlowPanel);
 
             var ignoredItemsWrapperFlowPanel = new FlowPanel
             {
@@ -74,7 +74,7 @@ namespace FarmingTracker
 
             var hintLabel = new HintLabel(ignoredItemsWrapperFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
-            _ignoredItemsFlowPanel = new FlowPanel
+            var ignoredItemsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 HeightSizingMode = SizingMode.AutoSize,
@@ -106,12 +106,12 @@ namespace FarmingTracker
             hintLabel.Text = $"{Constants.HINT_IN_PANEL_PADDING}Left click an item to unignore it.";
 
             foreach (var ignoredItem in ignoredItems)
-                ShowIgnoredItem(ignoredItem, _model, _services, hintLabel, _ignoredItemsFlowPanel);
+                ShowIgnoredItem(ignoredItem, _model, _services, hintLabel, ignoredItemsFlowPanel);
 
             unignoreAllButton.Enabled = true;
             unignoreAllButton.Click += (sender, args) =>
             {
-                foreach (var statContainer in _ignoredItemsFlowPanel.Children.ToList())
+                foreach (var statContainer in ignoredItemsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
                 
                 _model.IgnoredItemApiIds.ClearSafe();
@@ -166,7 +166,7 @@ namespace FarmingTracker
 
         private readonly Model _model;
         private readonly Services _services;
-        private FlowPanel _ignoredItemsFlowPanel;
+        private FlowPanel _rootFlowPanel;
         private const string IGNORED_ITEMS_PANEL_TITLE = "Ignored Items";
     }
 }

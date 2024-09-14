@@ -14,10 +14,17 @@ namespace FarmingTracker
             _model = model;
             _services = services;
         }
-        
+
+        protected override void Unload()
+        {
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
+            base.Unload();
+        }
+
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -28,14 +35,14 @@ namespace FarmingTracker
             };
 
             new HintLabel(
-                rootFlowPanel,
+                _rootFlowPanel,
                 "If you can see this tab, you are running a debug instead of a release version of this module.\n" +
                 "Do not change any settings here. They will not speed up or improve anything.\n" +
                 "They will rather break the module.\n" +
                 "This tab just helps the developer to test the module. :-)");
 
-            CreateDrfDebugPanel(rootFlowPanel);
-            _services.DateTimeService.CreateDateTimeDebugPanel(rootFlowPanel);
+            CreateDrfDebugPanel(_rootFlowPanel);
+            _services.DateTimeService.CreateDateTimeDebugPanel(_rootFlowPanel);
         }
 
         private void CreateDrfDebugPanel(Container parent)
@@ -90,5 +97,6 @@ namespace FarmingTracker
 
         private readonly Model _model;
         private readonly Services _services;
+        private FlowPanel _rootFlowPanel;
     }
 }

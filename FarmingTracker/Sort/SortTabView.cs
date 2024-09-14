@@ -13,9 +13,16 @@ namespace FarmingTracker
             _services = services;
         }
 
+        protected override void Unload()
+        {
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
+            base.Unload();
+        }
+
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -39,7 +46,7 @@ namespace FarmingTracker
                 "Because of that it will create groups where each group consists of only 1 item. " +
                 "Single item groups cannot be further sorted. Because of that every 'then by' sort after an API ID / NAME sort, will have no effect.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
-                rootFlowPanel);
+                _rootFlowPanel);
 
             buildPanel.ContentResized += (s, e) =>
             {
@@ -53,14 +60,14 @@ namespace FarmingTracker
                 Width = Constants.PANEL_WIDTH,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _rootFlowPanel
             };
 
             var addNewSortButton = new StandardButton
             {
                 Text = "+ Add sort",
                 Width = 90,
-                Parent = rootFlowPanel
+                Parent = _rootFlowPanel
             };
 
             var sortPanels = new List<SortPanel>();
@@ -134,5 +141,6 @@ namespace FarmingTracker
 
 
         private readonly Services _services;
+        private FlowPanel _rootFlowPanel;
     }
 }

@@ -17,7 +17,8 @@ namespace FarmingTracker
 
         protected override void Unload()
         {
-            _automaticResetSettingsPanel?.Dispose();
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
             _services.Drf.DrfConnectionStatusChanged -= OnDrfConnectionStatusChanged;
             _services.SettingService.CountBackgroundOpacitySetting.SettingChanged -= OnSettingChanged;
             _services.SettingService.CountBackgroundColorSetting.SettingChanged -= OnSettingChanged;
@@ -33,7 +34,7 @@ namespace FarmingTracker
 
         protected override async void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -44,15 +45,15 @@ namespace FarmingTracker
             };
 
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
-            CreateDrfConnectionStatusLabel(font, rootFlowPanel);
+            CreateDrfConnectionStatusLabel(font, _rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
-            CreateSetupDrfTokenPanel(font, rootFlowPanel);
+            CreateSetupDrfTokenPanel(font, _rootFlowPanel);
 
-            var miscSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Misc");
+            var miscSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Misc");
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            _automaticResetSettingsPanel = new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
+            var automaticResetSettingsPanel = new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
             
-            var countSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Count");
+            var countSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Count");
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.PositiveCountTextColorSetting);
@@ -60,12 +61,12 @@ namespace FarmingTracker
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
             
-            var iconSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Icon");
+            var iconSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Icon");
             CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.RarityIconBorderIsVisibleSetting);
 
-            var profitWindowSettingsFlowPanel = new SettingsFlowPanel(rootFlowPanel, "Profit window");
+            var profitWindowSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Profit window");
             new FixedWidthHintLabel(
                 profitWindowSettingsFlowPanel,
                 Constants.LABEL_WIDTH, // -20 as a buffer because wrapping sometimes cut off text.
@@ -264,6 +265,6 @@ namespace FarmingTracker
 
         private readonly Services _services;
         private Label _drfConnectionStatusValueLabel;
-        private AutomaticResetSettingsPanel _automaticResetSettingsPanel;
+        private FlowPanel _rootFlowPanel;
     }
 }
