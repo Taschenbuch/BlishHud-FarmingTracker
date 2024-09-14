@@ -43,9 +43,9 @@ namespace FarmingTracker
             Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), SORT_TAB_TITLE));
             Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), IGNORED_ITEMS_TAB_TITLE));
             Tabs.Add(_settingsTab);
-#if DEBUG
-            Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(model, services), DEBUG_TAB_TITLE));
-#endif
+
+            if(DebugMode.VisualStudioRunningInDebugMode)
+                Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(model, services), DEBUG_TAB_TITLE));
         }
 
         protected override void DisposeControl()

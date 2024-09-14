@@ -14,12 +14,6 @@ namespace FarmingTracker
     public class Module : Blish_HUD.Modules.Module
     {
         public static readonly Logger Logger = Logger.GetLogger<Module>();
-        public static bool DebugEnabled => _isDebugConfiguration || GameService.Debug.EnableDebugLogging.Value;
-#if DEBUG
-        private static readonly bool _isDebugConfiguration = true;
-#else 
-        private static bool _isDebugConfiguration = false;
-#endif
 
         internal SettingsManager SettingsManager => ModuleParameters.SettingsManager;
         internal ContentsManager ContentsManager => ModuleParameters.ContentsManager;

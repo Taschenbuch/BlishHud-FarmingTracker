@@ -31,7 +31,7 @@ namespace FarmingTracker
 
             var totalProfit = coinsInCopper + itemsSellProfitInCopper;
 
-            if (Module.DebugEnabled)
+            if (DebugMode.DebugLoggingRequired)
                 Module.Logger.Debug(
                     $"totalProfit {totalProfit} = coinsInCopper {coinsInCopper} + itemsSellProfitInCopper {itemsSellProfitInCopper} | " +
                     $"maxProfitsPerItem {string.Join(" ", snapshot.ItemById.Values.Select(s => s.CountSign * s.Profits.All.MaxProfitInCopper))}");
