@@ -12,12 +12,12 @@ namespace FarmingTracker
 {
     public class SummaryTabView : View, IDisposable
     {
-        public SummaryTabView(FarmingTrackerWindow farmingTrackerWindow, ProfitWindow profitWindow, Model model, Services services) 
+        public SummaryTabView(ProfitWindow profitWindow, Model model, Services services) 
         {
             _profitWindow = profitWindow;
             _model = model;
             _services = services;
-            _rootFlowPanel = CreateUi(farmingTrackerWindow);
+            _rootFlowPanel = CreateUi(services.FarmingTrackerWindow);
             var automaticResetService = new AutomaticResetService(services);
             _automaticResetService = automaticResetService;
 
@@ -59,7 +59,6 @@ namespace FarmingTracker
             _searchPanel.UpdateSize(width);
             _collapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
         }
-
 
         public void Update(GameTime gameTime)
         {

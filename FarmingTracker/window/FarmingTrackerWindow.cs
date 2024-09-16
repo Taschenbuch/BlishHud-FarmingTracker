@@ -32,7 +32,7 @@ namespace FarmingTracker
             };
 
             _profitWindow = new ProfitWindow(services);
-            var summaryTabView = new SummaryTabView(this, _profitWindow, model, services);
+            var summaryTabView = new SummaryTabView(_profitWindow, model, services);
             _summaryTabView = summaryTabView;
             _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, SUMMARY_TAB_TITLE);
             _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), SETTINGS_TAB_TITLE);
