@@ -124,7 +124,7 @@ namespace FarmingTracker
 
         private static void ShowIgnoredItem(Stat ignoredItem, Model model, Services services, HintLabel hintLabel, Container parent)
         {
-            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services)
+            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services)
             {
                 Parent = parent
             };
@@ -151,8 +151,7 @@ namespace FarmingTracker
 
             hintLabel.Text = 
                 $"{Constants.HINT_IN_PANEL_PADDING}No items are ignored.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore items by right clicking them\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab.";
+                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore an item by right clicking it in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab.";
         }
 
         private static void ShowLoadingHint(HintLabel hintLabel)

@@ -1,4 +1,5 @@
 ﻿using Blish_HUD.Controls;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -8,7 +9,8 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds, 
+            SafeList<int> favoriteItemApiIds,
+            SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             _wikiMenuItem = AddMenuItem("Open wiki");
@@ -37,6 +39,13 @@ namespace FarmingTracker
                 _removeFavoriteMenuItem.BasicTooltipText =
                     $"Move item from '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE}' to '{SummaryTabView.ITEMS_PANEL_TITLE} panel.";
             }
+
+            if(!stat.IsCoin && !stat.Details.IsCustomCoinStat)
+            {
+                _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab to edit or remove the custom profit.");
+                _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
+                _setCustomProfitMenuItem.BasicTooltipText = "test"; // todo x
+            }
         }
 
         protected override void DisposeControl()
@@ -45,7 +54,26 @@ namespace FarmingTracker
             _addFavoriteMenuItem?.Dispose();
             _ignoreMenuItem?.Dispose();
             _wikiMenuItem?.Dispose();
+            _setCustomProfitMenuItem?.Dispose();
             base.DisposeControl();
+        }
+
+        private void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
+        {
+            var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.ApiId == stat.ApiId && c.StatType == stat.StatType);
+
+            var customStatProfitAlreadyExists = matchingCustomStatProfit != null;
+            if (customStatProfitAlreadyExists)
+                matchingCustomStatProfit.CustomProfitInCopper = 0;
+            else
+            {
+                var customStatProfit = new CustomStatProfit(stat.ApiId, stat.StatType);
+                customStatProfits.AddSafe(customStatProfit);
+            }
+
+            services.UpdateLoop.TriggerUpdateUi(); // todo x okay?
+            services.UpdateLoop.TriggerSaveModel(); // todo x okay?
+            services.FarmingTrackerWindow.ShowWindowAndSelectCustomProfitTab();
         }
 
         private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
@@ -100,5 +128,6 @@ namespace FarmingTracker
         private readonly ContextMenuStripItem _ignoreMenuItem;
         private readonly ContextMenuStripItem _addFavoriteMenuItem;
         private readonly ContextMenuStripItem _removeFavoriteMenuItem;
+        private readonly ContextMenuStripItem _setCustomProfitMenuItem;
     }
 }

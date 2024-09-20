@@ -6,6 +6,7 @@ namespace FarmingTracker
     public class Stat
     {
         public int ApiId { get; set; }
+        public StatType StatType { get; set; }
         public long Count { get; set; }
         public long CountSign => Math.Sign(Count);
         public bool IsSingleItem => Math.Abs(Count) == 1;

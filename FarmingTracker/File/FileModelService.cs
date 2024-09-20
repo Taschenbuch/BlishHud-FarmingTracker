@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -8,13 +9,15 @@ namespace FarmingTracker
         {
             var model = new Model
             {
-                FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds)
+                FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds),
+                CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
             };
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
                 model.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
                     ApiId = fileCurrency.ApiId,
+                    StatType = StatType.Currency,
                     Count = fileCurrency.Count,
                 };
 
@@ -22,19 +25,27 @@ namespace FarmingTracker
                 model.ItemById[fileItem.ApiId] = new Stat
                 {
                     ApiId = fileItem.ApiId,
+                    StatType = StatType.Item,
                     Count = fileItem.Count,
                 };
             
             model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
 
+            // add customStatProfits to items and currenciens to get their api data on module startup
+            foreach (var customStatProfit in fileModel.CustomStatProfits)
+                switch (customStatProfit.StatType)
+                {
+                    case StatType.Item:
+                        AddStatIfMissing(model.ItemById, customStatProfit.ApiId, StatType.Item);
+                        break;
+                    case StatType.Currency:
+                        AddStatIfMissing(model.CurrencyById, customStatProfit.ApiId, StatType.Currency);
+                        break;
+                }
+
             // add ignoredItems to items to get their api data on module startup
             foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                if (!model.ItemById.ContainsKey(ignoredItemApiId))
-                    model.ItemById[ignoredItemApiId] = new Stat
-                    {
-                        ApiId = ignoredItemApiId,
-                        Count = 0,
-                    };
+                AddStatIfMissing(model.ItemById, ignoredItemApiId, StatType.Item);
 
             model.UpdateStatsSnapshot();
 
@@ -47,6 +58,7 @@ namespace FarmingTracker
             {
                 IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
                 FavoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(),
+                CustomStatProfits = model.CustomStatProfits.ToListSafe(),
             };
 
             var snapshot = model.StatsSnapshot;
@@ -76,6 +88,19 @@ namespace FarmingTracker
             }
 
             return fileModel;
+        }
+
+        private static void AddStatIfMissing(Dictionary<int, Stat> statById, int statId, StatType statType)
+        {
+            if (statById.ContainsKey(statId))
+                return;
+
+            statById[statId] = new Stat
+            {
+                ApiId = statId,
+                StatType = statType,
+                Count = 0,
+            };
         }
     }
 }
