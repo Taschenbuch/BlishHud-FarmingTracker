@@ -78,7 +78,14 @@ namespace FarmingTracker
                     ? items
                     : currencies;
 
-                var stat = stats.Single(s => s.ApiId == customStatProfit.ApiId && s.StatType == customStatProfit.StatType);
+                var stat = stats.SingleOrDefault(s => s.ApiId == customStatProfit.ApiId && s.StatType == customStatProfit.StatType);
+
+                if (stat == null)
+                {
+                    Module.Logger.Error($"Missing stat in model for customStatprofit id: {customStatProfit.ApiId}");
+                    continue;
+                }
+
                 CreateCustomStatProfitRow(customStatProfit, stat, hintLabel, _model, _services, statsFlowPanel);
             }
         }
@@ -96,7 +103,7 @@ namespace FarmingTracker
             };
         }
 
-        private static void CreateCustomStatProfitRow(
+        private static void CreateCustomStatProfitRow( // todo x als eigenes control extracten.
             CustomStatProfit customStatProfit, 
             Stat stat, 
             HintLabel hintLabel, 
@@ -113,7 +120,7 @@ namespace FarmingTracker
             var statRowPanel = new Panel
             {
                 BackgroundColor = Color.Black * 0.4f,
-                Width = 400, // todo x anpassen an max item name länge?
+                Width = 450, // to have some room for long german/french names.
                 Height = panelHeight,
                 Parent = parent
             };
@@ -137,19 +144,57 @@ namespace FarmingTracker
 
             var statNameLabel = new Label()
             {
-                Location = new Point(statImage.Right + 5, backgroundMargin + iconMargin),
+                Location = new Point(statImage.Right + 10, backgroundMargin + iconMargin),
                 Text = stat.Details.Name,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Parent = statRowPanel
             };
 
-            new TextBox
+            var goldTextBox = new NumberTextBox()
             {
-                Location = new Point(statImage.Right + 5, statNameLabel.Bottom + 5),
-                PlaceholderText = "Enter profit in copper...",
-                Width = 150, 
+                Location = new Point(statImage.Right + 10, statNameLabel.Bottom + 5),
+                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Width = 60, 
                 Parent = statRowPanel
+            };
+
+            var goldCoinImage = new Image(services.TextureService.SmallGoldCoinTexture)
+            {
+                Location = new Point(goldTextBox.Right, statNameLabel.Bottom + 5),
+                Size = new Point(goldTextBox.Height),
+                Parent = statRowPanel,
+            };
+
+            var silverTextBox = new NumberTextBox(2)
+            {
+                Location = new Point(goldCoinImage.Right + 10, statNameLabel.Bottom + 5),
+                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Width = 35,
+                Parent = statRowPanel
+            };
+
+            var silverCoinImage = new Image(services.TextureService.SmallSilverCoinTexture)
+            {
+                Location = new Point(silverTextBox.Right, statNameLabel.Bottom + 5),
+                Size = new Point(silverTextBox.Height),
+                Parent = statRowPanel,
+            };
+
+            var copperTextBox = new NumberTextBox(2)
+            {
+                Location = new Point(silverCoinImage.Right + 10, statNameLabel.Bottom + 5),
+                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Width = 35,
+                Parent = statRowPanel
+            };
+
+            // copper icon
+            new Image(services.TextureService.SmallCopperCoinTexture) 
+            {
+                Location = new Point(copperTextBox.Right, statNameLabel.Bottom + 5),
+                Size = new Point(copperTextBox.Height),
+                Parent = statRowPanel,
             };
 
             var removeButton = new StandardButton
@@ -162,15 +207,14 @@ namespace FarmingTracker
             removeButton.Location = new Point(statRowPanel.Width - removeButton.Width - 5, (panelHeight - removeButton.Height) / 2);
             removeButton.Click += (s, e) => 
             { 
-                RemoveCustomStatProfit(stat, model, services);
+                RemoveCustomStatProfit(customStatProfit, model, services);
                 statRowPanel?.Dispose();
                 ShowNoCustomStatProfitsExistHintIfNecessary(hintLabel, model);
             };
         }
 
-        private static void RemoveCustomStatProfit(Stat stat, Model model, Services services) 
+        private static void RemoveCustomStatProfit(CustomStatProfit customStatProfit, Model model, Services services) 
         {
-            var customStatProfit = model.CustomStatProfits.ToListSafe().Single(c => c.ApiId == stat.ApiId && c.StatType == stat.StatType);
             model.CustomStatProfits.RemoveSafe(customStatProfit);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
