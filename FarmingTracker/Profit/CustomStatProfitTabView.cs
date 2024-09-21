@@ -154,7 +154,7 @@ namespace FarmingTracker
 
             var coin = new Coin(customStatProfit.CustomProfitInCopper);
 
-            var goldTextBox = new NumberTextBox()
+            var goldTextBox = new NumberTextBox(6) // 6 because otherwise end of number is hidden due to textbox not supporting horizontal scrolling.
             {
                 Location = new Point(statImage.Right + 10, statNameLabel.Bottom + 5),
                 Text = coin.UnsignedGold.ToString(),
@@ -222,9 +222,14 @@ namespace FarmingTracker
 
         private static void OnCoinTextChanged(string goldText, string silverText, string copperText, CustomStatProfit customStatProfit, Services services)
         {
+            goldText = string.IsNullOrWhiteSpace(goldText) ? "0" : goldText;
+            silverText = string.IsNullOrWhiteSpace(silverText) ? "0" : silverText;
+            copperText = string.IsNullOrWhiteSpace(copperText) ? "0" : copperText;
+
             int gold = int.Parse(goldText);
             int silver = int.Parse(silverText);
             int copper = int.Parse(copperText);
+
             customStatProfit.CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
 
             services.UpdateLoop.TriggerUpdateUi();

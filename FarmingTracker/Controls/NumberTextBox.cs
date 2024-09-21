@@ -6,8 +6,10 @@ namespace FarmingTracker
 {
     public class NumberTextBox : TextBox
     {
-        public NumberTextBox(int maxNumberLength = 0)
+        public NumberTextBox(int maxNumberLength = 8) // 8 = prevent of integer range exception when parsing textBox.Text.
         {
+            PlaceholderText = "0";
+
             TextChanged += (s, e) =>
             {
                 var oldText = Text;
@@ -24,7 +26,8 @@ namespace FarmingTracker
 
         public event EventHandler? NumberTextChanged;
 
-        private static int DetermineNewCursorIndex(string newText, int oldCursorIndex)
+        // this is a hack, it will never work properly because the oldCursorIndex is not from before changing the Text. TextBox already updated it.
+        private static int DetermineNewCursorIndex(string newText, int oldCursorIndex) 
         {
             var newCursorIndex = oldCursorIndex;
             if (newCursorIndex >= newText.Length)
@@ -40,11 +43,7 @@ namespace FarmingTracker
         {
             var number = Regex
                 .Replace(text, @"[^\d]", "")
-                .TrimStart('0')
-                .PadLeft(1, '0');
-
-            if (maxNumberLength == 0)
-                return number;
+                .TrimStart('0');
 
             return number.Length > maxNumberLength
                 ? number.Substring(0, maxNumberLength)
