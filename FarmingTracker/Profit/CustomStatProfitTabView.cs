@@ -1,6 +1,7 @@
 ﻿using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
+using System;
 using System.Linq;
 
 namespace FarmingTracker
@@ -151,10 +152,12 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
 
+            var coin = new Coin(customStatProfit.CustomProfitInCopper);
+
             var goldTextBox = new NumberTextBox()
             {
                 Location = new Point(statImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Text = coin.UnsignedGold.ToString(),
                 Width = 60, 
                 Parent = statRowPanel
             };
@@ -169,7 +172,7 @@ namespace FarmingTracker
             var silverTextBox = new NumberTextBox(2)
             {
                 Location = new Point(goldCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Text = coin.UnsignedSilver.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
@@ -184,10 +187,14 @@ namespace FarmingTracker
             var copperTextBox = new NumberTextBox(2)
             {
                 Location = new Point(silverCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = customStatProfit.CustomProfitInCopper.ToString(), // todo x
+                Text = coin.UnsignedCopper.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
+
+            goldTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
+            silverTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
+            copperTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
 
             // copper icon
             new Image(services.TextureService.SmallCopperCoinTexture) 
@@ -211,6 +218,17 @@ namespace FarmingTracker
                 statRowPanel?.Dispose();
                 ShowNoCustomStatProfitsExistHintIfNecessary(hintLabel, model);
             };
+        }
+
+        private static void OnCoinTextChanged(string goldText, string silverText, string copperText, CustomStatProfit customStatProfit, Services services)
+        {
+            int gold = int.Parse(goldText);
+            int silver = int.Parse(silverText);
+            int copper = int.Parse(copperText);
+            customStatProfit.CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
+
+            services.UpdateLoop.TriggerUpdateUi();
+            services.UpdateLoop.TriggerSaveModel();
         }
 
         private static void RemoveCustomStatProfit(CustomStatProfit customStatProfit, Model model, Services services) 
