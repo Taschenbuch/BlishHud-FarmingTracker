@@ -16,7 +16,7 @@ namespace FarmingTracker
                 var oldCursorIndex = CursorIndex;
 
                 var newText = RemoveNonDigitsAndLeadingZeros(oldText, maxNumberLength);
-                var newCursorIndex = DetermineNewCursorIndex(newText, oldCursorIndex);
+                var newCursorIndex = DetermineNewCursorIndex(newText, oldText, oldCursorIndex);
 
                 Text = newText;
                 CursorIndex = newCursorIndex; // must be set AFTER .Text (i think...).
@@ -27,11 +27,15 @@ namespace FarmingTracker
         public event EventHandler? NumberTextChanged;
 
         // this is a hack, it will never work properly because the oldCursorIndex is not from before changing the Text. TextBox already updated it.
-        private static int DetermineNewCursorIndex(string newText, int oldCursorIndex) 
+        private static int DetermineNewCursorIndex(string newText, string oldText, int oldCursorIndex) 
         {
             var newCursorIndex = oldCursorIndex;
+
+            if (newText.Length == oldText.Length) 
+                return oldCursorIndex; // no illegal character was removed. text <= maxNumberLength.
+
             if (newCursorIndex >= newText.Length)
-                newCursorIndex = newText.Length - 1;
+                newCursorIndex = newText.Length - 1; // prevents cursor from moving
 
             if (newCursorIndex < 0)
                 newCursorIndex = 0;
