@@ -144,7 +144,7 @@ namespace FarmingTracker
 
             var statNameLabel = new Label()
             {
-                Location = new Point(statImage.Right + 10, backgroundMargin + iconMargin),
+                Location = new Point(statImage.Right + 10, backgroundMargin),
                 Text = stat.Details.Name,
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
@@ -204,7 +204,7 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
             
-            removeButton.Location = new Point(statRowPanel.Width - removeButton.Width - 5, (panelHeight - removeButton.Height) / 2);
+            removeButton.Location = new Point(statRowPanel.Width - removeButton.Width - 5, backgroundMargin);
             removeButton.Click += (s, e) => 
             { 
                 RemoveCustomStatProfit(customStatProfit, model, services);
