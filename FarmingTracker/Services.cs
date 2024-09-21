@@ -47,6 +47,6 @@ namespace FarmingTracker
         public FontService FontService { get; } = new FontService();
         public DateTimeService DateTimeService { get; }
         public string SearchTerm { get; set; } = string.Empty;
-        public FarmingTrackerWindow FarmingTrackerWindow { get; set; }
+        public FarmingTrackerWindow? FarmingTrackerWindow { get; set; }
     }
 }

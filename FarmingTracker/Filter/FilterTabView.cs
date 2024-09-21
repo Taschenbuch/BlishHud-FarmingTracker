@@ -101,7 +101,7 @@ namespace FarmingTracker
             SettingEntry<List<T>> filterSettingEntry,
             Services services, 
             Container parent,
-            string hintText = "")
+            string hintText = "") where T : notnull
         {
             var filterIconPanel = new Panel
             {
@@ -210,7 +210,7 @@ namespace FarmingTracker
         }
 
         private readonly Services _services;
-        private FlowPanel _rootFlowPanel;
+        private FlowPanel? _rootFlowPanel;
         private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are\nonly hidden if all matching options are unselected.";
     }
 }

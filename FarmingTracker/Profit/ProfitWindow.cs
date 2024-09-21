@@ -23,12 +23,12 @@ namespace FarmingTracker
 
         public ProfitPanels ProfitPanels { get; private set; }
 
-        private void OnIsProfitWindowVisibleSettingChanged(object sender = null, ValueChangedEventArgs<bool> e = null)
+        private void OnIsProfitWindowVisibleSettingChanged(object? sender = null, ValueChangedEventArgs<bool>? e = null)
         {
             Visible = _services.SettingService.IsProfitWindowVisibleSetting.Value;
         }
 
-        private void OnProfitWindowBackgroundOpacitySettingChanged(object sender = null, ValueChangedEventArgs<int> e = null)
+        private void OnProfitWindowBackgroundOpacitySettingChanged(object? sender = null, ValueChangedEventArgs<int>? e = null)
         {
             BackgroundColor = Color.Black * (_services.SettingService.ProfitWindowBackgroundOpacitySetting.Value / 255f);
         }

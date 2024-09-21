@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class CoinsPanel : FlowPanel
     {
-        public CoinsPanel(Tooltip tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
+        public CoinsPanel(Tooltip? tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             Tooltip = tooltip;

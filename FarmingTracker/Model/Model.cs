@@ -20,7 +20,15 @@ namespace FarmingTracker
                 CurrencyById = CurrencyById
             };
 
-            StatsSnapshot = JsonConvert.DeserializeObject<StatsSnapshot>(JsonConvert.SerializeObject(newSnapshot));
+            var statsSnapshot = JsonConvert.DeserializeObject<StatsSnapshot>(JsonConvert.SerializeObject(newSnapshot));
+
+            if(statsSnapshot == null) 
+            {
+                Module.Logger.Error("Failed to copy statsSnapshot.");
+                return;
+            }
+
+            StatsSnapshot = statsSnapshot;
         }
     }
 }

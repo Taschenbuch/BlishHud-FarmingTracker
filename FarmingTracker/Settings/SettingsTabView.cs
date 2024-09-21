@@ -253,8 +253,14 @@ namespace FarmingTracker
             SetupInstructions.CreateSetupInstructions(font, addDrfTokenFlowPanel, _services);
         }
 
-        private void OnDrfConnectionStatusChanged(object sender = null, EventArgs e = null)
+        private void OnDrfConnectionStatusChanged(object? sender = null, EventArgs? e = null)
         {
+            if(_drfConnectionStatusValueLabel == null)
+            {
+                Module.Logger.Error("DRF status label missing.");
+                return;
+            }
+
             var drfConnectionStatus = _services.Drf.DrfConnectionStatus;            
             _drfConnectionStatusValueLabel.TextColor = DrfConnectionStatusService.GetDrfConnectionStatusTextColor(drfConnectionStatus);
             _drfConnectionStatusValueLabel.Text = DrfConnectionStatusService.GetSettingTabDrfConnectionStatusText(
@@ -264,7 +270,7 @@ namespace FarmingTracker
         }
 
         private readonly Services _services;
-        private Label _drfConnectionStatusValueLabel;
-        private FlowPanel _rootFlowPanel;
+        private Label? _drfConnectionStatusValueLabel;
+        private FlowPanel? _rootFlowPanel;
     }
 }

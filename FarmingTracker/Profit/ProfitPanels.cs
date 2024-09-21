@@ -64,7 +64,7 @@ namespace FarmingTracker
             };
         }
 
-        private void OnProfitLabelTextSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
+        private void OnProfitLabelTextSettingChanged(object? sender = null, ValueChangedEventArgs<string>? e = null)
         {
             if(_isProfitWindow)
             {
@@ -79,7 +79,7 @@ namespace FarmingTracker
             }
         }
 
-        private void OnProfitWindowDisplayModeSettingChanged(object sender = null, ValueChangedEventArgs<ProfitWindowDisplayMode> e = null)
+        private void OnProfitWindowDisplayModeSettingChanged(object? sender = null, ValueChangedEventArgs<ProfitWindowDisplayMode>? e = null)
         {
             _profitPanel.Parent = null;
             _profitPerHourPanel.Parent = null;

@@ -33,6 +33,12 @@ namespace FarmingTracker
 
         public override IView GetSettingsView()
         {
+            if(_services == null)
+            {
+                Logger.Error("Cannot create module settings view without services.");
+                return new ErrorView();
+            }
+
             return _moduleLoadError.HasModuleLoadFailed
                 ? _moduleLoadError.CreateErrorSettingsView()
                 : new ModuleSettingsView(_services.FarmingTrackerWindow);
@@ -40,6 +46,12 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
+            if(_settingService == null || _dateTimeService == null)
+            {
+                Logger.Error("Cannot load module without settingsService and dateTimeService from Module.DefineSettings().");
+                return;
+            }
+
             var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
             var model = await services.FileLoader.LoadModelFromFile();
             _model = model;
@@ -66,31 +78,34 @@ namespace FarmingTracker
             if(_moduleLoadError.HasModuleLoadFailed)
                 return;
 
-            _services.FarmingTrackerWindow.Update2(gameTime);
+            _services?.FarmingTrackerWindow?.Update2(gameTime);
         }
 
         protected override void Unload()
         {
             _moduleLoadError?.Dispose();
             _trackerCornerIcon?.Dispose();
-            _services?.Dispose();
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
-            if(_model != null)
+
+            if(_services != null)
             {
+                _services.Dispose();
+                _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
+                _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
                 _services.FarmingDuration.SaveFarmingTime();
-                _services.FileSaver.SaveModelToFileSync(_model);
+
+                if (_model != null)
+                    _services?.FileSaver.SaveModelToFileSync(_model);
             }
         }
 
-        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _services.FarmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
-        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _services.FarmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _services?.FarmingTrackerWindow?.ToggleWindowAndSelectSummaryTab();
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _services?.FarmingTrackerWindow?.ToggleWindowAndSelectSummaryTab();
 
         private readonly ModuleLoadError _moduleLoadError = new ModuleLoadError();
-        private TrackerCornerIcon _trackerCornerIcon;
-        private SettingService _settingService;
-        private DateTimeService _dateTimeService;
-        private Services _services;
-        private Model _model;
+        private TrackerCornerIcon? _trackerCornerIcon;
+        private SettingService? _settingService;
+        private DateTimeService? _dateTimeService;
+        private Services? _services;
+        private Model? _model;
     }
 }

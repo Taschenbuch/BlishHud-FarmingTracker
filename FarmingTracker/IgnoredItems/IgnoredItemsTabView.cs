@@ -165,7 +165,7 @@ namespace FarmingTracker
 
         private readonly Model _model;
         private readonly Services _services;
-        private FlowPanel _rootFlowPanel;
+        private FlowPanel? _rootFlowPanel;
         private const string IGNORED_ITEMS_PANEL_TITLE = "Ignored Items";
     }
 }

@@ -17,7 +17,7 @@ namespace FarmingTracker
 
         public IView CreateErrorSettingsView()
         {
-            return _errorSettingsView;
+            return _errorSettingsView ?? new ErrorView();
         }
 
         public void Dispose()
@@ -25,7 +25,7 @@ namespace FarmingTracker
             _errorWindow?.Dispose();
         }
 
-        private ErrorSettingsView _errorSettingsView;
-        private ErrorWindow _errorWindow;
+        private IView? _errorSettingsView;
+        private ErrorWindow? _errorWindow;
     }
 }

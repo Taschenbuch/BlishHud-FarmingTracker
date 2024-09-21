@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
+#nullable disable
 namespace FarmingTracker
 {
     public class SettingService // singular because Setting"s"Service already exists in Blish
@@ -274,3 +275,4 @@ namespace FarmingTracker
         private const string DRAG_WITH_MOUSE_LABEL_TEXT = "drag with mouse";
     }
 }
+#nullable enable

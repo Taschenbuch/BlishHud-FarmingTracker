@@ -159,7 +159,7 @@ namespace FarmingTracker
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
-                $"- The '{SummaryTabView.GW2_API_ERROR_HINT}' hint constantly appears\n" +
+                $"- The '{Constants.GW2_API_ERROR_HINT}' hint constantly appears\n" +
                 $"Reason 1: GW2 API is down or instable. " +
                 $"The GW2 API can be very instable in the evening. " +
                 $"This results in frequent GW2 API timeouts.\n" +

@@ -8,7 +8,7 @@ namespace FarmingTracker
 {
     public class DateTimeService : IDisposable
     {
-        // STATIC PART
+        // ========================= STATIC PART =========================
 
         public static DateTime UtcNow
         {
@@ -29,23 +29,13 @@ namespace FarmingTracker
         private static bool _debugEnabled;
         private static readonly Stopwatch _stopWatch = new Stopwatch(); // no disposing necessary
 
-        // NONE STATIC PART (but updating static values)
-        
+        // ========================= NONE STATIC PART (but updating static values) =========================
+
         // ctor must be called in Module.DefineSettings()
         public DateTimeService(SettingCollection settings)
         {
             _stopWatch.Restart();
-            DefineSettings(settings);
-            _utcNowDebug = _debugDateTimeValueSetting.Value; // because it is static. It would userwise survive module unload/load with old value.
-        }
 
-        public void CreateDateTimeDebugPanel(Container parent)
-        {
-            DateTimeDebugPanelService.CreateDateTimeDebugPanel(parent, _debugDateTimeEnabledSetting, _debugDateTimeValueSetting);
-        }
-
-        private void DefineSettings(SettingCollection settings)
-        {
             _debugDateTimeEnabledSetting = settings.DefineSetting(
                 "debug dateTime enabled",
                 false,
@@ -60,6 +50,13 @@ namespace FarmingTracker
 
             _debugDateTimeEnabledSetting.SettingChanged += OnDebugDateTimeEnabledSettingChanged;
             OnDebugDateTimeEnabledSettingChanged();
+
+            _utcNowDebug = _debugDateTimeValueSetting.Value; // because it is static. It would otherwise survive module unload/load with old value.
+        }
+
+        public void CreateDateTimeDebugPanel(Container parent)
+        {
+            DateTimeDebugPanelService.CreateDateTimeDebugPanel(parent, _debugDateTimeEnabledSetting, _debugDateTimeValueSetting);
         }
 
         public void Dispose()
@@ -67,12 +64,12 @@ namespace FarmingTracker
             _debugDateTimeEnabledSetting.SettingChanged -= OnDebugDateTimeEnabledSettingChanged;
         }
 
-        private void OnDebugDateTimeEnabledSettingChanged(object sender = null, ValueChangedEventArgs<bool> e = null)
+        private void OnDebugDateTimeEnabledSettingChanged(object? sender = null, ValueChangedEventArgs<bool>? e = null)
         {
             _debugEnabled = _debugDateTimeEnabledSetting.Value;
         }
 
-        private SettingEntry<bool> _debugDateTimeEnabledSetting;
-        private SettingEntry<DateTime> _debugDateTimeValueSetting;
+        private readonly SettingEntry<bool> _debugDateTimeEnabledSetting;
+        private readonly SettingEntry<DateTime> _debugDateTimeValueSetting;
     }
 }

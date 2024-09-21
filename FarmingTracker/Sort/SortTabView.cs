@@ -141,6 +141,6 @@ namespace FarmingTracker
 
 
         private readonly Services _services;
-        private FlowPanel _rootFlowPanel;
+        private FlowPanel? _rootFlowPanel;
     }
 }

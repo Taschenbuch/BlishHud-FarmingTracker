@@ -27,7 +27,7 @@ namespace FarmingTracker
             };
         }
 
-        public event EventHandler SanitizedTextChanged;
+        public event EventHandler? SanitizedTextChanged;
 
         // allow only 0-9 a-f A-F and '-'.
         // upper case A-F is converted to lower case a-f. 

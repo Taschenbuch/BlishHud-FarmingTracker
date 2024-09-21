@@ -29,6 +29,6 @@ namespace FarmingTracker
 
         private readonly string _featureText;
         private readonly bool _onlyShowFeatureText;
-        private HintLabel _hintLabel;
+        private HintLabel? _hintLabel;
     }
 }

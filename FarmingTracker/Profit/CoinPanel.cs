@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class CoinPanel : FlowPanel
     {
-        public CoinPanel(AsyncTexture2D coinTexture, Color textColor, Tooltip tooltip, BitmapFont font, bool widthFixed, Container parent)
+        public CoinPanel(AsyncTexture2D coinTexture, Color textColor, Tooltip? tooltip, BitmapFont font, bool widthFixed, Container parent)
         {
             _parent = parent;
 

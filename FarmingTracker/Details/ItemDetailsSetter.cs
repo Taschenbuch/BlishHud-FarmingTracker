@@ -25,8 +25,8 @@ namespace FarmingTracker
             var apiItemsTask = gw2ApiManager.Gw2ApiClient.V2.Items.ManyAsync(itemIdsWithoutDetails);
             var apiPricesTask = gw2ApiManager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(itemIdsWithoutDetails);
 
-            IReadOnlyList<Item> apiItems = null;
-            IReadOnlyList<CommercePrices> apiPrices = null;
+            IReadOnlyList<Item>? apiItems = null;
+            IReadOnlyList<CommercePrices>? apiPrices = null;
 
             try
             {
@@ -69,7 +69,7 @@ namespace FarmingTracker
             {
                 var item = itemById[apiItem.Id];
                 item.Details.Name = apiItem.Name;
-                item.Details.Description = apiItem.Description;
+                item.Details.Description = apiItem.Description ?? "";
                 item.Details.IconAssetId = TextureService.GetIconAssetId(apiItem.Icon);
                 item.Details.Rarity = apiItem.Rarity;
                 item.Details.ItemFlags = apiItem.Flags;

@@ -8,8 +8,7 @@ namespace FarmingTracker
         public static List<Stat> ReplaceCoinWithGoldSilverCopperStats(List<Stat> currencies)
         {
             var coinStat = currencies.SingleOrDefault(c => c.IsCoin);
-            var noCoinsEarnedOrLost = coinStat == null;
-            if (noCoinsEarnedOrLost)
+            if (coinStat == null) // noCoinsEarnedOrLost
                 return currencies;
 
             var localizedCoinName = coinStat.Details.Name; // for wiki because "coin" in spanish will not work in english wiki

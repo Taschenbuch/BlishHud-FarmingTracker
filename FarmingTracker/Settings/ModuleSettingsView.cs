@@ -7,7 +7,7 @@ namespace FarmingTracker
 {
     public class ModuleSettingsView : View
     {
-        public ModuleSettingsView(FarmingTrackerWindow farmingTrackerWindow)
+        public ModuleSettingsView(FarmingTrackerWindow? farmingTrackerWindow)
         {
             _farmingTrackerWindow = farmingTrackerWindow;
         }
@@ -25,7 +25,7 @@ namespace FarmingTracker
             _openSettingsButton?.Dispose();
         }
 
-        private OpenSettingsButton _openSettingsButton;
-        private readonly FarmingTrackerWindow _farmingTrackerWindow;
+        private OpenSettingsButton? _openSettingsButton;
+        private readonly FarmingTrackerWindow? _farmingTrackerWindow;
     }
 }

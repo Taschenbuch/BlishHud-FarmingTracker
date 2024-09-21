@@ -22,7 +22,7 @@ namespace FarmingTracker
             };
         }
 
-        public event EventHandler NumberTextChanged;
+        public event EventHandler? NumberTextChanged;
 
         private static int DetermineNewCursorIndex(string newText, int oldCursorIndex)
         {
