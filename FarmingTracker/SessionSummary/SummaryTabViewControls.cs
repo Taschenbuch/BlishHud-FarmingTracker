@@ -4,9 +4,9 @@ using static Blish_HUD.ContentService;
 
 namespace FarmingTracker
 {
-    public class SummaryUi
+    public class SummaryTabViewControls
     {
-        public SummaryUi(Model model, Services services)
+        public SummaryTabViewControls(Model model, Services services)
         {
             RootFlowPanel = new FlowPanel()
             {

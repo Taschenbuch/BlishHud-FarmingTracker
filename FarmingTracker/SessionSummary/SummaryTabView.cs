@@ -17,10 +17,10 @@ namespace FarmingTracker
             _model = model;
             _services = services;
 
-            _ui = new SummaryUi(model, services);
-            _ui.ResetButton.Click += (s, e) =>
+            _controls = new SummaryTabViewControls(model, services);
+            _controls.ResetButton.Click += (s, e) =>
             {
-                _ui.ResetButton.Enabled = false;
+                _controls.ResetButton.Enabled = false;
                 _resetState = ResetState.ResetRequired;
             };
 
@@ -43,7 +43,7 @@ namespace FarmingTracker
 
         protected override void Build(Container buildPanel)
         {
-            _ui.RootFlowPanel.Parent = buildPanel;
+            _controls.RootFlowPanel.Parent = buildPanel;
             var resetAndDrfButtonsOffset = 70;
             var width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             ResizeToViewWidth(resetAndDrfButtonsOffset, width);
@@ -57,13 +57,13 @@ namespace FarmingTracker
 
         private void ResizeToViewWidth(int resetAndDrfButtonsOffset, int width)
         {
-            _ui.StatsPanels.CurrenciesFlowPanel.Width = width;
-            _ui.StatsPanels.ItemsFlowPanel.Width = width;
-            _ui.StatsPanels.FavoriteItemsFlowPanel.Width = width;
-            _ui.StatsPanels.ItemsFilterIcon.SetLeft(width);
-            _ui.StatsPanels.CurrencyFilterIcon.SetLeft(width);
-            _ui.SearchPanel.UpdateSize(width);
-            _ui.CollapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
+            _controls.StatsPanels.CurrenciesFlowPanel.Width = width;
+            _controls.StatsPanels.ItemsFlowPanel.Width = width;
+            _controls.StatsPanels.FavoriteItemsFlowPanel.Width = width;
+            _controls.StatsPanels.ItemsFilterIcon.SetLeft(width);
+            _controls.StatsPanels.CurrencyFilterIcon.SetLeft(width);
+            _controls.SearchPanel.UpdateSize(width);
+            _controls.CollapsibleHelp.UpdateSize(width - resetAndDrfButtonsOffset);
         }
 
         public void Update(GameTime gameTime)
@@ -77,9 +77,9 @@ namespace FarmingTracker
                 {
                     var snapshot = _model.StatsSnapshot;
                     _services.ProfitCalculator.CalculateProfits(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
-                    _ui.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                    _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
-                    UiUpdater.UpdateStatPanels(_ui.StatsPanels, snapshot, _model, _services);
+                    UiUpdater.UpdateStatPanels(_controls.StatsPanels, snapshot, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
                 });
@@ -98,7 +98,7 @@ namespace FarmingTracker
 
             if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
-                _ui.HintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
+                _controls.HintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
                 if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
                 {
@@ -108,10 +108,10 @@ namespace FarmingTracker
                     {
                         ResetStats();
                         _automaticResetService.UpdateNextResetDateTime(); // on manual resets this will effectively not change the next automatic reset dateTime.
-                        _ui.ElapsedFarmingTimeLabel.RestartTime();
+                        _controls.ElapsedFarmingTimeLabel.RestartTime();
                         _services.UpdateLoop.TriggerUpdateUi();
                         _services.UpdateLoop.TriggerSaveModel();
-                        _ui.ResetButton.Enabled = true;
+                        _controls.ResetButton.Enabled = true;
                         _resetState = ResetState.NoResetRequired; // may override state change from automatic reset. But that is okay, because it just resetted anyway.
                         _isTaskRunning = false;
                     });
@@ -137,21 +137,21 @@ namespace FarmingTracker
             if (_profitPerHourUpdateInterval.HasEnded())
             {
                 _services.ProfitCalculator.CalculateProfitPerHour(_services.FarmingDuration.Elapsed);
-                _ui.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                 _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
             }
 
-            _ui.ElapsedFarmingTimeLabel.UpdateTimeEverySecond(); // not sure if this can use Interval class, too. But it must not update when farming time is not running (happens when resetting?)
+            _controls.ElapsedFarmingTimeLabel.UpdateTimeEverySecond(); // not sure if this can use Interval class, too. But it must not update when farming time is not running (happens when resetting?)
 
             if (_services.UpdateLoop.UpdateIntervalEnded()) // todo guard stattdessen?
             {
                 _services.UpdateLoop.ResetRunningTime();
                 _services.UpdateLoop.UseFarmingUpdateInterval();
 
-                ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _ui.DrfErrorLabel, _ui.OpenSettingsButton, _ui.FarmingRootFlowPanel);
+                ShowOrHideDrfErrorLabelAndStatPanels(_services.Drf.DrfConnectionStatus, _controls.DrfErrorLabel, _controls.OpenSettingsButton, _controls.FarmingRootFlowPanel);
 
                 var apiToken = new ApiToken(_services.Gw2ApiManager);
-                ShowOrHideApiErrorHint(apiToken, _ui.HintLabel, _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds);
+                ShowOrHideApiErrorHint(apiToken, _controls.HintLabel, _timeSinceModuleStartStopwatch.Elapsed.TotalSeconds);
                 if (!apiToken.CanAccessApi)
                     return; // dont continue to prevent api error hint being overriden by "update..." etc.
 
@@ -175,12 +175,12 @@ namespace FarmingTracker
                 StatsService.ResetCounts(_model.CurrencyById);
                 _model.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
-                _ui.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
+                _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
-                _ui.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
         }
 
@@ -193,26 +193,26 @@ namespace FarmingTracker
                 if (!hasToUpdateStats)
                     return;
 
-                _ui.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
+                _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages, _services);
                 _model.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
-                _ui.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
+                _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Gw2ApiException exception)
             {
                 Module.Logger.Warn(exception, exception.Message);
                 _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
-                _ui.HintLabel.Text = $"{Constants.GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _controls.HintLabel.Text = $"{Constants.GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
-                _ui.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
             }
         }
 
@@ -296,7 +296,7 @@ namespace FarmingTracker
         private readonly ProfitWindow _profitWindow;
         private readonly Model _model;
         private readonly Services _services;
-        private readonly SummaryUi _ui;
+        private readonly SummaryTabViewControls _controls;
         private readonly AutomaticResetService _automaticResetService;
         private readonly Interval _profitPerHourUpdateInterval = new Interval(TimeSpan.FromMilliseconds(5000));
         private readonly Interval _saveFarmingDurationInterval = new Interval(TimeSpan.FromMinutes(1));
