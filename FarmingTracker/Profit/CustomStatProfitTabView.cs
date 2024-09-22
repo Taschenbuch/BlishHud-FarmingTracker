@@ -52,7 +52,7 @@ namespace FarmingTracker
                 return;
             }
 
-            var statsSnapshot = _model.StatsSnapshot;
+            var statsSnapshot = _model.Stats.StatsSnapshot;
             var currencies = statsSnapshot.CurrencyById.Values.Where(c => !c.IsCoin).ToList();
             var items = statsSnapshot.ItemById.Values;
 

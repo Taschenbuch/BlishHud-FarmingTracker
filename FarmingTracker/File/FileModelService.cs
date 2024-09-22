@@ -14,7 +14,7 @@ namespace FarmingTracker
             };
 
             foreach (var fileCurrency in fileModel.FileCurrencies)
-                model.CurrencyById[fileCurrency.ApiId] = new Stat
+                model.Stats.CurrencyById[fileCurrency.ApiId] = new Stat
                 {
                     ApiId = fileCurrency.ApiId,
                     StatType = StatType.Currency,
@@ -22,7 +22,7 @@ namespace FarmingTracker
                 };
 
             foreach (var fileItem in fileModel.FileItems)
-                model.ItemById[fileItem.ApiId] = new Stat
+                model.Stats.ItemById[fileItem.ApiId] = new Stat
                 {
                     ApiId = fileItem.ApiId,
                     StatType = StatType.Item,
@@ -36,18 +36,18 @@ namespace FarmingTracker
                 switch (customStatProfit.StatType)
                 {
                     case StatType.Item:
-                        AddStatIfMissing(model.ItemById, customStatProfit.ApiId, StatType.Item);
+                        AddStatIfMissing(model.Stats.ItemById, customStatProfit.ApiId, StatType.Item);
                         break;
                     case StatType.Currency:
-                        AddStatIfMissing(model.CurrencyById, customStatProfit.ApiId, StatType.Currency);
+                        AddStatIfMissing(model.Stats.CurrencyById, customStatProfit.ApiId, StatType.Currency);
                         break;
                 }
 
             // add ignoredItems to items to get their api data on module startup
             foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                AddStatIfMissing(model.ItemById, ignoredItemApiId, StatType.Item);
+                AddStatIfMissing(model.Stats.ItemById, ignoredItemApiId, StatType.Item);
 
-            model.UpdateStatsSnapshot();
+            model.Stats.UpdateStatsSnapshot();
 
             return model;
         }
@@ -61,7 +61,7 @@ namespace FarmingTracker
                 CustomStatProfits = model.CustomStatProfits.ToListSafe(),
             };
 
-            var snapshot = model.StatsSnapshot;
+            var snapshot = model.Stats.StatsSnapshot;
             var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
             var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 

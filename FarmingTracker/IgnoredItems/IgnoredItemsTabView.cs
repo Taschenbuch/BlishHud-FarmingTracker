@@ -88,7 +88,7 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredItems = _model.IgnoredItemApiIds.ToListSafe().Select(i => _model.StatsSnapshot.ItemById[i]).ToList();
+            var ignoredItems = _model.IgnoredItemApiIds.ToListSafe().Select(i => _model.Stats.StatsSnapshot.ItemById[i]).ToList();
             var noItemsAreIgnored = ignoredItems.IsEmpty();
             if (noItemsAreIgnored)
             {

@@ -75,7 +75,7 @@ namespace FarmingTracker
                 _isUiUpdateTaskRunning = true;
                 Task.Run(() =>
                 {
-                    var snapshot = _model.StatsSnapshot;
+                    var snapshot = _model.Stats.StatsSnapshot;
                     _services.ProfitCalculator.CalculateProfits(snapshot, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
                     _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
@@ -171,9 +171,9 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCounts(_model.ItemById);
-                StatsService.ResetCounts(_model.CurrencyById);
-                _model.UpdateStatsSnapshot();
+                StatsService.ResetCounts(_model.Stats.ItemById);
+                StatsService.ResetCounts(_model.Stats.CurrencyById);
+                _model.Stats.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -195,7 +195,7 @@ namespace FarmingTracker
 
                 _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages, _services);
-                _model.UpdateStatsSnapshot();
+                _model.Stats.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -281,8 +281,8 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.ItemById, _model.CurrencyById);
-            await _statsSetter.SetDetailsAndProfitFromApi(_model.ItemById, _model.CurrencyById, services.Gw2ApiManager);
+            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats.ItemById, _model.Stats.CurrencyById);
+            await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats.ItemById, _model.Stats.CurrencyById, services.Gw2ApiManager);
         }
 
         private bool _statsAccessLocked;
