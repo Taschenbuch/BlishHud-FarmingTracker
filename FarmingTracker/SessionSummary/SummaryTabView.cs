@@ -100,9 +100,9 @@ namespace FarmingTracker
             {
                 _controls.HintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
 
-                if (!_isTaskRunning) // prevents that reset and update modify stats at the same time
+                if (!_statsAccessLocked) // prevents that reset and update modify stats at the same time
                 {
-                    _isTaskRunning = true;
+                    _statsAccessLocked = true;
                     _resetState = ResetState.Resetting;
                     Task.Run(() =>
                     {
@@ -113,22 +113,22 @@ namespace FarmingTracker
                         _services.UpdateLoop.TriggerSaveModel();
                         _controls.ResetButton.Enabled = true;
                         _resetState = ResetState.NoResetRequired; // may override state change from automatic reset. But that is okay, because it just resetted anyway.
-                        _isTaskRunning = false;
+                        _statsAccessLocked = false;
                     });
                 }
                 return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
 
-            if(!_isTaskRunning)
+            if(!_statsAccessLocked)
             {
                 if (_services.UpdateLoop.HasToSaveModel())
                 {
-                    _isTaskRunning = true;
+                    _statsAccessLocked = true;
 
                     Task.Run(async () =>
                     {
                         await _services.FileSaver.SaveModelToFile(_model);
-                        _isTaskRunning = false;
+                        _statsAccessLocked = false;
                     });
                     // do not return here because saving the model should not disturb other parts of Update().
                 }
@@ -155,13 +155,13 @@ namespace FarmingTracker
                 if (!apiToken.CanAccessApi)
                     return; // dont continue to prevent api error hint being overriden by "update..." etc.
 
-                if (!_isTaskRunning)
+                if (!_statsAccessLocked)
                 {
-                    _isTaskRunning = true;
+                    _statsAccessLocked = true;
                     Task.Run(async () =>
                     {
                         await UpdateStats();
-                        _isTaskRunning = false;
+                        _statsAccessLocked = false;
                     });
                 }
             }
@@ -285,7 +285,7 @@ namespace FarmingTracker
             await _statsSetter.SetDetailsAndProfitFromApi(_model.ItemById, _model.CurrencyById, services.Gw2ApiManager);
         }
 
-        private bool _isTaskRunning;
+        private bool _statsAccessLocked;
         private bool _isUiUpdateTaskRunning;
         private readonly Stopwatch _timeSinceModuleStartStopwatch = new Stopwatch();
         private string _oldApiTokenErrorTooltip = string.Empty;
