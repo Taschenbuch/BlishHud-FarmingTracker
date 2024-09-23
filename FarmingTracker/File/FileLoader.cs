@@ -28,7 +28,7 @@ namespace FarmingTracker
                 var fileModel = JsonConvert.DeserializeObject<FileModel>(fileModelJson);
 
                 if (fileModel == null)
-                    throw new ArgumentNullException("Deserializing the model.json file failed.");
+                    throw new ArgumentNullException(nameof(fileModel), "Deserializing the model.json file failed.");
 
                 return FileModelService.CreateModel(fileModel);
             }

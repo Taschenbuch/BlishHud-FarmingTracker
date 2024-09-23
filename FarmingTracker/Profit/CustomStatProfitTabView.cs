@@ -68,12 +68,6 @@ namespace FarmingTracker
 
             foreach (var customStatProfit in customStatProfits)
             {
-                if(customStatProfit.StatType == StatType.Unknown)
-                {
-                    Module.Logger.Error($"unknown customStatProfit type for this ApiId: {customStatProfit.ApiId}");
-                    continue;
-                }
-
                 var stats = customStatProfit.StatType == StatType.Item
                     ? items
                     : currencies;

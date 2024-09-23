@@ -2,7 +2,7 @@
 
 namespace FarmingTracker
 {
-    public class DebugMode // blish core already uses DebugService name
+    public static class DebugMode // blish core already uses DebugService name
     {
         // using this as condition for debug messages prevents that complex debug messages are created though they are not logged in release mode.
         public static bool DebugLoggingRequired => VisualStudioRunningInDebugMode || GameService.Debug.EnableDebugLogging.Value;
