@@ -58,7 +58,7 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        private void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
+        private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
         {
             var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.ApiId == stat.ApiId && c.StatType == stat.StatType);
 

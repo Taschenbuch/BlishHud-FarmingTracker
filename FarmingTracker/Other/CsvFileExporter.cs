@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FarmingTracker
 {
@@ -13,7 +14,7 @@ namespace FarmingTracker
 
         public string ModuleFolderPath { get; }
 
-        public async void ExportSummaryAsCsvFile(Model model)
+        public async Task ExportSummaryAsCsvFile(Model model)
         {
             try
             {

@@ -45,13 +45,21 @@ namespace FarmingTracker
 
         private static string RemoveNonDigitsAndLeadingZeros(string text, int maxNumberLength = 0)
         {
-            var number = Regex
-                .Replace(text, @"[^\d]", "")
-                .TrimStart('0');
+            try
+            {
+                var number = Regex
+                    .Replace(text, @"[^\d]", "", RegexOptions.None, TimeSpan.FromMilliseconds(1000))
+                    .TrimStart('0');
 
-            return number.Length > maxNumberLength
-                ? number.Substring(0, maxNumberLength)
-                : number;
+                return number.Length > maxNumberLength
+                    ? number.Substring(0, maxNumberLength)
+                    : number;
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                Module.Logger.Error($"regex timedout for NumberTextBox.");
+                return "0";
+            }
         }
     }
 }

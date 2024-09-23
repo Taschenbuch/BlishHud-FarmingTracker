@@ -3,7 +3,7 @@ using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
 {
-    public class ColorService
+    public static class ColorService
     {
         public static Color GetRarityBorderColor(Gw2SharpType.ItemRarity rarity)
         {

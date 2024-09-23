@@ -9,7 +9,7 @@
         }
 
         public int ApiId { get; }
-        public StatType StatType { get; } = StatType.Item;
+        public StatType StatType { get; }
         public int CustomProfitInCopper { get; set; }
     }
 }

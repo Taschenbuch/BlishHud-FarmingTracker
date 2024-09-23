@@ -111,7 +111,7 @@ namespace FarmingTracker
                 Parent = subButtonFlowPanel,
             };
 
-            csvExportButton.Click += (s, e) => services.CsvFileExporter.ExportSummaryAsCsvFile(model);
+            csvExportButton.Click += async (s, e) => await services.CsvFileExporter.ExportSummaryAsCsvFile(model);
 
             var timeAndHintFlowPanel = new FlowPanel()
             {

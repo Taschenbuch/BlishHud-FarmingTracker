@@ -51,7 +51,7 @@ namespace FarmingTracker
 
             var miscSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Misc");
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
-            var automaticResetSettingsPanel = new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
+            new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
             
             var countSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Count");
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);

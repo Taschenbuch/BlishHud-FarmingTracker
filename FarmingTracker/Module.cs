@@ -94,7 +94,7 @@ namespace FarmingTracker
                 _services.FarmingDuration.SaveFarmingTime();
 
                 if (_model != null)
-                    _services?.FileSaver.SaveModelToFileSync(_model);
+                    _services.FileSaver.SaveModelToFileSync(_model);
             }
         }
 

@@ -62,9 +62,17 @@ namespace FarmingTracker
 
         private static string GetLowerCaseAndRemoveIllegalCharacters(string drfToken)
         {
-            return _charactersNotAllowedInDrfTokenRegex.Replace(drfToken.ToLower(), "");
+            try
+            {
+                return _charactersNotAllowedInDrfTokenRegex.Replace(drfToken.ToLower(), "");
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                Module.Logger.Error($"regex timedout for drf {nameof(_charactersNotAllowedInDrfTokenRegex)}.");
+                return "0";
+            }
         }
 
-        private static readonly Regex _charactersNotAllowedInDrfTokenRegex = new Regex(@"[^a-f0-9-]");
+        private static readonly Regex _charactersNotAllowedInDrfTokenRegex = new Regex(@"[^a-f0-9-]", RegexOptions.None, TimeSpan.FromMilliseconds(1000));
     }
 }
