@@ -40,7 +40,7 @@ namespace FarmingTracker
                     $"Move item from '{Constants.FAVORITE_ITEMS_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE} panel.";
             }
 
-            if(!stat.IsCoin && !stat.Details.IsCustomCoinStat)
+            if(!stat.IsCoinOrCustomCoin)
             {
                 _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab to edit or remove the custom profit.");
                 _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
