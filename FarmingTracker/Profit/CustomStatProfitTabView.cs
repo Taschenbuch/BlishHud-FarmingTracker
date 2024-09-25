@@ -44,7 +44,8 @@ namespace FarmingTracker
                 $"- If a custom profit is set, the custom profit will be used to calculate the total profit instead of the trading post or vendor sell price. " +
                 $"Even when the custom profit is lower or 0.\n" +
                 $"- Trading post taxes are not deducted from the custom profit.\n" +
-                $"- The custom profit applies to a single item/currency. Because of that you can not set the custom profit of 10 karma to 1 copper for example.\n" +
+                $"- The custom profit applies to a single item/currency. Because of that you can not set the custom profit of 10 karma to 1 copper for example " +
+                $"(0.1 copper/Karma).\n" +
                 $"\n" +
                 $"WHY CUSTOM PROFIT?\n" +
                 $"- Currencies like volatile magic cannot be sold to the vendor or on the trading post. " +
