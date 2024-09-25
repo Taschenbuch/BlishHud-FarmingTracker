@@ -72,7 +72,7 @@ namespace FarmingTracker
                     ? items
                     : currencies;
 
-                var stat = stats.SingleOrDefault(s => s.ApiId == customStatProfit.ApiId && s.StatType == customStatProfit.StatType);
+                var stat = stats.SingleOrDefault(s => CustomStatProfit.ProfitBelongsToStat(customStatProfit, s));
 
                 if (stat == null)
                 {

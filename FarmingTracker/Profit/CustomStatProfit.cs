@@ -11,5 +11,10 @@
         public int ApiId { get; }
         public StatType StatType { get; }
         public int CustomProfitInCopper { get; set; }
+
+        public static bool ProfitBelongsToStat(CustomStatProfit customStatProfit, Stat stat)
+        {
+            return customStatProfit.ApiId == stat.ApiId && customStatProfit.StatType == stat.StatType;
+        }
     }
 }
