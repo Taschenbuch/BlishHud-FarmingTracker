@@ -66,7 +66,7 @@ namespace FarmingTracker
                 return;
             }
 
-            services.FarmingTrackerWindow = new FarmingTrackerWindow(570, 650, model, services);
+            new FarmingTrackerWindow(570, 650, model, services);
             _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
 
             _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;

@@ -11,6 +11,8 @@ namespace FarmingTracker
                 new Rectangle(20, 26, windowWidth, windowHeight),
                 new Rectangle(80, 20, windowWidth - 80, windowHeight - 20))
         {
+            services.FarmingTrackerWindow = this; // must be set inside ctor, because it is already used by controls created in this ctor.
+
             Title = "Farming Tracker";
             Emblem = services.TextureService.WindowEmblemTexture;
             SavesPosition = true;
