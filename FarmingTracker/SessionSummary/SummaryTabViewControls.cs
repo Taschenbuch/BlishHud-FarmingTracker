@@ -50,26 +50,31 @@ namespace FarmingTracker
             };
 
             CollapsibleHelp = new CollapsibleHelp(
-                "DRF setup instructions and DRF and module troubleshooting can be found in the settings tab.\n" +
+                $"SETUP AND TROUBLESHOOTING:\n" +
+                $"DRF setup instructions and DRF and module troubleshooting can be found in the '{FarmingTrackerWindow.SETTINGS_TAB_TITLE}' tab.\n" +
+                $"\n" +
+                $"CONTEXT MENU:\n" +
+                $"- right click an item/currency to open a context menu with additional features.\n" +
+                $"- the context menu entries differs for items, favorites, currencies, coins.\n" +
                 $"\n" +
                 $"PROFIT:\n" +
-                "15% trading post fee is already deducted.\n" +
-                "Profit also includes changes in 'raw gold'. In other words coins spent or gained. " +
+                "- 15% trading post fee is already deducted.\n" +
+                "- Profit also includes changes in 'raw gold'. In other words coins spent or gained. " +
                 $"'raw gold' changes are also visible in the '{Constants.CURRENCIES_PANEL_TITLE}' panel.\n" +
-                "Lost items reduce the profit accordingly.\n" +
-                "Currencies are not included in the profit calculation (except 'raw gold').\n" +
-                "rough profit = raw gold + item count * tp sell price * 0.85 + ...for all items.\n" +
-                "When tp sell price does not exist, tp buy price will be used. " +
+                "- Lost items reduce the profit accordingly.\n" +
+                "- Currencies are not included in the profit calculation (except 'raw gold').\n" +
+                "- rough profit = raw gold + item count * tp sell price * 0.85 + ...for all items.\n" +
+                "- When tp sell price does not exist, tp buy price will be used. " +
                 "Vendor price will be used when it is higher than tp sell/buy price * 0.85.\n" +
-                "Module and DRF live tracking website profit calculation may differ because different profit formulas are used.\n" +
-                $"Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.\n" +
-                $"The profit is only a rough estimate because the trading post buy/sell prices can change over time and " +
+                "- Module and DRF live tracking website profit calculation may differ because different profit formulas are used.\n" +
+                $"- Profit per hour is updated every {Constants.PROFIT_PER_HOUR_UPDATE_INTERVAL_IN_SECONDS} seconds.\n" +
+                $"- The profit is only a rough estimate because the trading post buy/sell prices can change over time and " +
                 $"only the highest tp buy price and tp sell price for an item are considered. The tp buy/sell prices are a snapshot from " +
                 $"when the item was tracked for the first time during a blish sesssion.\n" +
                 $"\n" +
                 $"RESIZE:\n" +
-                $"You can resize the window by dragging the bottom right window corner. " +
-                $"Some UI elements might be cut off when the window becomes too small.",
+                $"- You can resize the window by dragging the bottom right window corner. " +
+                $"- Some UI elements might be cut off when the window becomes too small.",
                 300 - Constants.SCROLLBAR_WIDTH_OFFSET, // set dummy width because no buildPanel exists yet.
                 buttonFlowPanel);
 

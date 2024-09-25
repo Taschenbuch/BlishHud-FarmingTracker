@@ -103,7 +103,7 @@ namespace FarmingTracker
         private const string SORT_TAB_TITLE = "Sort Items";
         public const string IGNORED_ITEMS_TAB_TITLE = "Ignored Items";
         public const string CUSTOM_STAT_PROFIT_TAB_TITLE = "Custom Profit";
-        private const string SETTINGS_TAB_TITLE = "Settings";
+        public const string SETTINGS_TAB_TITLE = "Settings";
         private const string DEBUG_TAB_TITLE = "Debug";
     }
 }
