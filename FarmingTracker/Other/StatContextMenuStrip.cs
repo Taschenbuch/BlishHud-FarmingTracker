@@ -44,7 +44,7 @@ namespace FarmingTracker
             {
                 _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab to edit or remove the custom profit.");
                 _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
-                _setCustomProfitMenuItem.BasicTooltipText = "test"; // todo x
+                _setCustomProfitMenuItem.BasicTooltipText = $"Read the help text in the '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab for more details.";
             }
         }
 
@@ -70,8 +70,8 @@ namespace FarmingTracker
                 customStatProfits.AddSafe(customStatProfit);
             }
 
-            services.UpdateLoop.TriggerUpdateUi(); // todo x okay?
-            services.UpdateLoop.TriggerSaveModel(); // todo x okay?
+            services.UpdateLoop.TriggerUpdateUi();
+            services.UpdateLoop.TriggerSaveModel();
             services.FarmingTrackerWindow?.ShowWindowAndSelectCustomProfitTab();
         }
 
