@@ -34,7 +34,7 @@ namespace FarmingTracker
 
             var collapsibleHelp = new CollapsibleHelp(
                 $"ADD CUSTOM PROFIT:\n" +
-                $"In the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab right click on an item or currency icon to set its custom profit to 0. " +
+                $"In the '{Constants.TabTitles.SUMMARY}' tab right click on an item or currency icon to set its custom profit to 0. " +
                 $"After that you can edit the custom profit in this tab.\n" +
                 $"\n" +
                 $"REMOVE CUSTOM PROFIT:\n" +
@@ -120,14 +120,14 @@ namespace FarmingTracker
 
             hintLabel.Text =
                 $"{Constants.HINT_IN_PANEL_PADDING}No custom profits are set.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}You can set custom profits by right clicking an item/currency in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab.";
+                $"{Constants.HINT_IN_PANEL_PADDING}You can set custom profits by right clicking an item/currency in the '{Constants.TabTitles.SUMMARY}' tab.";
         }
 
         private static void ShowLoadingHint(HintLabel hintLabel)
         {
             hintLabel.Text =
                 $"{Constants.HINT_IN_PANEL_PADDING}This tab will not refresh automatically.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab and " +
+                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{Constants.TabTitles.SUMMARY}' tab and " +
                 $"wait until the '{Constants.UPDATING_HINT_TEXT}' hint disappears.\n" +
                 $"{Constants.HINT_IN_PANEL_PADDING}Then come back here.";
         }

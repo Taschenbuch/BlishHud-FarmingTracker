@@ -27,5 +27,17 @@ namespace FarmingTracker
         public static Gw2SharpType.ItemType[] ALL_ITEM_TYPES => (Gw2SharpType.ItemType[])Enum.GetValues(typeof(Gw2SharpType.ItemType));
         public static Gw2SharpType.ItemFlag[] ALL_ITEM_FLAGS => (Gw2SharpType.ItemFlag[])Enum.GetValues(typeof(Gw2SharpType.ItemFlag));
         public static CurrencyFilter[] ALL_CURRENCIES => (CurrencyFilter[])Enum.GetValues(typeof(CurrencyFilter));
+
+        public static class TabTitles
+        {
+            public const string SUMMARY = "Summary";
+            public const string TIMELINE = "Timeline";
+            public const string FILTER = "Filter";
+            public const string SORT = "Sort Items";
+            public const string IGNORED = "Ignored Items";
+            public const string CUSTOM_STAT_PROFIT = "Custom Profit";
+            public const string SETTINGS = "Settings";
+            public const string DEBUG = "Debug";
+        }
     }
 }

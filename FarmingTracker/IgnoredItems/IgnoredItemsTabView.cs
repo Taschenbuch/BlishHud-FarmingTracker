@@ -34,13 +34,13 @@ namespace FarmingTracker
 
             var collapsibleHelp = new CollapsibleHelp(
                 $"IGNORE ITEM:\n" +
-                $"In the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
+                $"In the '{Constants.TabTitles.SUMMARY}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
                 $"UNIGNORE ITEM:\n" +
                 $"left click on an item here to unignore it.\n" +
                 $"\n" +
                 $"WHY IGNORE?\n" +
-                $"An ignored item will appear here. It is hidden in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab" +
+                $"An ignored item will appear here. It is hidden in the '{Constants.TabTitles.SUMMARY}' tab" +
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
@@ -151,14 +151,14 @@ namespace FarmingTracker
 
             hintLabel.Text = 
                 $"{Constants.HINT_IN_PANEL_PADDING}No items are ignored.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore an item by right clicking it in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab.";
+                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore an item by right clicking it in the '{Constants.TabTitles.SUMMARY}' tab.";
         }
 
         private static void ShowLoadingHint(HintLabel hintLabel)
         {
             hintLabel.Text =
                 $"{Constants.HINT_IN_PANEL_PADDING}This tab will not refresh automatically.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab and " +
+                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{Constants.TabTitles.SUMMARY}' tab and " +
                 $"wait until the '{Constants.UPDATING_HINT_TEXT}' hint disappears.\n" +
                 $"{Constants.HINT_IN_PANEL_PADDING}Then come back here and your ignored items will be displayed.";
         }

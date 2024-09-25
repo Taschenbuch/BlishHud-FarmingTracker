@@ -51,7 +51,7 @@ namespace FarmingTracker
 
             CollapsibleHelp = new CollapsibleHelp(
                 $"SETUP AND TROUBLESHOOTING:\n" +
-                $"DRF setup instructions and DRF and module troubleshooting can be found in the '{FarmingTrackerWindow.SETTINGS_TAB_TITLE}' tab.\n" +
+                $"DRF setup instructions and DRF and module troubleshooting can be found in the '{Constants.TabTitles.SETTINGS}' tab.\n" +
                 $"\n" +
                 $"CONTEXT MENU:\n" +
                 $"- right click an item/currency to open a context menu with additional features.\n" +

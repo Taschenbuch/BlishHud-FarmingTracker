@@ -23,7 +23,7 @@ namespace FarmingTracker
                 _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
                 _ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
-                    $"They can be managed in the '{FarmingTrackerWindow.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
+                    $"They can be managed in the '{Constants.TabTitles.IGNORED}'-Tab.";
 
                 _addFavoriteMenuItem = AddMenuItem("Add to favorites");
                 _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
@@ -42,9 +42,9 @@ namespace FarmingTracker
 
             if(!stat.IsCoinOrCustomCoin)
             {
-                _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab to edit or remove the custom profit.");
+                _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab to edit or remove the custom profit.");
                 _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
-                _setCustomProfitMenuItem.BasicTooltipText = $"Read the help text in the '{FarmingTrackerWindow.CUSTOM_STAT_PROFIT_TAB_TITLE}' tab for more details.";
+                _setCustomProfitMenuItem.BasicTooltipText = $"Read the help text in the '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab for more details.";
             }
         }
 

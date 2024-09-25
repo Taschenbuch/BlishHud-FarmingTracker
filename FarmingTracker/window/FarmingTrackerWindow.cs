@@ -34,20 +34,20 @@ namespace FarmingTracker
             _profitWindow = new ProfitWindow(services);
             var summaryTabView = new SummaryTabView(_profitWindow, model, services);
             _summaryTabView = summaryTabView;
-            _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, SUMMARY_TAB_TITLE);
-            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), SETTINGS_TAB_TITLE);
-            _customStatProfitTab = new Tab(services.TextureService.CustomStatProfitTabIconTexture, () => new CustomStatProfitTabView(model, services), CUSTOM_STAT_PROFIT_TAB_TITLE);
+            _summaryTab = new Tab(services.TextureService.SummaryTabIconTexture, () => summaryTabView, Constants.TabTitles.SUMMARY);
+            _settingsTab = new Tab(services.TextureService.SettingsTabIconTexture, () => new SettingsTabView(services), Constants.TabTitles.SETTINGS);
+            _customStatProfitTab = new Tab(services.TextureService.CustomStatProfitTabIconTexture, () => new CustomStatProfitTabView(model, services), Constants.TabTitles.CUSTOM_STAT_PROFIT);
 
             Tabs.Add(_summaryTab);
-            Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, () => new PlaceholderTabView(TIMELINE_TAB_TITLE), TIMELINE_TAB_TITLE));
-            Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), FILTER_TAB_TITLE));
-            Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), SORT_TAB_TITLE));
+            Tabs.Add(new Tab(services.TextureService.TimelineTabIconTexture, () => new PlaceholderTabView(Constants.TabTitles.TIMELINE), Constants.TabTitles.TIMELINE));
+            Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), Constants.TabTitles.FILTER));
+            Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), Constants.TabTitles.SORT));
             Tabs.Add(_customStatProfitTab);
-            Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), IGNORED_ITEMS_TAB_TITLE));
+            Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), Constants.TabTitles.IGNORED));
             Tabs.Add(_settingsTab);
 
             if(DebugMode.VisualStudioRunningInDebugMode)
-                Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(model, services), DEBUG_TAB_TITLE));
+                Tabs.Add(new Tab(services.TextureService.DebugTabIconTexture, () => new DebugTabView(model, services), Constants.TabTitles.DEBUG));
         }
 
         protected override void DisposeControl()
@@ -97,13 +97,5 @@ namespace FarmingTracker
         private readonly Tab _settingsTab;
         private readonly Tab _customStatProfitTab;
         private readonly ProfitWindow _profitWindow;
-        public const string SUMMARY_TAB_TITLE = "Summary";
-        private const string TIMELINE_TAB_TITLE = "Timeline";
-        private const string FILTER_TAB_TITLE = "Filter";
-        private const string SORT_TAB_TITLE = "Sort Items";
-        public const string IGNORED_ITEMS_TAB_TITLE = "Ignored Items";
-        public const string CUSTOM_STAT_PROFIT_TAB_TITLE = "Custom Profit";
-        public const string SETTINGS_TAB_TITLE = "Settings";
-        private const string DEBUG_TAB_TITLE = "Debug";
     }
 }
