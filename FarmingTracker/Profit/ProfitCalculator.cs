@@ -70,7 +70,7 @@ namespace FarmingTracker
 
         private static long GetStatProfit(List<CustomStatProfit> customStatProfits, Stat s)
         {
-            var customStatProfit = customStatProfits.SingleOrDefault(c => CustomStatProfit.ProfitBelongsToStat(c, s));
+            var customStatProfit = customStatProfits.SingleOrDefault(c => c.BelongsToStat(s));
             return customStatProfit == null
                 ? s.CountSign * s.Profits.All.MaxProfitInCopper
                 : s.CountSign * s.Count * customStatProfit.CustomProfitInCopper;

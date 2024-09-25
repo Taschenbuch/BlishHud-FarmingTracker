@@ -12,9 +12,9 @@
         public StatType StatType { get; }
         public long CustomProfitInCopper { get; set; }
 
-        public static bool ProfitBelongsToStat(CustomStatProfit customStatProfit, Stat stat)
+        public bool BelongsToStat(Stat stat)
         {
-            return customStatProfit.ApiId == stat.ApiId && customStatProfit.StatType == stat.StatType;
+            return ApiId == stat.ApiId && StatType == stat.StatType;
         }
     }
 }

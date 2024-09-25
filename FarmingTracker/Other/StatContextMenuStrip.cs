@@ -60,7 +60,7 @@ namespace FarmingTracker
 
         private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
         {
-            var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => CustomStatProfit.ProfitBelongsToStat(c, stat));
+            var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.BelongsToStat(stat));
 
             if (matchingCustomStatProfit != null) // custom stat already exists -> override its custom profit.
                 matchingCustomStatProfit.CustomProfitInCopper = 0;

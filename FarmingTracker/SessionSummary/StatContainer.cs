@@ -33,7 +33,7 @@ namespace FarmingTracker
 
             var customStatProfitInCopper = customStatProfits
                 .ToListSafe()
-                .SingleOrDefault(c => CustomStatProfit.ProfitBelongsToStat(c, stat))
+                .SingleOrDefault(c => c.BelongsToStat(stat))
                 ?.CustomProfitInCopper;
 
             var statIconTexture = GetStatIconTexture(stat, services);
