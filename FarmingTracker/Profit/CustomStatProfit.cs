@@ -10,7 +10,7 @@
 
         public int ApiId { get; }
         public StatType StatType { get; }
-        public int CustomProfitInCopper { get; set; }
+        public long CustomProfitInCopper { get; set; }
 
         public static bool ProfitBelongsToStat(CustomStatProfit customStatProfit, Stat stat)
         {

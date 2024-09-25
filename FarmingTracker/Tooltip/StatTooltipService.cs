@@ -19,9 +19,9 @@ namespace FarmingTracker
             };
         }
 
-        public static void AddProfitTable(Stat stat, BitmapFont font, Services services, Container parent)
+        public static void AddProfitTable(Stat stat, long? customStatProfitInCopper, BitmapFont font, Services services, Container parent)
         {
-            if (stat.Profits.CanNotBeSold)
+            if (stat.Profits.CanNotBeSold && !customStatProfitInCopper.HasValue)
                 return;
 
             if(!stat.IsSingleItem) // hack: because single item has empty string table headers and not headers like "each" and "all". the empty header still use space.
@@ -35,23 +35,24 @@ namespace FarmingTracker
                 Parent = parent,
             };
 
-            AddTitleColumn(stat, font, services, profitColumnsFlowPanel);
+            AddTitleColumn(stat, customStatProfitInCopper.HasValue, font, services, profitColumnsFlowPanel);
 
             if(stat.IsSingleItem)
             {
-                AddProfitColumn("", stat.Profits.Each, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("", stat.Profits.Each, customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
             }
             else
             {
-                AddProfitColumn("all", stat.Profits.All, stat, font, services, profitColumnsFlowPanel);
-                AddProfitColumn("each", stat.Profits.Each, stat, font, services, profitColumnsFlowPanel);
+                // ergebnis null, wenn ein Faktor null ist.
+                AddProfitColumn("all", stat.Profits.All, stat.Count * customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("each", stat.Profits.Each, customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
             }
 
             if (stat.Profits.CanBeSoldOnTp)
                 AddText("\n(15% trading post fee is already deducted from TP sell/buy)", font, parent);
         }
 
-        private static void AddTitleColumn(Stat stat, BitmapFont font, Services services, Container parent)
+        private static void AddTitleColumn(Stat stat, bool hasCustomProfit, BitmapFont font, Services services, Container parent)
         {
             var titleColumnFlowPanel = new FlowPanel
             {
@@ -84,11 +85,18 @@ namespace FarmingTracker
                 // Vendor title
                 new IconLabel("Vendor", services.TextureService.MerchantTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
             }
+
+            if (hasCustomProfit)
+            {
+                // custom profit title
+                new IconLabel("Custom", services.TextureService.CustomStatProfitTabIconTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
+            }
         }
 
         private static void AddProfitColumn(
             string columnHeaderText,
             Profit profit,
+            long? customStatProfitInCopper,
             Stat stat,
             BitmapFont font,
             Services services,
@@ -138,6 +146,16 @@ namespace FarmingTracker
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
                 vendorProfitPanel.SetCoins(stat.CountSign * profit.VendorProfitInCopper);
+                profitPanels.Add(vendorProfitPanel);
+                containers.Add(vendorProfitContainer);
+            }
+
+            if (customStatProfitInCopper.HasValue)
+            {
+                // custom profit
+                var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
+                var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
+                vendorProfitPanel.SetCoins(stat.CountSign * customStatProfitInCopper.Value);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);
             }

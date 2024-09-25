@@ -2,6 +2,7 @@
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
+using System.Linq;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
@@ -30,8 +31,13 @@ namespace FarmingTracker
 
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
+            var customStatProfitInCopper = customStatProfits
+                .ToListSafe()
+                .SingleOrDefault(c => CustomStatProfit.ProfitBelongsToStat(c, stat))
+                ?.CustomProfitInCopper;
+
             var statIconTexture = GetStatIconTexture(stat, services);
-            var statTooltip = new StatTooltip(stat, statIconTexture, panelType, services);
+            var statTooltip = new StatTooltip(stat, customStatProfitInCopper, statIconTexture, panelType, services);
             _statTooltip = statTooltip;
 
             // inventory slot background
