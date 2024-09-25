@@ -33,7 +33,23 @@ namespace FarmingTracker
             };
 
             var collapsibleHelp = new CollapsibleHelp(
-                $"xxxx", // todo x
+                $"ADD CUSTOM PROFIT:\n" +
+                $"In the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab right click on an item or currency icon to set its custom profit to 0. " +
+                $"After that you can change the custom profit in this tab.\n" +
+                $"\n" +
+                $"REMOVE CUSTOM PROFIT:\n" +
+                $"In this tab click on the 'x' button of a custom profit row.\n" +
+                $"\n" +
+                $"HOW DOES IT WORK?\n" +
+                $"- If a custom profit is set, the custom profit will be used to calculate the total profit instead of the trading post or vendor profit. " +
+                $"Even when the custom profit is lower or 0.\n" +
+                $"- Trading post taxes are not deducted from the custom profit.\n" +
+                $"- The custom profit applies to a single item/currency. Because of that you can not set the custom profit of 10 karma to 1 copper for example.\n" +
+                $"\n" +
+                $"WHY CUSTOM PROFIT?\n" +
+                $"- Currencies like volatile magic cannot be sold to the vendor or on the trading post. " +
+                $"But there are other ways to make profit with them. Use the custom profit to take that into account depending on the method you use.\n" +
+                $"- Set an item with an unrealistically high/low trading post profit to a more realistic custom profit.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
                 _rootFlowPanel);
 
