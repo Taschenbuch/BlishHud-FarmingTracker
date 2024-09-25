@@ -55,6 +55,7 @@ namespace FarmingTracker
             DefineProfitSettings(settings);
             DefineProfitWindowSettings(settings, internalSettings);
             DefineSortAndFilterSettings(internalSettings);
+            MigrateBlishSettingsService.MigrateSettings(SettingsVersionSetting, CurrencyFilterSetting);
         }
 
         private void DefineSortAndFilterSettings(SettingCollection internalSettings)
@@ -85,9 +86,19 @@ namespace FarmingTracker
             RemoveUnknownEnumValues(KnownByApiFilterSetting);
         }
 
+
         private SettingCollection DefineHiddenSettings(SettingCollection settings)
         {
             var internalSettings = settings.AddSubCollection("internal settings (not visible in UI)");
+            
+            var settingsVersionSetting = internalSettings[SETTINGS_VERSION_SETTING_KEY]; 
+            var isFirstVersionWhichHadNoSettingsVersionSetting = settingsVersionSetting == null;
+
+            SettingsVersionSetting = internalSettings.DefineSetting(SETTINGS_VERSION_SETTING_KEY, 2); 
+            
+            if (isFirstVersionWhichHadNoSettingsVersionSetting)
+                SettingsVersionSetting.Value = 1; 
+
             NextResetDateTimeUtcSetting = internalSettings.DefineSetting("next reset dateTimeUtc", NextAutomaticResetCalculator.UNDEFINED_RESET_DATE_TIME);
             FarmingDurationTimeSpanSetting = internalSettings.DefineSetting("farming duration time span", TimeSpan.Zero);
             return internalSettings;
@@ -233,8 +244,9 @@ namespace FarmingTracker
         public SettingEntry<int> MinutesUntilResetAfterModuleShutdownSetting { get; }
         public SettingEntry<KeyBinding> WindowVisibilityKeyBindingSetting { get; }
         public SettingEntry<bool> IsFakeDrfServerUsedSetting { get; }
-        
+
         // hidden settings
+        public SettingEntry<int> SettingsVersionSetting { get; private set; }
         public SettingEntry<DateTime> NextResetDateTimeUtcSetting { get; private set; }
         public SettingEntry<TimeSpan> FarmingDurationTimeSpanSetting { get; private set; }
 
@@ -273,6 +285,7 @@ namespace FarmingTracker
         public SettingEntry<FloatPoint> ProfitWindowRelativeWindowAnchorLocationSetting { get; private set; }
 
         private const string DRAG_WITH_MOUSE_LABEL_TEXT = "drag with mouse";
+        private const string SETTINGS_VERSION_SETTING_KEY = "settings version";
     }
 }
 #nullable enable
