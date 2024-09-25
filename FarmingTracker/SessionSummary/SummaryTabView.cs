@@ -76,8 +76,7 @@ namespace FarmingTracker
                 Task.Run(() =>
                 {
                     var snapshot = _model.Stats.StatsSnapshot;
-                    var customStatProfitsCopy = _model.CustomStatProfits.ToListSafe(); // weg, falls andere z.b. wegen contextmenu eh diese ListSafe nicht nutzen können
-                    _services.ProfitCalculator.CalculateProfits(snapshot, customStatProfitsCopy, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.CustomStatProfits, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
                     _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
                     UiUpdater.UpdateStatPanels(_controls.StatsPanels, snapshot, _model, _services);

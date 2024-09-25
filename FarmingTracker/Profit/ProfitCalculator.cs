@@ -14,26 +14,27 @@ namespace FarmingTracker
             ProfitPerHourInCopper = CalculateProfitPerHourInCopper(ProfitInCopper, elapsedFarmingTime);
         }
 
-        public void CalculateProfits(StatsSnapshot snapshot, List<CustomStatProfit> customStatProfits, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
+        public void CalculateProfits(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, SafeList<int> ignoredItemApiIds, TimeSpan elapsedFarmingTime)
         {
             var profitInCopper = CalculateProfitInCopper(snapshot, customStatProfits, ignoredItemApiIds);
             ProfitPerHourInCopper = CalculateProfitPerHourInCopper(profitInCopper, elapsedFarmingTime);
             ProfitInCopper = profitInCopper;
         }
 
-        public static long CalculateProfitInCopper(StatsSnapshot snapshot, List<CustomStatProfit> customStatProfits, SafeList<int> ignoredItemApiIds)
+        public static long CalculateProfitInCopper(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, SafeList<int> ignoredItemApiIds)
         {
-            var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
-
+            var customStatProfitsCopy = customStatProfits.ToListSafe();
             var ignoredItemApiIdsCopy = ignoredItemApiIds.ToListSafe();
+
             var itemsSellProfitInCopper = snapshot.ItemById.Values
                 .Where(i => !ignoredItemApiIdsCopy.Contains(i.ApiId))
-                .Sum(i => GetStatProfit(customStatProfits, i));
+                .Sum(i => GetStatProfit(customStatProfitsCopy, i));
 
             var currenciesSellProfitInCopper = snapshot.CurrencyById.Values
                 .Where(c => !c.IsCoinOrCustomCoin)
-                .Sum(c => GetStatProfit(customStatProfits, c));
+                .Sum(c => GetStatProfit(customStatProfitsCopy, c));
 
+            var coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Count ?? 0;
             var totalProfit = coinsInCopper + itemsSellProfitInCopper + currenciesSellProfitInCopper;
 
             if (DebugMode.DebugLoggingRequired)
@@ -42,8 +43,8 @@ namespace FarmingTracker
                     $"coinsInCopper {coinsInCopper} " +
                     $"+ itemsSellProfitInCopper {itemsSellProfitInCopper} " +
                     $"+ currenciesSellProfitInCopper {currenciesSellProfitInCopper} " +
-                    $"| maxAllProfits per Item (including ignored) {string.Join(" ", snapshot.ItemById.Values.Select(i => GetStatProfit(customStatProfits, i)))}" +
-                    $"| maxAllProfits per Currency {string.Join(" ", snapshot.CurrencyById.Values.Select(c => GetStatProfit(customStatProfits, c)))}");
+                    $"| maxAllProfits per Item (including ignored) {string.Join(" ", snapshot.ItemById.Values.Select(i => GetStatProfit(customStatProfitsCopy, i)))}" +
+                    $"| maxAllProfits per Currency {string.Join(" ", snapshot.CurrencyById.Values.Select(c => GetStatProfit(customStatProfitsCopy, c)))}");
 
             return totalProfit;
         }
