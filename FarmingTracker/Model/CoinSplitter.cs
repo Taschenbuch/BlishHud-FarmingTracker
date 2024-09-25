@@ -16,19 +16,19 @@ namespace FarmingTracker
 
             if(coin.HasToDisplayGold)
             {
-                var goldStat = CreateCoinStat("Gold", coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
+                var goldStat = CreateCoinStat("Gold", coin.Sign * coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
                 currencies.Add(goldStat);
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = CreateCoinStat("Silver", coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
+                var silverStat = CreateCoinStat("Silver", coin.Sign * coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
                 currencies.Add(silverStat);
             }
             
             if(coin.HasToDisplayCopper)
             {
-                var copperStat = CreateCoinStat("Copper", coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
+                var copperStat = CreateCoinStat("Copper", coin.Sign * coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
                 currencies.Add(copperStat);
             }
             

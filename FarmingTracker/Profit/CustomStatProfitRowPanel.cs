@@ -52,7 +52,7 @@ namespace FarmingTracker
             var goldTextBox = new NumberTextBox(6) // 6 because otherwise end of number is hidden due to textbox not supporting horizontal scrolling.
             {
                 Location = new Point(statImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.UnsignedGold.ToString(),
+                Text = coin.Gold.ToString(),
                 Width = 60,
                 Parent = statRowPanel
             };
@@ -67,7 +67,7 @@ namespace FarmingTracker
             var silverTextBox = new NumberTextBox(2)
             {
                 Location = new Point(goldCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.UnsignedSilver.ToString(),
+                Text = coin.Silver.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
@@ -82,7 +82,7 @@ namespace FarmingTracker
             var copperTextBox = new NumberTextBox(2)
             {
                 Location = new Point(silverCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.UnsignedCopper.ToString(),
+                Text = coin.Copper.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
