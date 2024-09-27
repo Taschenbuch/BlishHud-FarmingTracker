@@ -55,7 +55,7 @@ namespace FarmingTracker
             DefineProfitSettings(settings);
             DefineProfitWindowSettings(settings, internalSettings);
             DefineSortAndFilterSettings(internalSettings);
-            MigrateBlishSettingsService.MigrateSettings(SettingsVersionSetting, CurrencyFilterSetting);
+            MigrateBlishSettingsService.MigrateSettings(SettingsVersionSetting, CurrencyFilterSetting, SellMethodFilterSetting);
         }
 
         private void DefineSortAndFilterSettings(SettingCollection internalSettings)
@@ -230,7 +230,7 @@ namespace FarmingTracker
         }
 
         // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
-        private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> ListSetting) where T : System.Enum
+        private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> ListSetting) where T : Enum
         {
             var elements = new List<T>(ListSetting.Value); // otherwise foreach wont work
 

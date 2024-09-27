@@ -87,7 +87,7 @@ namespace FarmingTracker
             };
 
             filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, _rootFlowPanel, "Coin will never be hidden."));
-            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, _rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items & currencies)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, _rootFlowPanel, $"{MATCH_MULTIPLE_OPTION_HINT}\nRaw gold (coin) will always be visible regardless of which of these filters\nare active or not."));
             filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, _rootFlowPanel));
             filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, _rootFlowPanel));
             filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, _rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
@@ -211,6 +211,6 @@ namespace FarmingTracker
 
         private readonly Services _services;
         private FlowPanel? _rootFlowPanel;
-        private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are\nonly hidden if all matching options are unselected.";
+        private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are only hidden\nif all matching options are unselected.";
     }
 }

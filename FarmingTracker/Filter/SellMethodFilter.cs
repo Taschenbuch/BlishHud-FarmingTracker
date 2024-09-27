@@ -5,5 +5,6 @@
         NotSellable,
         SellableToVendor,
         SellableOnTradingPost,
+        CustomProfitIsSet,
     }
 }
