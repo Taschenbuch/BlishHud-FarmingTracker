@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,8 +21,10 @@ namespace FarmingTracker
             {
                 var csvFileText = CreateCsvFileText(model);
                 var csvFileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss_fff}.csv";
-                var csvFilePath = Path.Combine(ModuleFolderPath, csvFileName);
+                var csvFolderPath = Path.Combine(ModuleFolderPath, "csv");
+                var csvFilePath = Path.Combine(csvFolderPath, csvFileName);
                 await FileSaver.WriteFileAsync(csvFilePath, csvFileText);
+                Process.Start("explorer.exe", csvFolderPath);
             }
             catch (Exception exception)
             {
