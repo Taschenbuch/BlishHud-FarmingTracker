@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class NumberTextBox : TextBox
     {
-        public NumberTextBox(int maxNumberLength = 8) // 8 = prevent of integer range exception when parsing textBox.Text.
+        public NumberTextBox(int maxNumberLength = 8) // 8 = prevent integer range exception when parsing textBox.Text.
         {
             PlaceholderText = "0";
 
@@ -15,7 +15,7 @@ namespace FarmingTracker
                 var oldText = Text;
                 var oldCursorIndex = CursorIndex;
 
-                var newText = RemoveNonDigitsAndLeadingZeros(oldText, maxNumberLength);
+                var newText = RemoveNonDigitsAndLeadingZerosAndTrimToMaxNumberLength(oldText, maxNumberLength);
                 var newCursorIndex = DetermineNewCursorIndex(newText, oldText, oldCursorIndex);
 
                 Text = newText;
@@ -29,13 +29,16 @@ namespace FarmingTracker
         // this is a hack, it will never work properly because the oldCursorIndex is not from before changing the Text. TextBox already updated it.
         private static int DetermineNewCursorIndex(string newText, string oldText, int oldCursorIndex) 
         {
+            if(newText == oldText) // no illegal character was removed, no leading zero removal etc.
+                return oldCursorIndex;
+
+            if (newText.Length == oldText.Length)
+                return oldCursorIndex;
+
             var newCursorIndex = oldCursorIndex;
 
-            if (newText.Length == oldText.Length) 
-                return oldCursorIndex; // no illegal character was removed. text <= maxNumberLength.
-
             if (newCursorIndex >= newText.Length)
-                newCursorIndex = newText.Length - 1; // prevents cursor from moving
+                newCursorIndex = newText.Length - 1; // prevents cursor from resetting to the text input start (i think?)
 
             if (newCursorIndex < 0)
                 newCursorIndex = 0;
@@ -43,7 +46,7 @@ namespace FarmingTracker
             return newCursorIndex;
         }
 
-        private static string RemoveNonDigitsAndLeadingZeros(string text, int maxNumberLength = 0)
+        private static string RemoveNonDigitsAndLeadingZerosAndTrimToMaxNumberLength(string text, int maxNumberLength = 0)
         {
             try
             {
