@@ -34,6 +34,7 @@ namespace FarmingTracker
 
             var collapsibleHelp = new CollapsibleHelp(
                 "- only items are sorted, not currencies.\n" +
+                "- custom profit is not taken into account in the profit sorting for now. This may change in the future.\n" +
                 "- multiple sorts can be combined. Example:\n" +
                 "'sort by' positive/negative count, 'then by' rarity, 'then by' name.\n" +
                 "This will first split the items into gained items (positive count) and lost items (negative count). " +
