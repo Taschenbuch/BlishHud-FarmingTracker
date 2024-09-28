@@ -36,11 +36,11 @@
 
         public bool HasToUpdateStats()
         {
-            var statsHaveToBeUpdated = _statsHaveToBeUpdated;
-            if(statsHaveToBeUpdated)
-                _statsHaveToBeUpdated = false;
+            if (!_statsHaveToBeUpdated)
+                return false;
 
-            return statsHaveToBeUpdated;
+            _statsHaveToBeUpdated = false;
+            return true;
         }
 
         public void TriggerUpdateUi()
@@ -50,11 +50,11 @@
 
         public bool HasToUpdateUi()
         {
-            var uiHasToBeUpdated = _uiHasToBeUpdated;
-            if(uiHasToBeUpdated) // verhindert, dass thread parallel es true setzt und es hier pauschal false gesetzt wird ohne das ein update ausgelöst wird
-                _uiHasToBeUpdated = false;
+            if (!_uiHasToBeUpdated)
+                return false;
 
-            return uiHasToBeUpdated;
+            _uiHasToBeUpdated = false;
+            return true;
         }
 
         public void TriggerSaveModel()
