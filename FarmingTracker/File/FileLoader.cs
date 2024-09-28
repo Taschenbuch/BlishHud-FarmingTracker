@@ -30,7 +30,7 @@ namespace FarmingTracker
                 if (fileModel == null)
                     throw new Exception("Deserializing the model.json file failed.");
 
-                return FileModelService.CreateModel(fileModel);
+                return ModelCreator.CreateModel(fileModel);
             }
             catch (Exception e)
             {

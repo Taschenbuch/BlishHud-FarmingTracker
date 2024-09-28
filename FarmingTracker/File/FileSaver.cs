@@ -49,7 +49,7 @@ namespace FarmingTracker
 
         private static string SerializeModelToJson(Model model)
         {
-            var fileModel = FileModelService.CreateFileModel(model);
+            var fileModel = FileModelCreator.CreateFileModel(model);
             return JsonConvert.SerializeObject(fileModel);
         }
 
