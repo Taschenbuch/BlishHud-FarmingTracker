@@ -73,7 +73,7 @@ namespace FarmingTracker
             }
             else
             {
-                // do not modify profit labels in 6farming tracker main window.
+                // do not modify profit labels in farming tracker main window.
                 _profitLabel.Text = $" Profit"; // blank as padding because sign label should get no control padding from flowPanel.
                 _profitPerHourLabel.Text = $" Profit per hour";
             }
@@ -81,6 +81,9 @@ namespace FarmingTracker
 
         private void OnProfitWindowDisplayModeSettingChanged(object? sender = null, ValueChangedEventArgs<ProfitWindowDisplayMode>? e = null)
         {
+            if(!_isProfitWindow) // do not modify what is displayed in farming tracker main window.
+                return;
+
             _profitPanel.Parent = null;
             _profitPerHourPanel.Parent = null;
 
