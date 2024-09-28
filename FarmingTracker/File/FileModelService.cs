@@ -9,43 +9,27 @@ namespace FarmingTracker
         {
             var model = new Model
             {
+                IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds),
                 FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds),
                 CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
             };
 
-            foreach (var fileCurrency in fileModel.FileCurrencies)
-                model.Stats.CurrencyById[fileCurrency.ApiId] = new Stat
-                {
-                    ApiId = fileCurrency.ApiId,
-                    StatType = StatType.Currency,
-                    Count = fileCurrency.Count,
-                };
-
-            foreach (var fileItem in fileModel.FileItems)
-                model.Stats.ItemById[fileItem.ApiId] = new Stat
-                {
-                    ApiId = fileItem.ApiId,
-                    StatType = StatType.Item,
-                    Count = fileItem.Count,
-                };
-            
-            model.IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds);
+            AddStatsToModel(model.Stats.CurrencyById, fileModel.FileCurrencies, StatType.Currency);
+            AddStatsToModel(model.Stats.ItemById, fileModel.FileItems, StatType.Item);
 
             // add customStatProfits to items and currenciens to get their api data on module startup
             foreach (var customStatProfit in fileModel.CustomStatProfits)
-                switch (customStatProfit.StatType)
-                {
-                    case StatType.Item:
-                        AddStatIfMissing(model.Stats.ItemById, customStatProfit.ApiId, StatType.Item);
-                        break;
-                    case StatType.Currency:
-                        AddStatIfMissing(model.Stats.CurrencyById, customStatProfit.ApiId, StatType.Currency);
-                        break;
-                }
+            {
+                var statById = customStatProfit.StatType == StatType.Item
+                    ? model.Stats.ItemById
+                    : model.Stats.CurrencyById;
+
+                AddStatToModelIfMissing(statById, customStatProfit.ApiId, customStatProfit.StatType);
+            }
 
             // add ignoredItems to items to get their api data on module startup
             foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                AddStatIfMissing(model.Stats.ItemById, ignoredItemApiId, StatType.Item);
+                AddStatToModelIfMissing(model.Stats.ItemById, ignoredItemApiId, StatType.Item);
 
             model.Stats.UpdateStatsSnapshot();
 
@@ -65,32 +49,37 @@ namespace FarmingTracker
             var items = snapshot.ItemById.Values.Where(s => s.Count != 0).ToList();
             var currencies = snapshot.CurrencyById.Values.Where(s => s.Count != 0).ToList();
 
-            foreach (var item in items)
-            {
-                var fileStat = new FileStat()
-                {
-                    ApiId = item.ApiId,
-                    Count = item.Count,
-                };
+            var fileItems = CreateFileStats(items);
+            var fileCurrencies = CreateFileStats(currencies);
 
-                fileModel.FileItems.Add(fileStat);
-            }
-
-            foreach (var currency in currencies)
-            {
-                var fileStat = new FileStat()
-                {
-                    ApiId = currency.ApiId,
-                    Count = currency.Count,
-                };
-
-                fileModel.FileCurrencies.Add(fileStat);
-            }
+            fileModel.FileItems.AddRange(fileItems);
+            fileModel.FileCurrencies.AddRange(fileCurrencies);
 
             return fileModel;
         }
 
-        private static void AddStatIfMissing(Dictionary<int, Stat> statById, int statId, StatType statType)
+        private static IEnumerable<FileStat> CreateFileStats(List<Stat> stats)
+        {
+            foreach (var stat in stats)
+                yield return new FileStat()
+                {
+                    ApiId = stat.ApiId,
+                    Count = stat.Count,
+                };
+        }
+
+        private static void AddStatsToModel(Dictionary<int, Stat> statById, List<FileStat> fileStats, StatType statType)
+        {
+            foreach (var fileStat in fileStats)
+                statById[fileStat.ApiId] = new Stat
+                {
+                    ApiId = fileStat.ApiId,
+                    StatType = statType,
+                    Count = fileStat.Count,
+                };
+        }
+
+        private static void AddStatToModelIfMissing(Dictionary<int, Stat> statById, int statId, StatType statType)
         {
             if (statById.ContainsKey(statId))
                 return;
