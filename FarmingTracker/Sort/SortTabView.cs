@@ -80,6 +80,7 @@ namespace FarmingTracker
                 var sortByList = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
                 sortByList.Add(sortByWithDirection);
                 _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
+                _services.UpdateLoop.TriggerUpdateUi();
             };
 
             foreach (var sortByWithDirection in _services.SettingService.SortByWithDirectionListSetting.Value.ToList())
@@ -91,7 +92,6 @@ namespace FarmingTracker
             var singleSortPanel = new SortPanel(allSortsFlowPanel, sortByWithDirection);
             sortPanels.Add(singleSortPanel);
             SetThenByOrSortByLabels(sortPanels);
-            _services.UpdateLoop.TriggerUpdateUi();
 
             singleSortPanel.Dropdown.ValueChanged += (s, e) =>
             {
