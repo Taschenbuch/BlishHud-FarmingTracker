@@ -11,8 +11,6 @@ namespace FarmingTracker
                 new Rectangle(20, 26, windowWidth, windowHeight),
                 new Rectangle(80, 20, windowWidth - 80, windowHeight - 20))
         {
-            services.FarmingTrackerWindow = this; // must be set inside ctor, because it is already used by controls created in this ctor.
-
             Title = "Farming Tracker";
             Emblem = services.TextureService.WindowEmblemTexture;
             SavesPosition = true;
@@ -59,27 +57,30 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        public void ShowWindowAndSelectSettingsTab()
+        public void SelectWindowTab(WindowTab windowTab, WindowVisibility windowVisibility)
         {
-            Show();
-            SelectedTab = _settingsTab;
-        }
-
-        public void ShowWindowAndSelectCustomProfitTab()
-        {
-            Show();
-            SelectedTab = _customStatProfitTab;
-        }
-
-        public void ToggleWindowAndSelectSummaryTab()
-        {
-            if(Visible)
-                Hide();
-            else
+            if(windowVisibility == WindowVisibility.Toggle && Visible)
             {
-                SelectedTab = _summaryTab;
-                Show();
+                Hide();
+                return;
             }
+
+            switch (windowTab)
+            {
+                case WindowTab.Summary:
+                    SelectedTab = _summaryTab;
+                    break;
+                case WindowTab.Settings:
+                    SelectedTab = _settingsTab;
+                    break;
+                case WindowTab.CustomProfit:
+                    SelectedTab = _customStatProfitTab;
+                    break;
+                default:
+                    break;
+            }
+
+            Show();
         }
 
         public void Update2(GameTime gameTime) // Update2() because Update() already exists but is not always called.

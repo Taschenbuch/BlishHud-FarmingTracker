@@ -31,7 +31,6 @@ namespace FarmingTracker
             Drf?.Dispose();
             TextureService?.Dispose();
             DateTimeService?.Dispose();
-            FarmingTrackerWindow?.Dispose();
         }
 
         public Gw2ApiManager Gw2ApiManager { get; }
@@ -45,8 +44,8 @@ namespace FarmingTracker
         public FarmingDuration FarmingDuration { get; }
         public UpdateLoop UpdateLoop { get; } = new UpdateLoop();
         public FontService FontService { get; } = new FontService();
+        public WindowTabSelector WindowTabSelector { get; set; } = new WindowTabSelector();
         public DateTimeService DateTimeService { get; }
         public string SearchTerm { get; set; } = string.Empty;
-        public FarmingTrackerWindow? FarmingTrackerWindow { get; set; }
     }
 }

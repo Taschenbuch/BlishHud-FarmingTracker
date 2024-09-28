@@ -72,7 +72,7 @@ namespace FarmingTracker
 
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
-            services.FarmingTrackerWindow?.ShowWindowAndSelectCustomProfitTab();
+            services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
         private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)

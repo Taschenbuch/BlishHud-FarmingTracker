@@ -28,7 +28,7 @@ namespace FarmingTracker
                 Parent = RootFlowPanel
             };
 
-            OpenSettingsButton = new OpenSettingsButton("Open settings tab to setup DRF", services.FarmingTrackerWindow, RootFlowPanel);
+            OpenSettingsButton = new OpenSettingsButton("Open settings tab to setup DRF", services.WindowTabSelector, RootFlowPanel);
             OpenSettingsButton.Hide();
 
             FarmingRootFlowPanel = new FlowPanel()

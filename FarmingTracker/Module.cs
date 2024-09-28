@@ -41,7 +41,7 @@ namespace FarmingTracker
 
             return _moduleLoadError.HasModuleLoadFailed
                 ? _moduleLoadError.CreateErrorSettingsView()
-                : new ModuleSettingsView(_services.FarmingTrackerWindow);
+                : new ModuleSettingsView(_services.WindowTabSelector);
         }
 
         protected override async Task LoadAsync()
@@ -55,9 +55,9 @@ namespace FarmingTracker
             var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
             var model = await services.FileLoader.LoadModelFromFile();
             _model = model;
-            _services = services;
+            _services = services; // set early because some eventhandler use it (not really necessary here though, at the end should work too).
 
-            if(_services.Drf.WindowsVersionIsTooLowToSupportWebSockets)
+            if (services.Drf.WindowsVersionIsTooLowToSupportWebSockets)
             {
                 _moduleLoadError.InitializeErrorSettingsViewAndShowErrorWindow(
                     $"{Name}: Module does not work :-(",
@@ -66,11 +66,14 @@ namespace FarmingTracker
                 return;
             }
 
-            new FarmingTrackerWindow(570, 650, model, services);
-            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
+            var farmingTrackerWindow = new FarmingTrackerWindow(570, 650, model, services);
+            services.WindowTabSelector.Init(farmingTrackerWindow);
+            _farmingTrackerWindow = farmingTrackerWindow;
 
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
+            services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
+            services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
+            
+            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
         }
 
         protected override void Update(GameTime gameTime)
@@ -78,15 +81,16 @@ namespace FarmingTracker
             if(_moduleLoadError.HasModuleLoadFailed)
                 return;
 
-            _services?.FarmingTrackerWindow?.Update2(gameTime);
+            _farmingTrackerWindow?.Update2(gameTime);
         }
 
         protected override void Unload()
         {
             _moduleLoadError?.Dispose();
             _trackerCornerIcon?.Dispose();
+            _farmingTrackerWindow?.Dispose();
 
-            if(_services != null)
+            if (_services != null)
             {
                 _services.Dispose();
                 _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
@@ -98,11 +102,12 @@ namespace FarmingTracker
             }
         }
 
-        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _services?.FarmingTrackerWindow?.ToggleWindowAndSelectSummaryTab();
-        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _services?.FarmingTrackerWindow?.ToggleWindowAndSelectSummaryTab();
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _services?.WindowTabSelector.SelectWindowTab(WindowTab.Summary, WindowVisibility.Toggle);
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _services?.WindowTabSelector.SelectWindowTab(WindowTab.Summary, WindowVisibility.Toggle);
 
         private readonly ModuleLoadError _moduleLoadError = new ModuleLoadError();
         private TrackerCornerIcon? _trackerCornerIcon;
+        private FarmingTrackerWindow? _farmingTrackerWindow;
         private SettingService? _settingService;
         private DateTimeService? _dateTimeService;
         private Services? _services;
