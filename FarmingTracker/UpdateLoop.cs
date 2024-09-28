@@ -64,11 +64,11 @@
 
         public bool HasToSaveModel()
         {
-            var modelHasToBeSaved = _modelHasToBeSaved;
-            if(modelHasToBeSaved)
-                _modelHasToBeSaved = false;
-            
-            return modelHasToBeSaved;
+            if (!_modelHasToBeSaved)
+                return false;
+
+            _modelHasToBeSaved = false;
+            return true;
         }
 
         public const int RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS = 5_000;
