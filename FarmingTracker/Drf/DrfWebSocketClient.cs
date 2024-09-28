@@ -209,18 +209,16 @@ namespace FarmingTracker
 
                 // must not await, otherwise Connect() never returns because of the infinite receive loop in the happy path
                 ConnectedAndAuthenticationRequestSent?.Invoke(this, EventArgs.Empty);
-                var fireAndForget = Task.Run(() => ReceiveContinuously(clientWebSocket, disposeCts.Token), disposeCts.Token);
+                _ = Task.Run(() => ReceiveContinuously(clientWebSocket, disposeCts.Token), disposeCts.Token);
             }
             catch (OperationCanceledException)
             {
                 clientWebSocket?.Abort(); // calls .Dispose() internally
-                return;
             }
             catch (Exception e)
             {
                 clientWebSocket?.Abort(); // calls .Dispose() internally
                 ConnectCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
-                return;
             }
         }
 
@@ -309,7 +307,7 @@ namespace FarmingTracker
             }
             catch (OperationCanceledException)
             {
-                return;
+                // NOOP
             }
             catch (WebSocketException e)
             {
@@ -326,7 +324,6 @@ namespace FarmingTracker
                     return;
 
                 ReceiveFailed?.Invoke(this, new GenericEventArgs<Exception>(e));
-                return;
             }
             catch (Exception e)
             {
@@ -335,7 +332,6 @@ namespace FarmingTracker
 
                 // InvalidOperationException: ReceiveAsync(): The ClientWebSocket is not connected
                 ReceiveCrashed?.Invoke(this, new GenericEventArgs<Exception>(e));
-                return;
             }
             finally
             {

@@ -55,7 +55,7 @@ namespace FarmingTracker
             };
         }
 
-        private ApiTokenState GetApiTokenState(IReadOnlyList<TokenPermission> requiredApiTokenPermissions, Gw2ApiManager gw2ApiManager)
+        private static ApiTokenState GetApiTokenState(IReadOnlyList<TokenPermission> requiredApiTokenPermissions, Gw2ApiManager gw2ApiManager)
         {
             if (string.IsNullOrWhiteSpace(GameService.Gw2Mumble.PlayerCharacter.Name))
                 return ApiTokenState.hasNotLoggedIntoCharacterSinceStartingGw2;
@@ -67,7 +67,7 @@ namespace FarmingTracker
                 return ApiTokenState.CanAccessApi;
         }
 
-        private IEnumerable<TokenPermission> GetMissingPermissions(IReadOnlyList<TokenPermission> requiredPermissions, Gw2ApiManager gw2ApiManager)
+        private static IEnumerable<TokenPermission> GetMissingPermissions(IReadOnlyList<TokenPermission> requiredPermissions, Gw2ApiManager gw2ApiManager)
         {
             foreach (var requiredPermission in requiredPermissions)
                 if (!gw2ApiManager.HasPermissions(new List<TokenPermission> { requiredPermission }))

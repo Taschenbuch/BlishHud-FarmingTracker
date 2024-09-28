@@ -119,19 +119,16 @@ namespace FarmingTracker
                 return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
 
-            if(!_statsAccessLocked)
+            if(!_statsAccessLocked && _services.UpdateLoop.HasToSaveModel())
             {
-                if (_services.UpdateLoop.HasToSaveModel())
-                {
-                    _statsAccessLocked = true;
+                _statsAccessLocked = true;
 
-                    Task.Run(async () =>
-                    {
-                        await _services.FileSaver.SaveModelToFile(_model);
-                        _statsAccessLocked = false;
-                    });
-                    // do not return here because saving the model should not disturb other parts of Update().
-                }
+                Task.Run(async () =>
+                {
+                    await _services.FileSaver.SaveModelToFile(_model);
+                    _statsAccessLocked = false;
+                });
+                // do not return here because saving the model should not disturb other parts of Update().
             }
 
             if (_profitPerHourUpdateInterval.HasEnded())

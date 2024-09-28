@@ -129,7 +129,7 @@ namespace FarmingTracker
             };
         }
 
-        private void SetThenByOrSortByLabels(List<SortPanel> sortPanels)
+        private static void SetThenByOrSortByLabels(List<SortPanel> sortPanels)
         {
             if (!sortPanels.Any())
                 return;

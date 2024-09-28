@@ -7,10 +7,7 @@ namespace FarmingTracker
 {
     public class FilterService
     {
-        public static bool IsUnknownFilterElement<T>(int currencyId)
-        {
-            return !Enum.IsDefined(typeof(T), currencyId);
-        }
+
 
         public static (List<Stat> items, List<Stat> currencies) FilterStatsAndSetFunnelOpacity(
             List<Stat> items,
@@ -19,14 +16,14 @@ namespace FarmingTracker
             StatsPanels statsPanels,
             SettingService settingService)
         {
-            var currenciesCountBeforeFiltering = currencies.Count();
-            var itemsCountBeforeFiltering = items.Count();
+            var currenciesCountBeforeFiltering = currencies.Count;
+            var itemsCountBeforeFiltering = items.Count;
 
             currencies = FilterCurrencies(currencies, customStatProfits, settingService);
             items = FilterItems(items, customStatProfits, settingService);
 
-            var noCurrenciesHiddenByFilter = currencies.Count() == currenciesCountBeforeFiltering;
-            var noItemsHiddenByFilter = items.Count() == itemsCountBeforeFiltering;
+            var noCurrenciesHiddenByFilter = currencies.Count == currenciesCountBeforeFiltering;
+            var noItemsHiddenByFilter = items.Count == itemsCountBeforeFiltering;
 
             statsPanels.CurrencyFilterIcon.SetOpacity(noCurrenciesHiddenByFilter);
             statsPanels.ItemsFilterIcon.SetOpacity(noItemsHiddenByFilter);
@@ -94,7 +91,7 @@ namespace FarmingTracker
 
         private static bool IsShownByCurrencyFilter(Stat c, List<CurrencyFilter> currencyFilter)
         {
-            var isUnknownCurrency = IsUnknownFilterElement<CurrencyFilter>(c.ApiId); // e.g. when new currency is released
+            var isUnknownCurrency = Helper.IsUnknownEnumValue<CurrencyFilter>(c.ApiId); // e.g. when new currency is released
             if (isUnknownCurrency)
                 return true;
 

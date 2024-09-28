@@ -204,7 +204,7 @@ namespace FarmingTracker
         private static void UpdateOpacity<T>(ClickThroughImage filterIcon, List<T> selectedFilterElements, T[] allPossibleFilterElements)
         {
             var noneSelected = !selectedFilterElements.Any();
-            var allSelected = selectedFilterElements.Count() == allPossibleFilterElements.Count();
+            var allSelected = selectedFilterElements.Count == allPossibleFilterElements.Count();
             var filterIsInactive = noneSelected || allSelected;
             filterIcon.SetOpacity(filterIsInactive);
         }

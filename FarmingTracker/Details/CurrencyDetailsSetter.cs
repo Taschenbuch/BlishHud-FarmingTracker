@@ -12,7 +12,7 @@ namespace FarmingTracker
         // Caching does work for currencies (<100). But for items it would need like 5 minutes (>60k).
         public static async Task<Dictionary<int, CurrencyDetails>> CreateCacheWithAllApiCurrencies(Gw2ApiManager gw2ApiManager)
         {
-            IReadOnlyList<Currency> apiCurrencies = new List<Currency>();
+            IReadOnlyList<Currency> apiCurrencies;
 
             try
             {

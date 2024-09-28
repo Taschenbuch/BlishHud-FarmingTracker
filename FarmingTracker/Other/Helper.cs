@@ -1,7 +1,14 @@
-﻿namespace FarmingTracker
+﻿using System;
+
+namespace FarmingTracker
 {
     public class Helper
     {
+        public static bool IsUnknownEnumValue<T>(int enumValue)
+        {
+            return !Enum.IsDefined(typeof(T), enumValue);
+        }
+
         public static string ConvertEnumValueToTextWithBlanks(string textWithUpperCasedWords)
         {
             var textWithBlanks = "";

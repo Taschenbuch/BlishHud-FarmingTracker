@@ -62,9 +62,9 @@ namespace FarmingTracker
 
         private void UpdateHeight()
         {
-            _expandedHeight = _label.Height + _collapsedHeight + HELP_LABEL_BORDER_SIZE;
-            Height = _isHelpExpanded ? _expandedHeight : _collapsedHeight;
-            _blackContainer.Height = _expandedHeight;
+            var expandedHeight = _label.Height + _collapsedHeight + HELP_LABEL_BORDER_SIZE;
+            Height = _isHelpExpanded ? expandedHeight : _collapsedHeight;
+            _blackContainer.Height = expandedHeight;
         }
 
         private void UpdateWidth(int expandedWith)
@@ -85,7 +85,6 @@ namespace FarmingTracker
         private const string HIDE_HELP_BUTTON_TEXT = "Hide Help";
         private bool _isHelpExpanded;
         private readonly Label _label;
-        private int _expandedHeight;
         private readonly Panel _blackContainer;
         private int _expandedWidth;
         private readonly int _collapsedHeight;

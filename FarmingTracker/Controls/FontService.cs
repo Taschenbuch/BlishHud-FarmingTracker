@@ -12,7 +12,7 @@ namespace FarmingTracker
             CreateFontSizeDict();
         }
 
-        public Dictionary<ContentService.FontSize, BitmapFont> Fonts = new Dictionary<ContentService.FontSize, BitmapFont>();
+        public Dictionary<ContentService.FontSize, BitmapFont> Fonts { get; } = new Dictionary<ContentService.FontSize, BitmapFont>();
 
         private void CreateFontSizeDict()
         {
