@@ -103,8 +103,11 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        private void AutomaticResetSettingChanged(object sender = null, ValueChangedEventArgs<AutomaticReset> e = null)
+        private void AutomaticResetSettingChanged(object? sender = null, ValueChangedEventArgs<AutomaticReset>? e = null)
         {
+            if (_resetMinutesPanel == null)
+                return;
+
             // opacity because show()/hide() is not reliable. it does not collapse the height in a flowpanel after hding. And sometimes after show() it overlaps with other settings.
             _resetMinutesPanel.Opacity = _services.SettingService.AutomaticResetSetting.Value == AutomaticReset.MinutesAfterModuleShutdown 
                 ? 1f 
@@ -141,6 +144,6 @@ namespace FarmingTracker
 
         private const int DOES_NOT_MATTER = 60;
         private readonly Services _services;
-        private Panel _resetMinutesPanel;
+        private Panel? _resetMinutesPanel;
     }
 }

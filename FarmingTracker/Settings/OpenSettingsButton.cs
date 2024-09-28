@@ -4,9 +4,9 @@ namespace FarmingTracker
 {
     public class OpenSettingsButton : StandardButton
     {
-        public OpenSettingsButton(string buttonText, FarmingTrackerWindow farmingTrackerWindow, Container parent)
+        public OpenSettingsButton(string buttonText, WindowTabSelector windowTabSelector, Container parent)
         {
-            _farmingTrackerWindow = farmingTrackerWindow;
+            _windowTabSelector = windowTabSelector;
 
             Text = buttonText;
             BasicTooltipText = "Open farming tracker settings";
@@ -24,9 +24,9 @@ namespace FarmingTracker
 
         private void OnSettingsButtonClick(object sender, Blish_HUD.Input.MouseEventArgs e)
         {
-            _farmingTrackerWindow.ShowWindowAndSelectSettingsTab();
+            _windowTabSelector.SelectWindowTab(WindowTab.Settings, WindowVisibility.Show);
         }
 
-        private readonly FarmingTrackerWindow _farmingTrackerWindow;
+        private readonly WindowTabSelector _windowTabSelector;
     }
 }

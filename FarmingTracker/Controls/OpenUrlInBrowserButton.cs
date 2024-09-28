@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class OpenUrlInBrowserButton : StandardButton
     {
-        public OpenUrlInBrowserButton(string url, string buttonText, string buttonTooltip, Texture2D buttonIcon, Container parent)
+        public OpenUrlInBrowserButton(string url, string buttonText, string buttonTooltip, Texture2D? buttonIcon, Container parent)
         {
 
             Text = buttonText;

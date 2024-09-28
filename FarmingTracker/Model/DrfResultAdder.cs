@@ -11,15 +11,13 @@ namespace FarmingTracker
             Dictionary<int, Stat> currencyById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
-            InternalUpdateCountsOrAddNewStats(itemIdAndCounts, itemById);
+            InternalUpdateCountsOrAddNewStats(itemIdAndCounts, StatType.Item, itemById);
 
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
-            InternalUpdateCountsOrAddNewStats(currencyIdAndCounts, currencyById);
+            InternalUpdateCountsOrAddNewStats(currencyIdAndCounts, StatType.Currency, currencyById);
         }
 
-        private static void InternalUpdateCountsOrAddNewStats(
-            IEnumerable<KeyValuePair<int, long>> statIdAndCounts,
-            Dictionary<int, Stat> statById)
+        private static void InternalUpdateCountsOrAddNewStats(IEnumerable<KeyValuePair<int, long>> statIdAndCounts, StatType statType, Dictionary<int, Stat> statById)
         {
             foreach (var statIdAndCount in statIdAndCounts)
             {
@@ -29,6 +27,7 @@ namespace FarmingTracker
                     statById[statIdAndCount.Key] = new Stat
                     {
                         ApiId = statIdAndCount.Key,
+                        StatType = statType,
                         Count = statIdAndCount.Value,
                     };
             }

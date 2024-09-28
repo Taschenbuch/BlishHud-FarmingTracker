@@ -8,21 +8,22 @@ namespace FarmingTracker
         public static void UpdateStatPanels(StatsPanels statsPanels, StatsSnapshot snapshot, Model model, Services services)
         {
             var favoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
+            var customStatProfits = model.CustomStatProfits.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
 
             var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(snapshot);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
+            (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
             List<Stat> favoriteItems;
             (favoriteItems, items) = StatsService.SplitIntoFavoriteAndRegularItems(items, favoriteItemApiIds);
             items = StatsService.RemoveIgnoredItems(items, model.IgnoredItemApiIds.ToListSafe());
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
-            (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
             (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
-            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services.SettingService);
+            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, customStatProfits, statsPanels, services.SettingService);
             (items, currencies) = SortService.SortStats(items, currencies, services.SettingService);
 
-            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services);
-            var favoriteItemsControls = CreateStatControls(favoriteItems, PanelType.SummaryFavoriteItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services);
-            var itemControls = CreateStatControls(items, PanelType.SummaryRegularItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services);
+            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
+            var favoriteItemsControls = CreateStatControls(favoriteItems, PanelType.SummaryFavoriteItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
+            var itemControls = CreateStatControls(items, PanelType.SummaryRegularItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
 
             if (currencyControls.IsEmpty())
                 currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));
@@ -47,13 +48,14 @@ namespace FarmingTracker
             List<Stat> stats, 
             PanelType panelType,
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds, 
+            SafeList<int> favoriteItemApiIds,
+            SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             var controls = new ControlCollection<Control>();
 
             foreach (var stat in stats)
-                controls.Add(new StatContainer(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, services));
+                controls.Add(new StatContainer(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, customStatProfits, services));
 
             return controls;
         }

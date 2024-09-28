@@ -9,7 +9,7 @@ namespace FarmingTracker
 {
     public class StatTooltip : DisposableTooltip
     {
-        public StatTooltip(Stat stat, AsyncTexture2D statIconTexture, PanelType panelType, Services services)
+        public StatTooltip(Stat stat, long? customStatProfitInCopper, AsyncTexture2D statIconTexture, PanelType panelType, Services services)
         {
             var rootFlowPanel = new FlowPanel()
             {
@@ -28,7 +28,7 @@ namespace FarmingTracker
                     AddDescription(stat, font, rootFlowPanel);
                     if(panelType != PanelType.IgnoredItems)
                     {
-                        StatTooltipService.AddProfitTable(stat, font, services, rootFlowPanel);
+                        StatTooltipService.AddProfitTable(stat, customStatProfitInCopper, font, services, rootFlowPanel);
                         StatTooltipService.AddText("\nRight click for more options.", font, rootFlowPanel);
                     }
                     else

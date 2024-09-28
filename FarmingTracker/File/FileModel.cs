@@ -8,5 +8,6 @@ namespace FarmingTracker
         public List<FileStat> FileCurrencies { get; set; } = new List<FileStat>();
         public List<int> IgnoredItemApiIds { get; set; } = new List<int>();
         public List<int> FavoriteItemApiIds { get; set; } = new List<int>();
+        public List<CustomStatProfit> CustomStatProfits { get; set; } = new List<CustomStatProfit>();
     }
 }

@@ -14,9 +14,16 @@ namespace FarmingTracker
             _services = services;
         }
 
+        protected override void Unload()
+        {
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
+            base.Unload();
+        }
+
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -29,14 +36,14 @@ namespace FarmingTracker
             var collapsibleHelp = new CollapsibleHelp(
                 "- Checked = visible.\n" +
                 "- Unchecked = hidden by filter.\n" +
-                "- Items hidden by filters are still included in the profit calculation.\n" +
+                $"- Items hidden by filters are still included in the profit calculation and are still shown in the '{Constants.FAVORITE_ITEMS_PANEL_TITLE}' panel.\n" +
                 "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items will be hidden by the filter.\n" +
                 "- filter icon on filter panel header:\n" +
                 "TRANSPARENT: filter wont hide stats.\n" +
                 "OPAQUE: filter will hide stats.\n" +
                 "- expand/collapse panels: for a better overview expand/collapse the filter panels by using the expand/collapse-all-buttons or by clicking on the filter panel headers.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
-                rootFlowPanel);
+                _rootFlowPanel);
 
             buildPanel.ContentResized += (s, e) =>
             {
@@ -49,7 +56,7 @@ namespace FarmingTracker
                 ControlPadding = new Vector2(5, 0),
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _rootFlowPanel
             };
 
             var filterPanels = new List<FlowPanel>();
@@ -79,13 +86,13 @@ namespace FarmingTracker
                     filterPanel.Collapse();
             };
 
-            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, rootFlowPanel, "Coin will never be hidden."));
-            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
-            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
-            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, rootFlowPanel));
-            filterPanels.Add(CreateFilterSettingPanel("GW2 API (items & currencies)", Constants.ALL_KNOWN_BY_API, _services.SettingService.KnownByApiFilterSetting, _services, rootFlowPanel, "Coin will never be hidden. Some items like the lvl-80-boost or\ncertain reknown heart items are not known by the GW2 API."));
+            filterPanels.Add(CreateFilterSettingPanel("Count (items & currencies)", Constants.ALL_COUNTS, _services.SettingService.CountFilterSetting, _services, _rootFlowPanel, "Coin will never be hidden."));
+            filterPanels.Add(CreateFilterSettingPanel("Sell Methods (items & currencies)", Constants.ALL_SELL_METHODS, _services.SettingService.SellMethodFilterSetting, _services, _rootFlowPanel, $"{MATCH_MULTIPLE_OPTION_HINT}\nRaw gold (coin) will always be visible regardless of which of these filters\nare active or not."));
+            filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, _rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, _rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, _rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, _rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("GW2 API (items & currencies)", Constants.ALL_KNOWN_BY_API, _services.SettingService.KnownByApiFilterSetting, _services, _rootFlowPanel, "Coin will never be hidden. Some items like the lvl-80-boost or\ncertain reknown heart items are not known by the GW2 API."));
         }
 
         private static FlowPanel CreateFilterSettingPanel<T>(
@@ -94,7 +101,7 @@ namespace FarmingTracker
             SettingEntry<List<T>> filterSettingEntry,
             Services services, 
             Container parent,
-            string hintText = "")
+            string hintText = "") where T : notnull
         {
             var filterIconPanel = new Panel
             {
@@ -203,6 +210,7 @@ namespace FarmingTracker
         }
 
         private readonly Services _services;
-        private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are\nonly hidden if all matching options are unselected.";
+        private FlowPanel? _rootFlowPanel;
+        private const string MATCH_MULTIPLE_OPTION_HINT = "Some items match several of these options. These items are only hidden\nif all matching options are unselected.";
     }
 }

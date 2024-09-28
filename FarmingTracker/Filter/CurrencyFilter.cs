@@ -64,5 +64,6 @@
         StaticCharge = 72,
         PinchOfStardust = 73,
         CalcifiedGasp = 75,
+        UrsusOblige = 76,
     }
 }

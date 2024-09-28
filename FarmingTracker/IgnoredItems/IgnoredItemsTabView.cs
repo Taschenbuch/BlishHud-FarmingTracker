@@ -15,14 +15,14 @@ namespace FarmingTracker
 
         protected override void Unload()
         {
-            _ignoredItemsFlowPanel?.Dispose();
-            _ignoredItemsFlowPanel = null;
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
             base.Unload();
         }
 
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -34,29 +34,30 @@ namespace FarmingTracker
 
             var collapsibleHelp = new CollapsibleHelp(
                 $"IGNORE ITEM:\n" +
-                $"In the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
+                $"In the '{Constants.TabTitles.SUMMARY}' tab right click on an item icon in the 'Items' panel to ignore it.\n" +
                 $"\n" +
                 $"UNIGNORE ITEM:\n" +
                 $"left click on an item here to unignore it.\n" +
                 $"\n" +
                 $"WHY IGNORE?\n" +
-                $"An ignored item will appear here. It is hidden in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab" +
+                $"An ignored item will appear here. It is hidden in the '{Constants.TabTitles.SUMMARY}' tab" +
                 $" and does not contribute to profit calculations." +
                 $" That can be usefull to prevent that none-legendary equipment that you swap manually is tracked accidently.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
-                rootFlowPanel);
+                _rootFlowPanel);
 
             buildPanel.ContentResized += (s, e) =>
             {
                 collapsibleHelp.UpdateSize(e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET);
             };
 
-            var flowPanelWithButtonContainer = new AutoSizeContainer(rootFlowPanel);
+            var flowPanelWithButtonContainer = new AutoSizeContainer(_rootFlowPanel);
 
             var ignoredItemsWrapperFlowPanel = new FlowPanel
             {
                 Title = IGNORED_ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                Icon = _services.TextureService.IgnoredItemsPanelIconTexture,
                 Width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = flowPanelWithButtonContainer
@@ -74,7 +75,7 @@ namespace FarmingTracker
 
             var hintLabel = new HintLabel(ignoredItemsWrapperFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
-            _ignoredItemsFlowPanel = new FlowPanel
+            var ignoredItemsFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.LeftToRight,
                 HeightSizingMode = SizingMode.AutoSize,
@@ -88,7 +89,7 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredItems = _model.IgnoredItemApiIds.ToListSafe().Select(i => _model.StatsSnapshot.ItemById[i]).ToList();
+            var ignoredItems = _model.IgnoredItemApiIds.ToListSafe().Select(i => _model.Stats.StatsSnapshot.ItemById[i]).ToList();
             var noItemsAreIgnored = ignoredItems.IsEmpty();
             if (noItemsAreIgnored)
             {
@@ -106,12 +107,12 @@ namespace FarmingTracker
             hintLabel.Text = $"{Constants.HINT_IN_PANEL_PADDING}Left click an item to unignore it.";
 
             foreach (var ignoredItem in ignoredItems)
-                ShowIgnoredItem(ignoredItem, _model, _services, hintLabel, _ignoredItemsFlowPanel);
+                ShowIgnoredItem(ignoredItem, _model, _services, hintLabel, ignoredItemsFlowPanel);
 
             unignoreAllButton.Enabled = true;
             unignoreAllButton.Click += (sender, args) =>
             {
-                foreach (var statContainer in _ignoredItemsFlowPanel.Children.ToList())
+                foreach (var statContainer in ignoredItemsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
                 
                 _model.IgnoredItemApiIds.ClearSafe();
@@ -124,7 +125,7 @@ namespace FarmingTracker
 
         private static void ShowIgnoredItem(Stat ignoredItem, Model model, Services services, HintLabel hintLabel, Container parent)
         {
-            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, services)
+            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services)
             {
                 Parent = parent
             };
@@ -151,22 +152,21 @@ namespace FarmingTracker
 
             hintLabel.Text = 
                 $"{Constants.HINT_IN_PANEL_PADDING}No items are ignored.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore items by right clicking them\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}in the '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab.";
+                $"{Constants.HINT_IN_PANEL_PADDING}You can ignore an item by right clicking it in the '{Constants.TabTitles.SUMMARY}' tab.";
         }
 
         private static void ShowLoadingHint(HintLabel hintLabel)
         {
             hintLabel.Text =
                 $"{Constants.HINT_IN_PANEL_PADDING}This tab will not refresh automatically.\n" +
-                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab and " +
+                $"{Constants.HINT_IN_PANEL_PADDING}Go to '{Constants.TabTitles.SUMMARY}' tab and " +
                 $"wait until the '{Constants.UPDATING_HINT_TEXT}' hint disappears.\n" +
                 $"{Constants.HINT_IN_PANEL_PADDING}Then come back here and your ignored items will be displayed.";
         }
 
         private readonly Model _model;
         private readonly Services _services;
-        private FlowPanel _ignoredItemsFlowPanel;
+        private FlowPanel? _rootFlowPanel;
         private const string IGNORED_ITEMS_PANEL_TITLE = "Ignored Items";
     }
 }

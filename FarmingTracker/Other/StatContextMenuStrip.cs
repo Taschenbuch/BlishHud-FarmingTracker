@@ -1,4 +1,5 @@
 ﻿using Blish_HUD.Controls;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -8,7 +9,8 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds, 
+            SafeList<int> favoriteItemApiIds,
+            SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             _wikiMenuItem = AddMenuItem("Open wiki");
@@ -21,12 +23,12 @@ namespace FarmingTracker
                 _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
                 _ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
-                    $"They can be managed in the '{FarmingTrackerWindow.IGNORED_ITEMS_TAB_TITLE}'-Tab.";
+                    $"They can be managed in the '{Constants.TabTitles.IGNORED}'-Tab.";
 
                 _addFavoriteMenuItem = AddMenuItem("Add to favorites");
                 _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
                 _addFavoriteMenuItem.BasicTooltipText = 
-                    $"Move item from '{SummaryTabView.ITEMS_PANEL_TITLE}' to '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE} panel. " +
+                    $"Move item from '{Constants.ITEMS_PANEL_TITLE}' to '{Constants.FAVORITE_ITEMS_PANEL_TITLE} panel. " +
                     $"Favorite items are not affected by filter or sort.";
             }
 
@@ -35,7 +37,14 @@ namespace FarmingTracker
                 _removeFavoriteMenuItem = AddMenuItem("Remove from favorites");
                 _removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, favoriteItemApiIds, services);
                 _removeFavoriteMenuItem.BasicTooltipText =
-                    $"Move item from '{SummaryTabView.FAVORITE_ITEMS_PANEL_TITLE}' to '{SummaryTabView.ITEMS_PANEL_TITLE} panel.";
+                    $"Move item from '{Constants.FAVORITE_ITEMS_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE} panel.";
+            }
+
+            if(!stat.IsCoinOrCustomCoin)
+            {
+                _setCustomProfitMenuItem = AddMenuItem($"Set to a custom profit of 0 copper. Navigate to '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab to edit or remove the custom profit.");
+                _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
+                _setCustomProfitMenuItem.BasicTooltipText = $"Read the help text in the '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab for more details.";
             }
         }
 
@@ -45,7 +54,25 @@ namespace FarmingTracker
             _addFavoriteMenuItem?.Dispose();
             _ignoreMenuItem?.Dispose();
             _wikiMenuItem?.Dispose();
+            _setCustomProfitMenuItem?.Dispose();
             base.DisposeControl();
+        }
+
+        private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
+        {
+            var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.BelongsToStat(stat));
+
+            if (matchingCustomStatProfit != null) // custom stat already exists -> override its custom profit.
+                matchingCustomStatProfit.CustomProfitInCopper = 0;
+            else
+            {
+                var customStatProfit = new CustomStatProfit(stat.ApiId, stat.StatType);
+                customStatProfits.AddSafe(customStatProfit);
+            }
+
+            services.UpdateLoop.TriggerUpdateUi();
+            services.UpdateLoop.TriggerSaveModel();
+            services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
         private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
@@ -97,8 +124,9 @@ namespace FarmingTracker
         }
 
         private readonly ContextMenuStripItem _wikiMenuItem;
-        private readonly ContextMenuStripItem _ignoreMenuItem;
-        private readonly ContextMenuStripItem _addFavoriteMenuItem;
-        private readonly ContextMenuStripItem _removeFavoriteMenuItem;
+        private readonly ContextMenuStripItem? _ignoreMenuItem;
+        private readonly ContextMenuStripItem? _addFavoriteMenuItem;
+        private readonly ContextMenuStripItem? _removeFavoriteMenuItem;
+        private readonly ContextMenuStripItem? _setCustomProfitMenuItem;
     }
 }

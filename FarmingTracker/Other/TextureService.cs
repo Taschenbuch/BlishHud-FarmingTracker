@@ -13,11 +13,14 @@ namespace FarmingTracker
         {
             // dispose necessary:
             WindowEmblemTexture = contentsManager.GetTexture("window-emblem.png");
+            DrfTexture = contentsManager.GetTexture("drf.png");
             FilterTabIconTexture = contentsManager.GetTexture("filter-tab-icon.png");
             SortTabIconTexture = contentsManager.GetTexture("sort-tab-icon.png");
             TimelineTabIconTexture = contentsManager.GetTexture("timeline-tab-icon.png");
             SummaryTabIconTexture = contentsManager.GetTexture("summary-tab-icon.png");
+            CustomStatProfitTabIconTexture = contentsManager.GetTexture("custom-stat-profit-tab-icon.png");
             IgnoredItemsTabIconTexture = contentsManager.GetTexture("ignored-items-tab-icon.png");
+            IgnoredItemsPanelIconTexture = contentsManager.GetTexture("ignored-items-panel-icon.png");
             CornerIconTexture = contentsManager.GetTexture("corner-icon.png");
             CornerIconHoverTexture = contentsManager.GetTexture("corner-icon-hover.png");
             GoldCoinTexture = contentsManager.GetTexture("coin-gold.png");
@@ -25,27 +28,32 @@ namespace FarmingTracker
             CopperCoinTexture = contentsManager.GetTexture("coin-copper.png");
             OpenLinkTexture = contentsManager.GetTexture("open-link.png");
             FallbackTexture = contentsManager.GetTexture("fallback_157084.png");
+            DebugTabIconTexture = contentsManager.GetTexture("debug-tab-icon.png");
 
             // NO dispose allowed:
             SmallGoldCoinTexture = GetTextureFromAssetCacheOrFallback(156904);
             SmallSilverCoinTexture = GetTextureFromAssetCacheOrFallback(156907);
             SmallCopperCoinTexture = GetTextureFromAssetCacheOrFallback(156902);
             SettingsTabIconTexture = GetTextureFromAssetCacheOrFallback(156737);
-            DebugTabIconTexture = GetTextureFromAssetCacheOrFallback(440025);
             WindowBackgroundTexture = GetTextureFromAssetCacheOrFallback(155997);
             InventorySlotBackgroundTexture = GetTextureFromAssetCacheOrFallback(1318622);
             MerchantTexture = GetTextureFromAssetCacheOrFallback(156761);
+            ItemsTexture = GetTextureFromAssetCacheOrFallback(157098);
+            FavoriteTexture = GetTextureFromAssetCacheOrFallback(156331);
             TradingPostTexture = GetTextureFromAssetCacheOrFallback(255379);
         }
 
         public void Dispose()
         {
             WindowEmblemTexture?.Dispose();
+            DrfTexture?.Dispose();
             FilterTabIconTexture?.Dispose();
             SortTabIconTexture?.Dispose();
             TimelineTabIconTexture?.Dispose();
             SummaryTabIconTexture?.Dispose();
+            CustomStatProfitTabIconTexture?.Dispose();
             IgnoredItemsTabIconTexture?.Dispose();
+            IgnoredItemsPanelIconTexture?.Dispose();
             CornerIconTexture?.Dispose();
             CornerIconHoverTexture?.Dispose();
             GoldCoinTexture?.Dispose();
@@ -53,6 +61,7 @@ namespace FarmingTracker
             CopperCoinTexture?.Dispose();
             OpenLinkTexture?.Dispose();
             FallbackTexture?.Dispose();
+            DebugTabIconTexture?.Dispose();
         }
 
         public static int GetIconAssetId(RenderUrl icon)
@@ -79,11 +88,14 @@ namespace FarmingTracker
         }
 
         public Texture2D WindowEmblemTexture { get; }
+        public Texture2D DrfTexture { get; }
         public Texture2D FilterTabIconTexture { get; }
         public Texture2D SortTabIconTexture { get; }
         public Texture2D TimelineTabIconTexture { get; }
         public Texture2D SummaryTabIconTexture { get; }
+        public Texture2D CustomStatProfitTabIconTexture { get; }
         public Texture2D IgnoredItemsTabIconTexture { get; }
+        public Texture2D IgnoredItemsPanelIconTexture { get; }
         public Texture2D CornerIconTexture { get; }
         public Texture2D CornerIconHoverTexture { get; }
         public Texture2D FallbackTexture { get; }
@@ -99,6 +111,8 @@ namespace FarmingTracker
         public AsyncTexture2D WindowBackgroundTexture { get; }
         public AsyncTexture2D InventorySlotBackgroundTexture { get; }
         public AsyncTexture2D MerchantTexture { get; }
+        public AsyncTexture2D ItemsTexture { get; }
+        public AsyncTexture2D FavoriteTexture { get; }
         public AsyncTexture2D TradingPostTexture { get; }
 
         public const int MISSING_ASSET_ID = 0;

@@ -6,7 +6,7 @@ namespace FarmingTracker
 {
     public class CoinsPanel : FlowPanel
     {
-        public CoinsPanel(Tooltip tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
+        public CoinsPanel(Tooltip? tooltip, BitmapFont font, TextureService textureService, Container parent, int height = 0)
         {
             FlowDirection = ControlFlowDirection.SingleLeftToRight;
             Tooltip = tooltip;
@@ -42,9 +42,9 @@ namespace FarmingTracker
 
             _signLabel.SetSign(coin.Sign); // always show sign label to prevent moving it to the end accidently
             // order of setting gold, silver, copper is important because parent is flowpanel!
-            _goldPanel.SetValue(coin.UnsignedGold, false);
-            _silverPanel.SetValue(coin.UnsignedSilver, coin.UnsignedGold != 0);
-            _copperPanel.SetValue(coin.UnsignedCopper, true); // always show copper
+            _goldPanel.SetValue(coin.Gold, false);
+            _silverPanel.SetValue(coin.Silver, coin.Gold > 0);
+            _copperPanel.SetValue(coin.Copper, true); // always show copper
         }
 
         protected override void DisposeControl()

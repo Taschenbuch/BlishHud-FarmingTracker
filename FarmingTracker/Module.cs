@@ -14,12 +14,6 @@ namespace FarmingTracker
     public class Module : Blish_HUD.Modules.Module
     {
         public static readonly Logger Logger = Logger.GetLogger<Module>();
-        public static bool DebugEnabled => _isDebugConfiguration || GameService.Debug.EnableDebugLogging.Value;
-#if DEBUG
-        private static readonly bool _isDebugConfiguration = true;
-#else 
-        private static bool _isDebugConfiguration = false;
-#endif
 
         internal SettingsManager SettingsManager => ModuleParameters.SettingsManager;
         internal ContentsManager ContentsManager => ModuleParameters.ContentsManager;
@@ -39,19 +33,31 @@ namespace FarmingTracker
 
         public override IView GetSettingsView()
         {
+            if(_services == null)
+            {
+                Logger.Error("Cannot create module settings view without services.");
+                return new ErrorView();
+            }
+
             return _moduleLoadError.HasModuleLoadFailed
                 ? _moduleLoadError.CreateErrorSettingsView()
-                : new ModuleSettingsView(_farmingTrackerWindow);
+                : new ModuleSettingsView(_services.WindowTabSelector);
         }
 
         protected override async Task LoadAsync()
         {
+            if(_settingService == null || _dateTimeService == null)
+            {
+                Logger.Error("Cannot load module without settingsService and dateTimeService from Module.DefineSettings().");
+                return;
+            }
+
             var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
             var model = await services.FileLoader.LoadModelFromFile();
             _model = model;
-            _services = services;
+            _services = services; // set early because some eventhandler use it (not really necessary here though, at the end should work too).
 
-            if(_services.Drf.WindowsVersionIsTooLowToSupportWebSockets)
+            if (services.Drf.WindowsVersionIsTooLowToSupportWebSockets)
             {
                 _moduleLoadError.InitializeErrorSettingsViewAndShowErrorWindow(
                     $"{Name}: Module does not work :-(",
@@ -60,11 +66,14 @@ namespace FarmingTracker
                 return;
             }
 
-            _farmingTrackerWindow = new FarmingTrackerWindow(570, 650, model, services);
-            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
+            var farmingTrackerWindow = new FarmingTrackerWindow(570, 650, model, services);
+            services.WindowTabSelector.Init(farmingTrackerWindow);
+            _farmingTrackerWindow = farmingTrackerWindow;
 
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
+            services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated += OnWindowVisibilityKeyBindingActivated;
+            services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = true;
+            
+            _trackerCornerIcon = new TrackerCornerIcon(services, CornerIconClickEventHandler);
         }
 
         protected override void Update(GameTime gameTime)
@@ -72,7 +81,7 @@ namespace FarmingTracker
             if(_moduleLoadError.HasModuleLoadFailed)
                 return;
 
-            _farmingTrackerWindow.Update2(gameTime);
+            _farmingTrackerWindow?.Update2(gameTime);
         }
 
         protected override void Unload()
@@ -80,25 +89,28 @@ namespace FarmingTracker
             _moduleLoadError?.Dispose();
             _trackerCornerIcon?.Dispose();
             _farmingTrackerWindow?.Dispose();
-            _services?.Dispose();
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
-            _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
-            if(_model != null)
+
+            if (_services != null)
             {
+                _services.Dispose();
+                _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Enabled = false;
+                _services.SettingService.WindowVisibilityKeyBindingSetting.Value.Activated -= OnWindowVisibilityKeyBindingActivated;
                 _services.FarmingDuration.SaveFarmingTime();
-                _services.FileSaver.SaveModelToFileSync(_model);
+
+                if (_model != null)
+                    _services.FileSaver.SaveModelToFileSync(_model);
             }
         }
 
-        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _farmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
-        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _farmingTrackerWindow.ToggleWindowAndSelectSummaryTab();
+        private void OnWindowVisibilityKeyBindingActivated(object sender, System.EventArgs e) => _services?.WindowTabSelector.SelectWindowTab(WindowTab.Summary, WindowVisibility.Toggle);
+        private void CornerIconClickEventHandler(object s, MouseEventArgs e) => _services?.WindowTabSelector.SelectWindowTab(WindowTab.Summary, WindowVisibility.Toggle);
 
         private readonly ModuleLoadError _moduleLoadError = new ModuleLoadError();
-        private TrackerCornerIcon _trackerCornerIcon;
-        private FarmingTrackerWindow _farmingTrackerWindow;
-        private SettingService _settingService;
-        private DateTimeService _dateTimeService;
-        private Services _services;
-        private Model _model;
+        private TrackerCornerIcon? _trackerCornerIcon;
+        private FarmingTrackerWindow? _farmingTrackerWindow;
+        private SettingService? _settingService;
+        private DateTimeService? _dateTimeService;
+        private Services? _services;
+        private Model? _model;
     }
 }

@@ -21,25 +21,18 @@ namespace FarmingTracker
             OpenUrlInDefaultBrowser(url);
         }
 
+        // Korean and chinese do not have their own wikis.
+        // The wiki search will work for the items chat codes. Because those are language independent.
+        // It wont work for the localized names of currencies.
         private static string GetWikiLanguageString()
         {
-            switch (GameService.Overlay.UserLocale.Value)
+            return GameService.Overlay.UserLocale.Value switch
             {
-                case Locale.Spanish:
-                    return "es";
-                case Locale.German:
-                    return "de";
-                case Locale.French:
-                    return "fr";
-                // Korean and chinese do not their own wikis.
-                // The wiki search will work for the items chat codes. Because those are language independent.
-                // It wont work for the localized names of currencies.
-                case Locale.Korean: 
-                case Locale.Chinese:
-                case Locale.English:
-                default:
-                    return "en";
-            }
+                Locale.Spanish => "es",
+                Locale.German => "de",
+                Locale.French => "fr",
+                _ => "en",
+            };
         }
 
         private static void OpenUrlInDefaultBrowser(string url)

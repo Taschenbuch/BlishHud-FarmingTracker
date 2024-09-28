@@ -8,7 +8,7 @@ namespace FarmingTracker
         {
         }
 
-        public HintLabel(Container parent, string text) // parent first because text might be long and hides parent then.
+        public HintLabel(Container? parent, string text) // parent first because text might be long and hides parent then.
         {
             Text = text;
             AutoSizeHeight = true;

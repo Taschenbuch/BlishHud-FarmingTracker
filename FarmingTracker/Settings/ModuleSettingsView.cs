@@ -7,14 +7,14 @@ namespace FarmingTracker
 {
     public class ModuleSettingsView : View
     {
-        public ModuleSettingsView(FarmingTrackerWindow farmingTrackerWindow)
+        public ModuleSettingsView(WindowTabSelector windowTabSelector)
         {
-            _farmingTrackerWindow = farmingTrackerWindow;
+            _windowTabSelector = windowTabSelector;
         }
 
         protected override void Build(Container buildPanel)
         {
-            _openSettingsButton = new OpenSettingsButton("Open Settings", _farmingTrackerWindow, buildPanel);
+            _openSettingsButton = new OpenSettingsButton("Open Settings", _windowTabSelector, buildPanel);
             var x = Math.Max(buildPanel.Width / 2 - _openSettingsButton.Width / 2, 20);
             var y = Math.Max(buildPanel.Height / 2 - _openSettingsButton.Height / 2, 20);
             _openSettingsButton.Location = new Point(x, y);
@@ -25,7 +25,7 @@ namespace FarmingTracker
             _openSettingsButton?.Dispose();
         }
 
-        private OpenSettingsButton _openSettingsButton;
-        private readonly FarmingTrackerWindow _farmingTrackerWindow;
+        private OpenSettingsButton? _openSettingsButton;
+        private readonly WindowTabSelector _windowTabSelector;
     }
 }

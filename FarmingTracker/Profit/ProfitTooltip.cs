@@ -21,7 +21,7 @@ namespace FarmingTracker
 
             new Label
             {
-                Text = $"Rough profit when selling everything to vendor and on trading post. Click help button in '{FarmingTrackerWindow.SUMMARY_TAB_TITLE}' tab of the main window for more info.",
+                Text = $"Rough profit when selling everything to vendor and on trading post. Click help button in '{Constants.TabTitles.SUMMARY}' tab of the main window for more info.",
                 Font = font,
                 WrapText = true,
                 Width = 420, // 400 cuts off word

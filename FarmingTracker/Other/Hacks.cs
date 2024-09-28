@@ -13,9 +13,9 @@ namespace FarmingTracker
                 var oldChildren = parent.Children;
 
                 foreach (var item in children)
-                    GetPrivateField(item, "_parent").SetValue(item, parent); // because .Parent will otherwise trigger UI Update
+                    GetPrivateField(item, "_parent")?.SetValue(item, parent); // because .Parent will otherwise trigger UI Update
 
-                GetPrivateField(parent, "_children").SetValue(parent, children);
+                GetPrivateField(parent, "_children")?.SetValue(parent, children);
                 parent.Invalidate();
 
                 foreach (var oldChild in oldChildren)
@@ -27,7 +27,7 @@ namespace FarmingTracker
             }
         }
 
-        private static FieldInfo GetPrivateField(object target, string fieldName)
+        private static FieldInfo? GetPrivateField(object target, string fieldName)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target), "The assignment target cannot be null.");

@@ -13,9 +13,16 @@ namespace FarmingTracker
             _services = services;
         }
 
+        protected override void Unload()
+        {
+            _rootFlowPanel?.Dispose();
+            _rootFlowPanel = null;
+            base.Unload();
+        }
+
         protected override void Build(Container buildPanel)
         {
-            var rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new FlowPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
@@ -27,6 +34,7 @@ namespace FarmingTracker
 
             var collapsibleHelp = new CollapsibleHelp(
                 "- only items are sorted, not currencies.\n" +
+                "- custom profit is not taken into account in the profit sorting for now. This may change in the future.\n" +
                 "- multiple sorts can be combined. Example:\n" +
                 "'sort by' positive/negative count, 'then by' rarity, 'then by' name.\n" +
                 "This will first split the items into gained items (positive count) and lost items (negative count). " +
@@ -39,7 +47,7 @@ namespace FarmingTracker
                 "Because of that it will create groups where each group consists of only 1 item. " +
                 "Single item groups cannot be further sorted. Because of that every 'then by' sort after an API ID / NAME sort, will have no effect.",
                 buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET, // buildPanel because other Panels dont have correctly updated width yet.
-                rootFlowPanel);
+                _rootFlowPanel);
 
             buildPanel.ContentResized += (s, e) =>
             {
@@ -53,14 +61,14 @@ namespace FarmingTracker
                 Width = Constants.PANEL_WIDTH,
                 WidthSizingMode = SizingMode.AutoSize,
                 HeightSizingMode = SizingMode.AutoSize,
-                Parent = rootFlowPanel
+                Parent = _rootFlowPanel
             };
 
             var addNewSortButton = new StandardButton
             {
                 Text = "+ Add sort",
                 Width = 90,
-                Parent = rootFlowPanel
+                Parent = _rootFlowPanel
             };
 
             var sortPanels = new List<SortPanel>();
@@ -72,6 +80,7 @@ namespace FarmingTracker
                 var sortByList = _services.SettingService.SortByWithDirectionListSetting.Value.ToList();
                 sortByList.Add(sortByWithDirection);
                 _services.SettingService.SortByWithDirectionListSetting.Value = sortByList;
+                _services.UpdateLoop.TriggerUpdateUi();
             };
 
             foreach (var sortByWithDirection in _services.SettingService.SortByWithDirectionListSetting.Value.ToList())
@@ -83,7 +92,6 @@ namespace FarmingTracker
             var singleSortPanel = new SortPanel(allSortsFlowPanel, sortByWithDirection);
             sortPanels.Add(singleSortPanel);
             SetThenByOrSortByLabels(sortPanels);
-            _services.UpdateLoop.TriggerUpdateUi();
 
             singleSortPanel.Dropdown.ValueChanged += (s, e) =>
             {
@@ -134,5 +142,6 @@ namespace FarmingTracker
 
 
         private readonly Services _services;
+        private FlowPanel? _rootFlowPanel;
     }
 }

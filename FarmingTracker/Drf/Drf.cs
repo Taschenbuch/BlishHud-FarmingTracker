@@ -21,7 +21,7 @@ namespace FarmingTracker
         public int ReconnectDelaySeconds { get; private set; }
         public int ReconnectTriesCounter => _reconnectTriesCounter;
         public bool WindowsVersionIsTooLowToSupportWebSockets => _drfWebSocketClient.WindowsVersionIsTooLowToSupportWebSockets;
-        public event EventHandler DrfConnectionStatusChanged;
+        public event EventHandler? DrfConnectionStatusChanged;
 
         public void SetDrfConnectionStatus(DrfConnectionStatus status)
         {
@@ -154,7 +154,7 @@ namespace FarmingTracker
             };
         }
 
-        private async void OnDrfTokenSettingChanged(object sender = null, ValueChangedEventArgs<string> e = null)
+        private async void OnDrfTokenSettingChanged(object? sender = null, ValueChangedEventArgs<string>? e = null)
         {
             var drfToken = _settingService.DrfTokenSetting.Value;
 

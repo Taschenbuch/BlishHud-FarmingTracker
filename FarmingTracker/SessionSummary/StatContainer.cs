@@ -2,13 +2,20 @@
 using Blish_HUD.Content;
 using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
+using System.Linq;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
 {
     public class StatContainer : Container
     {
-        public StatContainer(Stat stat, PanelType panelType, SafeList<int> ignoredItemApiIds, SafeList<int> favoriteItemApiIds, Services services)
+        public StatContainer(
+            Stat stat, 
+            PanelType panelType, 
+            SafeList<int> ignoredItemApiIds, 
+            SafeList<int> favoriteItemApiIds, 
+            SafeList<CustomStatProfit> customStatProfits, 
+            Services services)
         {
             // icon
             var iconSize = (int)services.SettingService.StatIconSizeSetting.Value;
@@ -24,8 +31,13 @@ namespace FarmingTracker
 
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
+            var customStatProfitInCopper = customStatProfits
+                .ToListSafe()
+                .SingleOrDefault(c => c.BelongsToStat(stat))
+                ?.CustomProfitInCopper;
+
             var statIconTexture = GetStatIconTexture(stat, services);
-            var statTooltip = new StatTooltip(stat, statIconTexture, panelType, services);
+            var statTooltip = new StatTooltip(stat, customStatProfitInCopper, statIconTexture, panelType, services);
             _statTooltip = statTooltip;
 
             // inventory slot background
@@ -71,7 +83,7 @@ namespace FarmingTracker
             if (panelType != PanelType.IgnoredItems)
                 RightMouseButtonPressed += (s, e) =>
                 {
-                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, services);
+                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, customStatProfits, services);
                     contextMenuStrip.Hidden += (s, e) => contextMenuStrip.Dispose();
                     contextMenuStrip.Show(GameService.Input.Mouse.Position);
                 };

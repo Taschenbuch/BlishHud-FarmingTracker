@@ -28,7 +28,7 @@ namespace FarmingTracker
             _formattedLabel?.Dispose();
         }
 
-        private FormattedLabel _formattedLabel;
+        private FormattedLabel? _formattedLabel;
         private readonly string _infoText;
     }
 }

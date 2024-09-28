@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace FarmingTracker
 {
@@ -31,6 +32,17 @@ namespace FarmingTracker
         {
             if (string.IsNullOrWhiteSpace(drfToken))
                 return DrfTokenFormat.EmptyToken;
+            
+            try
+            {
+                if (!_drfTokenRegex.IsMatch(drfToken))
+                    return DrfTokenFormat.InvalidFormat;
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                Module.Logger.Error($"regex timedout for drf {nameof(_drfTokenRegex)}.");
+                return DrfTokenFormat.InvalidFormat;
+            }
 
             if (!_drfTokenRegex.IsMatch(drfToken))
                 return DrfTokenFormat.InvalidFormat;
@@ -38,6 +50,7 @@ namespace FarmingTracker
             return DrfTokenFormat.ValidFormat;
         }
 
-        private static readonly Regex _drfTokenRegex = new Regex(@"^[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$");
+        private static readonly Regex _drfTokenRegex 
+            = new Regex(@"^[a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12}$", RegexOptions.None, TimeSpan.FromMilliseconds(1000));
     }
 }

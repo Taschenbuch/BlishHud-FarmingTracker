@@ -6,9 +6,15 @@ namespace FarmingTracker
     public class Constants
     {
         public const int PANEL_WIDTH = 500; // prevents overlap with window scrollbar
+        public const int LABEL_WIDTH = PANEL_WIDTH - 20;
         public const int SCROLLBAR_WIDTH_OFFSET = 30;
+        public const string DRF_CONNECTION_LABEL_TEXT = "DRF Server Connection";
         public const string UPDATING_HINT_TEXT = "Updating...";
         public const string RESETTING_HINT_TEXT = "Resetting...";
+        public const string GW2_API_ERROR_HINT = "GW2 API error";
+        public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
+        public const string ITEMS_PANEL_TITLE = "Items";
+        public const string CURRENCIES_PANEL_TITLE = "Currencies";
         public const string FULL_HEIGHT_EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else
         public const string ZERO_HEIGHT_EMPTY_LABEL = ""; // no text -> label autoheight will be 0.
         public const string HINT_IN_PANEL_PADDING = "  ";
@@ -21,5 +27,17 @@ namespace FarmingTracker
         public static Gw2SharpType.ItemType[] ALL_ITEM_TYPES => (Gw2SharpType.ItemType[])Enum.GetValues(typeof(Gw2SharpType.ItemType));
         public static Gw2SharpType.ItemFlag[] ALL_ITEM_FLAGS => (Gw2SharpType.ItemFlag[])Enum.GetValues(typeof(Gw2SharpType.ItemFlag));
         public static CurrencyFilter[] ALL_CURRENCIES => (CurrencyFilter[])Enum.GetValues(typeof(CurrencyFilter));
+
+        public static class TabTitles
+        {
+            public const string SUMMARY = "Summary";
+            public const string TIMELINE = "Timeline";
+            public const string FILTER = "Filter";
+            public const string SORT = "Sort Items";
+            public const string IGNORED = "Ignored Items";
+            public const string CUSTOM_STAT_PROFIT = "Custom Profit";
+            public const string SETTINGS = "Settings";
+            public const string DEBUG = "Debug";
+        }
     }
 }
