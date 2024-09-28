@@ -47,7 +47,7 @@ namespace FarmingTracker
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
             CreateDrfConnectionStatusLabel(font, _rootFlowPanel);
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
-            CreateSetupDrfTokenPanel(font, _rootFlowPanel);
+            CreateSetupDrfTokenPanel(font, _services, _rootFlowPanel);
 
             var miscSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Misc");
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
@@ -172,7 +172,7 @@ namespace FarmingTracker
             OnDrfConnectionStatusChanged();
         }
 
-        private void CreateSetupDrfTokenPanel(BitmapFont font, Container parent)
+        private void CreateSetupDrfTokenPanel(BitmapFont font, Services services, Container parent)
         {
             var setupDrfWrapperContainer = new AutoSizeContainer(parent);
 
@@ -180,6 +180,7 @@ namespace FarmingTracker
             {
                 Title = Constants.FULL_HEIGHT_EMPTY_LABEL,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                Icon = services.TextureService.DrfTexture,
                 BackgroundColor = Color.Black * 0.5f,
                 CanCollapse = true,
                 Collapsed = true,
@@ -199,7 +200,7 @@ namespace FarmingTracker
                 AutoSizeHeight = true,
                 AutoSizeWidth = true,
                 Top = 6,
-                Left = 10,
+                Left = 35,
                 Parent = setupDrfWrapperContainer,
             };
 

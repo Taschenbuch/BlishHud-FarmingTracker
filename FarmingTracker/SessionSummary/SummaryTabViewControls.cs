@@ -168,6 +168,7 @@ namespace FarmingTracker
             {
                 Title = Constants.CURRENCIES_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
+                Icon = services.TextureService.MerchantTexture,
                 CanCollapse = true,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = currenciesFilterIconPanel
@@ -177,6 +178,7 @@ namespace FarmingTracker
             {
                 Title = Constants.FAVORITE_ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
+                Icon = services.TextureService.FavoriteTexture,
                 CanCollapse = true,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = parent
@@ -193,6 +195,7 @@ namespace FarmingTracker
             {
                 Title = Constants.ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
+                Icon = services.TextureService.ItemsTexture,
                 CanCollapse = true,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = itemsFilterIconPanel

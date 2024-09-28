@@ -57,6 +57,7 @@ namespace FarmingTracker
             {
                 Title = IGNORED_ITEMS_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
+                Icon = _services.TextureService.IgnoredItemsPanelIconTexture,
                 Width = buildPanel.ContentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = flowPanelWithButtonContainer
