@@ -1,5 +1,7 @@
 ﻿namespace FarmingTracker
 {
+    // WARNING: before modifying, see FileModel comment. 
+    // maybe it was a bad idea to not intro duce FileCustomStatProfit.
     public class CustomStatProfit
     {
         public CustomStatProfit(int apiId, StatType statType)
