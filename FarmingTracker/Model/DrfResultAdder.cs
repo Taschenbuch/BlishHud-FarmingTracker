@@ -5,10 +5,10 @@ namespace FarmingTracker
 {
     public class DrfResultAdder
     {
-        public static void UpdateCountsOrAddNewStats(
-            List<DrfMessage> drfMessages, 
-            Dictionary<int, Stat> itemById, 
-            Dictionary<int, Stat> currencyById)
+        // WARNING:
+        // do not remove stats when their count becomes 0. this may trigger bugs with gw2sharp when it tries to partially read from cache and partially from api
+        // but wont find the ids in the api.
+        public static void UpdateCountsOrAddNewStats(List<DrfMessage> drfMessages, Dictionary<int, Stat> itemById, Dictionary<int, Stat> currencyById)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
             InternalUpdateCountsOrAddNewStats(itemIdAndCounts, StatType.Item, itemById);
