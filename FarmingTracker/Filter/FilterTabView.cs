@@ -23,7 +23,7 @@ namespace FarmingTracker
 
         protected override void Build(Container buildPanel)
         {
-            _rootFlowPanel = new FlowPanel
+            _rootFlowPanel = new CustomPanel
             {
                 FlowDirection = ControlFlowDirection.SingleTopToBottom,
                 CanScroll = true,
