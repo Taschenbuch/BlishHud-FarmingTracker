@@ -1,6 +1,6 @@
 {
   "name": "Farming Tracker",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "namespace": "ecksofa.farmingtracker",
   "package": "FarmingTracker.dll",
   "manifest_version": 1,
