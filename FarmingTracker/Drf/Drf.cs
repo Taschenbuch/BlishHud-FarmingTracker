@@ -145,7 +145,7 @@ namespace FarmingTracker
         {
             return reconnectTriesCounter switch
             {
-                1 => 0, // first reconnect try should is instant
+                1 => 0, // first reconnect try is instant
                 2 => 2_000,
                 3 => 5_000,
                 4 => 10_000,

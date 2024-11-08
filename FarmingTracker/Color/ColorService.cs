@@ -38,12 +38,12 @@ namespace FarmingTracker
         }
 
         // colors
-        public static Color JunkColor = new Color(170, 170, 170);
-        public static Color FineColor = new Color(85, 153, 255);
-        public static Color MasterworkColor = new Color(51, 204, 17);
-        public static Color RareColor = new Color(255, 221, 34);
-        public static Color ExoticColor = new Color(255, 170, 0);
-        public static Color AscendedColor = new Color(255, 68, 136);
-        public static Color LegendaryColor = new Color(153, 51, 255);
+        public static readonly Color JunkColor = new Color(170, 170, 170);
+        public static readonly Color FineColor = new Color(85, 153, 255);
+        public static readonly Color MasterworkColor = new Color(51, 204, 17);
+        public static readonly Color RareColor = new Color(255, 221, 34);
+        public static readonly Color ExoticColor = new Color(255, 170, 0);
+        public static readonly Color AscendedColor = new Color(255, 68, 136);
+        public static readonly Color LegendaryColor = new Color(153, 51, 255);
     }
 }

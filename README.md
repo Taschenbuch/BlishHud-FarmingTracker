@@ -15,3 +15,8 @@ for testing purposes mock drf messages can be created.
 1. Run `npm run` in visual studio code terminal to start the fake drf server.
 1. Open the `FarmingTracker` solution in visual studio and start debugging the `FarmingTracker` project to start the blish module in debug mode.
 1. Select the debug tab in the farming tracker window. Check the `fake drf server` checkbox. This debug tab is only visible when the `FarmingTracker` project runs in visual studio debug mode.
+
+## Code 
+- signed and unsigned variable prefix:
+  - In the code everything coin, profit and stat count related can be unsigned (absolute of a signed value or never negative by default) or signed (already include a sign).
+  - This is sometimes difficult to recognize at first glance and resulted in bugs in the past. Because of that the signed/unsigned prefixes are added to variables. 

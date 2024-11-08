@@ -6,6 +6,8 @@ using Gw2Sharp.WebApi.V2.Models;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 #nullable disable
 namespace FarmingTracker
@@ -232,11 +234,11 @@ namespace FarmingTracker
         // prevents that there are more selected filterElements than total filterElements = checkboxes. Otherwise filter icon may always say list is filtered.
         private static void RemoveUnknownEnumValues<T>(SettingEntry<List<T>> ListSetting) where T : Enum
         {
-            var elements = new List<T>(ListSetting.Value); // otherwise foreach wont work
+            var values = new List<T>(ListSetting.Value); // otherwise foreach wont work
+            var unknownValues = values.Where(e => Helper.IsUnknownEnumValue<T>((int)(object)e));
 
-            foreach (var element in elements)
-                if (FilterService.IsUnknownFilterElement<T>((int)(object)element))
-                    ListSetting.Value.Remove(element);
+            foreach (var unknownValue in unknownValues)
+                ListSetting.Value.Remove(unknownValue);
         }
 
         public SettingEntry<string> DrfTokenSetting { get; }

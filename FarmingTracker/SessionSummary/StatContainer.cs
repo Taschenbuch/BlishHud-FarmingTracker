@@ -31,13 +31,13 @@ namespace FarmingTracker
 
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
-            var customStatProfitInCopper = customStatProfits
+            var unsigned_customStatProfitInCopper = customStatProfits
                 .ToListSafe()
                 .SingleOrDefault(c => c.BelongsToStat(stat))
-                ?.CustomProfitInCopper;
+                ?.Unsigned_CustomProfitInCopper;
 
             var statIconTexture = GetStatIconTexture(stat, services);
-            var statTooltip = new StatTooltip(stat, customStatProfitInCopper, statIconTexture, panelType, services);
+            var statTooltip = new StatTooltip(stat, unsigned_customStatProfitInCopper, statIconTexture, panelType, services);
             _statTooltip = statTooltip;
 
             // inventory slot background
@@ -53,7 +53,7 @@ namespace FarmingTracker
             new Image(statIconTexture)
             {
                 Tooltip = statTooltip,
-                Opacity = stat.Count > 0 ? 1f : (services.SettingService.NegativeCountIconOpacitySetting.Value / 255f),
+                Opacity = stat.Signed_Count > 0 ? 1f : (services.SettingService.NegativeCountIconOpacitySetting.Value / 255f),
                 Size = new Point(iconSize),
                 Location = new Point(backgroundMargin + iconMargin),
                 Parent = this
@@ -62,10 +62,10 @@ namespace FarmingTracker
             // stat count
             new Label
             {
-                Text = stat.Count.ToString(),
+                Text = stat.Signed_Count.ToString(),
                 Tooltip = statTooltip,
                 Font = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value],
-                TextColor = stat.Count >= 0
+                TextColor = stat.Signed_Count >= 0
                     ? services.SettingService.PositiveCountTextColorSetting.Value.GetColor()
                     : services.SettingService.NegativeCountTextColorSetting.Value.GetColor(),
                 HorizontalAlignment = services.SettingService.CountHoritzontalAlignmentSetting.Value,

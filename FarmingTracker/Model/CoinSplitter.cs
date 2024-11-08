@@ -12,23 +12,23 @@ namespace FarmingTracker
                 return currencies;
 
             var localizedCoinName = coinStat.Details.Name; // for wiki because "coin" in spanish will not work in english wiki
-            var coin = new Coin(coinStat.Count);
+            var coin = new Coin(coinStat.Signed_Count);
 
             if(coin.HasToDisplayGold)
             {
-                var goldStat = CreateCoinStat("Gold", coin.Sign * coin.Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
+                var goldStat = CreateCoinStat("Gold", coin.Sign * coin.Unsigned_Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
                 currencies.Add(goldStat);
             }
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = CreateCoinStat("Silver", coin.Sign * coin.Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
+                var silverStat = CreateCoinStat("Silver", coin.Sign * coin.Unsigned_Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
                 currencies.Add(silverStat);
             }
             
             if(coin.HasToDisplayCopper)
             {
-                var copperStat = CreateCoinStat("Copper", coin.Sign * coin.Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
+                var copperStat = CreateCoinStat("Copper", coin.Sign * coin.Unsigned_Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
                 currencies.Add(copperStat);
             }
             
@@ -36,13 +36,13 @@ namespace FarmingTracker
             return currencies;
         }
 
-        private static Stat CreateCoinStat(string name, long count, int apiId, ApiStatDetailsState apiStatDetailsState, string localizedCoinName)
+        private static Stat CreateCoinStat(string name, long signed_count, int apiId, ApiStatDetailsState apiStatDetailsState, string localizedCoinName)
         {
             return new Stat
             {
                 ApiId = apiId,
                 StatType = StatType.Currency,
-                Count = count,
+                Signed_Count = signed_count,
                 Details =
                 {
                     Name = name,

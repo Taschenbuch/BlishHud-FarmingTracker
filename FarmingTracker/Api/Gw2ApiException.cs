@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace FarmingTracker
 {
@@ -10,5 +11,8 @@ namespace FarmingTracker
 
         public Gw2ApiException(string message, Exception innerException)
             : base(message, innerException) { }
+
+        protected Gw2ApiException(SerializationInfo info, StreamingContext context)
+            : base(info, context) { }
     }
 }

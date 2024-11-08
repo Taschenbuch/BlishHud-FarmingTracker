@@ -77,8 +77,8 @@ namespace FarmingTracker
                 {
                     var snapshot = _model.Stats.StatsSnapshot;
                     _services.ProfitCalculator.CalculateProfits(snapshot, _model.CustomStatProfits, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
-                    _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
-                    _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                    _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
+                    _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
                     UiUpdater.UpdateStatPanels(_controls.StatsPanels, snapshot, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
@@ -119,26 +119,23 @@ namespace FarmingTracker
                 return; // that is enough work for a single update loop iteration. And prevents farming time updates and prevents hintText from being overriden.
             }
 
-            if(!_statsAccessLocked)
+            if(!_statsAccessLocked && _services.UpdateLoop.HasToSaveModel())
             {
-                if (_services.UpdateLoop.HasToSaveModel())
-                {
-                    _statsAccessLocked = true;
+                _statsAccessLocked = true;
 
-                    Task.Run(async () =>
-                    {
-                        await _services.FileSaver.SaveModelToFile(_model);
-                        _statsAccessLocked = false;
-                    });
-                    // do not return here because saving the model should not disturb other parts of Update().
-                }
+                Task.Run(async () =>
+                {
+                    await _services.FileSaver.SaveModelToFile(_model);
+                    _statsAccessLocked = false;
+                });
+                // do not return here because saving the model should not disturb other parts of Update().
             }
 
             if (_profitPerHourUpdateInterval.HasEnded())
             {
                 _services.ProfitCalculator.CalculateProfitPerHour(_services.FarmingDuration.Elapsed);
-                _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
-                _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.ProfitInCopper, _services.ProfitCalculator.ProfitPerHourInCopper);
+                _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
+                _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
             }
 
             _controls.ElapsedFarmingTimeLabel.UpdateTimeEverySecond(); // not sure if this can use Interval class, too. But it must not update when farming time is not running (happens when resetting?)

@@ -28,7 +28,7 @@ namespace FarmingTracker
                 var fileModel = JsonConvert.DeserializeObject<FileModel>(fileModelJson);
 
                 if (fileModel == null)
-                    throw new Exception("Deserializing the model.json file failed.");
+                    throw new InvalidOperationException("Deserializing the model.json file failed.");
 
                 return ModelCreator.CreateModel(fileModel);
             }
@@ -47,7 +47,7 @@ namespace FarmingTracker
 
             // Because JsonConvert.DeserializeObject returns null for empty string. no idea why file is empty sometimes (was reported in sentry)
             if (string.IsNullOrWhiteSpace(fileContent))
-                throw new Exception("file is empty!");
+                throw new InvalidOperationException("file is empty!");
 
             return fileContent;
         }

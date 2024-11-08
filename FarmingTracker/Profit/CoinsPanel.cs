@@ -36,15 +36,15 @@ namespace FarmingTracker
             _copperPanel = new CoinPanel(textureService.SmallCopperCoinTexture, Color.SandyBrown, tooltip, font, true, coinsFlowPanel);
         }
 
-        public void SetCoins(long coinsInCopper)
+        public void SetCoins(long signed_coinsInCopper)
         {
-            var coin = new Coin(coinsInCopper);
+            var coin = new Coin(signed_coinsInCopper);
 
             _signLabel.SetSign(coin.Sign); // always show sign label to prevent moving it to the end accidently
             // order of setting gold, silver, copper is important because parent is flowpanel!
-            _goldPanel.SetValue(coin.Gold, false);
-            _silverPanel.SetValue(coin.Silver, coin.Gold > 0);
-            _copperPanel.SetValue(coin.Copper, true); // always show copper
+            _goldPanel.SetValue(coin.Unsigned_Gold, false);
+            _silverPanel.SetValue(coin.Unsigned_Silver, coin.Unsigned_Gold > 0);
+            _copperPanel.SetValue(coin.Unsigned_Copper, true); // always show copper
         }
 
         protected override void DisposeControl()
