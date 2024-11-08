@@ -74,7 +74,7 @@ namespace FarmingTracker
             var customStatProfit = customStatProfits.SingleOrDefault(c => c.BelongsToStat(s));
             return customStatProfit == null
                 ? s.CountSign * s.Profits.All.Unsigned_MaxProfitInCopper
-                : s.CountSign * s.Signed_Count * customStatProfit.Unsigned_CustomProfitInCopper;
+                : s.Signed_Count * customStatProfit.Unsigned_CustomProfitInCopper;
         }
     }
 }

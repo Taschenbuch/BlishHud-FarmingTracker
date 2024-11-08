@@ -31,13 +31,13 @@ namespace FarmingTracker
 
             Size = new Point(backgroundSize + 2 * backgroundMargin);
 
-            var customStatProfitInCopper = customStatProfits
+            var unsigned_customStatProfitInCopper = customStatProfits
                 .ToListSafe()
                 .SingleOrDefault(c => c.BelongsToStat(stat))
                 ?.Unsigned_CustomProfitInCopper;
 
             var statIconTexture = GetStatIconTexture(stat, services);
-            var statTooltip = new StatTooltip(stat, customStatProfitInCopper, statIconTexture, panelType, services);
+            var statTooltip = new StatTooltip(stat, unsigned_customStatProfitInCopper, statIconTexture, panelType, services);
             _statTooltip = statTooltip;
 
             // inventory slot background

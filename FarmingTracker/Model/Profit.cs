@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
     public class Profit
     {
