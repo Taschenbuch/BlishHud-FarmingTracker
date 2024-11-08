@@ -26,8 +26,8 @@ namespace FarmingTracker
 
         public static (List<Stat> items, List<Stat> currencies) RemoveZeroCountStats(List<Stat> items, List<Stat> currencies)
         {
-            items = items.Where(s => s.Count != 0).ToList();
-            currencies = currencies.Where(s => s.Count != 0).ToList();
+            items = items.Where(s => s.Signed_Count != 0).ToList();
+            currencies = currencies.Where(s => s.Signed_Count != 0).ToList();
          
             return (items, currencies);
         }
@@ -35,7 +35,7 @@ namespace FarmingTracker
         public static void ResetCounts(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
-                stat.Count = 0;
+                stat.Signed_Count = 0;
         }
 
         public static List<Stat> RemoveIgnoredItems(List<Stat> items, List<int> ignoredItemApiIds)

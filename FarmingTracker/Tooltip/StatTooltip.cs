@@ -39,7 +39,7 @@ namespace FarmingTracker
                 case ApiStatDetailsState.GoldCoinCustomStat:
                 case ApiStatDetailsState.SilveCoinCustomStat:
                 case ApiStatDetailsState.CopperCoinCustomStat:
-                    StatTooltipService.AddText($"{stat.Count}\nChanges in 'raw gold'.\nIn other words coins spent or gained.", font, rootFlowPanel);
+                    StatTooltipService.AddText($"{stat.Signed_Count}\nChanges in 'raw gold'.\nIn other words coins spent or gained.", font, rootFlowPanel);
                     break;
                 case ApiStatDetailsState.MissingBecauseUnknownByApi:
                 {
@@ -95,7 +95,7 @@ namespace FarmingTracker
 #pragma warning disable IDE0017 // Simplify object initialization
             var nameLabel = new Label
             {
-                Text = $"{stat.Count} {stat.Details.Name}",
+                Text = $"{stat.Signed_Count} {stat.Details.Name}",
                 Font = GameService.Content.GetFont(FontFace.Menomonia, FontSize.Size18, FontStyle.Bold), // bold because otherwise text colors become too dark
                 TextColor = rarityColor,
                 AutoSizeHeight = true,

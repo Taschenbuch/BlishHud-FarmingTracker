@@ -42,7 +42,7 @@ namespace FarmingTracker
                 {
                     ApiId = fileStat.ApiId,
                     StatType = statType,
-                    Count = fileStat.Count,
+                    Signed_Count = fileStat.Count,
                 };
         }
 
@@ -55,7 +55,7 @@ namespace FarmingTracker
             {
                 ApiId = statId,
                 StatType = statType,
-                Count = 0,
+                Signed_Count = 0,
             };
         }
     }

@@ -63,7 +63,7 @@ namespace FarmingTracker
             var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.BelongsToStat(stat));
 
             if (matchingCustomStatProfit != null) // custom stat already exists -> override its custom profit.
-                matchingCustomStatProfit.CustomProfitInCopper = 0;
+                matchingCustomStatProfit.Unsigned_CustomProfitInCopper = 0;
             else
             {
                 var customStatProfit = new CustomStatProfit(stat.ApiId, stat.StatType);

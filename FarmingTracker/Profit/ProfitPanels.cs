@@ -45,11 +45,11 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        public void ShowProfits(long profitInCopper, long profitPerHourInCopper)
+        public void ShowProfits(long signed_profitInCopper, long signed_profitPerHourInCopper)
         {
-            _profitPanel.SetCoins(profitInCopper);
-            _profitPerHourPanel.SetCoins(profitPerHourInCopper);
-            _profitTooltip.ProfitPerHourPanel.SetCoins(profitPerHourInCopper);
+            _profitPanel.SetCoins(signed_profitInCopper);
+            _profitPerHourPanel.SetCoins(signed_profitPerHourInCopper);
+            _profitTooltip.ProfitPerHourPanel.SetCoins(signed_profitPerHourInCopper);
         }
 
         private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, CoinsPanel parent)

@@ -47,12 +47,12 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
 
-            var coin = new Coin(customStatProfit.CustomProfitInCopper);
+            var coin = new Coin(customStatProfit.Unsigned_CustomProfitInCopper);
 
             var goldTextBox = new NumberTextBox(6) // 6 because otherwise end of number is hidden due to textbox not supporting horizontal scrolling.
             {
                 Location = new Point(statImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.Gold.ToString(),
+                Text = coin.Unsigned_Gold.ToString(),
                 Width = 60,
                 Parent = statRowPanel
             };
@@ -67,7 +67,7 @@ namespace FarmingTracker
             var silverTextBox = new NumberTextBox(2)
             {
                 Location = new Point(goldCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.Silver.ToString(),
+                Text = coin.Unsigned_Silver.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
@@ -82,7 +82,7 @@ namespace FarmingTracker
             var copperTextBox = new NumberTextBox(2)
             {
                 Location = new Point(silverCoinImage.Right + 10, statNameLabel.Bottom + 5),
-                Text = coin.Copper.ToString(),
+                Text = coin.Unsigned_Copper.ToString(),
                 Width = 35,
                 Parent = statRowPanel
             };
@@ -125,7 +125,7 @@ namespace FarmingTracker
             int silver = int.Parse(silverText);
             int copper = int.Parse(copperText);
 
-            customStatProfit.CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
+            customStatProfit.Unsigned_CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
 
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();

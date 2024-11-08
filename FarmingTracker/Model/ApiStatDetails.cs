@@ -12,9 +12,9 @@ namespace FarmingTracker
         public ItemType Type { get; set; } = ItemType.Unknown;
         public ApiFlags<ItemFlag> ItemFlags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
         public int IconAssetId { get; set; } = TextureService.MISSING_ASSET_ID;
-        public long VendorValueInCopper { get; set; }
-        public long SellsUnitPriceInCopper { get; set; }
-        public long BuysUnitPriceInCopper { get; set; }
+        public long Unsigned_VendorValueInCopper { get; set; }
+        public long Unsigned_SellsUnitPriceInCopper { get; set; }
+        public long Unsigned_BuysUnitPriceInCopper { get; set; }
         public string WikiSearchTerm { get; set; } = string.Empty;
         public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
         public ApiStatDetailsState State { get; set; } = ApiStatDetailsState.MissingBecauseApiNotCalledYet;

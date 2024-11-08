@@ -4,36 +4,36 @@ namespace FarmingTracker
 {
     public class Coin
     {
-        public Coin(long coinsInCopper)
+        public Coin(long signed_coinsInCopper)
         {
-            var unsignedCoinsInCopper = Math.Abs(coinsInCopper);
+            var unsigned_coinsInCopper = Math.Abs(signed_coinsInCopper);
 
-            Sign = Math.Sign(coinsInCopper);
-            Gold = unsignedCoinsInCopper / 10000;
-            Silver = (unsignedCoinsInCopper % 10000) / 100;
-            Copper = unsignedCoinsInCopper % 100;
+            Sign = Math.Sign(signed_coinsInCopper);
+            Unsigned_Gold = unsigned_coinsInCopper / 10000;
+            Unsigned_Silver = (unsigned_coinsInCopper % 10000) / 100;
+            Unsigned_Copper = unsigned_coinsInCopper % 100;
         }
 
         public long Sign { get; }
-        public long Gold { get; }
-        public long Silver { get; }
-        public long Copper { get; }
-        public bool HasToDisplayGold => Gold != 0;
-        public bool HasToDisplaySilver => Gold != 0 || Silver != 0;
-        public bool HasToDisplayCopper => Gold != 0|| Silver != 0 || Copper != 0;
+        public long Unsigned_Gold { get; }
+        public long Unsigned_Silver { get; }
+        public long Unsigned_Copper { get; }
+        public bool HasToDisplayGold => Unsigned_Gold != 0;
+        public bool HasToDisplaySilver => Unsigned_Gold != 0 || Unsigned_Silver != 0;
+        public bool HasToDisplayCopper => Unsigned_Gold != 0|| Unsigned_Silver != 0 || Unsigned_Copper != 0;
         public const int COIN_CURRENCY_ID = 1;
 
         public object CreateCoinText()
         {
             var coinText = Sign == -1 ? "-" : "";
 
-            if (Gold != 0)
-                coinText += $"{Gold} g ";
+            if (Unsigned_Gold != 0)
+                coinText += $"{Unsigned_Gold} g ";
 
-            if (Silver != 0)
-                coinText += $"{Silver} s ";
+            if (Unsigned_Silver != 0)
+                coinText += $"{Unsigned_Silver} s ";
 
-            coinText += $"{Copper} c";
+            coinText += $"{Unsigned_Copper} c";
 
             return coinText;
         }
