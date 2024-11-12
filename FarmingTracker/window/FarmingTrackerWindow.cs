@@ -21,15 +21,8 @@ namespace FarmingTracker
             Width = 630; // default width on first startup. Will be ignored on consecutive module startups after resizing the window.
             Parent = GameService.Graphics.SpriteScreen;
 
-            Resized += (s, e) =>
-            {
-                ShowOrHideWindowSubtitle(e.CurrentSize.X);
-            };
-
-            TabChanged += (s, e) => 
-            {
-                ShowOrHideWindowSubtitle(Width);
-            };
+            Resized += (s, e) => ShowOrHideWindowSubtitle(e.CurrentSize.X);
+            TabChanged += (s, e) => ShowOrHideWindowSubtitle(Width);
 
             _profitWindow = new ProfitWindow(services);
             var summaryTabView = new SummaryTabView(_profitWindow, model, services);
