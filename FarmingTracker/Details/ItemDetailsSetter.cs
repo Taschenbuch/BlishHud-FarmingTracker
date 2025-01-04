@@ -75,6 +75,7 @@ namespace FarmingTracker
                 item.Details.ItemFlags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 item.Details.WikiSearchTerm = apiItem.ChatLink;
+                item.Details.ChatLink = apiItem.ChatLink;
                 item.Details.Unsigned_VendorValueInCopper = apiItem.VendorValue;
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }

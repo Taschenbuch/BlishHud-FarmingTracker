@@ -16,6 +16,7 @@ namespace FarmingTracker
         public long Unsigned_SellsUnitPriceInCopper { get; set; }
         public long Unsigned_BuysUnitPriceInCopper { get; set; }
         public string WikiSearchTerm { get; set; } = string.Empty;
+        public string ChatLink { get; set; } = string.Empty;
         public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
         public ApiStatDetailsState State { get; set; } = ApiStatDetailsState.MissingBecauseApiNotCalledYet;
         public bool IsCustomCoinStat =>
