@@ -125,7 +125,7 @@ namespace FarmingTracker
 
         private static void ShowIgnoredItem(Stat ignoredItem, Model model, Services services, HintLabel hintLabel, Container parent)
         {
-            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services)
+            var statContainer = new StatContainer(ignoredItem, PanelType.IgnoredItems, model.IgnoredItemApiIds, model.FavoriteStats, model.CustomStatProfits, services)
             {
                 Parent = parent
             };

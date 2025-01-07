@@ -2,7 +2,7 @@
 {
     public enum StatType
     {
+        Currency,
         Item,
-        Currency
     }
 }

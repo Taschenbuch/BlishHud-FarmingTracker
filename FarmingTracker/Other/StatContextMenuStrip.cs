@@ -10,33 +10,35 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds,
+            SafeList<FavoriteStat> favoriteStats,
             SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             _generalHeaderMenuItem = new CustomContextMenuStripItem("General", this, true);
 
-            if (panelType == PanelType.SummaryRegularItems)
+            if (panelType == PanelType.SummaryItems)
             {
                 _ignoreMenuItem = new CustomContextMenuStripItem("Ignore item", this);
                 _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
                 _ignoreMenuItem.BasicTooltipText =
                     $"Ignored items are hidden and dont contribute to profit calculations. " +
                     $"They can be managed in the '{Constants.TabTitles.IGNORED}'-Tab.";
-
-                _addFavoriteMenuItem = new CustomContextMenuStripItem("Add to favorites", this);
-                _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteItems(stat, favoriteItemApiIds, services);
-                _addFavoriteMenuItem.BasicTooltipText =
-                    $"Move item from '{Constants.ITEMS_PANEL_TITLE}' to '{Constants.FAVORITE_ITEMS_PANEL_TITLE} panel. " +
-                    $"Favorite items are not affected by filter or sort.";
             }
 
-            if (panelType == PanelType.SummaryFavoriteItems)
+            if (panelType == PanelType.SummaryFavorites)
             {
                 _removeFavoriteMenuItem = new CustomContextMenuStripItem("Remove from favorites", this);
-                _removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteItems(stat, favoriteItemApiIds, services);
+                _removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteStats(stat, favoriteStats, services);
                 _removeFavoriteMenuItem.BasicTooltipText =
-                    $"Move item from '{Constants.FAVORITE_ITEMS_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE} panel.";
+                    $"Move item/currency from '{Constants.FAVORITES_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE}/'{Constants.CURRENCIES_PANEL_TITLE}' panel.";
+            }
+            else
+            {
+                _addFavoriteMenuItem = new CustomContextMenuStripItem("Add to favorites", this);
+                _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteStats(stat, favoriteStats, services);
+                _addFavoriteMenuItem.BasicTooltipText =
+                    $"Move item/currency from '{Constants.ITEMS_PANEL_TITLE}'/'{Constants.CURRENCIES_PANEL_TITLE}' to '{Constants.FAVORITES_PANEL_TITLE}' panel. " +
+                    $"Favorite items are not affected by filter or sort.";
             }
 
             _setCustomProfitMenuItem = new CustomContextMenuStripItem($"Set to a custom profit of 0 copper. Navigate to '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab to edit or remove the custom profit.", this);
@@ -147,30 +149,51 @@ namespace FarmingTracker
             services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
-        private static void RemoveFromFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
+        private static void RemoveFromFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
         {
-            if (!favoriteItemApiIds.AnySafe(id => id == stat.ApiId))
+            var apiId = ReplaceApiIdIfCustomCoin(stat);
+            var matchingFavoriteStat = favoriteStats.FirstOrDefaultSafe(f => f.StatType == stat.StatType && f.ApiId == apiId);
+
+            if (matchingFavoriteStat == null)
             {
                 Module.Logger.Error("Item is not a favorite item. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            favoriteItemApiIds.RemoveSafe(stat.ApiId);
+            favoriteStats.RemoveSafe(matchingFavoriteStat);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void AddToFavoriteItems(Stat stat, SafeList<int> favoriteItemApiIds, Services services)
+        private static void AddToFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
         {
-            if (favoriteItemApiIds.AnySafe(id => id == stat.ApiId))
+            var apiId = ReplaceApiIdIfCustomCoin(stat);
+
+            if (favoriteStats.AnySafe(f => f.StatType == stat.StatType && f.ApiId == apiId))
             {
                 Module.Logger.Error("Item is already a favorite item. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            favoriteItemApiIds.AddSafe(stat.ApiId);
+            var favoriteStat = new FavoriteStat()
+            {
+                StatType = stat.StatType,
+                ApiId = apiId
+            };
+
+            favoriteStats.AddSafe(favoriteStat);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
+        }
+
+        /// <summary>
+        /// Easier to handle one coin id than 3 custom ids. And those custom coin ids do not exist yet durchin favorite split in ui update.
+        /// </summary>
+        private static int ReplaceApiIdIfCustomCoin(Stat stat)
+        {
+            return stat.Details.IsCustomCoinStat
+                ? Coin.COIN_CURRENCY_ID 
+                : stat.ApiId;
         }
 
         private static void IgnoreItem(Stat stat, SafeList<int> ignoredItemApiIds, Services services)

@@ -43,15 +43,38 @@ namespace FarmingTracker
             return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
         }
 
-        public static (List<Stat> favoriteItems, List<Stat> regularItems) SplitIntoFavoriteAndRegularItems(List<Stat> items, List<int> favoriteItemApiIds)
+        public static (List<Stat> items, List<Stat> currencies, List<Stat> favorites) SplitFavoritesFromCurrenciesAndItems(
+            List<Stat> items, 
+            List<Stat> currencies, 
+            List<FavoriteStat> favoriteStats)
         {
-            if (favoriteItemApiIds.IsEmpty())
-                return (new List<Stat>(), items);  
+            if (favoriteStats.IsEmpty())
+                return (items, currencies, new List<Stat>());  
 
-            var favoriteItems = items.Where(i => favoriteItemApiIds.Contains(i.ApiId)).ToList();
-            var regularItems = items.Where(i => !favoriteItemApiIds.Contains(i.ApiId)).ToList();
-            
-            return (favoriteItems, regularItems);
+            var favorites = new List<Stat>();
+
+            foreach (var favoriteStat in favoriteStats.OrderBy(f => f.StatType)) // OrderBy: to show always show currencies first.
+                switch (favoriteStat.StatType)
+                {
+                    case StatType.Item:
+                        MoveToFavorites(items, favorites, favoriteStat.ApiId);
+                        break;
+                    case StatType.Currency:
+                        MoveToFavorites(currencies, favorites, favoriteStat.ApiId);
+                        break;
+                }
+
+            return (items, currencies, favorites);
+        }
+
+        private static void MoveToFavorites(List<Stat> stats, List<Stat> favorites, int favoriteApiId)
+        {
+            var matchingStat = stats.Find(c => c.ApiId == favoriteApiId);
+            if (matchingStat == null) // stat not farmed in this session
+                return;
+
+            stats.Remove(matchingStat);
+            favorites.Add(matchingStat);
         }
     }
 }

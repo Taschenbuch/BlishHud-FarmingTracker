@@ -9,7 +9,7 @@ namespace FarmingTracker
             var model = new Model
             {
                 IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds),
-                FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds),
+                FavoriteStats = new SafeList<FavoriteStat>(fileModel.FavoriteStats),
                 CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
             };
 

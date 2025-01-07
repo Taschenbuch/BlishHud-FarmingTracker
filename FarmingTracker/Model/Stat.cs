@@ -12,7 +12,7 @@ namespace FarmingTracker
         public bool IsSingleItem => Math.Abs(Signed_Count) == 1;
         public ApiStatDetails Details { get; set; } = new ApiStatDetails();
         public Profits Profits { get; set; } = new Profits();
-        public bool IsCoin => ApiId == Coin.COIN_CURRENCY_ID;
+        public bool IsCoin => ApiId == Coin.COIN_CURRENCY_ID && StatType == StatType.Currency;
         public bool IsCoinOrCustomCoin => IsCoin || Details.IsCustomCoinStat;
     }
 }

@@ -49,6 +49,12 @@ namespace FarmingTracker
                 return _list.Any();
         }
 
+        public T FirstOrDefaultSafe(Func<T, bool> predicate)
+        {
+            lock (_lock)
+                return _list.FirstOrDefault(predicate); // todo x warum klappt das predicate hier nicht???
+        }
+
         public bool AnySafe(Func<T, bool> predicate)
         {
             lock (_lock)

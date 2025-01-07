@@ -12,7 +12,7 @@ namespace FarmingTracker
         public const string UPDATING_HINT_TEXT = "Updating...";
         public const string RESETTING_HINT_TEXT = "Resetting...";
         public const string GW2_API_ERROR_HINT = "GW2 API error";
-        public const string FAVORITE_ITEMS_PANEL_TITLE = "Favorite Items";
+        public const string FAVORITES_PANEL_TITLE = "Favorites";
         public const string ITEMS_PANEL_TITLE = "Items";
         public const string CURRENCIES_PANEL_TITLE = "Currencies";
         public const string FULL_HEIGHT_EMPTY_LABEL = " "; // blank required to have at least 1 char so that label height does not change when set to something else

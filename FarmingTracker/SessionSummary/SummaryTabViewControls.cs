@@ -157,6 +157,16 @@ namespace FarmingTracker
 
         private static StatsPanels CreateStatsPanels(Services services, Container parent)
         {
+            var favoriteItemsFlowPanel = new FlowPanel()
+            {
+                Title = Constants.FAVORITES_PANEL_TITLE,
+                FlowDirection = ControlFlowDirection.LeftToRight,
+                Icon = services.TextureService.FavoriteTexture,
+                CanCollapse = true,
+                HeightSizingMode = SizingMode.AutoSize,
+                Parent = parent
+            };
+
             var currenciesFilterIconPanel = new Panel
             {
                 WidthSizingMode = SizingMode.AutoSize,
@@ -172,16 +182,6 @@ namespace FarmingTracker
                 CanCollapse = true,
                 HeightSizingMode = SizingMode.AutoSize,
                 Parent = currenciesFilterIconPanel
-            };
-
-            var favoriteItemsFlowPanel = new FlowPanel()
-            {
-                Title = Constants.FAVORITE_ITEMS_PANEL_TITLE,
-                FlowDirection = ControlFlowDirection.LeftToRight,
-                Icon = services.TextureService.FavoriteTexture,
-                CanCollapse = true,
-                HeightSizingMode = SizingMode.AutoSize,
-                Parent = parent
             };
 
             var itemsFilterIconPanel = new Panel

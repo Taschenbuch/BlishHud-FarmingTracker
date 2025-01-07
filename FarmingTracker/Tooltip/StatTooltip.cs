@@ -50,7 +50,7 @@ namespace FarmingTracker
 
                     StatTooltipService.AddText(errorMessage, font, rootFlowPanel);
 
-                    if (panelType == PanelType.SummaryRegularItems)
+                    if (panelType == PanelType.SummaryItems)
                         StatTooltipService.AddText("\nRight click to search its ID in the wiki in your default browser.", font, rootFlowPanel);
                     else
                         StatTooltipService.AddText("\nLeft click to unignore this item.", font, rootFlowPanel);

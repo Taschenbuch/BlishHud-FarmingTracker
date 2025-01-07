@@ -14,7 +14,7 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds, 
+            SafeList<FavoriteStat> favoriteStats, 
             SafeList<CustomStatProfit> customStatProfits, 
             Services services)
         {
@@ -56,7 +56,7 @@ namespace FarmingTracker
             if (panelType != PanelType.IgnoredItems)
                 RightMouseButtonPressed += (s, e) =>
                 {
-                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, customStatProfits, services);
+                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteStats, customStatProfits, services);
                     contextMenuStrip.Hidden += (s, e) => contextMenuStrip.Dispose();
                     contextMenuStrip.Show(GameService.Input.Mouse.Position);
                 };

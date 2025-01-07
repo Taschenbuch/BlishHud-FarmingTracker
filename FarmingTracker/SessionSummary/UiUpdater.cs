@@ -7,23 +7,24 @@ namespace FarmingTracker
     {
         public static void UpdateStatPanels(StatsPanels statsPanels, StatsSnapshot snapshot, Model model, Services services)
         {
-            var favoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
+            var favoriteStats = model.FavoriteStats.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
             var customStatProfits = model.CustomStatProfits.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
 
             var (items, currencies) = StatsService.ShallowCopyStatsToPreventModification(snapshot);
             (items, currencies) = StatsService.RemoveZeroCountStats(items, currencies); // dont call this AFTER the coin splitter. it would remove them.
             (items, currencies) = StatsService.RemoveStatsNotUpdatedYetDueToApiError(items, currencies);
-            List<Stat> favoriteItems;
-            (favoriteItems, items) = StatsService.SplitIntoFavoriteAndRegularItems(items, favoriteItemApiIds);
+            List<Stat> favorites;
+            (items, currencies, favorites) = StatsService.SplitFavoritesFromCurrenciesAndItems(items, currencies, favoriteStats);
             items = StatsService.RemoveIgnoredItems(items, model.IgnoredItemApiIds.ToListSafe());
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
+            favorites = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(favorites);
             (items, currencies) = SearchService.FilterBySearchTerm(items, currencies, services.SearchTerm);
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, customStatProfits, statsPanels, services.SettingService);
             (items, currencies) = SortService.SortStats(items, currencies, services.SettingService);
 
-            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
-            var favoriteItemsControls = CreateStatControls(favoriteItems, PanelType.SummaryFavoriteItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
-            var itemControls = CreateStatControls(items, PanelType.SummaryRegularItems, model.IgnoredItemApiIds, model.FavoriteItemApiIds, model.CustomStatProfits, services);
+            var favoriteItemsControls = CreateStatControls(favorites, PanelType.SummaryFavorites, model.IgnoredItemApiIds, model.FavoriteStats, model.CustomStatProfits, services);
+            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model.IgnoredItemApiIds, model.FavoriteStats, model.CustomStatProfits, services);
+            var itemControls = CreateStatControls(items, PanelType.SummaryItems, model.IgnoredItemApiIds, model.FavoriteStats, model.CustomStatProfits, services);
 
             if (currencyControls.IsEmpty())
                 currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));
@@ -33,14 +34,14 @@ namespace FarmingTracker
 
             if (favoriteItemsControls.IsEmpty())
             {
-                if(favoriteItemApiIds.IsEmpty())
+                if(favoriteStats.IsEmpty())
                     favoriteItemsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}Right click item to add to favorites!"));
                 else
                     favoriteItemsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No favorite item changes detected!"));
             }
 
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.ItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(favoriteItemsControls, statsPanels.FavoriteItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.ItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.CurrenciesFlowPanel);
         }
 
@@ -48,14 +49,14 @@ namespace FarmingTracker
             List<Stat> stats, 
             PanelType panelType,
             SafeList<int> ignoredItemApiIds, 
-            SafeList<int> favoriteItemApiIds,
+            SafeList<FavoriteStat> favoriteStats,
             SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             var controls = new ControlCollection<Control>();
 
             foreach (var stat in stats)
-                controls.Add(new StatContainer(stat, panelType, ignoredItemApiIds, favoriteItemApiIds, customStatProfits, services));
+                controls.Add(new StatContainer(stat, panelType, ignoredItemApiIds, favoriteStats, customStatProfits, services));
 
             return controls;
         }

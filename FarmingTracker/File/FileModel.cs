@@ -19,8 +19,8 @@ namespace FarmingTracker
         [JsonProperty("IgnoredItemApiIds")]
         public List<int> IgnoredItemApiIds { get; set; } = new List<int>();
         
-        [JsonProperty("FavoriteItemApiIds")]
-        public List<int> FavoriteItemApiIds { get; set; } = new List<int>();
+        [JsonProperty("FavoriteStats")]
+        public List<FavoriteStat> FavoriteStats { get; set; } = new List<FavoriteStat>();
         
         [JsonProperty("CustomStatProfits")]
         public List<CustomStatProfit> CustomStatProfits { get; set; } = new List<CustomStatProfit>();
