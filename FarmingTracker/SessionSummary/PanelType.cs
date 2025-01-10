@@ -5,6 +5,6 @@
         SummaryCurrencies,
         SummaryItems,
         SummaryFavorites,
-        IgnoredItems,
+        IgnoredStats,
     }
 }

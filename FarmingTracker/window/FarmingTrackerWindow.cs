@@ -36,7 +36,7 @@ namespace FarmingTracker
             Tabs.Add(new Tab(services.TextureService.FilterTabIconTexture, () => new FilterTabView(services), Constants.TabTitles.FILTER));
             Tabs.Add(new Tab(services.TextureService.SortTabIconTexture, () => new SortTabView(services), Constants.TabTitles.SORT));
             Tabs.Add(_customStatProfitTab);
-            Tabs.Add(new Tab(services.TextureService.IgnoredItemsTabIconTexture, () => new IgnoredItemsTabView(model, services), Constants.TabTitles.IGNORED));
+            Tabs.Add(new Tab(services.TextureService.IgnoredStatsTabIconTexture, () => new IgnoredStatsTabView(model, services), Constants.TabTitles.IGNORED));
             Tabs.Add(_settingsTab);
 
             if(DebugMode.VisualStudioRunningInDebugMode)

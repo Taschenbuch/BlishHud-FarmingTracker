@@ -14,7 +14,7 @@ namespace FarmingTracker
         private const int BULLET_SIZE        = 18;
         private const int HORIZONTAL_PADDING = 6;
         private const int TEXT_LEFTPADDING = HORIZONTAL_PADDING + BULLET_SIZE + HORIZONTAL_PADDING;
-        private const string NOT_CLICKABLE_HEADER_TOOLTIP = "Header cannot be clicked. Click on one of the other items instead.";
+        private const string NOT_CLICKABLE_HEADER_TOOLTIP = "Header cannot be clicked. Click on one of the other entries instead.";
         private readonly AsyncTexture2D _textureBullet = AsyncTexture2D.FromAssetId(155038);
         private readonly bool _bulletIsVisible;
         private string _text = string.Empty;

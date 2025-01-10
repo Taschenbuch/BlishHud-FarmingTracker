@@ -9,7 +9,7 @@ namespace FarmingTracker
         {
             var fileModel = new FileModel
             {
-                IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
+                IgnoredStats = model.IgnoredStats.ToListSafe(),
                 FavoriteStats = model.FavoriteStats.ToListSafe(),
                 CustomStatProfits = model.CustomStatProfits.ToListSafe(),
             };

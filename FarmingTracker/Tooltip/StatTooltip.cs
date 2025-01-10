@@ -26,7 +26,7 @@ namespace FarmingTracker
                 case ApiStatDetailsState.SetByApi:
                     AddTitle(stat, statIconTexture, rootFlowPanel);
                     AddDescription(stat, font, rootFlowPanel);
-                    if(panelType != PanelType.IgnoredItems)
+                    if(panelType != PanelType.IgnoredStats)
                     {
                         StatTooltipService.AddProfitTable(stat, unsigned_customStatProfitInCopper, font, services, rootFlowPanel);
                         StatTooltipService.AddText("\nRight click for more options.", font, rootFlowPanel);

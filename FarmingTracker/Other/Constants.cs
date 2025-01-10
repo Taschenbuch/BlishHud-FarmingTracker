@@ -34,7 +34,7 @@ namespace FarmingTracker
             public const string TIMELINE = "Timeline";
             public const string FILTER = "Filter";
             public const string SORT = "Sort Items";
-            public const string IGNORED = "Ignored Items";
+            public const string IGNORED = "Ignored Items and Currencies";
             public const string CUSTOM_STAT_PROFIT = "Custom Profit";
             public const string SETTINGS = "Settings";
             public const string DEBUG = "Debug";

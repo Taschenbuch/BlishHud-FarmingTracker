@@ -13,7 +13,7 @@ namespace FarmingTracker
         public StatContainer(
             Stat stat, 
             PanelType panelType, 
-            SafeList<int> ignoredItemApiIds, 
+            SafeList<FavoriteStat> ignoredStats, 
             SafeList<FavoriteStat> favoriteStats, 
             SafeList<CustomStatProfit> customStatProfits, 
             Services services)
@@ -53,10 +53,10 @@ namespace FarmingTracker
             _countTextBounds = new Rectangle(statIconOrigin, statIconOrigin + 1, statIconSize - 5, statIconSize - 2);
             _countBackgroundBounds = new Rectangle(statIconOrigin, statIconOrigin, statIconSize, countFont.LineHeight);
           
-            if (panelType != PanelType.IgnoredItems)
+            if (panelType != PanelType.IgnoredStats)
                 RightMouseButtonPressed += (s, e) =>
                 {
-                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredItemApiIds, favoriteStats, customStatProfits, services);
+                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, ignoredStats, favoriteStats, customStatProfits, services);
                     contextMenuStrip.Hidden += (s, e) => contextMenuStrip.Dispose();
                     contextMenuStrip.Show(GameService.Input.Mouse.Position);
                 };

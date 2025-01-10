@@ -8,7 +8,7 @@ namespace FarmingTracker
         {
             var model = new Model
             {
-                IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds),
+                IgnoredStats = new SafeList<FavoriteStat>(fileModel.IgnoredStats),
                 FavoriteStats = new SafeList<FavoriteStat>(fileModel.FavoriteStats),
                 CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
             };
@@ -18,17 +18,11 @@ namespace FarmingTracker
 
             // add customStatProfits to items and currenciens to get their api data on module startup
             foreach (var customStatProfit in fileModel.CustomStatProfits)
-            {
-                var statById = customStatProfit.StatType == StatType.Item
-                    ? model.Stats.ItemById
-                    : model.Stats.CurrencyById;
+                AddStatToModelIfMissing(customStatProfit.ApiId, customStatProfit.StatType, model.Stats.ItemById, model.Stats.CurrencyById);
 
-                AddStatToModelIfMissing(statById, customStatProfit.ApiId, customStatProfit.StatType);
-            }
-
-            // add ignoredItems to items to get their api data on module startup
-            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                AddStatToModelIfMissing(model.Stats.ItemById, ignoredItemApiId, StatType.Item);
+            // add ignored stats to stats to get their api data on module startup
+            foreach (var ignoredStat in fileModel.IgnoredStats)
+                AddStatToModelIfMissing(ignoredStat.ApiId, ignoredStat.StatType, model.Stats.ItemById, model.Stats.CurrencyById);
 
             model.Stats.UpdateStatsSnapshot();
 
@@ -46,14 +40,18 @@ namespace FarmingTracker
                 };
         }
 
-        private static void AddStatToModelIfMissing(Dictionary<int, Stat> statById, int statId, StatType statType)
+        private static void AddStatToModelIfMissing(int statApiId, StatType statType, Dictionary<int, Stat> itemById, Dictionary<int, Stat> currencyById)
         {
-            if (statById.ContainsKey(statId))
+            var statById = statType == StatType.Item
+                ? itemById
+                : currencyById;
+
+            if (statById.ContainsKey(statApiId))
                 return;
 
-            statById[statId] = new Stat
+            statById[statApiId] = new Stat
             {
-                ApiId = statId,
+                ApiId = statApiId,
                 StatType = statType,
                 Signed_Count = 0,
             };

@@ -9,7 +9,6 @@ namespace FarmingTracker
         {
             var items = snapshot.ItemById.Values.ToList();
             var currencies = snapshot.CurrencyById.Values.ToList();
-
             return (items, currencies);
         }
 
@@ -20,7 +19,6 @@ namespace FarmingTracker
         {
             items = items.Where(s => s.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             currencies = currencies.Where(s => s.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
-
             return (items, currencies);
         }
 
@@ -28,7 +26,6 @@ namespace FarmingTracker
         {
             items = items.Where(s => s.Signed_Count != 0).ToList();
             currencies = currencies.Where(s => s.Signed_Count != 0).ToList();
-         
             return (items, currencies);
         }
 
@@ -38,9 +35,11 @@ namespace FarmingTracker
                 stat.Signed_Count = 0;
         }
 
-        public static List<Stat> RemoveIgnoredItems(List<Stat> items, List<int> ignoredItemApiIds)
+        public static (List<Stat> items, List<Stat> currencies) RemoveIgnoredStats(List<Stat> items, List<Stat> currencies, List<FavoriteStat> ignoredStats)
         {
-            return items.Where(s => !ignoredItemApiIds.Contains(s.ApiId)).ToList();
+            items = items.Where(s => !ignoredStats.Any(i => i.ApiId == s.ApiId && i.StatType == s.StatType)).ToList();
+            currencies = currencies.Where(s => !ignoredStats.Any(i => i.ApiId == s.ApiId && i.StatType == s.StatType)).ToList();
+            return (items, currencies);
         }
 
         public static (List<Stat> items, List<Stat> currencies, List<Stat> favorites) SplitFavoritesFromCurrenciesAndItems(

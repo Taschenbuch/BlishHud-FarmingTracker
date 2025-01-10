@@ -16,8 +16,8 @@ namespace FarmingTracker
         [JsonProperty("FileCurrencies")]
         public List<FileStat> FileCurrencies { get; set; } = new List<FileStat>();
         
-        [JsonProperty("IgnoredItemApiIds")]
-        public List<int> IgnoredItemApiIds { get; set; } = new List<int>();
+        [JsonProperty("IgnoredStats")]
+        public List<FavoriteStat> IgnoredStats { get; set; } = new List<FavoriteStat>();
         
         [JsonProperty("FavoriteStats")]
         public List<FavoriteStat> FavoriteStats { get; set; } = new List<FavoriteStat>();

@@ -9,33 +9,36 @@ namespace FarmingTracker
         public StatContextMenuStrip(
             Stat stat, 
             PanelType panelType, 
-            SafeList<int> ignoredItemApiIds, 
+            SafeList<FavoriteStat> ignoredStats, 
             SafeList<FavoriteStat> favoriteStats,
             SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             _generalHeaderMenuItem = new CustomContextMenuStripItem("General", this, true);
 
-            if (panelType == PanelType.SummaryItems)
+            _ignoreMenuItem = new CustomContextMenuStripItem("Ignore", this);
+            _ignoreMenuItem.Click += (s, e) =>
             {
-                _ignoreMenuItem = new CustomContextMenuStripItem("Ignore item", this);
-                _ignoreMenuItem.Click += (s, e) => IgnoreItem(stat, ignoredItemApiIds, services);
-                _ignoreMenuItem.BasicTooltipText =
-                    $"Ignored items are hidden and dont contribute to profit calculations. " +
-                    $"They can be managed in the '{Constants.TabTitles.IGNORED}'-Tab.";
-            }
+                IgnoreStat(stat, ignoredStats, services);
+                FavoriteStatService.RemoveFromFavoriteStats(stat, favoriteStats, services);
+            };
+            _ignoreMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
+            _ignoreMenuItem.BasicTooltipText = stat.IsCoinOrCustomCoin
+                ? "Coins cannot be ignored."
+                : $"Ignored items/currencies are hidden and do not contribute to profit calculations. " +
+                    $"In the '{Constants.TabTitles.IGNORED}'-Tab you can unignore items/currencies.";
 
             if (panelType == PanelType.SummaryFavorites)
             {
                 _removeFavoriteMenuItem = new CustomContextMenuStripItem("Remove from favorites", this);
-                _removeFavoriteMenuItem.Click += (s, e) => RemoveFromFavoriteStats(stat, favoriteStats, services);
+                _removeFavoriteMenuItem.Click += (s, e) => FavoriteStatService.RemoveFromFavoriteStats(stat, favoriteStats, services);
                 _removeFavoriteMenuItem.BasicTooltipText =
                     $"Move item/currency from '{Constants.FAVORITES_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE}/'{Constants.CURRENCIES_PANEL_TITLE}' panel.";
             }
             else
             {
                 _addFavoriteMenuItem = new CustomContextMenuStripItem("Add to favorites", this);
-                _addFavoriteMenuItem.Click += (s, e) => AddToFavoriteStats(stat, favoriteStats, services);
+                _addFavoriteMenuItem.Click += (s, e) => FavoriteStatService.AddToFavoriteStats(stat, favoriteStats, services);
                 _addFavoriteMenuItem.BasicTooltipText =
                     $"Move item/currency from '{Constants.ITEMS_PANEL_TITLE}'/'{Constants.CURRENCIES_PANEL_TITLE}' to '{Constants.FAVORITES_PANEL_TITLE}' panel. " +
                     $"Favorite items are not affected by filter or sort.";
@@ -45,7 +48,7 @@ namespace FarmingTracker
             _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
             _setCustomProfitMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
             _setCustomProfitMenuItem.BasicTooltipText = stat.IsCoinOrCustomCoin
-                ? "Not available for coins."
+                ? "Coins cannot have a custom profit because that makes no sense."
                 : $"Read the help text in the '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab for more details.";
 
             _copyHeaderMenuItem = new CustomContextMenuStripItem("Copy", this, true);
@@ -149,62 +152,24 @@ namespace FarmingTracker
             services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
-        private static void RemoveFromFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
+        private static void IgnoreStat(Stat stat, SafeList<FavoriteStat> ignoredStats, Services services)
         {
-            var apiId = ReplaceApiIdIfCustomCoin(stat);
-            var matchingFavoriteStat = favoriteStats.FirstOrDefaultSafe(f => f.StatType == stat.StatType && f.ApiId == apiId);
+            if (stat.IsCoinOrCustomCoin) // should not never happen.
+                return;
 
-            if (matchingFavoriteStat == null)
+            if (ignoredStats.AnySafe(f => f.StatType == stat.StatType && f.ApiId == stat.ApiId))
             {
-                Module.Logger.Error("Item is not a favorite item. It shouldnt have been displayed in the first place.");
+                Module.Logger.Error("Stat is already ignored item. It shouldnt have been displayed in the first place.");
                 return;
             }
 
-            favoriteStats.RemoveSafe(matchingFavoriteStat);
-            services.UpdateLoop.TriggerUpdateUi();
-            services.UpdateLoop.TriggerSaveModel();
-        }
-
-        private static void AddToFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
-        {
-            var apiId = ReplaceApiIdIfCustomCoin(stat);
-
-            if (favoriteStats.AnySafe(f => f.StatType == stat.StatType && f.ApiId == apiId))
-            {
-                Module.Logger.Error("Item is already a favorite item. It shouldnt have been displayed in the first place.");
-                return;
-            }
-
-            var favoriteStat = new FavoriteStat()
+            var ignoredStat = new FavoriteStat()
             {
                 StatType = stat.StatType,
-                ApiId = apiId
+                ApiId = stat.ApiId
             };
 
-            favoriteStats.AddSafe(favoriteStat);
-            services.UpdateLoop.TriggerUpdateUi();
-            services.UpdateLoop.TriggerSaveModel();
-        }
-
-        /// <summary>
-        /// Easier to handle one coin id than 3 custom ids. And those custom coin ids do not exist yet durchin favorite split in ui update.
-        /// </summary>
-        private static int ReplaceApiIdIfCustomCoin(Stat stat)
-        {
-            return stat.Details.IsCustomCoinStat
-                ? Coin.COIN_CURRENCY_ID 
-                : stat.ApiId;
-        }
-
-        private static void IgnoreItem(Stat stat, SafeList<int> ignoredItemApiIds, Services services)
-        {
-            if (ignoredItemApiIds.AnySafe(id => id == stat.ApiId))
-            {
-                Module.Logger.Error("Item is already ignored. It shouldnt have been displayed in the first place.");
-                return;
-            }
-
-            ignoredItemApiIds.AddSafe(stat.ApiId);
+            ignoredStats.AddSafe(ignoredStat);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
