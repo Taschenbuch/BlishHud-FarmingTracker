@@ -23,7 +23,7 @@ namespace FarmingTracker
             (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, customStatProfits, statsPanels, services.SettingService);
             (items, currencies) = SortService.SortStats(items, currencies, services.SettingService);
 
-            var favoriteItemsControls = CreateStatControls(favorites, PanelType.SummaryFavorites, model.IgnoredStats, model.FavoriteStats, model.CustomStatProfits, services);
+            var favoriteStatsControls = CreateStatControls(favorites, PanelType.SummaryFavorites, model.IgnoredStats, model.FavoriteStats, model.CustomStatProfits, services);
             var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model.IgnoredStats, model.FavoriteStats, model.CustomStatProfits, services);
             var itemControls = CreateStatControls(items, PanelType.SummaryItems, model.IgnoredStats, model.FavoriteStats, model.CustomStatProfits, services);
 
@@ -33,15 +33,15 @@ namespace FarmingTracker
             if (itemControls.IsEmpty())
                 itemControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No item changes detected!"));
 
-            if (favoriteItemsControls.IsEmpty())
+            if (favoriteStatsControls.IsEmpty())
             {
                 if(favoriteStats.IsEmpty())
-                    favoriteItemsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}Right click item to add to favorites!"));
+                    favoriteStatsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}Right click item to add to favorites!"));
                 else
-                    favoriteItemsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No favorite item changes detected!"));
+                    favoriteStatsControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No favorite item changes detected!"));
             }
 
-            Hacks.ClearAndAddChildrenWithoutUiFlickering(favoriteItemsControls, statsPanels.FavoriteItemsFlowPanel);
+            Hacks.ClearAndAddChildrenWithoutUiFlickering(favoriteStatsControls, statsPanels.FavoriteStatsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(itemControls, statsPanels.ItemsFlowPanel);
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.CurrenciesFlowPanel);
         }

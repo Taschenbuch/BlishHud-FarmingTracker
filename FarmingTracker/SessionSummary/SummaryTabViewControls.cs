@@ -157,7 +157,7 @@ namespace FarmingTracker
 
         private static StatsPanels CreateStatsPanels(Services services, Container parent)
         {
-            var favoriteItemsFlowPanel = new FlowPanel()
+            var favoriteStatsFlowPanel = new FlowPanel()
             {
                 Title = Constants.FAVORITES_PANEL_TITLE,
                 FlowDirection = ControlFlowDirection.LeftToRight,
@@ -203,10 +203,10 @@ namespace FarmingTracker
 
             var currencyFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), currenciesFilterIconPanel);
             var itemsFilterIcon = new ClickThroughImage(services.TextureService.FilterTabIconTexture, new Point(380, 3), itemsFilterIconPanel);
-            var statsPanels = new StatsPanels(currenciesFlowPanel, favoriteItemsFlowPanel, itemsFlowPanel, currencyFilterIcon, itemsFilterIcon);
+            var statsPanels = new StatsPanels(currenciesFlowPanel, favoriteStatsFlowPanel, itemsFlowPanel, currencyFilterIcon, itemsFilterIcon);
 
             new HintLabel(statsPanels.CurrenciesFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
-            new HintLabel(statsPanels.FavoriteItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
+            new HintLabel(statsPanels.FavoriteStatsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
             new HintLabel(statsPanels.ItemsFlowPanel, $"{Constants.HINT_IN_PANEL_PADDING}Loading...");
 
             return statsPanels;

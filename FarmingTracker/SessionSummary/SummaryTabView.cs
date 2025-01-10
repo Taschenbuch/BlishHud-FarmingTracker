@@ -59,7 +59,7 @@ namespace FarmingTracker
         {
             _controls.StatsPanels.CurrenciesFlowPanel.Width = width;
             _controls.StatsPanels.ItemsFlowPanel.Width = width;
-            _controls.StatsPanels.FavoriteItemsFlowPanel.Width = width;
+            _controls.StatsPanels.FavoriteStatsFlowPanel.Width = width;
             _controls.StatsPanels.ItemsFilterIcon.SetLeft(width);
             _controls.StatsPanels.CurrencyFilterIcon.SetLeft(width);
             _controls.SearchPanel.UpdateSize(width);
