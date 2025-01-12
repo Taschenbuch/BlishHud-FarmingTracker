@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmingTracker
 {
@@ -6,54 +7,57 @@ namespace FarmingTracker
     {
         public static Model CreateModel(FileModel fileModel)
         {
+            var ignoredStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.IsIgnored)).ToList();
+            var favoriteStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.IsFavorite)).ToList();
+            var customStatProfits = CreateCustomStatProfits(fileModel.FileStats.Where(f => f.CustomStatProfit != null)).ToList();
+
             var model = new Model
             {
-                IgnoredStats = new SafeList<FavoriteStat>(fileModel.IgnoredStats),
-                FavoriteStats = new SafeList<FavoriteStat>(fileModel.FavoriteStats),
-                CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
+                IgnoredStats = new SafeList<FavoriteStat>(ignoredStats),
+                FavoriteStats = new SafeList<FavoriteStat>(favoriteStats),
+                CustomStatProfits = new SafeList<CustomStatProfit>(customStatProfits)
             };
 
-            AddStatsToModel(model.Stats.CurrencyById, fileModel.FileCurrencies, StatType.Currency);
-            AddStatsToModel(model.Stats.ItemById, fileModel.FileItems, StatType.Item);
-
-            // add customStatProfits to items and currenciens to get their api data on module startup
-            foreach (var customStatProfit in fileModel.CustomStatProfits)
-                AddStatToModelIfMissing(customStatProfit.ApiId, customStatProfit.StatType, model.Stats.ItemById, model.Stats.CurrencyById);
-
-            // add ignored stats to stats to get their api data on module startup
-            foreach (var ignoredStat in fileModel.IgnoredStats)
-                AddStatToModelIfMissing(ignoredStat.ApiId, ignoredStat.StatType, model.Stats.ItemById, model.Stats.CurrencyById);
+            foreach (var fileStat in fileModel.FileStats)
+                AddStatToModel(fileStat, model.Stats.ItemById, model.Stats.CurrencyById);
 
             model.Stats.UpdateStatsSnapshot();
 
             return model;
         }
 
-        private static void AddStatsToModel(Dictionary<int, Stat> statById, List<FileStat> fileStats, StatType statType)
+        private static IEnumerable<CustomStatProfit> CreateCustomStatProfits(IEnumerable<FileStat> fileStats)
         {
             foreach (var fileStat in fileStats)
-                statById[fileStat.ApiId] = new Stat
+                yield return new CustomStatProfit
                 {
                     ApiId = fileStat.ApiId,
-                    StatType = statType,
-                    Signed_Count = fileStat.Count,
+                    StatType = fileStat.StatType,
+                    Unsigned_CustomProfitInCopper = fileStat.CustomStatProfit ?? 1, // "?? 1" will no happen but compiler is happy. type interference from null guard 
                 };
         }
 
-        private static void AddStatToModelIfMissing(int statApiId, StatType statType, Dictionary<int, Stat> itemById, Dictionary<int, Stat> currencyById)
+        private static IEnumerable<FavoriteStat> CreateFavoriteStats(IEnumerable<FileStat> fileStats)
         {
-            var statById = statType == StatType.Item
+            foreach (var fileStat in fileStats)
+                yield return new FavoriteStat
+                {
+                    ApiId = fileStat.ApiId,
+                    StatType = fileStat.StatType,
+                };
+        }
+
+        private static void AddStatToModel(FileStat fileStat, Dictionary<int, Stat> itemById, Dictionary<int, Stat> currencyById)
+        {
+            var statById = fileStat.StatType == StatType.Item
                 ? itemById
                 : currencyById;
 
-            if (statById.ContainsKey(statApiId))
-                return;
-
-            statById[statApiId] = new Stat
+            statById[fileStat.ApiId] = new Stat
             {
-                ApiId = statApiId,
-                StatType = statType,
-                Signed_Count = 0,
+                ApiId = fileStat.ApiId,
+                StatType = fileStat.StatType,
+                Signed_Count = fileStat.Signed_Count,
             };
         }
     }

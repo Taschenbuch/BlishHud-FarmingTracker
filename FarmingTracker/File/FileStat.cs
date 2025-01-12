@@ -8,7 +8,19 @@ namespace FarmingTracker
         [JsonProperty("ApiId")]
         public int ApiId { get; set; }
 
+        [JsonProperty("StatType")]
+        public StatType StatType { get; set; }
+
         [JsonProperty("Count")]
-        public long Count { get; set; }
+        public long Signed_Count { get; set; }
+
+        [JsonProperty("IsFavorite")]
+        public bool IsFavorite { get; set; }
+        
+        [JsonProperty("IsIgnored")]
+        public bool IsIgnored { get; set; }
+
+        [JsonProperty("CustomStatProfit")]
+        public long? CustomStatProfit { get; set; }
     }
 }

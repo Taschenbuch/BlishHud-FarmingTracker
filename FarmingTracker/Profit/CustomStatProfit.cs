@@ -1,24 +1,21 @@
-﻿using Newtonsoft.Json;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
-    // WARNING: before modifying, see FileModel comment. 
-    // maybe it was a bad idea to not intro duce FileCustomStatProfit.
     public class CustomStatProfit
     {
+        public CustomStatProfit()
+        {
+        }
+
         public CustomStatProfit(int apiId, StatType statType)
         {
             ApiId = apiId;
             StatType = statType;
         }
 
-        [JsonProperty("ApiId")]
-        public int ApiId { get; }
+        public int ApiId { get; set; }
         
-        [JsonProperty("StatType")]
-        public StatType StatType { get; }
+        public StatType StatType { get; set; }
         
-        [JsonProperty("Unsigned_CustomProfitInCopper")]
         public long Unsigned_CustomProfitInCopper { get; set; }
         
         public bool BelongsToStat(Stat stat)
