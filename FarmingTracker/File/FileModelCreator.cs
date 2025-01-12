@@ -28,10 +28,10 @@ namespace FarmingTracker
             }
 
             foreach (var ignoredStat in model.IgnoredStats.ToListSafe())
-                SetFileStatProperty(fileStats, ignoredStat.ApiId, ignoredStat.StatType, (fileStat) => { fileStat.IsIgnored = true; });
+                SetFileStatProperty(fileStats, ignoredStat.ApiId, ignoredStat.StatType, (fileStat) => { fileStat.StatVisibility = StatVisibility.Ignored; });
 
             foreach (var favoriteStat in model.FavoriteStats.ToListSafe())
-                SetFileStatProperty(fileStats, favoriteStat.ApiId, favoriteStat.StatType, (fileStat) => { fileStat.IsFavorite = true; });
+                SetFileStatProperty(fileStats, favoriteStat.ApiId, favoriteStat.StatType, (fileStat) => { fileStat.StatVisibility = StatVisibility.Favorite; });
 
             foreach (var customStatProfit in model.CustomStatProfits.ToListSafe())
                 SetFileStatProperty(fileStats, customStatProfit.ApiId, customStatProfit.StatType, (fileStat) => { fileStat.CustomStatProfit = customStatProfit.Unsigned_CustomProfitInCopper; });

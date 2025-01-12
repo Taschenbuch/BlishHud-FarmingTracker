@@ -14,12 +14,9 @@ namespace FarmingTracker
         [JsonProperty("Count")]
         public long Signed_Count { get; set; }
 
-        [JsonProperty("IsFavorite")]
-        public bool IsFavorite { get; set; }
+        [JsonProperty("Visibility")]
+        public StatVisibility StatVisibility { get; set; } = StatVisibility.Regular;
         
-        [JsonProperty("IsIgnored")]
-        public bool IsIgnored { get; set; }
-
         [JsonProperty("CustomStatProfit")]
         public long? CustomStatProfit { get; set; }
     }

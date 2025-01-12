@@ -7,8 +7,8 @@ namespace FarmingTracker
     {
         public static Model CreateModel(FileModel fileModel)
         {
-            var ignoredStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.IsIgnored)).ToList();
-            var favoriteStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.IsFavorite)).ToList();
+            var ignoredStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.StatVisibility == StatVisibility.Ignored)).ToList();
+            var favoriteStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.StatVisibility == StatVisibility.Favorite)).ToList();
             var customStatProfits = CreateCustomStatProfits(fileModel.FileStats.Where(f => f.CustomStatProfit != null)).ToList();
 
             var model = new Model
