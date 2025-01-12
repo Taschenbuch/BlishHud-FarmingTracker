@@ -4,6 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
+    <NoWarn>IDE0130</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
