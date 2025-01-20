@@ -22,13 +22,11 @@ namespace FarmingTracker
                     ApiId = stat.ApiId,
                     StatType = stat.StatType,
                     Signed_Count = stat.Signed_Count,
+                    StatVisibility = stat.StatVisibility,
                 };
 
                 fileStats.Add(fileStat);
             }
-
-            foreach (var ignoredStat in model.IgnoredStats.ToListSafe())
-                SetFileStatProperty(fileStats, ignoredStat.ApiId, ignoredStat.StatType, (fileStat) => { fileStat.StatVisibility = StatVisibility.Ignored; });
 
             foreach (var favoriteStat in model.FavoriteStats.ToListSafe())
                 SetFileStatProperty(fileStats, favoriteStat.ApiId, favoriteStat.StatType, (fileStat) => { fileStat.StatVisibility = StatVisibility.Favorite; });

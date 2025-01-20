@@ -35,10 +35,14 @@ namespace FarmingTracker
                 stat.Signed_Count = 0;
         }
 
-        public static (List<Stat> items, List<Stat> currencies) RemoveIgnoredStats(List<Stat> items, List<Stat> currencies, List<FavoriteStat> ignoredStats)
+        public static (List<Stat> items, List<Stat> currencies) RemoveIgnoredStats(List<Stat> items, List<Stat> currencies, Model model)
         {
-            items = items.Where(s => !ignoredStats.Any(i => i.ApiId == s.ApiId && i.StatType == s.StatType)).ToList();
-            currencies = currencies.Where(s => !ignoredStats.Any(i => i.ApiId == s.ApiId && i.StatType == s.StatType)).ToList();
+            var notIgnoredStats = model.Stats.ItemById.Values // todo x lock?
+                .Concat(model.Stats.CurrencyById.Values)
+                .Where(s => s.StatVisibility != StatVisibility.Ignored);
+
+            items = notIgnoredStats.Where(s => s.StatType == StatType.Item).ToList();
+            currencies = notIgnoredStats.Where(s => s.StatType == StatType.Currency).ToList();
             return (items, currencies);
         }
 

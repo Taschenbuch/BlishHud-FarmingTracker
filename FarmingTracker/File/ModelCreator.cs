@@ -7,13 +7,11 @@ namespace FarmingTracker
     {
         public static Model CreateModel(FileModel fileModel)
         {
-            var ignoredStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.StatVisibility == StatVisibility.Ignored)).ToList();
             var favoriteStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.StatVisibility == StatVisibility.Favorite)).ToList();
             var customStatProfits = CreateCustomStatProfits(fileModel.FileStats.Where(f => f.CustomStatProfit != null)).ToList();
 
             var model = new Model
             {
-                IgnoredStats = new SafeList<FavoriteStat>(ignoredStats),
                 FavoriteStats = new SafeList<FavoriteStat>(favoriteStats),
                 CustomStatProfits = new SafeList<CustomStatProfit>(customStatProfits)
             };
@@ -58,6 +56,7 @@ namespace FarmingTracker
                 ApiId = fileStat.ApiId,
                 StatType = fileStat.StatType,
                 Signed_Count = fileStat.Signed_Count,
+                StatVisibility = fileStat.StatVisibility,
             };
         }
     }

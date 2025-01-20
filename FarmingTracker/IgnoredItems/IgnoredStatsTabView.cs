@@ -1,7 +1,6 @@
 ﻿using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace FarmingTracker
@@ -87,14 +86,16 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var noStatsAreIgnored = _model.IgnoredStats.IsEmpty();
+            var ignoredStats = _model.Stats.ItemById.Values // todo x lock?
+                .Concat(_model.Stats.CurrencyById.Values)
+                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+
+            var noStatsAreIgnored = ignoredStats.IsEmpty();
             if (noStatsAreIgnored)
             {
                 ShowNoStatsAreIgnoredHintIfNecessary(hintLabel, _model);
                 return;
             }
-
-            var ignoredStats = getIgnoredStats(_model.IgnoredStats.ToListSafe(), _model.Stats.StatsSnapshot.ItemById, _model.Stats.StatsSnapshot.CurrencyById);
 
             var ignoredStatsApiDataMissing = ignoredStats.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
             if (ignoredStatsApiDataMissing)
@@ -114,7 +115,10 @@ namespace FarmingTracker
                 foreach (var statContainer in ignoredStatsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
 
-                _model.IgnoredStats.ClearSafe();
+                foreach (var stat in ignoredStats) // todo x lock?
+                    if(stat.StatVisibility == StatVisibility.Ignored)
+                        stat.StatVisibility = StatVisibility.Regular;
+
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
 
@@ -122,20 +126,9 @@ namespace FarmingTracker
             };
         }
 
-        private static IEnumerable<Stat> getIgnoredStats(
-            List<FavoriteStat> ignoredStats, 
-            IReadOnlyDictionary<int, Stat> itemById, 
-            IReadOnlyDictionary<int, Stat> currencyById)
-        {
-            foreach (var ignoredStat in ignoredStats) 
-                yield return ignoredStat.StatType == StatType.Item
-                    ? itemById[ignoredStat.ApiId]
-                    : currencyById[ignoredStat.ApiId];
-        }
-
         private static void ShowIgnoredStat(Stat ignoredStat, Model model, Services services, HintLabel hintLabel, Container parent)
         {
-            var statContainer = new StatContainer(ignoredStat, PanelType.IgnoredStats, model.IgnoredStats, model.FavoriteStats, model.CustomStatProfits, services)
+            var statContainer = new StatContainer(ignoredStat, PanelType.IgnoredStats, model, model.FavoriteStats, model.CustomStatProfits, services)
             {
                 Parent = parent
             };
@@ -150,21 +143,29 @@ namespace FarmingTracker
 
         private static void UnignoreStat(Stat stat, Model model, Services services)
         {
-            var matchingFavoriteStat = model.IgnoredStats.FirstOrDefaultSafe(i => i.StatType == stat.StatType && i.ApiId == stat.ApiId);
+            var ignoredStats = model.Stats.ItemById.Values // todo x lock?
+                .Concat(model.Stats.CurrencyById.Values)
+                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+
+            var matchingFavoriteStat = ignoredStats.FirstOrDefault(i => i.StatType == stat.StatType && i.ApiId == stat.ApiId);
             if(matchingFavoriteStat == null)
             {
                 Module.Logger.Error("Failed to remove ignored stat because ignored stat did not exist. That should not be possible.");
                 return;
             }
 
-            model.IgnoredStats.RemoveSafe(matchingFavoriteStat);
+            matchingFavoriteStat.StatVisibility = StatVisibility.Regular;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
         private static void ShowNoStatsAreIgnoredHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            if (model.IgnoredStats.AnySafe())
+            var ignoredStats = model.Stats.ItemById.Values // todo x lock?
+                .Concat(model.Stats.CurrencyById.Values)
+                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+
+            if (ignoredStats.Any()) // todo x lock?
                 return;
 
             hintLabel.Text = 

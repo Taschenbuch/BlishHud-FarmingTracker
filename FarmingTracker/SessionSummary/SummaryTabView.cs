@@ -76,7 +76,7 @@ namespace FarmingTracker
                 Task.Run(() =>
                 {
                     var snapshot = _model.Stats.StatsSnapshot;
-                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.CustomStatProfits, _model.IgnoredStats, _services.FarmingDuration.Elapsed);
+                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.CustomStatProfits, _services.FarmingDuration.Elapsed);
                     _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
                     _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
                     UiUpdater.UpdateStatPanels(_controls.StatsPanels, snapshot, _model, _services);

@@ -9,7 +9,7 @@ namespace FarmingTracker
         public StatContextMenuStrip(
             Stat stat, 
             PanelType panelType, 
-            SafeList<FavoriteStat> ignoredStats, 
+            Model model, 
             SafeList<FavoriteStat> favoriteStats,
             SafeList<CustomStatProfit> customStatProfits,
             Services services)
@@ -19,7 +19,7 @@ namespace FarmingTracker
             _ignoreMenuItem = new CustomContextMenuStripItem("Ignore", this);
             _ignoreMenuItem.Click += (s, e) =>
             {
-                IgnoreStat(stat, ignoredStats, services);
+                IgnoreStat(stat, model, services);
                 FavoriteStatService.RemoveFromFavoriteStats(stat, favoriteStats, services);
             };
             _ignoreMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
@@ -152,24 +152,21 @@ namespace FarmingTracker
             services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
-        private static void IgnoreStat(Stat stat, SafeList<FavoriteStat> ignoredStats, Services services)
+        private static void IgnoreStat(Stat stat, Model model, Services services)
         {
             if (stat.IsCoinOrCustomCoin) // should not never happen.
                 return;
 
-            if (ignoredStats.AnySafe(f => f.StatType == stat.StatType && f.ApiId == stat.ApiId))
+            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
+            var matchingStat = stats.FirstOrDefault(f => f.StatType == stat.StatType && f.ApiId == stat.ApiId);
+
+            if (matchingStat == null || matchingStat.StatVisibility == StatVisibility.Ignored)
             {
-                Module.Logger.Error("Stat is already ignored item. It shouldnt have been displayed in the first place.");
+                Module.Logger.Error("Cannot ignore stat. It does not exist or is already ignored. It shouldnt have been displayed at all.");
                 return;
             }
 
-            var ignoredStat = new FavoriteStat()
-            {
-                StatType = stat.StatType,
-                ApiId = stat.ApiId
-            };
-
-            ignoredStats.AddSafe(ignoredStat);
+            matchingStat.StatVisibility = StatVisibility.Ignored;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }

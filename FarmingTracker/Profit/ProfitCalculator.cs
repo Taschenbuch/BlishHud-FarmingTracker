@@ -14,25 +14,24 @@ namespace FarmingTracker
             Signed_ProfitPerHourInCopper = CalculateSignedProfitPerHourInCopper(Signed_ProfitInCopper, elapsedFarmingTime);
         }
 
-        public void CalculateProfits(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, SafeList<FavoriteStat> ignoredStats, TimeSpan elapsedFarmingTime)
+        public void CalculateProfits(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, TimeSpan elapsedFarmingTime)
         {
-            var signed_profitInCopper = CalculateSignedProfitInCopper(snapshot, customStatProfits, ignoredStats);
+            var signed_profitInCopper = CalculateSignedProfitInCopper(snapshot, customStatProfits);
             Signed_ProfitPerHourInCopper = CalculateSignedProfitPerHourInCopper(signed_profitInCopper, elapsedFarmingTime);
             Signed_ProfitInCopper = signed_profitInCopper;
         }
 
-        private static long CalculateSignedProfitInCopper(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, SafeList<FavoriteStat> ignoredStats)
+        private static long CalculateSignedProfitInCopper(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits)
         {
             var customStatProfitsCopy = customStatProfits.ToListSafe();
-            var ignoredStatsCopy = ignoredStats.ToListSafe();
 
-            var signed_itemsSellProfitInCopper = snapshot.ItemById.Values
-                .Where(item => !ignoredStatsCopy.Any(ignored => ignored.ApiId == item.ApiId && ignored.StatType == item.StatType))
+            var signed_itemsSellProfitInCopper = snapshot.ItemById.Values // todo x lock?
+                .Where(i => i.StatVisibility != StatVisibility.Ignored) 
                 .Sum(i => GetSignedStatProfit(customStatProfitsCopy, i));
 
-            var signed_currenciesSellProfitInCopper = snapshot.CurrencyById.Values
+            var signed_currenciesSellProfitInCopper = snapshot.CurrencyById.Values // todo x lock?
                 .Where(c => !c.IsCoinOrCustomCoin)
-                .Where(currency => !ignoredStatsCopy.Any(ignored => ignored.ApiId == currency.ApiId && ignored.StatType == currency.StatType))
+                .Where(c => c.StatVisibility != StatVisibility.Ignored) 
                 .Sum(c => GetSignedStatProfit(customStatProfitsCopy, c));
 
             var signed_coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Signed_Count ?? 0;
