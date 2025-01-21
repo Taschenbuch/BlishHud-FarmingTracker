@@ -8,10 +8,10 @@ namespace FarmingTracker
     {
         public static FileModel CreateFileModel(Model model)
         {
-            var snapshot = model.Stats.StatsSnapshot;
-            var items = snapshot.ItemById.Values.Where(s => s.Signed_Count != 0).ToList();
-            var currencies = snapshot.CurrencyById.Values.Where(s => s.Signed_Count != 0).ToList();
-            var stats = items.Concat(currencies);
+            var stats = model.Stats.ItemById.Values
+                .Concat(model.Stats.CurrencyById.Values)
+                .Where(s => s.Signed_Count != 0)
+                .ToList();
 
             var fileStats = new List<FileStat>();
 
