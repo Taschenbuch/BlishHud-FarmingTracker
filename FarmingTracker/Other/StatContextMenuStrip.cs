@@ -10,18 +10,13 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             Model model, 
-            SafeList<FavoriteStat> favoriteStats,
             SafeList<CustomStatProfit> customStatProfits,
             Services services)
         {
             _generalHeaderMenuItem = new CustomContextMenuStripItem("General", this, true);
 
             _ignoreMenuItem = new CustomContextMenuStripItem("Ignore", this);
-            _ignoreMenuItem.Click += (s, e) =>
-            {
-                IgnoreStat(stat, model, services);
-                FavoriteStatService.RemoveFromFavoriteStats(stat, favoriteStats, services);
-            };
+            _ignoreMenuItem.Click += (s, e) => IgnoreStat(stat, model, services);
             _ignoreMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
             _ignoreMenuItem.BasicTooltipText = stat.IsCoinOrCustomCoin
                 ? "Coins cannot be ignored."
@@ -31,14 +26,14 @@ namespace FarmingTracker
             if (panelType == PanelType.SummaryFavorites)
             {
                 _removeFavoriteMenuItem = new CustomContextMenuStripItem("Remove from favorites", this);
-                _removeFavoriteMenuItem.Click += (s, e) => FavoriteStatService.RemoveFromFavoriteStats(stat, favoriteStats, services);
+                _removeFavoriteMenuItem.Click += (s, e) => FavoriteStatService.RemoveFromFavoriteStats(stat, model, services);
                 _removeFavoriteMenuItem.BasicTooltipText =
                     $"Move item/currency from '{Constants.FAVORITES_PANEL_TITLE}' to '{Constants.ITEMS_PANEL_TITLE}/'{Constants.CURRENCIES_PANEL_TITLE}' panel.";
             }
             else
             {
                 _addFavoriteMenuItem = new CustomContextMenuStripItem("Add to favorites", this);
-                _addFavoriteMenuItem.Click += (s, e) => FavoriteStatService.AddToFavoriteStats(stat, favoriteStats, services);
+                _addFavoriteMenuItem.Click += (s, e) => FavoriteStatService.AddToFavoriteStats(stat, model, services);
                 _addFavoriteMenuItem.BasicTooltipText =
                     $"Move item/currency from '{Constants.ITEMS_PANEL_TITLE}'/'{Constants.CURRENCIES_PANEL_TITLE}' to '{Constants.FAVORITES_PANEL_TITLE}' panel. " +
                     $"Favorite items are not affected by filter or sort.";

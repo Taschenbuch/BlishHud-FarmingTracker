@@ -7,12 +7,10 @@ namespace FarmingTracker
     {
         public static Model CreateModel(FileModel fileModel)
         {
-            var favoriteStats = CreateFavoriteStats(fileModel.FileStats.Where(f => f.StatVisibility == StatVisibility.Favorite)).ToList();
             var customStatProfits = CreateCustomStatProfits(fileModel.FileStats.Where(f => f.CustomStatProfit != null)).ToList();
 
             var model = new Model
             {
-                FavoriteStats = new SafeList<FavoriteStat>(favoriteStats),
                 CustomStatProfits = new SafeList<CustomStatProfit>(customStatProfits)
             };
 
@@ -32,16 +30,6 @@ namespace FarmingTracker
                     ApiId = fileStat.ApiId,
                     StatType = fileStat.StatType,
                     Unsigned_CustomProfitInCopper = fileStat.CustomStatProfit ?? 1, // "?? 1" will no happen but compiler is happy. type interference from null guard 
-                };
-        }
-
-        private static IEnumerable<FavoriteStat> CreateFavoriteStats(IEnumerable<FileStat> fileStats)
-        {
-            foreach (var fileStat in fileStats)
-                yield return new FavoriteStat
-                {
-                    ApiId = fileStat.ApiId,
-                    StatType = fileStat.StatType,
                 };
         }
 

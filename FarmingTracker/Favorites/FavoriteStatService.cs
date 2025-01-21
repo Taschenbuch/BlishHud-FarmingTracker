@@ -1,40 +1,41 @@
-﻿namespace FarmingTracker
+﻿using System.Linq;
+
+namespace FarmingTracker
 {
     public class FavoriteStatService
     {
-        public static void RemoveFromFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
+        public static void RemoveFromFavoriteStats(Stat stat, Model model, Services services) // todo x all
         {
             var apiId = ReplaceApiIdIfCustomCoin(stat);
-            var matchingFavoriteStat = favoriteStats.FirstOrDefaultSafe(f => f.StatType == stat.StatType && f.ApiId == apiId);
+            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
+            var matchingStat = stats.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId);
 
-            if (matchingFavoriteStat == null)
+            if (matchingStat == null || matchingStat.StatVisibility != StatVisibility.Favorite)
             {
-                Module.Logger.Error("Item is not a favorite item. It shouldnt have been displayed in the first place.");
+                Module.Logger.Error("Cannot remove stat from favorites. It does not exist or is no favorite.");
                 return;
             }
 
-            favoriteStats.RemoveSafe(matchingFavoriteStat);
+            matchingStat.StatVisibility = StatVisibility.Regular;
+            
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        public static void AddToFavoriteStats(Stat stat, SafeList<FavoriteStat> favoriteStats, Services services)
+        public static void AddToFavoriteStats(Stat stat, Model model, Services services)
         {
             var apiId = ReplaceApiIdIfCustomCoin(stat);
+            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
+            var matchingStat = stats.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId);
 
-            if (favoriteStats.AnySafe(f => f.StatType == stat.StatType && f.ApiId == apiId))
+            if (matchingStat == null || matchingStat.StatVisibility == StatVisibility.Favorite)
             {
-                Module.Logger.Error("Item is already a favorite item. It shouldnt have been displayed in the first place.");
+                Module.Logger.Error("Cannot add stat to favorites. Stat does not exist or is already a favorite.");
                 return;
             }
 
-            var favoriteStat = new FavoriteStat()
-            {
-                StatType = stat.StatType,
-                ApiId = apiId
-            };
+            matchingStat.StatVisibility = StatVisibility.Favorite;
 
-            favoriteStats.AddSafe(favoriteStat);
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
