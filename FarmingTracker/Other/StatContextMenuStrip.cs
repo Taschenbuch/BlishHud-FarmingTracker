@@ -152,16 +152,7 @@ namespace FarmingTracker
             if (stat.IsCoinOrCustomCoin) // should not never happen.
                 return;
 
-            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
-            var matchingStat = stats.FirstOrDefault(f => f.StatType == stat.StatType && f.ApiId == stat.ApiId);
-
-            if (matchingStat == null || matchingStat.StatVisibility == StatVisibility.Ignored)
-            {
-                Module.Logger.Error("Cannot ignore stat. It does not exist or is already ignored. It shouldnt have been displayed at all.");
-                return;
-            }
-
-            matchingStat.StatVisibility = StatVisibility.Ignored;
+            stat.StatVisibility = StatVisibility.Ignored;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
