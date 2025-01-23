@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System;
-using System.Collections.Generic;
 
 namespace FarmingTracker
 {
@@ -14,37 +13,32 @@ namespace FarmingTracker
             Signed_ProfitPerHourInCopper = CalculateSignedProfitPerHourInCopper(Signed_ProfitInCopper, elapsedFarmingTime);
         }
 
-        public void CalculateProfits(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits, TimeSpan elapsedFarmingTime)
+        public void CalculateProfits(Model model, TimeSpan elapsedFarmingTime)
         {
-            var signed_profitInCopper = CalculateSignedProfitInCopper(snapshot, customStatProfits);
+            var signed_profitInCopper = CalculateSignedProfitInCopper(model);
             Signed_ProfitPerHourInCopper = CalculateSignedProfitPerHourInCopper(signed_profitInCopper, elapsedFarmingTime);
             Signed_ProfitInCopper = signed_profitInCopper;
         }
 
-        private static long CalculateSignedProfitInCopper(StatsSnapshot snapshot, SafeList<CustomStatProfit> customStatProfits)
+        private static long CalculateSignedProfitInCopper(Model model)
         {
-            var customStatProfitsCopy = customStatProfits.ToListSafe();
+            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
 
-            var signed_itemsSellProfitInCopper = snapshot.ItemById.Values // todo x lock?
-                .Where(i => i.StatVisibility != StatVisibility.Ignored) 
-                .Sum(i => GetSignedStatProfit(customStatProfitsCopy, i));
-
-            var signed_currenciesSellProfitInCopper = snapshot.CurrencyById.Values // todo x lock?
+            var multiple_signed_statsSellProfitsInCopper = stats // todo x lock?
                 .Where(c => !c.IsCoinOrCustomCoin)
-                .Where(c => c.StatVisibility != StatVisibility.Ignored) 
-                .Sum(c => GetSignedStatProfit(customStatProfitsCopy, c));
+                .Where(i => i.StatVisibility != StatVisibility.Ignored)
+                .Select(i => GetSignedStatProfit(i));
 
-            var signed_coinsInCopper = snapshot.CurrencyById.Values.SingleOrDefault(s => s.IsCoin)?.Signed_Count ?? 0;
-            var signed_totalProfit = signed_coinsInCopper + signed_itemsSellProfitInCopper + signed_currenciesSellProfitInCopper;
+            var total_signed_statsSellProfitInCopper = multiple_signed_statsSellProfitsInCopper.Sum(); // todo x lock?
+            var signed_coinsInCopper = stats.SingleOrDefault(s => s.IsCoin)?.Signed_Count ?? 0;
+            var signed_totalProfit = signed_coinsInCopper + total_signed_statsSellProfitInCopper;
 
             if (DebugMode.DebugLoggingRequired)
                 Module.Logger.Debug(
                     $"totalProfit {signed_totalProfit} = " +
                     $"coinsInCopper {signed_coinsInCopper} " +
-                    $"+ itemsSellProfitInCopper {signed_itemsSellProfitInCopper} " +
-                    $"+ currenciesSellProfitInCopper {signed_currenciesSellProfitInCopper} " +
-                    $"| maxAllProfits per Item (including ignored) {string.Join(" ", snapshot.ItemById.Values.Select(i => GetSignedStatProfit(customStatProfitsCopy, i)))}" +
-                    $"| maxAllProfits per Currency {string.Join(" ", snapshot.CurrencyById.Values.Select(c => GetSignedStatProfit(customStatProfitsCopy, c)))}");
+                    $"+ statsSellProfitInCopper {total_signed_statsSellProfitInCopper} " +
+                    $"| maxAllProfits per Stat {string.Join(" ", multiple_signed_statsSellProfitsInCopper)}");
 
             return signed_totalProfit;
         }
@@ -69,12 +63,11 @@ namespace FarmingTracker
             return (long)signed_profitPerHourInCopper;
         }
 
-        private static long GetSignedStatProfit(List<CustomStatProfit> customStatProfits, Stat s)
+        private static long GetSignedStatProfit(Stat stat)
         {
-            var customStatProfit = customStatProfits.SingleOrDefault(c => c.BelongsToStat(s));
-            return customStatProfit == null
-                ? s.CountSign * s.Profits.All.Unsigned_MaxProfitInCopper
-                : s.Signed_Count * customStatProfit.Unsigned_CustomProfitInCopper;
+            return stat.HasCustomProfit
+                ? stat.Signed_Count * (stat.Unsigned_CustomProfitInCopper ?? 0) // should never be null here
+                : stat.CountSign * stat.Profits.All.Unsigned_MaxProfitInCopper;
         }
     }
 }

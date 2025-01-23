@@ -22,16 +22,14 @@ namespace FarmingTracker
             var currencies = stats.Where(s => s.StatType == StatType.Currency && s.StatVisibility == StatVisibility.Regular).ToList();
             var favoriteStats = stats.Where(s => s.StatVisibility == StatVisibility.Favorite).OrderBy(f => f.StatType).ToList(); // OrderBy to show always show currencies first.
 
-            var customStatProfits = model.CustomStatProfits.ToListSafe(); // dont use this snapshot inside StatControls. statcontrols have to update the list.
-
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);
             favoriteStats = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(favoriteStats);
-            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, customStatProfits, statsPanels, services.SettingService);
+            (items, currencies) = FilterService.FilterStatsAndSetFunnelOpacity(items, currencies, statsPanels, services.SettingService);
             (items, currencies) = SortService.SortStats(items, currencies, services.SettingService);
 
-            var favoriteStatsControls = CreateStatControls(favoriteStats, PanelType.SummaryFavorites, model, model.CustomStatProfits, services);
-            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model, model.CustomStatProfits, services);
-            var itemControls = CreateStatControls(items, PanelType.SummaryItems, model, model.CustomStatProfits, services);
+            var favoriteStatsControls = CreateStatControls(favoriteStats, PanelType.SummaryFavorites, model, services);
+            var currencyControls = CreateStatControls(currencies, PanelType.SummaryCurrencies, model, services);
+            var itemControls = CreateStatControls(items, PanelType.SummaryItems, model, services);
 
             if (currencyControls.IsEmpty())
                 currencyControls.Add(new HintLabel($"{Constants.HINT_IN_PANEL_PADDING}No currency changes detected!"));
@@ -52,17 +50,12 @@ namespace FarmingTracker
             Hacks.ClearAndAddChildrenWithoutUiFlickering(currencyControls, statsPanels.CurrenciesFlowPanel);
         }
 
-        private static ControlCollection<Control> CreateStatControls(
-            List<Stat> stats, 
-            PanelType panelType,
-            Model model, 
-            SafeList<CustomStatProfit> customStatProfits,
-            Services services)
+        private static ControlCollection<Control> CreateStatControls(List<Stat> stats, PanelType panelType, Model model, Services services)
         {
             var controls = new ControlCollection<Control>();
 
             foreach (var stat in stats)
-                controls.Add(new StatContainer(stat, panelType, model, customStatProfits, services));
+                controls.Add(new StatContainer(stat, panelType, model, services));
 
             return controls;
         }

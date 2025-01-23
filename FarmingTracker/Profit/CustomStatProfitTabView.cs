@@ -61,21 +61,15 @@ namespace FarmingTracker
 
             var hintLabel = new HintLabel(_rootFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
-            var customStatProfits = _model.CustomStatProfits.ToListSafe();
-            var noCustomSatProfitsExist = customStatProfits.IsEmpty();
-            if (noCustomSatProfitsExist)
+            var statsWithCustomProfit = _model.Stats.ItemById.Values.Concat(_model.Stats.CurrencyById.Values).Where(s => s.HasCustomProfit); // todo x lock?
+            if (statsWithCustomProfit.IsEmpty())
             {
                 ShowNoCustomStatProfitsExistHintIfNecessary(hintLabel, _model);
                 return;
             }
 
-            var statsSnapshot = _model.Stats.StatsSnapshot;
-            var currencies = statsSnapshot.CurrencyById.Values.Where(c => !c.IsCoin).ToList();
-            var items = statsSnapshot.ItemById.Values;
-
-            var currenciesApiDataMissing = currencies.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
-            var itemApiDataMissing = items.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
-            if (currenciesApiDataMissing || itemApiDataMissing)
+            var statsApiDataMissing = statsWithCustomProfit.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
+            if (statsApiDataMissing)
             {
                 ShowLoadingHint(hintLabel);
                 return;
@@ -83,22 +77,8 @@ namespace FarmingTracker
 
             var statsFlowPanel = CreateStatsFlowPanel(buildPanel, _rootFlowPanel);
 
-            foreach (var customStatProfit in customStatProfits)
-            {
-                var stats = customStatProfit.StatType == StatType.Item
-                    ? items
-                    : currencies;
-
-                var stat = stats.SingleOrDefault(s => customStatProfit.BelongsToStat(s));
-
-                if (stat == null)
-                {
-                    Module.Logger.Error($"Missing stat in model for customStatprofit id: {customStatProfit.ApiId}");
-                    continue;
-                }
-
-                new CustomStatProfitRowPanel(customStatProfit, stat, hintLabel, _model, _services, statsFlowPanel);
-            }
+            foreach (var statWithCustomProfit in statsWithCustomProfit)
+                new CustomStatProfitRowPanel(statWithCustomProfit, hintLabel, _model, _services, statsFlowPanel);
         }
 
         private static FlowPanel CreateStatsFlowPanel(Container buildPanel, Container parent)
@@ -116,7 +96,9 @@ namespace FarmingTracker
 
         public static void ShowNoCustomStatProfitsExistHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            if (model.CustomStatProfits.AnySafe())
+            var statsWithCustomProfit = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values).Where(s => s.HasCustomProfit); // todo x lock?
+
+            if (statsWithCustomProfit.Any())
                 return;
 
             hintLabel.Text =

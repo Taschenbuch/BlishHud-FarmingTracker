@@ -17,7 +17,7 @@ namespace FarmingTracker
         [JsonProperty("Visibility")]
         public StatVisibility StatVisibility { get; set; } = StatVisibility.Regular;
         
-        [JsonProperty("CustomStatProfit")]
-        public long? CustomStatProfit { get; set; }
+        [JsonProperty("Unsigned_CustomProfitInCopper")]
+        public long? Unsigned_CustomProfitInCopper { get; set; }
     }
 }

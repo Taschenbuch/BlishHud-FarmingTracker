@@ -19,9 +19,11 @@ namespace FarmingTracker
             };
         }
 
-        public static void AddProfitTable(Stat stat, long? unsigned_customStatProfitInCopper, BitmapFont font, Services services, Container parent)
+        public static void AddProfitTable(Stat stat, BitmapFont font, Services services, Container parent)
         {
-            if (stat.Profits.CanNotBeSold && !unsigned_customStatProfitInCopper.HasValue)
+            var unsigned_CustomProfitInCopper_copy = stat.Unsigned_CustomProfitInCopper;
+
+            if (stat.Profits.CanNotBeSold && !unsigned_CustomProfitInCopper_copy.HasValue)
                 return;
 
             if(!stat.IsSingleItem) // hack: because single item has empty string table headers and not headers like "each" and "all". the empty header still use space.
@@ -35,17 +37,17 @@ namespace FarmingTracker
                 Parent = parent,
             };
 
-            AddTitleColumn(stat, unsigned_customStatProfitInCopper.HasValue, font, services, profitColumnsFlowPanel);
+            AddTitleColumn(stat, unsigned_CustomProfitInCopper_copy.HasValue, font, services, profitColumnsFlowPanel);
 
             if(stat.IsSingleItem)
             {
-                AddProfitColumn("", stat.Profits.Each, stat.CountSign * unsigned_customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("", stat.Profits.Each, stat.CountSign * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
             }
             else
             {
                 // ergebnis null, wenn ein Faktor null ist.
-                AddProfitColumn("all", stat.Profits.All, stat.Signed_Count * unsigned_customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
-                AddProfitColumn("each", stat.Profits.Each, stat.CountSign * unsigned_customStatProfitInCopper, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("all", stat.Profits.All, stat.Signed_Count * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("each", stat.Profits.Each, stat.CountSign * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
             }
 
             if (stat.Profits.CanBeSoldOnTp)

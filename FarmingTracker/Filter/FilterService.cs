@@ -1,5 +1,4 @@
 ﻿using Gw2Sharp.WebApi.V2.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,20 +6,17 @@ namespace FarmingTracker
 {
     public class FilterService
     {
-
-
         public static (List<Stat> items, List<Stat> currencies) FilterStatsAndSetFunnelOpacity(
             List<Stat> items,
             List<Stat> currencies,
-            List<CustomStatProfit> customStatProfits,
             StatsPanels statsPanels,
             SettingService settingService)
         {
             var currenciesCountBeforeFiltering = currencies.Count;
             var itemsCountBeforeFiltering = items.Count;
 
-            currencies = FilterCurrencies(currencies, customStatProfits, settingService);
-            items = FilterItems(items, customStatProfits, settingService);
+            currencies = FilterCurrencies(currencies, settingService);
+            items = FilterItems(items, settingService);
 
             var noCurrenciesHiddenByFilter = currencies.Count == currenciesCountBeforeFiltering;
             var noItemsHiddenByFilter = items.Count == itemsCountBeforeFiltering;
@@ -31,7 +27,7 @@ namespace FarmingTracker
             return (items, currencies);
         }
 
-        private static List<Stat> FilterCurrencies(List<Stat> currencies, List<CustomStatProfit> customStatProfits, SettingService settingService)
+        private static List<Stat> FilterCurrencies(List<Stat> currencies, SettingService settingService)
         {
             var knownByApi = settingService.KnownByApiFilterSetting.Value.ToList();
             if (knownByApi.Any()) // prevents that all items are hidden, when no filter is set
@@ -43,7 +39,7 @@ namespace FarmingTracker
 
             var sellMethodFilter = settingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
-                currencies = currencies.Where(s => IsShownBySellMethodFilter(s, sellMethodFilter, customStatProfits)).ToList();
+                currencies = currencies.Where(s => IsShownBySellMethodFilter(s, sellMethodFilter)).ToList();
 
             var currencyFilter = settingService.CurrencyFilterSetting.Value.ToList();
             if (currencyFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -52,7 +48,7 @@ namespace FarmingTracker
             return currencies;
         }
 
-        private static List<Stat> FilterItems(List<Stat> items, List<CustomStatProfit> customStatProfits, SettingService settingService)
+        private static List<Stat> FilterItems(List<Stat> items, SettingService settingService)
         {
             var knownByApi = settingService.KnownByApiFilterSetting.Value.ToList();
             if (knownByApi.Any()) // prevents that all items are hidden, when no filter is set
@@ -64,7 +60,7 @@ namespace FarmingTracker
 
             var sellMethodFilter = settingService.SellMethodFilterSetting.Value.ToList();
             if (sellMethodFilter.Any()) // prevents that all items are hidden, when no filter is set
-                items = items.Where(s => IsShownBySellMethodFilter(s, sellMethodFilter, customStatProfits)).ToList();
+                items = items.Where(s => IsShownBySellMethodFilter(s, sellMethodFilter)).ToList();
 
             var rarityFilter = settingService.RarityStatsFilterSetting.Value.ToList();
             if (rarityFilter.Any()) // prevents that all items are hidden, when no filter is set
@@ -115,7 +111,7 @@ namespace FarmingTracker
             return false;
         }
 
-        private static bool IsShownBySellMethodFilter(Stat stat, List<SellMethodFilter> sellMethodFilter, List<CustomStatProfit> customStatProfits)
+        private static bool IsShownBySellMethodFilter(Stat stat, List<SellMethodFilter> sellMethodFilter)
         {
             if (stat.IsCoinOrCustomCoin) // always show raw gold.
                 return true;
@@ -129,7 +125,7 @@ namespace FarmingTracker
             if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.Profits.CanNotBeSold)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.CustomProfitIsSet) && customStatProfits.Any(c => c.BelongsToStat(stat)))
+            if (sellMethodFilter.Contains(SellMethodFilter.CustomProfitIsSet) && stat.HasCustomProfit)
                 return true;
 
             return false;

@@ -4,7 +4,6 @@ using Blish_HUD.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
-using System.Linq;
 
 namespace FarmingTracker
 {
@@ -14,7 +13,6 @@ namespace FarmingTracker
             Stat stat, 
             PanelType panelType, 
             Model model, 
-            SafeList<CustomStatProfit> customStatProfits, 
             Services services)
         {
             _services = services;
@@ -34,12 +32,7 @@ namespace FarmingTracker
                 ? 1f 
                 : (services.SettingService.NegativeCountIconOpacitySetting.Value / 255f);
 
-            var unsigned_customStatProfitInCopper = customStatProfits
-                .ToListSafe()
-                .SingleOrDefault(c => c.BelongsToStat(stat))
-                ?.Unsigned_CustomProfitInCopper;
-
-            Tooltip = new StatTooltip(stat, unsigned_customStatProfitInCopper, _statIconTexture, panelType, services);
+            Tooltip = new StatTooltip(stat, _statIconTexture, panelType, services);
 
             var statIconOrigin = INVENTORY_SLOT_MARGIN + STAT_ICON_MARGIN;
             var statIconSize = (int)services.SettingService.StatIconSizeSetting.Value;
@@ -55,7 +48,7 @@ namespace FarmingTracker
             if (panelType != PanelType.IgnoredStats)
                 RightMouseButtonPressed += (s, e) =>
                 {
-                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, model, customStatProfits, services);
+                    var contextMenuStrip = new StatContextMenuStrip(stat, panelType, model, services);
                     contextMenuStrip.Hidden += (s, e) => contextMenuStrip.Dispose();
                     contextMenuStrip.Show(GameService.Input.Mouse.Position);
                 };

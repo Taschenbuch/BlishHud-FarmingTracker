@@ -5,7 +5,7 @@ namespace FarmingTracker
 {
     public class CustomStatProfitRowPanel
     {
-        public CustomStatProfitRowPanel(CustomStatProfit customStatProfit, Stat stat, HintLabel hintLabel, Model model, Services services, Container parent)
+        public CustomStatProfitRowPanel(Stat stat, HintLabel hintLabel, Model model, Services services, Container parent)
         {
             var iconSize = 50;
             var iconMargin = 1;
@@ -47,7 +47,7 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
 
-            var coin = new Coin(customStatProfit.Unsigned_CustomProfitInCopper);
+            var coin = new Coin(stat.Unsigned_CustomProfitInCopper ?? 0); // should never be null here.
 
             var goldTextBox = new NumberTextBox(6) // 6 because otherwise end of number is hidden due to textbox not supporting horizontal scrolling.
             {
@@ -87,9 +87,9 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
 
-            goldTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
-            silverTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
-            copperTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, customStatProfit, services);
+            goldTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(stat, goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, services);
+            silverTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(stat, goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, services);
+            copperTextBox.NumberTextChanged += (s, e) => OnCoinTextChanged(stat, goldTextBox.Text, silverTextBox.Text, copperTextBox.Text, services);
 
             // copper icon
             new Image(services.TextureService.SmallCopperCoinTexture)
@@ -109,13 +109,13 @@ namespace FarmingTracker
             removeButton.Location = new Point(statRowPanel.Width - removeButton.Width - 5, backgroundMargin);
             removeButton.Click += (s, e) =>
             {
-                RemoveCustomStatProfit(customStatProfit, model, services);
+                RemoveCustomStatProfit(stat, services);
                 statRowPanel?.Dispose();
                 CustomStatProfitTabView.ShowNoCustomStatProfitsExistHintIfNecessary(hintLabel, model);
             };
         }
 
-        private static void OnCoinTextChanged(string goldText, string silverText, string copperText, CustomStatProfit customStatProfit, Services services)
+        private static void OnCoinTextChanged(Stat stat, string goldText, string silverText, string copperText, Services services)
         {
             goldText = string.IsNullOrWhiteSpace(goldText) ? "0" : goldText;
             silverText = string.IsNullOrWhiteSpace(silverText) ? "0" : silverText;
@@ -125,15 +125,15 @@ namespace FarmingTracker
             int silver = int.Parse(silverText);
             int copper = int.Parse(copperText);
 
-            customStatProfit.Unsigned_CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
+            stat.Unsigned_CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
 
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }
 
-        private static void RemoveCustomStatProfit(CustomStatProfit customStatProfit, Model model, Services services)
+        private static void RemoveCustomStatProfit(Stat stat, Services services)
         {
-            model.CustomStatProfits.RemoveSafe(customStatProfit);
+            stat.Unsigned_CustomProfitInCopper = null;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }

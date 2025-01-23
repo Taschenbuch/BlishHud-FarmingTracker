@@ -1,22 +1,16 @@
 ﻿using Blish_HUD;
 using System;
-using System.Linq;
 
 namespace FarmingTracker
 {
     public class StatContextMenuStrip : CustomContextMenuStrip
     {
-        public StatContextMenuStrip(
-            Stat stat, 
-            PanelType panelType, 
-            Model model, 
-            SafeList<CustomStatProfit> customStatProfits,
-            Services services)
+        public StatContextMenuStrip(Stat stat, PanelType panelType, Model model, Services services)
         {
             _generalHeaderMenuItem = new CustomContextMenuStripItem("General", this, true);
 
             _ignoreMenuItem = new CustomContextMenuStripItem("Ignore", this);
-            _ignoreMenuItem.Click += (s, e) => IgnoreStat(stat, model, services);
+            _ignoreMenuItem.Click += (s, e) => IgnoreStat(stat, services);
             _ignoreMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
             _ignoreMenuItem.BasicTooltipText = stat.IsCoinOrCustomCoin
                 ? "Coins cannot be ignored."
@@ -40,7 +34,7 @@ namespace FarmingTracker
             }
 
             _setCustomProfitMenuItem = new CustomContextMenuStripItem($"Set to a custom profit of 0 copper. Navigate to '{Constants.TabTitles.CUSTOM_STAT_PROFIT}' tab to edit or remove the custom profit.", this);
-            _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, customStatProfits, services);
+            _setCustomProfitMenuItem.Click += (s, e) => SetToZeroProfitAndNavigateToProfitTab(stat, services);
             _setCustomProfitMenuItem.Enabled = !stat.IsCoinOrCustomCoin;
             _setCustomProfitMenuItem.BasicTooltipText = stat.IsCoinOrCustomCoin
                 ? "Coins cannot have a custom profit because that makes no sense."
@@ -130,24 +124,15 @@ namespace FarmingTracker
             base.DisposeControl();
         }
 
-        private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, SafeList<CustomStatProfit> customStatProfits, Services services)
+        private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, Services services)
         {
-            var matchingCustomStatProfit = customStatProfits.ToListSafe().SingleOrDefault(c => c.BelongsToStat(stat));
-
-            if (matchingCustomStatProfit != null) // custom stat already exists -> override its custom profit.
-                matchingCustomStatProfit.Unsigned_CustomProfitInCopper = 0;
-            else
-            {
-                var customStatProfit = new CustomStatProfit(stat.ApiId, stat.StatType);
-                customStatProfits.AddSafe(customStatProfit);
-            }
-
+            stat.Unsigned_CustomProfitInCopper = 0;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
             services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);
         }
 
-        private static void IgnoreStat(Stat stat, Model model, Services services)
+        private static void IgnoreStat(Stat stat, Services services)
         {
             if (stat.IsCoinOrCustomCoin) // should not never happen.
                 return;
