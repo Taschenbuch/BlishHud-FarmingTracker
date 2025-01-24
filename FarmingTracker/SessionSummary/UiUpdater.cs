@@ -11,15 +11,14 @@ namespace FarmingTracker
             // normally after an api error, the UI is not updated. So stats that did not get api details yet, do not show up in the UI until the next success api call.
             // But when the UI is updated due to a user action (changed sort, changed filter, ...), those missing-details-stats would be displayed without name, icon, tooltip.
             // this method prevents that they are displayed.
-            var stats = model.Stats.ItemById.Values // todo x lock?
-               .Concat(model.Stats.CurrencyById.Values)
+            var stats = model.Stats.StatById.Values // todo x lock?
                .Where(s => s.Signed_Count != 0) // dont call this AFTER the coin splitter. it would remove them.
                .Where(s => s.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet)
                .Where(s => SearchService.IncludesSearchTerm(s, services.SearchTerm))
                .ToList();
             
-            var items = stats.Where(s => s.StatType == StatType.Item && s.StatVisibility == StatVisibility.Regular).ToList();
-            var currencies = stats.Where(s => s.StatType == StatType.Currency && s.StatVisibility == StatVisibility.Regular).ToList();
+            var items = stats.Where(s => s.StatType == StatType.Item).Where(s => s.StatVisibility == StatVisibility.Regular).ToList();
+            var currencies = stats.Where(s => s.StatType == StatType.Currency).Where( s => s.StatVisibility == StatVisibility.Regular).ToList();
             var favoriteStats = stats.Where(s => s.StatVisibility == StatVisibility.Favorite).OrderBy(f => f.StatType).ToList(); // OrderBy to show always show currencies first.
 
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);

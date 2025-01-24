@@ -61,7 +61,7 @@ namespace FarmingTracker
 
             var hintLabel = new HintLabel(_rootFlowPanel, Constants.ZERO_HEIGHT_EMPTY_LABEL);
 
-            var statsWithCustomProfit = _model.Stats.ItemById.Values.Concat(_model.Stats.CurrencyById.Values).Where(s => s.HasCustomProfit); // todo x lock?
+            var statsWithCustomProfit = _model.Stats.StatById.Values.Where(s => s.HasCustomProfit); // todo x lock?
             if (statsWithCustomProfit.IsEmpty())
             {
                 ShowNoCustomStatProfitsExistHintIfNecessary(hintLabel, _model);
@@ -96,7 +96,7 @@ namespace FarmingTracker
 
         public static void ShowNoCustomStatProfitsExistHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            var statsWithCustomProfit = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values).Where(s => s.HasCustomProfit); // todo x lock?
+            var statsWithCustomProfit = model.Stats.StatById.Values.Where(s => s.HasCustomProfit); // todo x lock?
 
             if (statsWithCustomProfit.Any())
                 return;

@@ -22,7 +22,7 @@ namespace FarmingTracker
 
         private static long CalculateSignedProfitInCopper(Model model)
         {
-            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
+            var stats = model.Stats.StatById.Values; // todo x lock?
 
             var multiple_signed_statsSellProfitsInCopper = stats // todo x lock?
                 .Where(c => !c.IsCoinOrCustomCoin)

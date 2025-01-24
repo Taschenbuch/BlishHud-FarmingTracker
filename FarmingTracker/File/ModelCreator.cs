@@ -9,19 +9,19 @@ namespace FarmingTracker
             var model = new Model();
 
             foreach (var fileStat in fileModel.FileStats)
-                AddStatToModel(fileStat, model.Stats.ItemById, model.Stats.CurrencyById);
+                AddStatToModel(fileStat, model.Stats.StatById);
 
             model.Stats.UpdateStatsSnapshot();
 
             return model;
         }
-        private static void AddStatToModel(FileStat fileStat, Dictionary<int, Stat> itemById, Dictionary<int, Stat> currencyById)
+        private static void AddStatToModel(FileStat fileStat, Dictionary<int, Stat> statById)
         {
-            var statById = fileStat.StatType == StatType.Item
-                ? itemById
-                : currencyById;
+            var key = fileStat.StatType == StatType.Item
+                ? fileStat.ApiId 
+                : -fileStat.ApiId;
 
-            statById[fileStat.ApiId] = new Stat
+            statById[key] = new Stat
             {
                 ApiId = fileStat.ApiId,
                 StatType = fileStat.StatType,

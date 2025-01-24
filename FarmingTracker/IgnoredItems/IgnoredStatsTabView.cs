@@ -86,9 +86,7 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredStats = _model.Stats.ItemById.Values // todo x lock?
-                .Concat(_model.Stats.CurrencyById.Values)
-                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+            var ignoredStats = _model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
 
             var noStatsAreIgnored = ignoredStats.IsEmpty();
             if (noStatsAreIgnored)
@@ -143,9 +141,7 @@ namespace FarmingTracker
 
         private static void UnignoreStat(Stat stat, Model model, Services services)
         {
-            var ignoredStats = model.Stats.ItemById.Values // todo x lock?
-                .Concat(model.Stats.CurrencyById.Values)
-                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+            var ignoredStats = model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
 
             var matchingFavoriteStat = ignoredStats.FirstOrDefault(i => i.StatType == stat.StatType && i.ApiId == stat.ApiId);
             if(matchingFavoriteStat == null)
@@ -161,9 +157,7 @@ namespace FarmingTracker
 
         private static void ShowNoStatsAreIgnoredHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            var ignoredStats = model.Stats.ItemById.Values // todo x lock?
-                .Concat(model.Stats.CurrencyById.Values)
-                .Where(s => s.StatVisibility == StatVisibility.Ignored);
+            var ignoredStats = model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
 
             if (ignoredStats.Any()) // todo x lock?
                 return;

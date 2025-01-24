@@ -16,8 +16,7 @@ namespace FarmingTracker
 {
     public class Stats
     {
-        public Dictionary<int, Stat> CurrencyById { get; } = new Dictionary<int, Stat>();
-        public Dictionary<int, Stat> ItemById { get; } = new Dictionary<int, Stat>();
+        public Dictionary<int, Stat> StatById { get; } = new Dictionary<int, Stat>();
         public StatsSnapshot StatsSnapshot { get; set; } = new StatsSnapshot();
 
         // Must not be called while other threads modify CurrencyById/ItemById.
@@ -25,8 +24,7 @@ namespace FarmingTracker
         {
             var newSnapshot = new StatsSnapshot
             {
-                ItemById = ItemById,
-                CurrencyById = CurrencyById
+                StatsById = StatById,
             };
 
             var statsSnapshot = JsonConvert.DeserializeObject<StatsSnapshot>(JsonConvert.SerializeObject(newSnapshot));

@@ -7,8 +7,7 @@ namespace FarmingTracker
         public static void RemoveFromFavoriteStats(Stat stat, Model model, Services services) // todo x all
         {
             var apiId = ReplaceApiIdIfCustomCoin(stat);
-            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
-            var matchingStat = stats.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId);
+            var matchingStat = model.Stats.StatById.Values.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId); // todo x lock?
 
             if (matchingStat == null || matchingStat.StatVisibility != StatVisibility.Favorite)
             {
@@ -25,8 +24,7 @@ namespace FarmingTracker
         public static void AddToFavoriteStats(Stat stat, Model model, Services services)
         {
             var apiId = ReplaceApiIdIfCustomCoin(stat);
-            var stats = model.Stats.ItemById.Values.Concat(model.Stats.CurrencyById.Values); // todo x lock?
-            var matchingStat = stats.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId);
+            var matchingStat = model.Stats.StatById.Values.FirstOrDefault(s => s.StatType == stat.StatType && s.ApiId == apiId); // todo x lock?
 
             if (matchingStat == null || matchingStat.StatVisibility == StatVisibility.Favorite)
             {

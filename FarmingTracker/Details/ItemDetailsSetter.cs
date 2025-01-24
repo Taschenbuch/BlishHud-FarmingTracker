@@ -9,11 +9,12 @@ namespace FarmingTracker
 {
     public class ItemDetailsSetter
     {
-        public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
+        public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> statById, Gw2ApiManager gw2ApiManager)
         {
-            var itemIdsWithoutDetails = itemById.Values
-                .Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
-                .Select(i => i.ApiId)
+            var itemIdsWithoutDetails = statById.Values
+                .Where(s => s.StatType == StatType.Item)
+                .Where(s => s.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
+                .Select(s => s.ApiId)
                 .ToList();
             
             if (!itemIdsWithoutDetails.Any())
@@ -57,7 +58,7 @@ namespace FarmingTracker
 
             foreach (var apiPrice in apiPrices)
             {
-                var item = itemById[apiPrice.Id];
+                var item = statById[apiPrice.Id];
                 item.Details.Unsigned_SellsUnitPriceInCopper = apiPrice.Sells.UnitPrice;
                 item.Details.Unsigned_BuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
             }
@@ -67,7 +68,7 @@ namespace FarmingTracker
 
             foreach (var apiItem in apiItems)
             {
-                var item = itemById[apiItem.Id];
+                var item = statById[apiItem.Id];
                 item.Details.Name = apiItem.Name;
                 item.Details.Description = apiItem.Description ?? "";
                 item.Details.IconAssetId = TextureService.GetIconAssetId(apiItem.Icon);
@@ -80,7 +81,7 @@ namespace FarmingTracker
                 item.Details.State = ApiStatDetailsState.SetByApi;
             }
 
-            var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var itemsUnknownByApi = statById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
                 if(DebugMode.DebugLoggingRequired)

@@ -7,6 +7,8 @@ namespace FarmingTracker
     {
         public int ApiId { get; set; }
         public StatType StatType { get; set; }
+        public bool IsItem => StatType == StatType.Item;
+        public bool IsCurrency => StatType == StatType.Currency;
         public StatVisibility StatVisibility { get; set; }
         public long Signed_Count { get; set; }
         public long CountSign => Math.Sign(Signed_Count);
