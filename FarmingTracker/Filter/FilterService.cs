@@ -87,9 +87,9 @@ namespace FarmingTracker
 
         private static bool IsShownByCurrencyFilter(Stat c, List<CurrencyFilter> currencyFilter)
         {
-            var isUnknownCurrency = Helper.IsUnknownEnumValue<CurrencyFilter>(c.ApiId); // e.g. when new currency is released
-            if (isUnknownCurrency)
-                return true;
+            var isUnknownCurrencyOrCoin = Helper.IsUnknownEnumValue<CurrencyFilter>(c.ApiId); 
+            if (isUnknownCurrencyOrCoin)
+                return true; // when new currency is released it should be visible because no filter for it exists yet.
 
             if (currencyFilter.Contains((CurrencyFilter)c.ApiId))
                 return true;
