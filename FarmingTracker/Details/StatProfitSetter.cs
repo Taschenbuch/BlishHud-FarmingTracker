@@ -10,10 +10,10 @@ namespace FarmingTracker
         public static void SetProfits(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
-                SetProfit(stat.Profit, stat.Signed_Count, stat.Details);
+                SetProfit(stat.Profit, stat.Details);
         }
 
-        private static void SetProfit(Profit profit, long signed_count, ApiStatDetails details)
+        private static void SetProfit(Profit profit, ApiStatDetails details)
         {
             var canBeSoldToVendor = details.Unsigned_VendorValueInCopper != 0 && !details.ItemFlags.Any(f => f == ItemFlag.NoSell);
             
