@@ -39,7 +39,7 @@ namespace FarmingTracker
         public static void SetCurrencyDetailsFromCache(Dictionary<int, Stat> statById, Dictionary<int, CurrencyDetails> currencyDetailsByIdCache)
         {
             var currenciesWithoutDetails = statById.Values
-                .Where(s => s.StatType == StatType.Currency)
+                .Where(s => s.IsCurrency)
                 .Where(s => s.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
                 .ToList();
 

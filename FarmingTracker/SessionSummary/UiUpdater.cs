@@ -17,8 +17,8 @@ namespace FarmingTracker
                .Where(s => SearchService.IncludesSearchTerm(s, services.SearchTerm))
                .ToList();
             
-            var items = stats.Where(s => s.StatType == StatType.Item).Where(s => s.StatVisibility == StatVisibility.Regular).ToList();
-            var currencies = stats.Where(s => s.StatType == StatType.Currency).Where( s => s.StatVisibility == StatVisibility.Regular).ToList();
+            var items = stats.Where(s => s.IsItem).Where(s => s.StatVisibility == StatVisibility.Regular).ToList();
+            var currencies = stats.Where(s => s.IsCurrency).Where(s => s.StatVisibility == StatVisibility.Regular).ToList();
             var favoriteStats = stats.Where(s => s.StatVisibility == StatVisibility.Favorite).OrderBy(f => f.StatType).ToList(); // OrderBy to show always show currencies first.
 
             currencies = CoinSplitter.ReplaceCoinWithGoldSilverCopperStats(currencies);

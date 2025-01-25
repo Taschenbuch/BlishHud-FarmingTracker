@@ -48,8 +48,8 @@ namespace FarmingTracker
 
             _copyNameMenuItem = new CustomContextMenuStripItem("Chat link", this);
             _copyNameMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.WikiSearchTerm);
-            _copyNameMenuItem.Enabled = stat.StatType == StatType.Item;
-            _copyNameMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _copyNameMenuItem.Enabled = stat.IsItem;
+            _copyNameMenuItem.BasicTooltipText = stat.IsItem
                 ? "Copy item/currency chat link to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V. Chat links for items you dont own anymore, may not work."
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
@@ -63,43 +63,43 @@ namespace FarmingTracker
 
             _gw2EfficiencyTradingPostMenuItem = new CustomContextMenuStripItem("GW2 Efficiency (trading post search)", this);
             _gw2EfficiencyTradingPostMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://gw2efficiency.com/tradingpost?filter.search.term={Uri.EscapeDataString(stat.Details.Name)}&lang={languageString}");
-            _gw2EfficiencyTradingPostMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2EfficiencyTradingPostMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2EfficiencyTradingPostMenuItem.Enabled = stat.IsItem;
+            _gw2EfficiencyTradingPostMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 efficiency' trading post search page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
             _gw2EfficiencyAccountMenuItem = new CustomContextMenuStripItem("GW2 Efficiency (account search)", this);
             _gw2EfficiencyAccountMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://gw2efficiency.com/account/overview?filter.name={Uri.EscapeDataString(stat.Details.Name)}&lang={languageString}");
-            _gw2EfficiencyAccountMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2EfficiencyAccountMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2EfficiencyAccountMenuItem.Enabled = stat.IsItem;
+            _gw2EfficiencyAccountMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 Efficiency' account search page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
             _gw2BltcMenuItem = new CustomContextMenuStripItem("GW2 BLTC", this);
             _gw2BltcMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://www.gw2bltc.com/en/item/{stat.ApiId}");
-            _gw2BltcMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2BltcMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2BltcMenuItem.Enabled = stat.IsItem;
+            _gw2BltcMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 BLTC' page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
             _gw2TreasuresMenuItem = new CustomContextMenuStripItem("GW2 Treasures", this);
             _gw2TreasuresMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://en.gw2treasures.com/item/{stat.ApiId}");
-            _gw2TreasuresMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2TreasuresMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2TreasuresMenuItem.Enabled = stat.IsItem;
+            _gw2TreasuresMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 Treasures' page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
             _gw2TpMenuItem = new CustomContextMenuStripItem("GW2 TP", this);
             _gw2TpMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://www.gw2tp.com/item/{stat.ApiId}");
-            _gw2TpMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2TpMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2TpMenuItem.Enabled = stat.IsItem;
+            _gw2TpMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 TP' page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
             _gw2ProfitsMenuItem = new CustomContextMenuStripItem("GW2 Profits", this);
             _gw2ProfitsMenuItem.Click += (s, e) => BrowserService.OpenUrlInDefaultBrowser($"https://gw2profits.com/items.php?iid={stat.ApiId}");
-            _gw2ProfitsMenuItem.Enabled = stat.StatType == StatType.Item;
-            _gw2ProfitsMenuItem.BasicTooltipText = stat.StatType == StatType.Item
+            _gw2ProfitsMenuItem.Enabled = stat.IsItem;
+            _gw2ProfitsMenuItem.BasicTooltipText = stat.IsItem
                 ? "Open its 'GW2 Profits' page in your default browser"
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
         }

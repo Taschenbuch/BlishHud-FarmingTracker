@@ -12,7 +12,7 @@ namespace FarmingTracker
         public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> statById, Gw2ApiManager gw2ApiManager)
         {
             var itemIdsWithoutDetails = statById.Values
-                .Where(s => s.StatType == StatType.Item)
+                .Where(s => s.IsItem)
                 .Where(s => s.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
                 .Select(s => s.ApiId)
                 .ToList();
