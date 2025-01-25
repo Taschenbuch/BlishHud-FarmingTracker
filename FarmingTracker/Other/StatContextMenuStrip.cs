@@ -126,7 +126,7 @@ namespace FarmingTracker
 
         private static void SetToZeroProfitAndNavigateToProfitTab(Stat stat, Services services)
         {
-            stat.Unsigned_CustomProfitInCopper = 0;
+            stat.Profit.Unsigned_CustomProfitInCopper = 0;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
             services.WindowTabSelector.SelectWindowTab(WindowTab.CustomProfit, WindowVisibility.Show);

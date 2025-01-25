@@ -65,29 +65,29 @@ namespace FarmingTracker
                 case SortByWithDirection.ItemType_Descending:
                     return items.ThenByDescending(i => i.Details.Type);
                 case SortByWithDirection.ProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.All.Unsigned_MaxProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.Unsigned_MaxProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.Each.Unsigned_MaxProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.Unsigned_MaxProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.VendorProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.All.Unsigned_VendorProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.Unsigned_VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.Each.Unsigned_VendorProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper);
                 case SortByWithDirection.VendorProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.Unsigned_VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper);
                 case SortByWithDirection.TradingPostProfitAll_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.All.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitAll_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.All.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profits.Each.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profits.Each.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
                 default:
                     Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(sortByWithDirection, nameof(SortByWithDirection), "dont sort"));
                     return items;

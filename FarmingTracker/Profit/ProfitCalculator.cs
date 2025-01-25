@@ -25,9 +25,9 @@ namespace FarmingTracker
             var stats = model.Stats.StatById.Values; // todo x lock?
 
             var multiple_signed_statsSellProfitsInCopper = stats // todo x lock?
-                .Where(c => !c.IsCoinOrCustomCoin)
-                .Where(i => i.StatVisibility != StatVisibility.Ignored)
-                .Select(i => GetSignedStatProfit(i));
+                .Where(s => !s.IsCoinOrCustomCoin)
+                .Where(s => s.StatVisibility != StatVisibility.Ignored)
+                .Select(s => s.Signed_Count * s.Profit.Unsigned_MaxProfitInCopper);
 
             var total_signed_statsSellProfitInCopper = multiple_signed_statsSellProfitsInCopper.Sum(); // todo x lock?
             var signed_coinsInCopper = stats.SingleOrDefault(s => s.IsCoin)?.Signed_Count ?? 0;
@@ -61,13 +61,6 @@ namespace FarmingTracker
                 return long.MinValue + 1; // hack: +1 to prevent that Math.Abs() crashes, because (-1 * long.MinValue) is bigger than long.MaxValue.
 
             return (long)signed_profitPerHourInCopper;
-        }
-
-        private static long GetSignedStatProfit(Stat stat)
-        {
-            return stat.HasCustomProfit
-                ? stat.Signed_Count * (stat.Unsigned_CustomProfitInCopper ?? 0) // should never be null here
-                : stat.CountSign * stat.Profits.All.Unsigned_MaxProfitInCopper;
         }
     }
 }

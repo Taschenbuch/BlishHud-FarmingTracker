@@ -21,9 +21,9 @@ namespace FarmingTracker
 
         public static void AddProfitTable(Stat stat, BitmapFont font, Services services, Container parent)
         {
-            var unsigned_CustomProfitInCopper_copy = stat.Unsigned_CustomProfitInCopper;
+            var unsigned_CustomProfitInCopper_copy = stat.Profit.Unsigned_CustomProfitInCopper; // todo x eher mit lock oder anderem snapshot?
 
-            if (stat.Profits.CanNotBeSold && !unsigned_CustomProfitInCopper_copy.HasValue)
+            if (stat.Profit.CanNotBeSold && !unsigned_CustomProfitInCopper_copy.HasValue)
                 return;
 
             if(!stat.IsSingleItem) // hack: because single item has empty string table headers and not headers like "each" and "all". the empty header still use space.
@@ -41,16 +41,16 @@ namespace FarmingTracker
 
             if(stat.IsSingleItem)
             {
-                AddProfitColumn("", stat.Profits.Each, stat.CountSign * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("", stat.CountSign, stat.Profit, font, services, profitColumnsFlowPanel);
             }
             else
             {
-                // ergebnis null, wenn ein Faktor null ist.
-                AddProfitColumn("all", stat.Profits.All, stat.Signed_Count * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
-                AddProfitColumn("each", stat.Profits.Each, stat.CountSign * unsigned_CustomProfitInCopper_copy, stat, font, services, profitColumnsFlowPanel);
+                // ergebnis null, wenn ein Faktor null ist. todo x hä?? 0 oder null? worum gehts?
+                AddProfitColumn("all", stat.Signed_Count, stat.Profit, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("each", stat.CountSign, stat.Profit, font, services, profitColumnsFlowPanel);
             }
 
-            if (stat.Profits.CanBeSoldOnTp)
+            if (stat.Profit.CanBeSoldOnTp)
                 AddText("\n(15% trading post fee is already deducted from TP sell/buy)", font, parent);
         }
 
@@ -74,7 +74,7 @@ namespace FarmingTracker
                 Parent = titleColumnFlowPanel,
             };
 
-            if (stat.Profits.CanBeSoldOnTp)
+            if (stat.Profit.CanBeSoldOnTp)
             {
                 // TP Sell title
                 new IconLabel("TP Sell", services.TextureService.TradingPostTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
@@ -82,7 +82,7 @@ namespace FarmingTracker
                 new IconLabel("TP Buy", services.TextureService.TradingPostTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
             }
 
-            if (stat.Profits.CanBeSoldToVendor)
+            if (stat.Profit.CanBeSoldToVendor)
             {
                 // Vendor title
                 new IconLabel("Vendor", services.TextureService.MerchantTexture, ROW_HEIGHT, font, titleColumnFlowPanel);
@@ -95,14 +95,7 @@ namespace FarmingTracker
             }
         }
 
-        private static void AddProfitColumn(
-            string columnHeaderText,
-            Profit profit,
-            long? signed_customStatProfitInCopper,
-            Stat stat,
-            BitmapFont font,
-            Services services,
-            Container parent)
+        private static void AddProfitColumn(string columnHeaderText, long profitFaktor, Profit profit, BitmapFont font, Services services, Container parent)
         {
             var columnFlowPanel = new FlowPanel
             {
@@ -125,39 +118,39 @@ namespace FarmingTracker
             var profitPanels = new List<CoinsPanel>();
             var containers = new List<FixedWidthContainer>();
 
-            if (stat.Profits.CanBeSoldOnTp)
+            if (profit.CanBeSoldOnTp)
             {
                 // TP Sell profit
                 var tpSellProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpSellProfitPanel = new CoinsPanel(null, font, services.TextureService, tpSellProfitContainer, ROW_HEIGHT);
-                tpSellProfitPanel.SetCoins(stat.CountSign * profit.Unsigned_TpSellProfitInCopper);
+                tpSellProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpSellProfitInCopper);
                 profitPanels.Add(tpSellProfitPanel);
                 containers.Add(tpSellProfitContainer);
 
                 // TP Buy profit
                 var tpBuyProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpBuyProfitPanel = new CoinsPanel(null, font, services.TextureService, tpBuyProfitContainer, ROW_HEIGHT);
-                tpBuyProfitPanel.SetCoins(stat.CountSign * profit.Unsigned_TpBuyProfitInCopper);
+                tpBuyProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpBuyProfitInCopper);
                 profitPanels.Add(tpBuyProfitPanel);
                 containers.Add(tpBuyProfitContainer);
             }
 
-            if (stat.Profits.CanBeSoldToVendor)
+            if (profit.CanBeSoldToVendor)
             {
                 // Vendor profit
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
-                vendorProfitPanel.SetCoins(stat.CountSign * profit.Unsigned_VendorProfitInCopper);
+                vendorProfitPanel.SetCoins(profitFaktor * profit.Unsigned_VendorProfitInCopper);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);
             }
 
-            if (signed_customStatProfitInCopper.HasValue)
+            if (profit.Unsigned_CustomProfitInCopper.HasValue)
             {
                 // custom profit
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
-                vendorProfitPanel.SetCoins(signed_customStatProfitInCopper.Value);
+                vendorProfitPanel.SetCoins(profitFaktor * profit.Unsigned_CustomProfitInCopper.Value);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);
             }

@@ -116,16 +116,16 @@ namespace FarmingTracker
             if (stat.IsCoinOrCustomCoin) // always show raw gold.
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.Profits.CanBeSoldToVendor)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableToVendor) && stat.Profit.CanBeSoldToVendor)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.Profits.CanBeSoldOnTp)
+            if (sellMethodFilter.Contains(SellMethodFilter.SellableOnTradingPost) && stat.Profit.CanBeSoldOnTp)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.Profits.CanNotBeSold)
+            if (sellMethodFilter.Contains(SellMethodFilter.NotSellable) && stat.Profit.CanNotBeSold)
                 return true;
 
-            if (sellMethodFilter.Contains(SellMethodFilter.CustomProfitIsSet) && stat.HasCustomProfit)
+            if (sellMethodFilter.Contains(SellMethodFilter.CustomProfitIsSet) && stat.Profit.HasCustomProfit)
                 return true;
 
             return false;
