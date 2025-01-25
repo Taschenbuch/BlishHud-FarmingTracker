@@ -88,6 +88,14 @@ namespace FarmingTracker
                     return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
                 case SortByWithDirection.TradingPostProfitPerItem_Descending:
                     return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
+                case SortByWithDirection.CustomProfitAll_Ascending:
+                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0)); // null as 0 customProfit will end up in the middle of the sort result (-12, ..., 0, ..., +323)
+                case SortByWithDirection.CustomProfitAll_Descending:
+                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
+                case SortByWithDirection.CustomProfitPerItem_Ascending:
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
+                case SortByWithDirection.CustomProfitPerItem_Descending:
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
                 default:
                     Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(sortByWithDirection, nameof(SortByWithDirection), "dont sort"));
                     return items;

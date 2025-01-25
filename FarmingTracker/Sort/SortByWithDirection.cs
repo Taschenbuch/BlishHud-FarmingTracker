@@ -1,5 +1,6 @@
 ﻿namespace FarmingTracker
 {
+    // do not change order, those are stored as settings
     public enum SortByWithDirection
     {
         Name_Ascending,
@@ -26,5 +27,9 @@
         TradingPostProfitAll_Descending,
         TradingPostProfitPerItem_Ascending,
         TradingPostProfitPerItem_Descending,
+        CustomProfitAll_Ascending,
+        CustomProfitAll_Descending,
+        CustomProfitPerItem_Ascending,
+        CustomProfitPerItem_Descending,
     }
 }
