@@ -55,9 +55,9 @@ namespace FarmingTracker
             };
         }
 
-        // used by enum, do not change value without handling potential issues caused by changing ist
-        public const int GOLD_FAKE_API_ID = -3; 
-        public const int SILVER_FAKE_API_ID = -2;
-        public const int COPPER_FAKE_API_ID = -1;
+        // large negative number to prevent potential overlap in the future with negative currencyId used as key in StatById dict. 
+        public const int GOLD_FAKE_API_ID = -3000;
+        public const int SILVER_FAKE_API_ID = -2000;
+        public const int COPPER_FAKE_API_ID = -1000;
     }
 }
