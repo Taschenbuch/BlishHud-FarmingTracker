@@ -9,8 +9,8 @@ namespace FarmingTracker
         public StatType StatType { get; set; }
         public StatVisibility StatVisibility { get; set; }
         public long Signed_Count { get; set; }
-        public ApiStatDetails Details { get; set; } = new ApiStatDetails();
-        public Profit Profit { get; set; } = new Profit();
+        public ApiStatDetails Details { get; } = new ApiStatDetails();
+        public Profit Profit { get; } = new Profit();
         public long CountSign => Math.Sign(Signed_Count);
         public bool IsSingleItem => Math.Abs(Signed_Count) == 1;
         public bool IsItem => StatType == StatType.Item;
