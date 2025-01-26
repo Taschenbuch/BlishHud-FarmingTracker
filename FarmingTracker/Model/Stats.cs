@@ -24,7 +24,7 @@ namespace FarmingTracker
         {
             var newSnapshot = new StatsSnapshot
             {
-                StatsById = StatById,
+                StatById = StatById,
             };
 
             var statsSnapshot = JsonConvert.DeserializeObject<StatsSnapshot>(JsonConvert.SerializeObject(newSnapshot));
