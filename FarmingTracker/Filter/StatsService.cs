@@ -7,7 +7,7 @@ namespace FarmingTracker
         public static void ResetCounts(Dictionary<int, Stat> statById)
         {
             foreach (var stat in statById.Values)
-                stat.Signed_Count = 0;
+                stat.Signed_Count.Value = 0;
         }
     }
 }

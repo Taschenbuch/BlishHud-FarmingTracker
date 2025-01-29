@@ -21,14 +21,14 @@ namespace FarmingTracker
             var countFont = services.FontService.Fonts[services.SettingService.CountFontSizeSetting.Value];
             _countFont = countFont;
             _countBackgroundColor = services.SettingService.CountBackgroundColorSetting.Value.GetColor() * (services.SettingService.CountBackgroundOpacitySetting.Value / 255f);
-            _countColor = stat.Signed_Count >= 0
+            _countColor = stat.Signed_Count.Value >= 0
                 ? services.SettingService.PositiveCountTextColorSetting.Value.GetColor()
                 : services.SettingService.NegativeCountTextColorSetting.Value.GetColor();
             
             _inventorySlotTexture = services.TextureService.InventorySlotBackgroundTexture;
             _statIconTexture = GetStatIconTexture(stat, services);
             _rarityBorderColor = ColorService.GetRarityBorderColor(stat.Details.Rarity);
-            _statIconOpacity = stat.Signed_Count > 0 
+            _statIconOpacity = stat.Signed_Count.Value > 0 
                 ? 1f 
                 : (services.SettingService.NegativeCountIconOpacitySetting.Value / 255f);
 

@@ -49,9 +49,9 @@ namespace FarmingTracker
                 case SortByWithDirection.Rarity_Descending:
                     return items.ThenByDescending(i => i.Details.Rarity);
                 case SortByWithDirection.Count_Ascending:
-                    return items.ThenBy(i => i.Signed_Count);
+                    return items.ThenBy(i => i.Signed_Count.Value);
                 case SortByWithDirection.Count_Descending:
-                    return items.ThenByDescending(i => i.Signed_Count);
+                    return items.ThenByDescending(i => i.Signed_Count.Value);
                 case SortByWithDirection.PositiveAndNegativeCount_Ascending:
                     return items.ThenBy(i => i.CountSign);
                 case SortByWithDirection.PositiveAndNegativeCount_Descending:
@@ -65,33 +65,33 @@ namespace FarmingTracker
                 case SortByWithDirection.ItemType_Descending:
                     return items.ThenByDescending(i => i.Details.Type);
                 case SortByWithDirection.ProfitAll_Ascending:
-                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_MaxProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count.Value * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitAll_Descending:
-                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_MaxProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count.Value * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Ascending:
                     return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.ProfitPerItem_Descending:
                     return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxProfitInCopper);
                 case SortByWithDirection.VendorProfitAll_Ascending:
-                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_VendorProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count.Value * i.Profit.Unsigned_VendorProfitInCopper.Value);
                 case SortByWithDirection.VendorProfitAll_Descending:
-                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count.Value * i.Profit.Unsigned_VendorProfitInCopper.Value);
                 case SortByWithDirection.VendorProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper.Value);
                 case SortByWithDirection.VendorProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_VendorProfitInCopper.Value);
                 case SortByWithDirection.TradingPostProfitAll_Ascending:
-                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.Signed_Count.Value * i.Profit.Unsigned_MaxTpProfitInCopper.Value);
                 case SortByWithDirection.TradingPostProfitAll_Descending:
-                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.Signed_Count.Value * i.Profit.Unsigned_MaxTpProfitInCopper.Value);
                 case SortByWithDirection.TradingPostProfitPerItem_Ascending:
-                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper.Value);
                 case SortByWithDirection.TradingPostProfitPerItem_Descending:
-                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper);
+                    return items.ThenByDescending(i => i.CountSign * i.Profit.Unsigned_MaxTpProfitInCopper.Value);
                 case SortByWithDirection.CustomProfitAll_Ascending:
-                    return items.ThenBy(i => i.Signed_Count * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0)); // null as 0 customProfit will end up in the middle of the sort result (-12, ..., 0, ..., +323)
+                    return items.ThenBy(i => i.Signed_Count.Value * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0)); // null as 0 customProfit will end up in the middle of the sort result (-12, ..., 0, ..., +323)
                 case SortByWithDirection.CustomProfitAll_Descending:
-                    return items.ThenByDescending(i => i.Signed_Count * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
+                    return items.ThenByDescending(i => i.Signed_Count.Value * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
                 case SortByWithDirection.CustomProfitPerItem_Ascending:
                     return items.ThenBy(i => i.CountSign * i.Profit.Unsigned_CustomProfitInCopper.GetValueOrDefault(0));
                 case SortByWithDirection.CustomProfitPerItem_Descending:

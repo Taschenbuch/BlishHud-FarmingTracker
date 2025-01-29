@@ -133,10 +133,10 @@ namespace FarmingTracker
 
         private static bool IsShownByCountSignFilter(Stat stat, List<CountFilter> countFilter)
         {
-            if (countFilter.Contains(CountFilter.PositiveCount) && stat.Signed_Count > 0)
+            if (countFilter.Contains(CountFilter.PositiveCount) && stat.Signed_Count.Value > 0)
                 return true;
 
-            if (countFilter.Contains(CountFilter.NegativeCount) && stat.Signed_Count < 0)
+            if (countFilter.Contains(CountFilter.NegativeCount) && stat.Signed_Count.Value < 0)
                 return true;
 
             if (stat.Details.IsCustomCoinStat)

@@ -46,7 +46,7 @@ namespace FarmingTracker
             else
             {
                 // ergebnis null, wenn ein Faktor null ist. todo x hä?? 0 oder null? worum gehts?
-                AddProfitColumn("all", stat.Signed_Count, stat.Profit, font, services, profitColumnsFlowPanel);
+                AddProfitColumn("all", stat.Signed_Count.Value, stat.Profit, font, services, profitColumnsFlowPanel);
                 AddProfitColumn("each", stat.CountSign, stat.Profit, font, services, profitColumnsFlowPanel);
             }
 
@@ -123,14 +123,14 @@ namespace FarmingTracker
                 // TP Sell profit
                 var tpSellProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpSellProfitPanel = new CoinsPanel(null, font, services.TextureService, tpSellProfitContainer, ROW_HEIGHT);
-                tpSellProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpSellProfitInCopper);
+                tpSellProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpSellProfitInCopper.Value);
                 profitPanels.Add(tpSellProfitPanel);
                 containers.Add(tpSellProfitContainer);
 
                 // TP Buy profit
                 var tpBuyProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var tpBuyProfitPanel = new CoinsPanel(null, font, services.TextureService, tpBuyProfitContainer, ROW_HEIGHT);
-                tpBuyProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpBuyProfitInCopper);
+                tpBuyProfitPanel.SetCoins(profitFaktor * profit.Unsigned_TpBuyProfitInCopper.Value);
                 profitPanels.Add(tpBuyProfitPanel);
                 containers.Add(tpBuyProfitContainer);
             }
@@ -140,7 +140,7 @@ namespace FarmingTracker
                 // Vendor profit
                 var vendorProfitContainer = new FixedWidthContainer(columnFlowPanel);
                 var vendorProfitPanel = new CoinsPanel(null, font, services.TextureService, vendorProfitContainer, ROW_HEIGHT);
-                vendorProfitPanel.SetCoins(profitFaktor * profit.Unsigned_VendorProfitInCopper);
+                vendorProfitPanel.SetCoins(profitFaktor * profit.Unsigned_VendorProfitInCopper.Value);
                 profitPanels.Add(vendorProfitPanel);
                 containers.Add(vendorProfitContainer);
             }

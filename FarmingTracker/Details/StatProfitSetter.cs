@@ -33,11 +33,11 @@ namespace FarmingTracker
             profit.CanBeSoldOnTp = canBeSoldOnTp;
             profit.CanBeSoldToVendor = canBeSoldToVendor;
             profit.CanNotBeSold = !canBeSoldToVendor && !canBeSoldOnTp;
-            profit.Unsigned_VendorProfitInCopper = unsigned_vendorProfitInCopper;
-            profit.Unsigned_TpSellProfitInCopper = unsigned_tpSellProfitInCopper;
-            profit.Unsigned_TpBuyProfitInCopper = unsigned_tpBuyProfitInCopper;
-            profit.Unsigned_MaxTpProfitInCopper = unsigned_maxTpProfitInCopper;
-            profit.Unsigned_MaxTpAndVendorProfitInCopper = unsigned_maxProfitInCopper;
+            profit.Unsigned_VendorProfitInCopper.Value = unsigned_vendorProfitInCopper;
+            profit.Unsigned_TpSellProfitInCopper.Value = unsigned_tpSellProfitInCopper;
+            profit.Unsigned_TpBuyProfitInCopper.Value = unsigned_tpBuyProfitInCopper;
+            profit.Unsigned_MaxTpProfitInCopper.Value = unsigned_maxTpProfitInCopper;
+            profit.Unsigned_MaxTpAndVendorProfitInCopper.Value = unsigned_maxProfitInCopper;
         }
     }
 }

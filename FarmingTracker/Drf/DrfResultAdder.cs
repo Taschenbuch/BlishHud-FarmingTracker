@@ -26,13 +26,16 @@ namespace FarmingTracker
                 var key = statTypeFactor * statIdAndCount.Key;
 
                 if (statById.TryGetValue(key, out var stat))
-                    stat.Signed_Count += statIdAndCount.Value;
+                    stat.Signed_Count.Add(statIdAndCount.Value);
                 else
                     statById[key] = new Stat
                     {
                         ApiId = statIdAndCount.Key,
                         StatType = statType,
-                        Signed_Count = statIdAndCount.Value,
+                        Signed_Count =
+                        {
+                            Value = statIdAndCount.Value,
+                        }
                     };
             }
         }

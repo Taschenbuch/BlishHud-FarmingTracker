@@ -12,7 +12,7 @@ namespace FarmingTracker
                 return stats;
 
             var localizedCoinName = coinStat.Details.Name; // for wiki because "coin" in spanish will not work in english wiki
-            var coin = new Coin(coinStat.Signed_Count);
+            var coin = new Coin(coinStat.Signed_Count.Value);
             
             if (coin.HasToDisplayCopper)
             {
@@ -45,7 +45,10 @@ namespace FarmingTracker
             {
                 ApiId = apiId,
                 StatType = StatType.Currency,
-                Signed_Count = signed_count,
+                Signed_Count = 
+                {
+                    Value = signed_count,
+                },
                 Details =
                 {
                     Name = name,

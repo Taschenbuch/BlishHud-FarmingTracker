@@ -25,7 +25,10 @@ namespace FarmingTracker
             {
                 ApiId = fileStat.ApiId,
                 StatType = fileStat.StatType,
-                Signed_Count = fileStat.Signed_Count,
+                Signed_Count =
+                {
+                    Value = fileStat.Signed_Count,
+                },
                 StatVisibility = fileStat.StatVisibility,
                 Profit = 
                 { 

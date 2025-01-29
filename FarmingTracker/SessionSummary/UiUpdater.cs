@@ -12,7 +12,7 @@ namespace FarmingTracker
             // But when the UI is updated due to a user action (changed sort, changed filter, ...), those missing-details-stats would be displayed without name, icon, tooltip.
             // this method prevents that they are displayed.
             var stats = model.Stats.StatById.Values // todo x lock?
-               .Where(s => s.Signed_Count != 0) // dont call this AFTER the coin splitter. it would remove them.
+               .Where(s => s.Signed_Count.Value != 0) // dont call this AFTER the coin splitter. it would remove them.
                .Where(s => s.Details.State != ApiStatDetailsState.MissingBecauseApiNotCalledYet)
                .Where(s => SearchService.IncludesSearchTerm(s, services.SearchTerm))
                .ToList();
