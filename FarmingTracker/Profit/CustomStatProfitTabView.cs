@@ -68,7 +68,7 @@ namespace FarmingTracker
                 return;
             }
 
-            var statsApiDataMissing = statsWithCustomProfit.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
+            var statsApiDataMissing = statsWithCustomProfit.Any(i => i.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet);
             if (statsApiDataMissing)
             {
                 ShowLoadingHint(hintLabel);

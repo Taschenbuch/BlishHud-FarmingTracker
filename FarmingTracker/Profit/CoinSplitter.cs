@@ -16,7 +16,7 @@ namespace FarmingTracker
             
             if (coin.HasToDisplayCopper)
             {
-                var copperStat = CreateCoinStat("Copper", coin.Sign * coin.Unsigned_Copper, COPPER_FAKE_API_ID, ApiStatDetailsState.CopperCoinCustomStat, localizedCoinName);
+                var copperStat = CreateCoinStat("Copper", coin.Sign * coin.Unsigned_Copper, COPPER_FAKE_API_ID, StatApiDetailsState.CopperCoinCustomStat, localizedCoinName);
                 stats.Insert(0, copperStat); 
                 // insert() instead of add() because otherwise the custom coins are not at the beginning of favorites anymore.
                 // non favorite currencies are automatically sorted by api id, which causes the custom coins to be at the beginning.
@@ -25,13 +25,13 @@ namespace FarmingTracker
 
             if(coin.HasToDisplaySilver) 
             {
-                var silverStat = CreateCoinStat("Silver", coin.Sign * coin.Unsigned_Silver, SILVER_FAKE_API_ID, ApiStatDetailsState.SilveCoinCustomStat, localizedCoinName);
+                var silverStat = CreateCoinStat("Silver", coin.Sign * coin.Unsigned_Silver, SILVER_FAKE_API_ID, StatApiDetailsState.SilveCoinCustomStat, localizedCoinName);
                 stats.Insert(0, silverStat);
             }
 
             if (coin.HasToDisplayGold)
             {
-                var goldStat = CreateCoinStat("Gold", coin.Sign * coin.Unsigned_Gold, GOLD_FAKE_API_ID, ApiStatDetailsState.GoldCoinCustomStat, localizedCoinName);
+                var goldStat = CreateCoinStat("Gold", coin.Sign * coin.Unsigned_Gold, GOLD_FAKE_API_ID, StatApiDetailsState.GoldCoinCustomStat, localizedCoinName);
                 stats.Insert(0, goldStat);
             }
 
@@ -39,7 +39,7 @@ namespace FarmingTracker
             return stats;
         }
 
-        private static Stat CreateCoinStat(string name, long signed_count, int apiId, ApiStatDetailsState apiStatDetailsState, string localizedCoinName)
+        private static Stat CreateCoinStat(string name, long signed_count, int apiId, StatApiDetailsState statApiDetailsState, string localizedCoinName)
         {
             return new Stat
             {
@@ -53,7 +53,7 @@ namespace FarmingTracker
                 {
                     Name = name,
                     WikiSearchTerm = localizedCoinName,
-                    State = apiStatDetailsState // to get get correct coin texture later
+                    State = statApiDetailsState // to get get correct coin texture later
                 },
             };
         }

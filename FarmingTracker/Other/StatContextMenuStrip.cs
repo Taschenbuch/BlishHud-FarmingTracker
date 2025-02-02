@@ -144,7 +144,7 @@ namespace FarmingTracker
 
         private static void OpenWiki(Stat stat)
         {
-            if (stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
+            if (stat.Details.State == StatApiDetailsState.MissingBecauseUnknownByApi)
                 WikiService.OpenWikiIdQueryInDefaultBrowser(stat.ApiId);
 
             if (stat.Details.HasWikiSearchTerm)

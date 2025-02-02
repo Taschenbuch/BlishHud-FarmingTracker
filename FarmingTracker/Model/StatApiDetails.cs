@@ -18,10 +18,10 @@ namespace FarmingTracker
         public string WikiSearchTerm { get; set; } = string.Empty;
         public string ChatLink { get; set; } = string.Empty;
         public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
-        public ApiStatDetailsState State { get; set; } = ApiStatDetailsState.MissingBecauseApiNotCalledYet;
+        public StatApiDetailsState State { get; set; } = StatApiDetailsState.MissingBecauseApiNotCalledYet;
         public bool IsCustomCoinStat =>
-            State == ApiStatDetailsState.GoldCoinCustomStat
-            || State == ApiStatDetailsState.SilveCoinCustomStat
-            || State == ApiStatDetailsState.CopperCoinCustomStat;
+            State == StatApiDetailsState.GoldCoinCustomStat
+            || State == StatApiDetailsState.SilveCoinCustomStat
+            || State == StatApiDetailsState.CopperCoinCustomStat;
     }
 }

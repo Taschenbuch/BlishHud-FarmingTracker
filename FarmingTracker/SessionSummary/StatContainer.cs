@@ -58,9 +58,9 @@ namespace FarmingTracker
         {
             return stat.Details.State switch
             {
-                ApiStatDetailsState.GoldCoinCustomStat => services.TextureService.GoldCoinTexture,
-                ApiStatDetailsState.SilveCoinCustomStat => services.TextureService.SilverCoinTexture,
-                ApiStatDetailsState.CopperCoinCustomStat => services.TextureService.CopperCoinTexture,
+                StatApiDetailsState.GoldCoinCustomStat => services.TextureService.GoldCoinTexture,
+                StatApiDetailsState.SilveCoinCustomStat => services.TextureService.SilverCoinTexture,
+                StatApiDetailsState.CopperCoinCustomStat => services.TextureService.CopperCoinTexture,
                 _ => services.TextureService.GetTextureFromAssetCacheOrFallback(stat.Details.IconAssetId),
             };
         }

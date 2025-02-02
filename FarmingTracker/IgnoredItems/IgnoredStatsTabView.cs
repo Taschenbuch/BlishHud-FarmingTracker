@@ -95,7 +95,7 @@ namespace FarmingTracker
                 return;
             }
 
-            var ignoredStatsApiDataMissing = ignoredStats.Any(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet);
+            var ignoredStatsApiDataMissing = ignoredStats.Any(i => i.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet);
             if (ignoredStatsApiDataMissing)
             {
                 ShowLoadingHint(hintLabel);

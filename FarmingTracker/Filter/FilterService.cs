@@ -102,10 +102,10 @@ namespace FarmingTracker
             if (stat.Details.IsCustomCoinStat)
                 return true;
 
-            if (knownByApi.Contains(KnownByApiFilter.KnownByApi) && stat.Details.State == ApiStatDetailsState.SetByApi)
+            if (knownByApi.Contains(KnownByApiFilter.KnownByApi) && stat.Details.State == StatApiDetailsState.SetByApi)
                 return true;
 
-            if (knownByApi.Contains(KnownByApiFilter.UnknownByApi) && stat.Details.State == ApiStatDetailsState.MissingBecauseUnknownByApi)
+            if (knownByApi.Contains(KnownByApiFilter.UnknownByApi) && stat.Details.State == StatApiDetailsState.MissingBecauseUnknownByApi)
                 return true;
 
             return false;

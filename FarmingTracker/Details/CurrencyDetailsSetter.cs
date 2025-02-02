@@ -40,7 +40,7 @@ namespace FarmingTracker
         {
             var currenciesWithoutDetails = statById.Values
                 .Where(s => s.IsCurrency)
-                .Where(s => s.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
+                .Where(s => s.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet)
                 .ToList();
 
             if (!currenciesWithoutDetails.Any())
@@ -59,12 +59,12 @@ namespace FarmingTracker
                     currencyWithoutDetails.Details.Description = currencyDetails.Description;
                     currencyWithoutDetails.Details.IconAssetId = currencyDetails.IconAssetId;
                     currencyWithoutDetails.Details.WikiSearchTerm = currencyDetails.Name;
-                    currencyWithoutDetails.Details.State = ApiStatDetailsState.SetByApi;
+                    currencyWithoutDetails.Details.State = StatApiDetailsState.SetByApi;
                 }
                 else
                 {
                     missingInApiCurrencyIds.Add(currencyWithoutDetails.ApiId);
-                    currencyWithoutDetails.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
+                    currencyWithoutDetails.Details.State = StatApiDetailsState.MissingBecauseUnknownByApi;
                 }
             }
 

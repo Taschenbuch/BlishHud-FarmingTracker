@@ -13,7 +13,7 @@ namespace FarmingTracker
         {
             var itemIdsWithoutDetails = statById.Values
                 .Where(s => s.IsItem)
-                .Where(s => s.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
+                .Where(s => s.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet)
                 .Select(s => s.ApiId)
                 .ToList();
             
@@ -78,17 +78,17 @@ namespace FarmingTracker
                 item.Details.WikiSearchTerm = apiItem.ChatLink;
                 item.Details.ChatLink = apiItem.ChatLink;
                 item.Details.Unsigned_VendorValueInCopper = apiItem.VendorValue;
-                item.Details.State = ApiStatDetailsState.SetByApi;
+                item.Details.State = StatApiDetailsState.SetByApi;
             }
 
-            var itemsUnknownByApi = statById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var itemsUnknownByApi = statById.Values.Where(i => i.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
                 if(DebugMode.DebugLoggingRequired)
                     Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
 
                 foreach (var itemNotFoundByApi in itemsUnknownByApi)
-                    itemNotFoundByApi.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
+                    itemNotFoundByApi.Details.State = StatApiDetailsState.MissingBecauseUnknownByApi;
             }
         }
 

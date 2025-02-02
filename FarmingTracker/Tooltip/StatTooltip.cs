@@ -23,7 +23,7 @@ namespace FarmingTracker
 
             switch (stat.Details.State)
             {
-                case ApiStatDetailsState.SetByApi:
+                case StatApiDetailsState.SetByApi:
                     AddTitle(stat, statIconTexture, rootFlowPanel);
                     AddDescription(stat, font, rootFlowPanel);
                     if(panelType != PanelType.IgnoredStats)
@@ -36,12 +36,12 @@ namespace FarmingTracker
                         StatTooltipService.AddText("\nLeft click to unignore this item.", font, rootFlowPanel);
                     }
                     break;
-                case ApiStatDetailsState.GoldCoinCustomStat:
-                case ApiStatDetailsState.SilveCoinCustomStat:
-                case ApiStatDetailsState.CopperCoinCustomStat:
+                case StatApiDetailsState.GoldCoinCustomStat:
+                case StatApiDetailsState.SilveCoinCustomStat:
+                case StatApiDetailsState.CopperCoinCustomStat:
                     StatTooltipService.AddText($"{stat.Signed_Count}\nChanges in 'raw gold'.\nIn other words coins spent or gained.", font, rootFlowPanel);
                     break;
-                case ApiStatDetailsState.MissingBecauseUnknownByApi:
+                case StatApiDetailsState.MissingBecauseUnknownByApi:
                 {
                     var errorMessage =
                         $"Unknown item/currency (ID: {stat.ApiId})\n" +
@@ -57,7 +57,7 @@ namespace FarmingTracker
                     
                     break;
                 }
-                case ApiStatDetailsState.MissingBecauseApiNotCalledYet:
+                case StatApiDetailsState.MissingBecauseApiNotCalledYet:
                 {
                     var errorMessage = $"Module error: API was not called for stat. Stats like that should not be displayed (id: {stat.ApiId}).";
                     Module.Logger.Error(errorMessage);
@@ -66,7 +66,7 @@ namespace FarmingTracker
                 }
                 default:
                 {
-                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(stat.Details.State, nameof(ApiStatDetailsState), "use error tooltip"));
+                    Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(stat.Details.State, nameof(StatApiDetailsState), "use error tooltip"));
                     StatTooltipService.AddText("Module error: unexpected state", font, rootFlowPanel);
                     break;
                 }
