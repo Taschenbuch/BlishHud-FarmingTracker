@@ -10,7 +10,7 @@ namespace FarmingTracker
         public string Description { get; set; } = string.Empty;
         public ItemRarity Rarity { get; set; } = ItemRarity.Unknown;
         public ItemType Type { get; set; } = ItemType.Unknown;
-        public ApiFlags<ItemFlag> ItemFlags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
+        public ApiFlags<ItemFlag> ItemFlags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown }); // thread safe, because will never be read before being set.
         public int IconAssetId { get; set; } = TextureService.MISSING_ASSET_ID;
         public long Unsigned_VendorValueInCopper { get; set; }
         public long Unsigned_SellsUnitPriceInCopper { get; set; }
