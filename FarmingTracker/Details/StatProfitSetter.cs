@@ -13,7 +13,7 @@ namespace FarmingTracker
                 SetProfit(stat.Profit, stat.Details);
         }
 
-        private static void SetProfit(Profit profit, ApiStatDetails details)
+        private static void SetProfit(Profit profit, StatApiDetails details)
         {
             var canBeSoldToVendor = details.Unsigned_VendorValueInCopper != 0 && !details.ItemFlags.Any(f => f == ItemFlag.NoSell);
             

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace FarmingTracker
 {
     // details from gw2 api. DRF has no info about that.
-    public class ApiStatDetails
+    public class StatApiDetails
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
