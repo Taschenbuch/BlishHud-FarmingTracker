@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
     public class ModelCreator
     {
@@ -9,17 +7,13 @@ namespace FarmingTracker
             var model = new Model();
 
             foreach (var fileStat in fileModel.FileStats)
-                AddStatToModel(fileStat, model.Stats.StatById);
+                AddStatToModel(fileStat, model.Stats);
 
             return model;
         }
-        private static void AddStatToModel(FileStat fileStat, Dictionary<int, Stat> statById)
+        private static void AddStatToModel(FileStat fileStat, Stats stats)
         {
-            var key = fileStat.StatType == StatType.Item
-                ? fileStat.ApiId 
-                : -fileStat.ApiId;
-
-            statById[key] = new Stat
+            var stat = new Stat
             {
                 ApiId = fileStat.ApiId,
                 StatType = fileStat.StatType,
@@ -33,6 +27,8 @@ namespace FarmingTracker
                     Unsigned_CustomProfitInCopper = fileStat.Unsigned_CustomProfitInCopper 
                 },
             };
+
+            stats.AddStat(stat);
         }
     }
 }

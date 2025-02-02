@@ -11,7 +11,7 @@ namespace FarmingTracker
             // normally after an api error, the UI is not updated. So stats that did not get api details yet, do not show up in the UI until the next success api call.
             // But when the UI is updated due to a user action (changed sort, changed filter, ...), those missing-details-stats would be displayed without name, icon, tooltip.
             // this method prevents that they are displayed.
-            var stats = model.Stats.StatById.Values // todo x lock?
+            var stats = model.Stats.GetStats()
                .Where(s => s.Signed_Count.Value != 0) // dont call this AFTER the coin splitter. it would remove them.
                .Where(s => s.Details.State != StatApiDetailsState.MissingBecauseApiNotCalledYet)
                .Where(s => SearchService.IncludesSearchTerm(s, services.SearchTerm))

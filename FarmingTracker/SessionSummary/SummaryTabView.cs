@@ -167,7 +167,7 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCounts(_model.Stats.StatById);
+                _model.Stats.ResetCounts();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -274,8 +274,8 @@ namespace FarmingTracker
 
         private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
         {      
-            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats.StatById);
-            await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats.StatById, services.Gw2ApiManager);
+            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats);
+            await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats, services.Gw2ApiManager);
         }
 
         private bool _statsAccessLocked;

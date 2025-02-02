@@ -22,14 +22,14 @@ namespace FarmingTracker
 
         private static long CalculateSignedProfitInCopper(Model model)
         {
-            var stats = model.Stats.StatById.Values; // todo x lock?
+            var stats = model.Stats.GetStats();
 
-            var multiple_signed_statsSellProfitsInCopper = stats // todo x lock?
+            var multiple_signed_statsSellProfitsInCopper = stats
                 .Where(s => !s.IsCoinOrCustomCoin)
                 .Where(s => s.StatVisibility != StatVisibility.Ignored)
                 .Select(s => s.Signed_Count.Value * s.Profit.Unsigned_MaxProfitInCopper);
 
-            var total_signed_statsSellProfitInCopper = multiple_signed_statsSellProfitsInCopper.Sum(); // todo x lock?
+            var total_signed_statsSellProfitInCopper = multiple_signed_statsSellProfitsInCopper.Sum();
             var signed_coinsInCopper = stats.SingleOrDefault(s => s.IsCoin)?.Signed_Count.Value ?? 0;
             var signed_totalProfit = signed_coinsInCopper + total_signed_statsSellProfitInCopper;
 

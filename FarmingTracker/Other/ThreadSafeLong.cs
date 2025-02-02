@@ -11,7 +11,9 @@ namespace FarmingTracker
         }
 
         public void Add(long value) => Interlocked.Add(ref _value, value);
-        
+        public void Add(ThreadSafeLong threadSafeLong) => Interlocked.Add(ref _value, threadSafeLong.Value);
+        public override string ToString() => Value.ToString();
+
         private long _value;
     }
 }

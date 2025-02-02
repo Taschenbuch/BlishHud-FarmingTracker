@@ -8,35 +8,30 @@ namespace FarmingTracker
         // WARNING:
         // do not remove stats when their count becomes 0. this may trigger bugs with gw2sharp when it tries to partially read from cache and partially from api
         // but wont find the ids in the api.
-        public static void UpdateCountsOrAddNewStats(List<DrfMessage> drfMessages, Dictionary<int, Stat> statsById)
+        public static void UpdateCountsOrAddNewStats(List<DrfMessage> drfMessages, Stats stats)
         {
             var itemIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Items);
-            InternalUpdateCountsOrAddNewStats(itemIdAndCounts, StatType.Item, statsById);
+            InternalUpdateCountsOrAddNewStats(itemIdAndCounts, StatType.Item, stats);
 
             var currencyIdAndCounts = drfMessages.SelectMany(d => d.Payload.Drop.Currencies);
-            InternalUpdateCountsOrAddNewStats(currencyIdAndCounts, StatType.Currency, statsById);
+            InternalUpdateCountsOrAddNewStats(currencyIdAndCounts, StatType.Currency, stats);
         }
 
-        private static void InternalUpdateCountsOrAddNewStats(IEnumerable<KeyValuePair<int, long>> statIdAndCounts, StatType statType, Dictionary<int, Stat> statById)
+        private static void InternalUpdateCountsOrAddNewStats(IEnumerable<KeyValuePair<int, long>> statIdAndCounts, StatType statType, Stats stats)
         {
-            var statTypeFactor = statType == StatType.Currency ? -1 : 1;
-
             foreach (var statIdAndCount in statIdAndCounts)
             {
-                var key = statTypeFactor * statIdAndCount.Key;
-
-                if (statById.TryGetValue(key, out var stat))
-                    stat.Signed_Count.Add(statIdAndCount.Value);
-                else
-                    statById[key] = new Stat
+                var stat = new Stat
+                {
+                    ApiId = statIdAndCount.Key,
+                    StatType = statType,
+                    Signed_Count =
                     {
-                        ApiId = statIdAndCount.Key,
-                        StatType = statType,
-                        Signed_Count =
-                        {
-                            Value = statIdAndCount.Value,
-                        }
-                    };
+                        Value = statIdAndCount.Value,
+                    }
+                };
+
+                stats.UpdateCountOrAddNewStat(stat);
             }
         }
     }

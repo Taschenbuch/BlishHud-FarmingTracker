@@ -78,7 +78,7 @@ namespace FarmingTracker
 
         private static DrfMessage ConvertToDrfMessage(Model model)
         {
-            var stats = model.Stats.StatById.Values.ToList();
+            var stats = model.Stats.GetStats();
 
             var drfMessage = new DrfMessage();
             drfMessage.Kind = "data";

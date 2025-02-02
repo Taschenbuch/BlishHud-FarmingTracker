@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
     public class Profit
     {

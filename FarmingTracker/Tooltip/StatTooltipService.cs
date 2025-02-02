@@ -21,7 +21,7 @@ namespace FarmingTracker
 
         public static void AddProfitTable(Stat stat, BitmapFont font, Services services, Container parent)
         {
-            var unsigned_CustomProfitInCopper_copy = stat.Profit.Unsigned_CustomProfitInCopper; // todo x eher mit lock oder anderem snapshot?
+            var unsigned_CustomProfitInCopper_copy = stat.Profit.Unsigned_CustomProfitInCopper;
 
             if (stat.Profit.CanNotBeSold && !unsigned_CustomProfitInCopper_copy.HasValue)
                 return;

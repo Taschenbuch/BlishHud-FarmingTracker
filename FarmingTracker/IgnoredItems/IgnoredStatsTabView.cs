@@ -86,7 +86,7 @@ namespace FarmingTracker
                 unignoreAllButton.Right = e.CurrentRegion.Width - Constants.SCROLLBAR_WIDTH_OFFSET;
             };
 
-            var ignoredStats = _model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
+            var ignoredStats = _model.Stats.GetStats().Where(s => s.StatVisibility == StatVisibility.Ignored);
 
             var noStatsAreIgnored = ignoredStats.IsEmpty();
             if (noStatsAreIgnored)
@@ -113,7 +113,7 @@ namespace FarmingTracker
                 foreach (var statContainer in ignoredStatsFlowPanel.Children.ToList())
                     statContainer.Dispose(); // this removes it from flowPanel, too.
 
-                foreach (var stat in ignoredStats) // todo x lock?
+                foreach (var stat in ignoredStats)
                     if(stat.StatVisibility == StatVisibility.Ignored)
                         stat.StatVisibility = StatVisibility.Regular;
 
@@ -141,7 +141,7 @@ namespace FarmingTracker
 
         private static void UnignoreStat(Stat stat, Model model, Services services)
         {
-            var ignoredStats = model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
+            var ignoredStats = model.Stats.GetStats().Where(s => s.StatVisibility == StatVisibility.Ignored);
 
             var matchingFavoriteStat = ignoredStats.FirstOrDefault(i => i.StatType == stat.StatType && i.ApiId == stat.ApiId);
             if(matchingFavoriteStat == null)
@@ -157,9 +157,9 @@ namespace FarmingTracker
 
         private static void ShowNoStatsAreIgnoredHintIfNecessary(HintLabel hintLabel, Model model)
         {
-            var ignoredStats = model.Stats.StatById.Values.Where(s => s.StatVisibility == StatVisibility.Ignored); // todo x lock?
+            var ignoredStats = model.Stats.GetStats().Where(s => s.StatVisibility == StatVisibility.Ignored);
 
-            if (ignoredStats.Any()) // todo x lock?
+            if (ignoredStats.Any())
                 return;
 
             hintLabel.Text = 

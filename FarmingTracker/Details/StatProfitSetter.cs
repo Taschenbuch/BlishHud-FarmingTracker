@@ -1,15 +1,14 @@
 ﻿using System.Linq;
 using System;
 using Gw2Sharp.WebApi.V2.Models;
-using System.Collections.Generic;
 
 namespace FarmingTracker
 {
     public class StatProfitSetter
     {
-        public static void SetProfits(Dictionary<int, Stat> statById)
+        public static void SetProfits(Stats Stats)
         {
-            foreach (var stat in statById.Values)
+            foreach (var stat in Stats.GetStats())
                 SetProfit(stat.Profit, stat.Details);
         }
 
