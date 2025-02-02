@@ -28,7 +28,7 @@ namespace FarmingTracker
             _automaticResetService = automaticResetService;
 
             _timeSinceModuleStartStopwatch.Restart();
-            services.UpdateLoop.TriggerUpdateStats();
+            services.UpdateLoop.TriggerInstantUpdateStats();
         }
 
         public void Dispose()
@@ -175,7 +175,7 @@ namespace FarmingTracker
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
-                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-(";
             }
         }
 
@@ -207,7 +207,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
-                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-(";
             }
         }
 
