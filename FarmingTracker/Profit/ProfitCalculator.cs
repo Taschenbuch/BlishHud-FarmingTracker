@@ -27,7 +27,7 @@ namespace FarmingTracker
             var multiple_signed_statsSellProfitsInCopper = stats
                 .Where(s => !s.IsCoinOrCustomCoin)
                 .Where(s => s.StatVisibility != StatVisibility.Ignored)
-                .Select(s => s.Signed_Count.Value * s.Profit.Unsigned_MaxProfitInCopper);
+                .Select(s => s.Signed_Count.Value * s.Profit.Unsigned_Max_ProfitInCopper);
 
             var total_signed_statsSellProfitInCopper = multiple_signed_statsSellProfitsInCopper.Sum();
             var signed_coinsInCopper = stats.SingleOrDefault(s => s.IsCoin)?.Signed_Count.Value ?? 0;

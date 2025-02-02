@@ -24,7 +24,7 @@
                 StatVisibility = fileStat.StatVisibility,
                 Profit = 
                 { 
-                    Unsigned_CustomProfitInCopper = fileStat.Unsigned_CustomProfitInCopper 
+                    Unsigned_Custom_ProfitInCopper = fileStat.Unsigned_CustomProfitInCopper 
                 },
             };
 

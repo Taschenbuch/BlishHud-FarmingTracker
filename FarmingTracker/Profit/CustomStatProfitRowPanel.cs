@@ -48,14 +48,14 @@ namespace FarmingTracker
                 Parent = statRowPanel
             };
 
-            if(!stat.Profit.Unsigned_CustomProfitInCopper.HasValue)
+            if(!stat.Profit.Unsigned_Custom_ProfitInCopper.HasValue)
             {
                 // todo x testen was passiert. darf nicht module crashen
                 Module.Logger.Error("Cannot create CustomProfit row because CustomProfit is not set");
                 return;
             }
 
-            var coin = new Coin(stat.Profit.Unsigned_CustomProfitInCopper.Value);
+            var coin = new Coin(stat.Profit.Unsigned_Custom_ProfitInCopper.Value);
 
             var goldTextBox = new NumberTextBox(6) // 6 because otherwise end of number is hidden due to textbox not supporting horizontal scrolling.
             {
@@ -133,7 +133,7 @@ namespace FarmingTracker
             int silver = int.Parse(silverText);
             int copper = int.Parse(copperText);
 
-            stat.Profit.Unsigned_CustomProfitInCopper = 10000 * gold + 100 * silver + copper;
+            stat.Profit.Unsigned_Custom_ProfitInCopper = 10000 * gold + 100 * silver + copper;
 
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
@@ -141,7 +141,7 @@ namespace FarmingTracker
 
         private static void RemoveCustomStatProfit(Stat stat, Services services)
         {
-            stat.Profit.Unsigned_CustomProfitInCopper = null;
+            stat.Profit.Unsigned_Custom_ProfitInCopper = null;
             services.UpdateLoop.TriggerUpdateUi();
             services.UpdateLoop.TriggerSaveModel();
         }

@@ -20,7 +20,7 @@ namespace FarmingTracker
                     StatType = stat.StatType,
                     Signed_Count = stat.Signed_Count.Value,
                     StatVisibility = stat.StatVisibility,
-                    Unsigned_CustomProfitInCopper = stat.Profit.Unsigned_CustomProfitInCopper,
+                    Unsigned_CustomProfitInCopper = stat.Profit.Unsigned_Custom_ProfitInCopper,
                 };
 
                 fileModel.FileStats.Add(fileStat);

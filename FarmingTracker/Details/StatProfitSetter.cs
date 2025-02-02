@@ -16,27 +16,27 @@ namespace FarmingTracker
         {
             var canBeSoldToVendor = details.Unsigned_VendorValueInCopper != 0 && !details.ItemFlags.Any(f => f == ItemFlag.NoSell);
             
-            var unsigned_vendorProfitInCopper = canBeSoldToVendor
+            var unsigned_vendor_ProfitInCopper = canBeSoldToVendor
                 ? details.Unsigned_VendorValueInCopper
                 : 0; // it sometimes has a VendorValue even when it cannot be sold to vendor. That would distort the profit.
 
             // 85/100 is -15% tp fee with integer rounding
-            var unsigned_tpSellProfitInCopper = details.Unsigned_SellsUnitPriceInCopper * 85 / 100;
-            var unsigned_tpBuyProfitInCopper = details.Unsigned_BuysUnitPriceInCopper * 85 / 100;
+            var unsigned_tpSell_ProfitInCopper = details.Unsigned_SellsUnitPriceInCopper * 85 / 100;
+            var unsigned_tpBuy_ProfitInCopper = details.Unsigned_BuysUnitPriceInCopper * 85 / 100;
             
-            var canBeSoldOnTp = unsigned_tpSellProfitInCopper > 0 || unsigned_tpBuyProfitInCopper > 0;
+            var canBeSoldOnTp = unsigned_tpSell_ProfitInCopper > 0 || unsigned_tpBuy_ProfitInCopper > 0;
             
-            var unsigned_maxTpProfitInCopper = Math.Max(unsigned_tpSellProfitInCopper, unsigned_tpBuyProfitInCopper);  // because their could be only buy orders and no sell orders or the other way around.
-            var unsigned_maxProfitInCopper = Math.Max(unsigned_vendorProfitInCopper, unsigned_maxTpProfitInCopper);
+            var unsigned_maxTp_ProfitInCopper = Math.Max(unsigned_tpSell_ProfitInCopper, unsigned_tpBuy_ProfitInCopper);  // because their could be only buy orders and no sell orders or the other way around.
+            var unsigned_maxTpAndVendor_ProfitInCopper = Math.Max(unsigned_vendor_ProfitInCopper, unsigned_maxTp_ProfitInCopper);
 
             profit.CanBeSoldOnTp = canBeSoldOnTp;
             profit.CanBeSoldToVendor = canBeSoldToVendor;
             profit.CanNotBeSold = !canBeSoldToVendor && !canBeSoldOnTp;
-            profit.Unsigned_VendorProfitInCopper.Value = unsigned_vendorProfitInCopper;
-            profit.Unsigned_TpSellProfitInCopper.Value = unsigned_tpSellProfitInCopper;
-            profit.Unsigned_TpBuyProfitInCopper.Value = unsigned_tpBuyProfitInCopper;
-            profit.Unsigned_MaxTpProfitInCopper.Value = unsigned_maxTpProfitInCopper;
-            profit.Unsigned_MaxTpAndVendorProfitInCopper.Value = unsigned_maxProfitInCopper;
+            profit.Unsigned_Vendor_ProfitInCopper.Value = unsigned_vendor_ProfitInCopper;
+            profit.Unsigned_TpSell_ProfitInCopper.Value = unsigned_tpSell_ProfitInCopper;
+            profit.Unsigned_TpBuy_ProfitInCopper.Value = unsigned_tpBuy_ProfitInCopper;
+            profit.Unsigned_MaxTp_ProfitInCopper.Value = unsigned_maxTp_ProfitInCopper;
+            profit.Unsigned_MaxTpAndVendor_ProfitInCopper.Value = unsigned_maxTpAndVendor_ProfitInCopper;
         }
     }
 }
