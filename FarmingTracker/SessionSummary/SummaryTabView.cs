@@ -168,7 +168,6 @@ namespace FarmingTracker
             try
             {
                 StatsService.ResetCounts(_model.Stats.StatById);
-                _model.Stats.UpdateStatsSnapshot();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
@@ -190,7 +189,6 @@ namespace FarmingTracker
 
                 _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
                 await UpdateStatsInModel(drfMessages, _services);
-                _model.Stats.UpdateStatsSnapshot();
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;

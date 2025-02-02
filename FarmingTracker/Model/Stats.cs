@@ -17,25 +17,5 @@ namespace FarmingTracker
     public class Stats
     {
         public Dictionary<int, Stat> StatById { get; } = new Dictionary<int, Stat>();
-        public StatsSnapshot StatsSnapshot { get; set; } = new StatsSnapshot();
-
-        // Must not be called while other threads modify CurrencyById/ItemById.
-        public void UpdateStatsSnapshot()
-        {
-            var newSnapshot = new StatsSnapshot
-            {
-                StatById = StatById,
-            };
-
-            var statsSnapshot = JsonConvert.DeserializeObject<StatsSnapshot>(JsonConvert.SerializeObject(newSnapshot));
-
-            if (statsSnapshot == null)
-            {
-                Module.Logger.Error("Failed to copy statsSnapshot.");
-                return;
-            }
-
-            StatsSnapshot = statsSnapshot;
-        }
     }
 }

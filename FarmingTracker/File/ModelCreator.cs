@@ -11,8 +11,6 @@ namespace FarmingTracker
             foreach (var fileStat in fileModel.FileStats)
                 AddStatToModel(fileStat, model.Stats.StatById);
 
-            model.Stats.UpdateStatsSnapshot();
-
             return model;
         }
         private static void AddStatToModel(FileStat fileStat, Dictionary<int, Stat> statById)
