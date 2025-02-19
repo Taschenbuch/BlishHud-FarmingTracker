@@ -2,7 +2,6 @@
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -188,7 +187,8 @@ namespace FarmingTracker
                     return;
 
                 _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
-                await UpdateStatsInModel(drfMessages, _services);
+                DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats);
+                await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats, _services.Gw2ApiManager);
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -270,12 +270,6 @@ namespace FarmingTracker
                 Module.Logger.Info(apiTokenErrorMessage);
 
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
-        }
-
-        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
-        {      
-            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats);
-            await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats, services.Gw2ApiManager);
         }
 
         private bool _statsAccessLocked;
