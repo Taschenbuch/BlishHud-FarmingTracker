@@ -52,11 +52,14 @@ namespace FarmingTracker
                 : "Name is missing";
 
             _copyChatLinkMenuItem = new CustomContextMenuStripItem("Chat link", this);
-            _copyChatLinkMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.WikiSearchTerm);
-            _copyChatLinkMenuItem.Enabled = stat.IsItem;
-            _copyChatLinkMenuItem.BasicTooltipText = stat.IsItem
+            _copyChatLinkMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.ChatLink);
+            var hasChatLink = !string.IsNullOrEmpty(stat.Details.ChatLink);
+            _copyChatLinkMenuItem.Enabled = stat.IsItem && hasChatLink;
+            _copyChatLinkMenuItem.BasicTooltipText = stat.IsItem && hasChatLink
                 ? "Copy item/currency chat link to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V. Chat links for items you dont own anymore, may not work."
-                : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
+                : stat.IsCurrency
+                    ? NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP
+                    : "No chat link available"; // e.g. when api has no data for an item.
 
             _websitesHeaderMenuItem = new CustomContextMenuStripItem("Open website", this, true);
 
