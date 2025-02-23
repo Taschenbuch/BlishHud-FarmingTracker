@@ -45,6 +45,11 @@ namespace FarmingTracker
             _copyNameMenuItem = new CustomContextMenuStripItem("Name", this);
             _copyNameMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.Name);
             _copyNameMenuItem.BasicTooltipText = "Copy item/currency name to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V";
+            var hasName = !string.IsNullOrEmpty(stat.Details.Name);
+            _copyNameMenuItem.Enabled = hasName;
+            _copyNameMenuItem.BasicTooltipText = hasName
+                ? "Copy item/currency name to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V"
+                : "Name is missing";
 
             _copyChatLinkMenuItem = new CustomContextMenuStripItem("Chat link", this);
             _copyChatLinkMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.WikiSearchTerm);
