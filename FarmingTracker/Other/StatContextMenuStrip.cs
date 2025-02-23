@@ -46,10 +46,10 @@ namespace FarmingTracker
             _copyNameMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.Name);
             _copyNameMenuItem.BasicTooltipText = "Copy item/currency name to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V";
 
-            _copyNameMenuItem = new CustomContextMenuStripItem("Chat link", this);
-            _copyNameMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.WikiSearchTerm);
-            _copyNameMenuItem.Enabled = stat.IsItem;
-            _copyNameMenuItem.BasicTooltipText = stat.IsItem
+            _copyChatLinkMenuItem = new CustomContextMenuStripItem("Chat link", this);
+            _copyChatLinkMenuItem.Click += async (s, e) => await ClipboardUtil.WindowsClipboardService.SetTextAsync(stat.Details.WikiSearchTerm);
+            _copyChatLinkMenuItem.Enabled = stat.IsItem;
+            _copyChatLinkMenuItem.BasicTooltipText = stat.IsItem
                 ? "Copy item/currency chat link to clipboard (like CTRL + C). You can paste it somewhere else with CTRL + V. Chat links for items you dont own anymore, may not work."
                 : NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP;
 
@@ -113,6 +113,7 @@ namespace FarmingTracker
             _setCustomProfitMenuItem?.Dispose();
             _copyHeaderMenuItem?.Dispose();
             _copyNameMenuItem?.Dispose();
+            _copyChatLinkMenuItem?.Dispose();
             _websitesHeaderMenuItem?.Dispose();
             _wikiMenuItem?.Dispose();
             _gw2EfficiencyTradingPostMenuItem?.Dispose();
@@ -166,6 +167,7 @@ namespace FarmingTracker
         private readonly CustomContextMenuStripItem _copyNameMenuItem;
         private readonly CustomContextMenuStripItem _gw2EfficiencyTradingPostMenuItem;
         private readonly CustomContextMenuStripItem _gw2EfficiencyAccountMenuItem;
+        private readonly CustomContextMenuStripItem _copyChatLinkMenuItem;
         private const string NOT_AVAILABLE_FOR_CURRENCY_TOOLTIP = "Not available for currencies";
     }
 }
