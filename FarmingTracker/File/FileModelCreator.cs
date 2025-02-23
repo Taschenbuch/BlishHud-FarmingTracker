@@ -7,7 +7,7 @@ namespace FarmingTracker
         public static FileModel CreateFileModel(Model model)
         {
             var stats = model.Stats.GetStats()
-                .Where(s => s.Signed_Count.Value != 0 || s.StatVisibility != StatVisibility.Regular) // prevents saving too many not tracked stats due to stats reset.
+                .Where(s => s.Signed_Count.Value != 0 || s.StatVisibility != StatVisibility.Regular || s.Profit.HasCustomProfit) // prevents saving too many not tracked stats due to stats reset.
                 .ToList();
 
             var fileModel = new FileModel();
