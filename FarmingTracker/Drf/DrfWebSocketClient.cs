@@ -1,8 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Blish_HUD;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.WebSockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,8 +22,10 @@ namespace FarmingTracker
 {
     public class DrfWebSocketClient: IDisposable
     {
-        public DrfWebSocketClient()
+        public DrfWebSocketClient(string moduleVersion)
         {
+            _moduleVersion = moduleVersion;
+
             try
             {
                 _clientWebSocket = new ClientWebSocket();
@@ -32,6 +38,15 @@ namespace FarmingTracker
                     $"Failed to initialize the DRF WebSocket client. This is typically caused by not using at least Windows 8. " +
                     $"WebSockets are not supported in older Windows versions. The module will not work. " +
                     $"PlatformNotSupportedException message: {e.Message}");
+            }
+
+            try
+            {
+                AllowToSetUserAgentHeaderForWebSockets();
+            }
+            catch (Exception e)
+            {
+                Module.Logger.Error($"Failed to initialize the DRF WebSocket client because the user agent reflection workaround crashed. exception message: {e.Message}");
             }
         }
 
@@ -143,8 +158,9 @@ namespace FarmingTracker
                         _disposeCts.Cancel(); // do not dispose cancelationTokenSource because then tasks may not cancel correctely anymore
                         _disposeCts = disposeCts;
                     }
-
+                                        
                     clientWebSocket = new ClientWebSocket();
+                    clientWebSocket.Options.SetRequestHeader("User-Agent", $"FarmingTracker/{_moduleVersion} BlishHUD/{_blishVersion}");
                     _clientWebSocket = clientWebSocket;
                 }
                 finally
@@ -379,6 +395,34 @@ namespace FarmingTracker
             return drfMessages.Where(m => m.Payload.Drop.Currencies.Count <= MAX_CURRENCIES_IN_A_SINGLE_DROP).ToList();
         }
 
+
+        // setting the user agent header is bugged in .net framework. https://github.com/dotnet/runtime/issues/24822
+        // It causes this error: "System.ArgumentException: The 'User-Agent' header must be modified using the appropriate property or method."
+        // This workaround is modifing the list of restricted headers to prevent the error: https://stackoverflow.com/a/58585845
+        private static void AllowToSetUserAgentHeaderForWebSockets()
+        {
+            var assembly = typeof(HttpWebRequest).Assembly;
+            foreach (FieldInfo headerInfoTableFieldInfo in assembly.GetType("System.Net.HeaderInfoTable").GetFields(BindingFlags.NonPublic | BindingFlags.Static))
+                if (headerInfoTableFieldInfo.Name == "HeaderHashTable")
+                {
+                    var headerHashTable = headerInfoTableFieldInfo.GetValue(null) as Hashtable;
+                    if (headerHashTable == null)
+                        throw new Exception("headerHashTable is null");
+
+                    foreach (string key in headerHashTable.Keys)
+                    {
+                        var headerInfo = headerHashTable[key];
+                        foreach (FieldInfo headerInfoFieldInfo in assembly.GetType("System.Net.HeaderInfo").GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+                            if (headerInfoFieldInfo.Name == "IsRequestRestricted")
+                            {
+                                var isRequestRestricted = (bool)headerInfoFieldInfo.GetValue(headerInfo);
+                                if (isRequestRestricted)
+                                    headerInfoFieldInfo.SetValue(headerInfo, false);
+                            }
+                    }
+                }
+        }
+
         private readonly SemaphoreSlim _closeSemaphoreSlim = new SemaphoreSlim(1);
         private static readonly object _drfMessagesLock = new object();
         private static readonly object _letOnlyLatestWaitLock = new object();
@@ -395,5 +439,7 @@ namespace FarmingTracker
         private CancellationTokenSource _disposeCts = new CancellationTokenSource();
         private CancellationTokenSource _letOnlyLatestWaitCts = new CancellationTokenSource();
         private bool _disposed;
+        private readonly string _blishVersion = Program.OverlayVersion.BaseVersion().ToString();
+        private readonly string _moduleVersion;
     }
 }

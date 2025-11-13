@@ -46,13 +46,14 @@ namespace FarmingTracker
 
         protected override async Task LoadAsync()
         {
+            
             if(_settingService == null || _dateTimeService == null)
             {
                 Logger.Error("Cannot load module without settingsService and dateTimeService from Module.DefineSettings().");
                 return;
             }
 
-            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService);
+            var services = new Services(ContentsManager, DirectoriesManager, Gw2ApiManager, _settingService, _dateTimeService, Version.ToString());
             var model = await services.FileLoader.LoadModelFromFile();
             _model = model;
             _services = services; // set early because some eventhandler use it (not really necessary here though, at the end should work too).

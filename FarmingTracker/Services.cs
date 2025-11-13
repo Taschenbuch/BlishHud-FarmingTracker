@@ -10,7 +10,8 @@ namespace FarmingTracker
             DirectoriesManager directoriesManager,
             Gw2ApiManager gw2ApiManager, 
             SettingService settingService,
-            DateTimeService dateTimeService)
+            DateTimeService dateTimeService,
+            string moduleVersion)
         {
             var moduleFolderPath = FileService.GetModuleFolderPath(directoriesManager);
             var modelFilePath = FileService.GetModelFilePath(moduleFolderPath);
@@ -22,7 +23,7 @@ namespace FarmingTracker
             CsvFileExporter = new CsvFileExporter(moduleFolderPath);
             FileLoader = new FileLoader(modelFilePath);
             FileSaver = new FileSaver(modelFilePath);
-            Drf = new Drf(settingService);
+            Drf = new Drf(settingService, moduleVersion);
             FarmingDuration = new FarmingDuration(settingService);
         }
 
