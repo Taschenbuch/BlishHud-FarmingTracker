@@ -8,8 +8,9 @@ namespace FarmingTracker
 {
     public class Drf : IDisposable
     {
-        public Drf(SettingService settingService)
+        public Drf(SettingService settingService, string moduleVersion)
         {
+            _drfWebSocketClient = new DrfWebSocketClient(moduleVersion);
             _settingService = settingService;
             InitializeEventHandlers();
             FireAndForgetConnectToDrf(); // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
@@ -177,7 +178,7 @@ namespace FarmingTracker
         }
 
         private readonly SettingService _settingService;
-        private readonly DrfWebSocketClient _drfWebSocketClient = new DrfWebSocketClient();
+        private readonly DrfWebSocketClient _drfWebSocketClient;
         private int _reconnectTriesCounter;
         private static readonly object _reconnectLock = new object();
     }
