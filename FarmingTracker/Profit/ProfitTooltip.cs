@@ -28,19 +28,6 @@ namespace FarmingTracker
                 AutoSizeHeight = true,
                 Parent = rootFlowPanel,
             };
-
-            ProfitPerHourPanel = new CoinsPanel(null, font, services.TextureService, rootFlowPanel);
-
-            new Label
-            {
-                Text = " Profit per hour",
-                Font = font,
-                AutoSizeHeight = true,
-                AutoSizeWidth = true,
-                Parent = ProfitPerHourPanel,
-            };
         }
-
-        public CoinsPanel ProfitPerHourPanel { get; }
     }
 }
