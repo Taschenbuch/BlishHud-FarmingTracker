@@ -19,8 +19,8 @@ namespace FarmingTracker
             TimelineTabIconTexture = contentsManager.GetTexture("timeline-tab-icon.png");
             SummaryTabIconTexture = contentsManager.GetTexture("summary-tab-icon.png");
             CustomStatProfitTabIconTexture = contentsManager.GetTexture("custom-stat-profit-tab-icon.png");
-            IgnoredItemsTabIconTexture = contentsManager.GetTexture("ignored-items-tab-icon.png");
-            IgnoredItemsPanelIconTexture = contentsManager.GetTexture("ignored-items-panel-icon.png");
+            IgnoredStatsTabIconTexture = contentsManager.GetTexture("ignored-stats-tab-icon.png");
+            IgnoredStatsPanelIconTexture = contentsManager.GetTexture("ignored-stats-panel-icon.png");
             CornerIconTexture = contentsManager.GetTexture("corner-icon.png");
             CornerIconHoverTexture = contentsManager.GetTexture("corner-icon-hover.png");
             GoldCoinTexture = contentsManager.GetTexture("coin-gold.png");
@@ -52,8 +52,8 @@ namespace FarmingTracker
             TimelineTabIconTexture?.Dispose();
             SummaryTabIconTexture?.Dispose();
             CustomStatProfitTabIconTexture?.Dispose();
-            IgnoredItemsTabIconTexture?.Dispose();
-            IgnoredItemsPanelIconTexture?.Dispose();
+            IgnoredStatsTabIconTexture?.Dispose();
+            IgnoredStatsPanelIconTexture?.Dispose();
             CornerIconTexture?.Dispose();
             CornerIconHoverTexture?.Dispose();
             GoldCoinTexture?.Dispose();
@@ -94,8 +94,8 @@ namespace FarmingTracker
         public Texture2D TimelineTabIconTexture { get; }
         public Texture2D SummaryTabIconTexture { get; }
         public Texture2D CustomStatProfitTabIconTexture { get; }
-        public Texture2D IgnoredItemsTabIconTexture { get; }
-        public Texture2D IgnoredItemsPanelIconTexture { get; }
+        public Texture2D IgnoredStatsTabIconTexture { get; }
+        public Texture2D IgnoredStatsPanelIconTexture { get; }
         public Texture2D CornerIconTexture { get; }
         public Texture2D CornerIconHoverTexture { get; }
         public Texture2D FallbackTexture { get; }

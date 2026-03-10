@@ -9,11 +9,12 @@ namespace FarmingTracker
 {
     public class ItemDetailsSetter
     {
-        public static async Task SetItemDetailsFromApi(Dictionary<int, Stat> itemById, Gw2ApiManager gw2ApiManager)
+        public static async Task SetItemDetailsFromApi(Stats stats, Gw2ApiManager gw2ApiManager)
         {
-            var itemIdsWithoutDetails = itemById.Values
-                .Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet)
-                .Select(i => i.ApiId)
+            var itemIdsWithoutDetails = stats.GetStats()
+                .Where(s => s.IsItem)
+                .Where(s => s.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet)
+                .Select(s => s.ApiId)
                 .ToList();
             
             if (!itemIdsWithoutDetails.Any())
@@ -57,7 +58,7 @@ namespace FarmingTracker
 
             foreach (var apiPrice in apiPrices)
             {
-                var item = itemById[apiPrice.Id];
+                var item = stats.GetStat(apiPrice.Id, StatType.Item);
                 item.Details.Unsigned_SellsUnitPriceInCopper = apiPrice.Sells.UnitPrice;
                 item.Details.Unsigned_BuysUnitPriceInCopper = apiPrice.Buys.UnitPrice;
             }
@@ -67,7 +68,7 @@ namespace FarmingTracker
 
             foreach (var apiItem in apiItems)
             {
-                var item = itemById[apiItem.Id];
+                var item = stats.GetStat(apiItem.Id, StatType.Item);
                 item.Details.Name = apiItem.Name;
                 item.Details.Description = apiItem.Description ?? "";
                 item.Details.IconAssetId = TextureService.GetIconAssetId(apiItem.Icon);
@@ -75,18 +76,19 @@ namespace FarmingTracker
                 item.Details.ItemFlags = apiItem.Flags;
                 item.Details.Type = apiItem.Type;
                 item.Details.WikiSearchTerm = apiItem.ChatLink;
+                item.Details.ChatLink = apiItem.ChatLink;
                 item.Details.Unsigned_VendorValueInCopper = apiItem.VendorValue;
-                item.Details.State = ApiStatDetailsState.SetByApi;
+                item.Details.State = StatApiDetailsState.SetByApi;
             }
 
-            var itemsUnknownByApi = itemById.Values.Where(i => i.Details.State == ApiStatDetailsState.MissingBecauseApiNotCalledYet).ToList();
+            var itemsUnknownByApi = stats.GetStats().Where(i => i.Details.State == StatApiDetailsState.MissingBecauseApiNotCalledYet).ToList();
             if (itemsUnknownByApi.Any())
             {
                 if(DebugMode.DebugLoggingRequired)
                     Module.Logger.Debug("items      api MISS   " + string.Join(" ", itemsUnknownByApi.Select(i => i.ApiId)));
 
                 foreach (var itemNotFoundByApi in itemsUnknownByApi)
-                    itemNotFoundByApi.Details.State = ApiStatDetailsState.MissingBecauseUnknownByApi;
+                    itemNotFoundByApi.Details.State = StatApiDetailsState.MissingBecauseUnknownByApi;
             }
         }
 

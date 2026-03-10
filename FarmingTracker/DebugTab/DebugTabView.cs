@@ -78,19 +78,18 @@ namespace FarmingTracker
 
         private static DrfMessage ConvertToDrfMessage(Model model)
         {
-            var snapshot = model.Stats.StatsSnapshot;
-            var items = snapshot.ItemById.Values.ToList();
-            var currencies = snapshot.CurrencyById.Values.ToList();
+            var stats = model.Stats.GetStats();
 
             var drfMessage = new DrfMessage();
             drfMessage.Kind = "data";
             drfMessage.Payload.Character = "1";
 
-            foreach (var item in items.Where(s => s.Signed_Count != 0))
-                drfMessage.Payload.Drop.Items.Add(item.ApiId, item.Signed_Count);
+            foreach (var item in stats.Where(s => s.IsItem).Where(s => s.Signed_Count.Value != 0))
+                drfMessage.Payload.Drop.Items.Add(item.ApiId, item.Signed_Count.Value);
 
-            foreach (var currency in currencies.Where(s => s.Signed_Count != 0).Take(DrfWebSocketClient.MAX_CURRENCIES_IN_A_SINGLE_DROP))
-                drfMessage.Payload.Drop.Currencies.Add(currency.ApiId, currency.Signed_Count);
+            // take() prevents that currency drop size is too big and will be ignored
+            foreach (var currency in stats.Where(s => s.IsCurrency).Where(s => s.Signed_Count.Value != 0).Take(DrfWebSocketClient.MAX_CURRENCIES_IN_A_SINGLE_DROP))
+                drfMessage.Payload.Drop.Currencies.Add(currency.ApiId, currency.Signed_Count.Value);
 
             return drfMessage;
         }

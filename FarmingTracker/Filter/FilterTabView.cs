@@ -36,7 +36,7 @@ namespace FarmingTracker
             var collapsibleHelp = new CollapsibleHelp(
                 "- Checked = visible.\n" +
                 "- Unchecked = hidden by filter.\n" +
-                $"- Items hidden by filters are still included in the profit calculation and are still shown in the '{Constants.FAVORITE_ITEMS_PANEL_TITLE}' panel.\n" +
+                $"- Items hidden by filters are still included in the profit calculation and are still shown in the '{Constants.FAVORITES_PANEL_TITLE}' panel.\n" +
                 "- A filter, e.g. rarity filter, will not be applied if all its checkboxes are unchecked. In this case no items will be hidden by the filter.\n" +
                 "- filter icon on filter panel header:\n" +
                 "TRANSPARENT: filter wont hide stats.\n" +
@@ -91,7 +91,7 @@ namespace FarmingTracker
             filterPanels.Add(CreateFilterSettingPanel("Rarity (items)", Constants.ALL_ITEM_RARITIES, _services.SettingService.RarityStatsFilterSetting, _services, _rootFlowPanel));
             filterPanels.Add(CreateFilterSettingPanel("Type (items)", Constants.ALL_ITEM_TYPES, _services.SettingService.TypeStatsFilterSetting, _services, _rootFlowPanel));
             filterPanels.Add(CreateFilterSettingPanel("Flag (items)", Constants.ALL_ITEM_FLAGS, _services.SettingService.FlagStatsFilterSetting, _services, _rootFlowPanel, MATCH_MULTIPLE_OPTION_HINT));
-            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, _rootFlowPanel));
+            filterPanels.Add(CreateFilterSettingPanel("Currencies", Constants.ALL_CURRENCIES, _services.SettingService.CurrencyFilterSetting, _services, _rootFlowPanel, "Coin will never be hidden."));
             filterPanels.Add(CreateFilterSettingPanel("GW2 API (items & currencies)", Constants.ALL_KNOWN_BY_API, _services.SettingService.KnownByApiFilterSetting, _services, _rootFlowPanel, "Coin will never be hidden. Some items like the lvl-80-boost or\ncertain reknown heart items are not known by the GW2 API."));
         }
 

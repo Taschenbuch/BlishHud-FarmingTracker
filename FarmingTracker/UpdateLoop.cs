@@ -28,7 +28,7 @@
             _updateIntervalMs = RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS;
         }
 
-        public void TriggerUpdateStats()
+        public void TriggerInstantUpdateStats()
         {
             _statsHaveToBeUpdated = true;
             _runningTimeMs = _updateIntervalMs; // trigger instant update

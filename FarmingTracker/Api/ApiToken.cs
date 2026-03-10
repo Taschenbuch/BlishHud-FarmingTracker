@@ -31,7 +31,7 @@ namespace FarmingTracker
                     "Otherwise the module gets no GW2 API access from blish.",
                 ApiTokenState.ApiTokenMissing => 
                     $"Error: GW2 Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
-                    "If that does not fix the issue try disabling the module and then enabling it again.",
+                    "If that does not fix the issue try disabling the module and then enabling it again. If that does not help either, restart blish.",
                 ApiTokenState.RequiredPermissionsMissing => 
                     $"Error: GW2 Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\n" +
                     $"Please add a new api key with all required permissions.",

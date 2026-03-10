@@ -49,7 +49,6 @@ namespace FarmingTracker
         {
             _profitPanel.SetCoins(signed_profitInCopper);
             _profitPerHourPanel.SetCoins(signed_profitPerHourInCopper);
-            _profitTooltip.ProfitPerHourPanel.SetCoins(signed_profitPerHourInCopper);
         }
 
         private Label CreateProfitLabel(ProfitTooltip profitTooltip, BitmapFont font, CoinsPanel parent)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace FarmingTracker
 {
@@ -9,10 +10,7 @@ namespace FarmingTracker
     // by using different names for different fileModel versions a version property may not be required here.
     public class FileModel
     {
-        public List<FileStat> FileItems { get; set; } = new List<FileStat>();
-        public List<FileStat> FileCurrencies { get; set; } = new List<FileStat>();
-        public List<int> IgnoredItemApiIds { get; set; } = new List<int>();
-        public List<int> FavoriteItemApiIds { get; set; } = new List<int>();
-        public List<CustomStatProfit> CustomStatProfits { get; set; } = new List<CustomStatProfit>();
+        [JsonProperty("FileStats")]
+        public List<FileStat> FileStats { get; set; } = new List<FileStat>();
     }
 }

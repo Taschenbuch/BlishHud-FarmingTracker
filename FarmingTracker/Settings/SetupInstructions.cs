@@ -17,14 +17,16 @@ namespace FarmingTracker
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Prerequisite:", font);
-            new HintLabel(
+            new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
+                Constants.LABEL_WIDTH,
                 "- Windows 8 or newer because DRF requires websocket technolgy.");
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Setup DRF DLL and DRF account:", font);
-            new HintLabel(
+            new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
+                Constants.LABEL_WIDTH,
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
                 "2. Create a drf account on the website and link it with\nyour GW2 Account(s).");
 
@@ -33,11 +35,12 @@ namespace FarmingTracker
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             var testDrfHeader = "Test DRF DLL and DRF account";
             new HeaderLabel(addDrfTokenFlowPanel, $"{testDrfHeader}:", font);
-            new HintLabel(
+            new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
+                Constants.LABEL_WIDTH,
                 "1. Click the button below to open the DRF web live tracker.\n" +
-                "2. Use this web live tracker to check if the tracking is working.\n" +
-                "e.g. by opening an unidentified gear.\n" +
+                "2. Use this web live tracker to check if the tracking is working. " +
+                "e.g. by opening an unidentified gear. " +
                 "The items should appear almost instantly in the web live tracker.");
 
             new OpenUrlInBrowserButton("https://drf.rs/dashboard/livetracker", "Open DRF web live tracker", buttonTooltip, services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
@@ -87,7 +90,7 @@ namespace FarmingTracker
                 "- Make sure you copied the DRF token into the module with the copy button and CTRL+V as explained above. " +
                 "Otherwise you may accidentally copy only part of the token. " +
                 "In this case the DRF token input above will show you that the format is incomplete/invalid.\n" +
-                "- After you have clicked on 'Regenerate Token' on the DRF website, any old DRF token you may have used previously will become invalid." +
+                "- After you have clicked on 'Regenerate Token' on the DRF website, any old DRF token you may have used previously will become invalid. " +
                 "You must add the new token to the module.");
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
@@ -96,7 +99,7 @@ namespace FarmingTracker
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
                 $"- Currencies and items changes will be shown after the '{Constants.UPDATING_HINT_TEXT}' or '{Constants.RESETTING_HINT_TEXT}' hint disappears. " +
-                $"While those hints are shown the module normally waits for the GW2 API." +
+                $"While those hints are shown the module normally waits for the GW2 API. " +
                 $"If the GW2 API is slow or has a timeout, this can unfortunately take a while.\n" +
                 $"- The DRF DLL sends data to the DRF Server. Then the DRF Server sends data to this module. " +
                 $"If '{Constants.DRF_CONNECTION_LABEL_TEXT}' shows '{DrfConnectionStatusService.DRF_CONNECTED_TEXT}', " +
@@ -162,9 +165,10 @@ namespace FarmingTracker
                 $"- The '{Constants.GW2_API_ERROR_HINT}' hint constantly appears\n" +
                 $"Reason 1: GW2 API is down or instable. " +
                 $"The GW2 API can be very instable in the evening. " +
-                $"This results in frequent GW2 API timeouts.\n" +
-                $"Reason 2: A bug in the GW2 API libary used by this module. " +
-                $"This can only be fixed by restarting Blish HUD.");
+                $"This results in frequent GW2 API timeouts." +
+                $"\nOR\n" +
+                $"Reason 2: A bug in the GW2 API libary used by BlishHUD. " +
+                $"This can only be fixed by restarting BlishHUD.");
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel); // otherwise there is no padding at the bottom
         }

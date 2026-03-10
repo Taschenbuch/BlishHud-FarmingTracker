@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace FarmingTracker
 {
@@ -7,34 +6,27 @@ namespace FarmingTracker
     {
         public static FileModel CreateFileModel(Model model)
         {
-            var fileModel = new FileModel
-            {
-                IgnoredItemApiIds = model.IgnoredItemApiIds.ToListSafe(),
-                FavoriteItemApiIds = model.FavoriteItemApiIds.ToListSafe(),
-                CustomStatProfits = model.CustomStatProfits.ToListSafe(),
-            };
+            var stats = model.Stats.GetStats()
+                .Where(s => s.Signed_Count.Value != 0 || s.StatVisibility != StatVisibility.Regular || s.Profit.HasCustomProfit) // prevents saving too many not tracked stats due to stats reset.
+                .ToList();
 
-            var snapshot = model.Stats.StatsSnapshot;
-            var items = snapshot.ItemById.Values.Where(s => s.Signed_Count != 0).ToList();
-            var currencies = snapshot.CurrencyById.Values.Where(s => s.Signed_Count != 0).ToList();
+            var fileModel = new FileModel();
 
-            var fileItems = CreateFileStats(items);
-            var fileCurrencies = CreateFileStats(currencies);
-
-            fileModel.FileItems.AddRange(fileItems);
-            fileModel.FileCurrencies.AddRange(fileCurrencies);
-
-            return fileModel;
-        }
-
-        private static IEnumerable<FileStat> CreateFileStats(List<Stat> stats)
-        {
             foreach (var stat in stats)
-                yield return new FileStat()
+            {
+                var fileStat = new FileStat
                 {
                     ApiId = stat.ApiId,
-                    Count = stat.Signed_Count,
+                    StatType = stat.StatType,
+                    Signed_Count = stat.Signed_Count.Value,
+                    StatVisibility = stat.StatVisibility,
+                    Unsigned_CustomProfitInCopper = stat.Profit.Unsigned_Custom_ProfitInCopper,
                 };
+
+                fileModel.FileStats.Add(fileStat);
+            }
+
+            return fileModel;
         }
     }
 }

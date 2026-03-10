@@ -1,11 +1,9 @@
 ﻿namespace FarmingTracker
 {
-    public enum CurrencyFilter // not future proof
+    public enum CurrencyFilter
     {
         // Name = CurrencyId
-        GoldCoin = CoinSplitter.GOLD_FAKE_API_ID, // no coin (id: 1) because of coinSplitter
-        SilverCoin = CoinSplitter.SILVER_FAKE_API_ID,
-        CopperCoin = CoinSplitter.COPPER_FAKE_API_ID,
+        // no coin (id: 1) because coin must not be hidden and must not be sorted by the user
         Karma = 2,
         Laurel = 3,
         Gem = 4,

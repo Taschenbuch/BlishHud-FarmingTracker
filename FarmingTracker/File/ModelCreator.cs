@@ -1,62 +1,34 @@
-﻿using System.Collections.Generic;
-
-namespace FarmingTracker
+﻿namespace FarmingTracker
 {
     public class ModelCreator
     {
         public static Model CreateModel(FileModel fileModel)
         {
-            var model = new Model
-            {
-                IgnoredItemApiIds = new SafeList<int>(fileModel.IgnoredItemApiIds),
-                FavoriteItemApiIds = new SafeList<int>(fileModel.FavoriteItemApiIds),
-                CustomStatProfits = new SafeList<CustomStatProfit>(fileModel.CustomStatProfits)
-            };
+            var model = new Model();
 
-            AddStatsToModel(model.Stats.CurrencyById, fileModel.FileCurrencies, StatType.Currency);
-            AddStatsToModel(model.Stats.ItemById, fileModel.FileItems, StatType.Item);
-
-            // add customStatProfits to items and currenciens to get their api data on module startup
-            foreach (var customStatProfit in fileModel.CustomStatProfits)
-            {
-                var statById = customStatProfit.StatType == StatType.Item
-                    ? model.Stats.ItemById
-                    : model.Stats.CurrencyById;
-
-                AddStatToModelIfMissing(statById, customStatProfit.ApiId, customStatProfit.StatType);
-            }
-
-            // add ignoredItems to items to get their api data on module startup
-            foreach (var ignoredItemApiId in fileModel.IgnoredItemApiIds)
-                AddStatToModelIfMissing(model.Stats.ItemById, ignoredItemApiId, StatType.Item);
-
-            model.Stats.UpdateStatsSnapshot();
+            foreach (var fileStat in fileModel.FileStats)
+                AddStatToModel(fileStat, model.Stats);
 
             return model;
         }
-
-        private static void AddStatsToModel(Dictionary<int, Stat> statById, List<FileStat> fileStats, StatType statType)
+        private static void AddStatToModel(FileStat fileStat, Stats stats)
         {
-            foreach (var fileStat in fileStats)
-                statById[fileStat.ApiId] = new Stat
-                {
-                    ApiId = fileStat.ApiId,
-                    StatType = statType,
-                    Signed_Count = fileStat.Count,
-                };
-        }
-
-        private static void AddStatToModelIfMissing(Dictionary<int, Stat> statById, int statId, StatType statType)
-        {
-            if (statById.ContainsKey(statId))
-                return;
-
-            statById[statId] = new Stat
+            var stat = new Stat
             {
-                ApiId = statId,
-                StatType = statType,
-                Signed_Count = 0,
+                ApiId = fileStat.ApiId,
+                StatType = fileStat.StatType,
+                Signed_Count =
+                {
+                    Value = fileStat.Signed_Count,
+                },
+                StatVisibility = fileStat.StatVisibility,
+                Profit = 
+                { 
+                    Unsigned_Custom_ProfitInCopper = fileStat.Unsigned_CustomProfitInCopper 
+                },
             };
+
+            stats.AddStat(stat);
         }
     }
 }

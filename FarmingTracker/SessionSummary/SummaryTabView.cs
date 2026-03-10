@@ -2,7 +2,6 @@
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace FarmingTracker
             _automaticResetService = automaticResetService;
 
             _timeSinceModuleStartStopwatch.Restart();
-            services.UpdateLoop.TriggerUpdateStats();
+            services.UpdateLoop.TriggerInstantUpdateStats();
         }
 
         public void Dispose()
@@ -59,7 +58,7 @@ namespace FarmingTracker
         {
             _controls.StatsPanels.CurrenciesFlowPanel.Width = width;
             _controls.StatsPanels.ItemsFlowPanel.Width = width;
-            _controls.StatsPanels.FavoriteItemsFlowPanel.Width = width;
+            _controls.StatsPanels.FavoriteStatsFlowPanel.Width = width;
             _controls.StatsPanels.ItemsFilterIcon.SetLeft(width);
             _controls.StatsPanels.CurrencyFilterIcon.SetLeft(width);
             _controls.SearchPanel.UpdateSize(width);
@@ -75,11 +74,10 @@ namespace FarmingTracker
                 _isUiUpdateTaskRunning = true;
                 Task.Run(() =>
                 {
-                    var snapshot = _model.Stats.StatsSnapshot;
-                    _services.ProfitCalculator.CalculateProfits(snapshot, _model.CustomStatProfits, _model.IgnoredItemApiIds, _services.FarmingDuration.Elapsed);
+                    _services.ProfitCalculator.CalculateProfits(_model, _services.FarmingDuration.Elapsed);
                     _controls.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
                     _profitWindow.ProfitPanels.ShowProfits(_services.ProfitCalculator.Signed_ProfitInCopper, _services.ProfitCalculator.Signed_ProfitPerHourInCopper);
-                    UiUpdater.UpdateStatPanels(_controls.StatsPanels, snapshot, _model, _services);
+                    UiUpdater.UpdateStatPanels(_controls.StatsPanels, _model, _services);
 
                     _isUiUpdateTaskRunning = false;
                 });
@@ -168,16 +166,14 @@ namespace FarmingTracker
         {
             try
             {
-                StatsService.ResetCounts(_model.Stats.ItemById);
-                StatsService.ResetCounts(_model.Stats.CurrencyById);
-                _model.Stats.UpdateStatsSnapshot();
+                _model.Stats.ResetCounts();
                 _lastStatsUpdateSuccessfull = true; // in case a previous update failed. Because that doesnt matter anymore after the reset.
                 _controls.HintLabel.Text = Constants.FULL_HEIGHT_EMPTY_LABEL;
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
-                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-(";
             }
         }
 
@@ -191,8 +187,8 @@ namespace FarmingTracker
                     return;
 
                 _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
-                await UpdateStatsInModel(drfMessages, _services);
-                _model.Stats.UpdateStatsSnapshot();
+                DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats);
+                await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats, _services.Gw2ApiManager);
                 _services.UpdateLoop.TriggerUpdateUi();
                 _services.UpdateLoop.TriggerSaveModel();
                 _lastStatsUpdateSuccessfull = true;
@@ -209,7 +205,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
-                _controls.HintLabel.Text = $"Module crash. :-("; // todo was tun?
+                _controls.HintLabel.Text = $"Module crash. :-(";
             }
         }
 
@@ -274,12 +270,6 @@ namespace FarmingTracker
                 Module.Logger.Info(apiTokenErrorMessage);
 
             _oldApiTokenErrorTooltip = apiTokenErrorMessage;
-        }
-
-        private async Task UpdateStatsInModel(List<DrfMessage> drfMessages, Services services)
-        {      
-            DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats.ItemById, _model.Stats.CurrencyById);
-            await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats.ItemById, _model.Stats.CurrencyById, services.Gw2ApiManager);
         }
 
         private bool _statsAccessLocked;

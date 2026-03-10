@@ -4,23 +4,24 @@ using System.Collections.Generic;
 namespace FarmingTracker
 {
     // details from gw2 api. DRF has no info about that.
-    public class ApiStatDetails
+    public class StatApiDetails
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public ItemRarity Rarity { get; set; } = ItemRarity.Unknown;
         public ItemType Type { get; set; } = ItemType.Unknown;
-        public ApiFlags<ItemFlag> ItemFlags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown });
+        public ApiFlags<ItemFlag> ItemFlags { get; set; } = new ApiFlags<ItemFlag>(new List<ApiEnum<ItemFlag>>() { ItemFlag.Unknown }); // thread safe, because will never be read before being set.
         public int IconAssetId { get; set; } = TextureService.MISSING_ASSET_ID;
         public long Unsigned_VendorValueInCopper { get; set; }
         public long Unsigned_SellsUnitPriceInCopper { get; set; }
         public long Unsigned_BuysUnitPriceInCopper { get; set; }
         public string WikiSearchTerm { get; set; } = string.Empty;
+        public string ChatLink { get; set; } = string.Empty;
         public bool HasWikiSearchTerm => !string.IsNullOrWhiteSpace(WikiSearchTerm);
-        public ApiStatDetailsState State { get; set; } = ApiStatDetailsState.MissingBecauseApiNotCalledYet;
+        public StatApiDetailsState State { get; set; } = StatApiDetailsState.MissingBecauseApiNotCalledYet;
         public bool IsCustomCoinStat =>
-            State == ApiStatDetailsState.GoldCoinCustomStat
-            || State == ApiStatDetailsState.SilveCoinCustomStat
-            || State == ApiStatDetailsState.CopperCoinCustomStat;
+            State == StatApiDetailsState.GoldCoinCustomStat
+            || State == StatApiDetailsState.SilveCoinCustomStat
+            || State == StatApiDetailsState.CopperCoinCustomStat;
     }
 }

@@ -3,8 +3,8 @@
     public enum PanelType
     {
         SummaryCurrencies,
-        SummaryRegularItems,
-        SummaryFavoriteItems,
-        IgnoredItems,
+        SummaryItems,
+        SummaryFavorites,
+        IgnoredStats,
     }
 }
