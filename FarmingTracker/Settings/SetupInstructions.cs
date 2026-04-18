@@ -22,18 +22,23 @@ namespace FarmingTracker
                 Constants.LABEL_WIDTH,
                 "Windows 8 or newer because DRF requires websocket technolgy.");
 
+            var registerApiKeyHeader = "Register GW2 API key in BlishHUD";
+
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
-            new HeaderLabel(addDrfTokenFlowPanel, "Register GW2 API key in BlishHUD", font);
+            new HeaderLabel(addDrfTokenFlowPanel, registerApiKeyHeader, font);
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
                 "1. Click on the blish icon at the top of the GW2 window to open the blish settings window (NOT the farming tracker icon).\n" +
                 "2. Click on 'Manage API Keys'.\n" +
-                "3. Follow the instructions there to register an GW2 API key in BlishHUD.\n" +
-                "- Make sure you use the correct sign-in button on the ArenaNet website.\n" +
-                "For a Steam or Epic GW2 account, you must click the Steam or Epic icon. Do NOT click the 'SIGN IN' button.\n" +
-                "If your GW2 account is not from Steam or Epic, it is the exact opposite. In that case, you must click the 'SIGN IN' button.\n" +
-                "- Make sure that you grant the GW2 API key all permissions.\n");
+                "3. Follow the instructions there to register an GW2 API key in BlishHUD.\n\n" +
+                "Hints:\n" +
+                "Make sure you use the correct sign-in button on the ArenaNet website.\n" +
+                "- For a Steam or Epic GW2 account, you must click the Steam or Epic icon. Do NOT click the 'SIGN IN' button.\n" +
+                "- If your GW2 account is not from Steam or Epic, it is the exact opposite. In that case, you must click the 'SIGN IN' button.\n" +
+                "- Make sure that you grant the GW2 API key all permissions.");
+            
+            var testDrfHeader = "Test DRF DLL and DRF account";
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Setup DRF DLL and DRF account:", font);
@@ -41,12 +46,22 @@ namespace FarmingTracker
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
                 "1. Click the button below and follow the instructions to setup the drf.dll.\n" +
-                "2. Create a drf account on the website and link it with\nyour GW2 Account(s).");
+                "2. Create a drf account on the website and link it with\nyour GW2 Account(s).\n\n" +
+                "Hints:\n" +
+                "- That the drf.dll is not installed correctly is a common issue. Handling dll based addons for GW2 can be complicated.\n" +
+                "- Tipp: setup the drf.dll using 'Raidcore Nexus' or 'arcdps'. They automatically update the drf.dll for you as well. " +
+                "When using arcdps to setup DRF, a common mistake is that the drf.dll is placed in the wrong folder. e.g. the 'Guild Wars 2/addons/arcdps' folder is the wrong place.\n" +
+                "- If possible, avoid using the addon-loader or GW2-Addon-Manager or GW2-UOAOM. They do not support auto updates and make everything more complicated in general.\n" +
+                "- IMPORTANT: The message 'DRF Server Connection: Connected :-)' at the top of this window, " +
+                "means that your DRF token is working (the DRF token will be explained in a later step). " +
+                "This message does NOT mean that you have setup the drf.dll correctly! " +
+                "The drf.dll sends drop data to the DRF server. This module connects to the DRF server to receive those drop data. " +
+                "So this module does not interact with the drf.dll directly. " +
+                $"The module does not know whether you installed the drf.dll correctly. So make sure you perform the steps in {testDrfHeader}");
 
             new OpenUrlInBrowserButton("https://drf.rs/getting-started", "Open drf.dll setup instructions", buttonTooltip, services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
-            var testDrfHeader = "Test DRF DLL and DRF account";
             new HeaderLabel(addDrfTokenFlowPanel, $"{testDrfHeader}:", font);
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
@@ -71,13 +86,14 @@ namespace FarmingTracker
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Is working? :-) Get the DRF Token:", font);
-            new HintLabel(
+            new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
+                Constants.LABEL_WIDTH,
                 "1. Click the button below to open the drf.rs settings page.\n" +
                 "2. Click on 'Regenerate Token'.\n" +
                 "3. Copy the 'DRF Token' by clicking on the copy icon.\n" +
                 "4. Paste the DRF Token with CTRL + V into the DRF token input above.\n" +
-                "5. Done! Open the first tab again to see the tracked items/currencies :-)");
+                "5. Done! Open the first tab again to see the tracked items/currencies :-).");
 
             new OpenUrlInBrowserButton("https://drf.rs/dashboard/user/settings", "Open DRF web settings", buttonTooltip, services.TextureService.OpenLinkTexture, addDrfTokenFlowPanel);
 
@@ -85,10 +101,11 @@ namespace FarmingTracker
             new HeaderLabel(addDrfTokenFlowPanel, "TROUBLESHOOTING", headerFont);
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
-            new HeaderLabel(addDrfTokenFlowPanel, $"Module shows '{ApiToken.ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT}' but BlishHUD already has API key", font);
+            new HeaderLabel(addDrfTokenFlowPanel, $"Module shows '{ApiToken.ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT}'", font);
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
+                $"First check if you followed the steps in '{registerApiKeyHeader}'.\n\n" +
                 "Sometimes BlishHUD fails to give a module access to the GW2 API key. " +
                 "That can be caused by a GW2 API timeout when BlishHUD is starting or for other unknown reasons. " +
                 "Possible workarounds:\n" +
@@ -100,7 +117,7 @@ namespace FarmingTracker
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
-                "- Make sure you copied the DRF token into the module with the copy button and CTRL+V as explained above. " +
+                " - Make sure you copied the DRF token into the module with the copy button and CTRL+V as explained above. " +
                 "Otherwise you may accidentally copy only part of the token. " +
                 "In this case the DRF token input above will show you that the format is incomplete/invalid.\n" +
                 "- After you have clicked on 'Regenerate Token' on the DRF website, any old DRF token you may have used previously will become invalid. " +
