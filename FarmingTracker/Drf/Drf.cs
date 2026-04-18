@@ -87,7 +87,7 @@ namespace FarmingTracker
 
             _drfWebSocketClient.AuthenticationFailed += (s, e) =>
             {
-                Module.Logger.Warn("AuthenticationFailed");
+                Module.Logger.Warn($"AuthenticationFailed: {e.Data}");
                 SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed);
             };
 
