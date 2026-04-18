@@ -71,7 +71,7 @@ namespace FarmingTracker.DrfWebSocketTest
 
         private static DrfWebSocketClient CreateDrfWebSocket()
         {
-            var drfWebSocketClient = new DrfWebSocketClient();
+            var drfWebSocketClient = new DrfWebSocketClient("test");
             //drfWebSocketClient.WebSocketUrl = "ws://localhost:8080"; // todo debug
 
             drfWebSocketClient.Connecting += (s, e) => Console.WriteLine($"Connecting");
