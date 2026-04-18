@@ -20,7 +20,20 @@ namespace FarmingTracker
             new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
-                "- Windows 8 or newer because DRF requires websocket technolgy.");
+                "Windows 8 or newer because DRF requires websocket technolgy.");
+
+            AddVerticalSpacing(services, addDrfTokenFlowPanel);
+            new HeaderLabel(addDrfTokenFlowPanel, "Register GW2 API key in BlishHUD", font);
+            new FixedWidthHintLabel(
+                addDrfTokenFlowPanel,
+                Constants.LABEL_WIDTH,
+                "1. Click on the blish icon at the top of the GW2 window to open the blish settings window (NOT the farming tracker icon).\n" +
+                "2. Click on 'Manage API Keys'.\n" +
+                "3. Follow the instructions there to register an GW2 API key in BlishHUD.\n" +
+                "- Make sure you use the correct sign-in button on the ArenaNet website.\n" +
+                "For a Steam or Epic GW2 account, you must click the Steam or Epic icon. Do NOT click the 'SIGN IN' button.\n" +
+                "If your GW2 account is not from Steam or Epic, it is the exact opposite. In that case, you must click the 'SIGN IN' button.\n" +
+                "- Make sure that you grant the GW2 API key all permissions.\n");
 
             AddVerticalSpacing(services, addDrfTokenFlowPanel);
             new HeaderLabel(addDrfTokenFlowPanel, "Setup DRF DLL and DRF account:", font);
