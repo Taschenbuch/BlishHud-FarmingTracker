@@ -157,37 +157,34 @@ namespace FarmingTracker
 
         private async void OnDrfTokenSettingChanged(object? sender = null, ValueChangedEventArgs<string>? e = null)
         {
-            var drfToken = _settingService.DrfTokenSetting.Value;
-
-            if (!DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
-            {
-                SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed);
-                return;
-            }
-            
-            await _drfWebSocketClient.Connect(drfToken);
+            FireAndForgetConnectToDrf(true);
         }
 
-        private async void FireAndForgetConnectToDrf()
+        private async void FireAndForgetConnectToDrf(bool tokenIsBeingEdited = false)
         {
             _drfWebSocketClient.WebSocketUrl = _settingService.IsFakeDrfServerUsedSetting.Value
                 ? "ws://localhost:8080"
                 : "wss://drf.rs/ws";
 
+            var drfToken = _settingService.DrfTokenSetting.Value;
+
+            // - prevents that Connect() is spammed while user is typing in the drf token.
             // - prevents that Connect() is performed with empty drf token on every module startup
             // when a user installed the module but never added a drf token and probably doesnt use module at all.
             // Reason: drf backend team complained about connects from this module with empty drf tokens.
             // - DrfConnectionStatus.AuthenticationFailed:
             // this is a bit misleading, because no authentication was performed yet.
             // But the message displayed to the user in this case should be still fine.
-            if (!DrfToken.HasValidFormat(_settingService.DrfTokenSetting.Value))
+            if (!DrfToken.HasValidFormat(drfToken))
             {
+                if(!tokenIsBeingEdited)
+                    Module.Logger.Warn("Connect() is not performed because DRF token is empty or has invalid format.");
+                
                 SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed); 
-                Module.Logger.Warn("Connect() is not performed because DRF token is empty or has invalid format.");
                 return;
             }
             
-            await _drfWebSocketClient.Connect(_settingService.DrfTokenSetting.Value);
+            await _drfWebSocketClient.Connect(drfToken);
         }
 
         private void OnIsFakeDrfServerUsedSettingChanged(object sender, ValueChangedEventArgs<bool> e)
