@@ -132,8 +132,9 @@ namespace FarmingTracker
             HintLabel = new Label
             {
                 Text = Constants.FULL_HEIGHT_EMPTY_LABEL,
+                TextColor = Color.Yellow,
                 Font = services.FontService.Fonts[FontSize.Size14],
-                Width = 250, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
+                Width = 350, // prevents that when window width is small the empty label moves behind the elapsed time label causing the whole UI to move up.
                 AutoSizeHeight = true,
                 Parent = timeAndHintFlowPanel
             };

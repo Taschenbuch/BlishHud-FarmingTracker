@@ -30,7 +30,7 @@ namespace FarmingTracker
                     "Error: You have to log into a character once after starting Guild Wars 2.\n" +
                     "Otherwise the module gets no GW2 API access from blish.",
                 ApiTokenState.ApiTokenMissing => 
-                    $"Error: GW2 Api key missing. Please add an api key with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
+                    $"Error: GW2 Api key missing. Please add an api key in the BlishHUD settings with these permissions: {string.Join(", ", RequiredPermissions)}.\n" +
                     "If that does not fix the issue try disabling the module and then enabling it again. If that does not help either, restart blish.",
                 ApiTokenState.RequiredPermissionsMissing => 
                     $"Error: GW2 Api key is missing these permissions: {string.Join(", ", MissingPermissions)}.\n" +
@@ -89,6 +89,6 @@ namespace FarmingTracker
             TokenPermission.Tradingpost,
         }.AsReadOnly();
 
-        public const string ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT = "Add GW2 API key!";
+        public const string ADD_GW2_API_KEY_ERROR_DISPLAY_TEXT = "Add GW2 API key in BlishHUD Settings!";
     }
 }

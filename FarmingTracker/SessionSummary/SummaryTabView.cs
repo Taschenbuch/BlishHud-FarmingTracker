@@ -97,6 +97,7 @@ namespace FarmingTracker
             if (_resetState != ResetState.NoResetRequired) // at loop start to prevent that reset is delayed by drf or api issues or hintLabel is overriden by api issues
             {
                 _controls.HintLabel.Text = $"{Constants.RESETTING_HINT_TEXT} (this may take a few seconds)";
+                _controls.HintLabel.TextColor = Color.Yellow;
 
                 if (!_statsAccessLocked) // prevents that reset and update modify stats at the same time
                 {
@@ -174,6 +175,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
                 _controls.HintLabel.Text = $"Module crash. :-(";
+                _controls.HintLabel.TextColor = Color.Red;
             }
         }
 
@@ -187,6 +189,7 @@ namespace FarmingTracker
                     return;
 
                 _controls.HintLabel.Text = $"{Constants.UPDATING_HINT_TEXT} (this may take a few seconds)";
+                _controls.HintLabel.TextColor = Color.Yellow;
                 DrfResultAdder.UpdateCountsOrAddNewStats(drfMessages, _model.Stats);
                 await _statsSetter.SetDetailsAndProfitFromApi(_model.Stats, _services.Gw2ApiManager);
                 _services.UpdateLoop.TriggerUpdateUi();
@@ -200,12 +203,14 @@ namespace FarmingTracker
                 _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
                 _controls.HintLabel.Text = $"{Constants.GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
+                _controls.HintLabel.TextColor = Color.Red;
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
                 _controls.HintLabel.Text = $"Module crash. :-(";
+                _controls.HintLabel.TextColor = Color.Red;
             }
         }
 
@@ -242,13 +247,16 @@ namespace FarmingTracker
 
                 LogApiTokenErrorOnce(apiTokenErrorMessage, loadingHintVisible);
 
-                hintLabel.Text = loadingHintVisible
-                    ? "Loading... (this may take a few seconds)"
-                    : $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
-
-                hintLabel.BasicTooltipText = loadingHintVisible
-                    ? ""
-                    : apiTokenErrorMessage;
+                if(loadingHintVisible)
+                {
+                    hintLabel.Text = "Loading... (this may take a few seconds)";
+                    hintLabel.TextColor = Color.Yellow;
+                }
+                else
+                {
+                    hintLabel.Text = $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
+                    hintLabel.TextColor = Color.Red;
+                }
 
                 return;
             }
