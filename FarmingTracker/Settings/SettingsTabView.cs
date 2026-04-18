@@ -2,9 +2,9 @@
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Threading.Tasks;
-using MonoGame.Extended.BitmapFonts;
 
 namespace FarmingTracker
 {
@@ -46,13 +46,14 @@ namespace FarmingTracker
 
             var font = _services.FontService.Fonts[ContentService.FontSize.Size16];
             CreateDrfConnectionStatusLabel(font, _rootFlowPanel);
+            CreateSupportInfoLabel();
             await Task.Delay(1); // hack: this prevents that the collapsed drf token panel is permanently invisible after switching tabs back and forth
             CreateSetupDrfTokenPanel(font, _services, _rootFlowPanel);
 
             var miscSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Misc");
             new SettingControl(miscSettingsFlowPanel, _services.SettingService.WindowVisibilityKeyBindingSetting);
             new AutomaticResetSettingsPanel(miscSettingsFlowPanel, _services);
-            
+
             var countSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Count");
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundOpacitySetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountBackgroundColorSetting);
@@ -60,7 +61,7 @@ namespace FarmingTracker
             new SettingControl(countSettingsFlowPanel, _services.SettingService.NegativeCountTextColorSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountFontSizeSetting);
             new SettingControl(countSettingsFlowPanel, _services.SettingService.CountHoritzontalAlignmentSetting);
-            
+
             var iconSettingsFlowPanel = new SettingsFlowPanel(_rootFlowPanel, "Icon");
             CreateIconSizeDropdown(iconSettingsFlowPanel, _services);
             new SettingControl(iconSettingsFlowPanel, _services.SettingService.NegativeCountIconOpacitySetting);
@@ -89,6 +90,30 @@ namespace FarmingTracker
             _services.SettingService.CountHoritzontalAlignmentSetting.SettingChanged += OnSettingChanged;
             _services.SettingService.NegativeCountIconOpacitySetting.SettingChanged += OnSettingChanged;
             _services.SettingService.RarityIconBorderIsVisibleSetting.SettingChanged += OnSettingChanged;
+        }
+
+        private async void CreateSupportInfoLabel()
+        {
+            var text = $"Character: {GameService.Gw2Mumble.PlayerCharacter.Name}";
+
+            var supportInfoLabel = new Label()
+            {
+                Text = text,
+                AutoSizeWidth = true,
+                AutoSizeHeight = true,
+                Parent = _rootFlowPanel,
+            };
+
+            try 
+            {
+                // may fail when settings window is opened before module got the api key or when api request fails.
+                var account = await _services.Gw2ApiManager.Gw2ApiClient.V2.Account.GetAsync();
+                supportInfoLabel.Text += $" | Account: {account.Name}";
+            }
+            catch
+            {
+                // NOOP
+            }
         }
 
         private void OnSettingChanged<T>(object sender, ValueChangedEventArgs<T> e)
