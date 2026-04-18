@@ -251,11 +251,12 @@ namespace FarmingTracker
                 drfTokenValidationLabel.Text = DrfToken.CreateDrfTokenHintText(drfTokenTextBox.Text);
             };
 
-            var x = new FixedWidthHintLabel(
+            var shareTokenhint= new FixedWidthHintLabel(
                 addDrfTokenFlowPanel,
                 Constants.LABEL_WIDTH,
                 "Do NOT share your DRF Token! Make sure it is not visible in screenshots!");
-            x.TextColor = Color.Red;
+
+            shareTokenhint.TextColor = Constants.RED;
 
             SetupInstructions.CreateSetupInstructions(font, addDrfTokenFlowPanel, _services);
         }

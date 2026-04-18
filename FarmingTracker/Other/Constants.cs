@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using Gw2SharpType = Gw2Sharp.WebApi.V2.Models;
 
 namespace FarmingTracker
 {
     public class Constants
     {
+        public static readonly Color RED = new Color(255, 120, 120);
         public const int PANEL_WIDTH = 500; // prevents overlap with window scrollbar
         public const int LABEL_WIDTH = PANEL_WIDTH - 20;
         public const int SCROLLBAR_WIDTH_OFFSET = 30;

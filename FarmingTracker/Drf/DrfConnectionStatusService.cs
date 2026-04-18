@@ -15,10 +15,10 @@ namespace FarmingTracker
                     return Color.LightGreen;
                 case DrfConnectionStatus.Disconnected:
                 case DrfConnectionStatus.AuthenticationFailed:
-                    return RED;
+                    return Constants.RED;
                 default:
                     Module.Logger.Error(Helper.CreateSwitchCaseNotFoundMessage(drfConnectionStatus, nameof(DrfConnectionStatus), "white"));
-                    return RED;
+                    return Constants.RED;
             }
         }
 
@@ -62,6 +62,5 @@ namespace FarmingTracker
 
         public const string DRF_CONNECTED_TEXT = "Connected";
         private const string SMILEY_VERTICAL_SPACE = "  ";
-        private static readonly Color RED = new Color(255, 120, 120);
     }
 }

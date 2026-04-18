@@ -175,7 +175,7 @@ namespace FarmingTracker
             {
                 Module.Logger.Error(exception, $"{nameof(ResetStats)} failed.");
                 _controls.HintLabel.Text = $"Module crash. :-(";
-                _controls.HintLabel.TextColor = Color.Red;
+                _controls.HintLabel.TextColor = Constants.RED;
             }
         }
 
@@ -203,14 +203,14 @@ namespace FarmingTracker
                 _services.UpdateLoop.UseRetryAfterApiFailureUpdateInterval();
                 _lastStatsUpdateSuccessfull = false;
                 _controls.HintLabel.Text = $"{Constants.GW2_API_ERROR_HINT}. Retry every {UpdateLoop.RETRY_AFTER_API_FAILURE_UPDATE_INTERVAL_MS / 1000}s";
-                _controls.HintLabel.TextColor = Color.Red;
+                _controls.HintLabel.TextColor = Constants.RED;
             }
             catch (Exception exception)
             {
                 Module.Logger.Error(exception, $"{nameof(UpdateStats)} failed.");
                 _lastStatsUpdateSuccessfull = false;
                 _controls.HintLabel.Text = $"Module crash. :-(";
-                _controls.HintLabel.TextColor = Color.Red;
+                _controls.HintLabel.TextColor = Constants.RED;
             }
         }
 
@@ -255,7 +255,7 @@ namespace FarmingTracker
                 else
                 {
                     hintLabel.Text = $"{apiToken.CreateApiTokenErrorLabelText()} Retry every {UpdateLoop.WAIT_FOR_API_TOKEN_UPDATE_INTERVALL_MS / 1000}s";
-                    hintLabel.TextColor = Color.Red;
+                    hintLabel.TextColor = Constants.RED;
                 }
 
                 return;
