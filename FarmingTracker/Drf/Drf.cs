@@ -160,6 +160,11 @@ namespace FarmingTracker
             FireAndForgetConnectToDrf(true);
         }
 
+        private void OnIsFakeDrfServerUsedSettingChanged(object sender, ValueChangedEventArgs<bool> e)
+        {
+            FireAndForgetConnectToDrf();
+        }
+
         private async void FireAndForgetConnectToDrf(bool tokenIsBeingEdited = false)
         {
             _drfWebSocketClient.WebSocketUrl = _settingService.IsFakeDrfServerUsedSetting.Value
@@ -185,11 +190,6 @@ namespace FarmingTracker
             }
             
             await _drfWebSocketClient.Connect(drfToken);
-        }
-
-        private void OnIsFakeDrfServerUsedSettingChanged(object sender, ValueChangedEventArgs<bool> e)
-        {
-            FireAndForgetConnectToDrf();
         }
 
         private readonly SettingService _settingService;
