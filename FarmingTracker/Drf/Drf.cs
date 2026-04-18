@@ -13,7 +13,7 @@ namespace FarmingTracker
             _drfWebSocketClient = new DrfWebSocketClient(moduleVersion);
             _settingService = settingService;
             InitializeEventHandlers();
-            FireAndForgetConnectToDrf(); // To trigger at least one connect on startup without drf token validation. This prevents that the module starts in "Disconnected" state.
+            FireAndForgetConnectToDrf(); // This prevents that the module starts in "Disconnected" state.
             settingService.DrfTokenSetting.SettingChanged += OnDrfTokenSettingChanged;
             settingService.IsFakeDrfServerUsedSetting.SettingChanged += OnIsFakeDrfServerUsedSettingChanged;
         }
@@ -159,8 +159,13 @@ namespace FarmingTracker
         {
             var drfToken = _settingService.DrfTokenSetting.Value;
 
-            if (DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
-                await _drfWebSocketClient.Connect(drfToken);
+            if (!DrfToken.HasValidFormat(drfToken)) // prevents that Connect() is spammed while user is typing in the drf token.
+            {
+                SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed);
+                return;
+            }
+            
+            await _drfWebSocketClient.Connect(drfToken);
         }
 
         private async void FireAndForgetConnectToDrf()
@@ -169,6 +174,19 @@ namespace FarmingTracker
                 ? "ws://localhost:8080"
                 : "wss://drf.rs/ws";
 
+            // - prevents that Connect() is performed with empty drf token on every module startup
+            // when a user installed the module but never added a drf token and probably doesnt use module at all.
+            // Reason: drf backend team complained about connects from this module with empty drf tokens.
+            // - DrfConnectionStatus.AuthenticationFailed:
+            // this is a bit misleading, because no authentication was performed yet.
+            // But the message displayed to the user in this case should be still fine.
+            if (!DrfToken.HasValidFormat(_settingService.DrfTokenSetting.Value))
+            {
+                SetDrfConnectionStatus(DrfConnectionStatus.AuthenticationFailed); 
+                Module.Logger.Warn("Connect() is not performed because DRF token is empty or has invalid format.");
+                return;
+            }
+            
             await _drfWebSocketClient.Connect(_settingService.DrfTokenSetting.Value);
         }
 
