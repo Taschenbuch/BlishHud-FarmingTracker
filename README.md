@@ -1,3 +1,6 @@
+# Archived
+This module is no longer being maintained by me but the BlishHUD community has access to the code and may maintain it.
+
 # BlishHud-FarmingTracker
 Guild Wars 2 Blish HUD module that allows tracking of farmed items and currencies
 
